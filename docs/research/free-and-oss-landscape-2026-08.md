@@ -49,10 +49,10 @@ whole real project.*
 
 ## What we adopt from this
 
-1. **License = MIT recommended** (decision pending Shawn). DMAIC.io's AGPL
-   scares off exactly the evaluator audience a portfolio piece wants
-   reading the code. MIT maximizes the "why is this free?" effect.
-   (Ruled-out alternative recorded when decided.)
+1. **License: Apache 2.0 — ruled by Shawn 2026-08-04** (chosen over the
+   MIT recommendation and over AGPL). Permissive with explicit patent
+   language; DMAIC.io's AGPL scares off exactly the evaluator audience a
+   portfolio piece wants reading the code.
 2. **DMAIC.io validates the offline-HTML distribution path** — de-risks the
    stlite fallback in PLAN.md §7 if the clean-machine gate fails.
 3. **Extra cheap cross-check:** benchmark our stats outputs against
