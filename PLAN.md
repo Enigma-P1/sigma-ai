@@ -1,8 +1,7 @@
 # Sigma AI — Green Belt in a Box: v1 Build Plan
 
-> Status: DRAFT v3 — external review round 2: Grok SOUND ("good to build"),
-> GPT FLAWED on five narrowed points, all addressed in this revision.
-> Review history in §12.
+> Status: APPROVED FOR BUILD — external review converged at round 3 of 4:
+> GPT SOUND, Grok SOUND ("good to build"). Review history in §12.
 > Supersedes the tool-scope portion of the 2026-04-22 scoping in the vault
 > (`Personal-AI/context/projects/sigma-ai.md`); carries its architecture forward.
 
@@ -553,3 +552,13 @@ resolution is exactly what milestone 0 exists to produce, and the
 acceptance contract now states which way conflicts resolve. Data-import
 validation detail (missing values, units, duplicates) is implementation
 detail scheduled under M2's Data Collection Plan and import work.
+
+**Round 3 (2026-08-04) — GPT: SOUND ("prior plan-level gaps are
+addressed; remaining concerns are execution questions explicitly assigned
+to milestones and gates"). Grok: SOUND ("good to build; remaining
+concerns are milestone-scoped implementation work or resource deps, not
+plan holes").** Both reviewers in agreement — the loop closes at round 3
+of the 4 allowed. Transcripts: `runs/2026-08-04-round-3-*.md` (note: the
+saved round-3 file holds the Grok retry; GPT's round-3 verdict is quoted
+here from the live run — its first attempt saved then was overwritten by
+the Grok network-retry using the same filename).
