@@ -120,6 +120,7 @@ labeled as such in-app.
 | Improve | Solution Selection Matrix | Impact/effort grid + weighted-criteria matrix; solutions must link to verified causes or get flagged |
 | Improve | Pilot Plan | A small study designer, not a form, teaching **basic Green Belt pilot discipline** (this is GB material, not deferred DOE): what changes and what it's compared against (before-period or parallel comparison), who/what is included and how selected, run order randomized where feasible, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. Multi-factor questions, factorial designs, power analysis = named Black Belt exits. |
 | Improve | Before/After Proof | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. |
+| Improve | Simple Experiment Planner (DOE-lite) | **Added by Shawn's ruling 2026-08-04** (resolving the GPT round-1/2 disagreement in favor of a tool): when the fix has several moving parts, a guided 2-level experiment for 2–3 factors — the tool builds the run table, randomizes run order, and computes main effects deterministically (plain-English effect chart, basic interaction view as a caution signal, no regression modeling). Hard honesty rails: minimum-runs check before it will analyze, "one run per condition proves little" warnings, and anything beyond 3 factors / 2 levels / simple interactions exits by name to a Black Belt. The advisor helps *plan and interpret*; the tool computes — consistent with "tool use lives in the product, AI gives advice." Full/fractional factorial DOE beyond this stays v2. |
 | Control | Control Charts | v1 families: **I-MR** (continuous) and **p** (attribute) — the two a Green Belt actually reaches for — selector driven by data type; constants from published tables; Western Electric rules with a conservative default subset (rules 1–4) to limit false alarms; limits frozen from baseline and recalculated only on deliberate, logged decision |
 | Control | Control Plan + Response Plan (OCAP) | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path |
 | Control | Standard Work / SOP | The improved method written down so it survives the author |
@@ -134,8 +135,8 @@ correlation + simple linear regression as a guided tool; second demo project
 polish beyond what §4.4 requires.
 
 Deferred to v2 (Black-Belt-tier or specialist): full multi-operator Gage
-R&R, DOE, Multi-Vari, VSM future-state, EWMA/CUSUM, Monte Carlo, QFD,
-Taguchi, TRIZ. The coach can *explain* any of them; the suite only
+R&R, DOE beyond the 2-level/2–3-factor planner, Multi-Vari, VSM
+future-state, EWMA/CUSUM, Monte Carlo, QFD, Taguchi, TRIZ. The coach can *explain* any of them; the suite only
 *generates* what it can generate correctly.
 
 ### 4.2 The Tool Picker — "what do I use now?"
@@ -224,9 +225,20 @@ the mistake is half the teaching.
 
 ### 5.1 In-app advisor modes
 
+**The advisor's center of gravity is advice on the problem and its
+remedies — not tool operation** (Shawn, 2026-08-04). Tool use lives in the
+product: forms, decision trees, and computation are Layer 1's job, and the
+suite should never need AI to be usable. What the advisor uniquely adds is
+the thing templates can't: Black Belt-grade judgment on *your* situation.
+The reason its answers are sharp instead of generic-chatbot noise is
+structural — the app assembles the framework-shaped context (charter,
+verified causes with their evidence, computed baselines, constraints) and
+asks the expert question *for* the user, so they never have to figure out
+what to ask or sort through pages of filler.
+
 The advisor is context-aware: every call carries the current phase, the
 current artifact's JSON, and the computed stats as **facts in the prompt** —
-the model explains and critiques; it never calculates. Four modes:
+the model explains and critiques; it never calculates. Five modes:
 
 1. **Review my artifact.** Grades the artifact against the same published
    rubric shown in the tool's "what good looks like" panel. Output is
@@ -243,6 +255,17 @@ the model explains and critiques; it never calculates. Four modes:
    the standard tollgate questions for that phase against the actual
    artifacts, and gives a go / go-with-actions / no-go recommendation with
    reasons. The user can always override — it's an advisor, not a lock.
+5. **What do I do about this? (the remedy advisor — the flagship mode.)**
+   Once causes are verified, the app sends the full evidence picture —
+   problem, process, verified causes and their supporting data, constraints
+   the user has stated (budget, headcount, what can't change) — and the
+   advisor returns ranked candidate remedies with plain-English reasoning:
+   why each fits the verified cause, what it costs, what could go wrong,
+   what to pilot first and how to know it worked. Output feeds directly
+   into the Solution Selection Matrix and Pilot Plan. This is where the
+   "Black Belt in your pocket" promise actually lives — the experience gap
+   between belts is mostly *knowing what to do about a proven cause*, and
+   this mode is aimed at exactly that gap.
 
 Mechanics that keep the advisor honest and affordable:
 
@@ -335,6 +358,13 @@ a vibe — and it's proven by traceability, not citation-dropping:
 
 ## 7. Deployment and distribution
 
+**License: Apache 2.0** (Shawn's ruling 2026-08-04) — permissive like MIT
+with explicit patent language; friendly to every evaluator audience and
+deliberately unlike nearest-neighbor DMAIC.io's AGPL. This is a free
+showpiece by design: the README says so, with an honest comparison table
+against the free alternatives (stats toolboxes, template packs, chatbot
+coaches — see `docs/research/free-and-oss-landscape-2026-08.md`).
+
 Unchanged from April: **local install, not hosted.** Python + Streamlit,
 `pip install sigma-ai` then `sigma-ai` (a console entry point that launches
 Streamlit — one command, not two). No server, no accounts, no hosting costs;
@@ -401,12 +431,14 @@ phase (both reviewers called back-loaded proof the plan's structural risk):
    misuse), so it gets a real user before Analyze is built.
 3. **Analyze.** Fishbone/5 Whys, FMEA, hypothesis selector + tests (with
    effect sizes/CIs), printed decision-tree flowcharts.
-4. **Improve + Control.** Solution matrix, pilot designer, before/after
-   proof, I-MR + p charts + constants + Western Electric rules, Control
-   Plan/OCAP, Standard Work, A3 narrative builder, tollgate checklists,
-   Print Shop demo project completed across the attribute path.
-5. **Layer 2.** Advisor (4 modes + pre-score wiring + context budget),
-   validator pass, prompt pack, paste-ready export.
+4. **Improve + Control.** Solution matrix, pilot designer, Simple
+   Experiment Planner (DOE-lite), before/after proof, I-MR + p charts +
+   constants + Western Electric rules, Control Plan/OCAP, Standard Work,
+   A3 narrative builder, tollgate checklists, Print Shop demo project
+   completed across the attribute path.
+5. **Layer 2.** Advisor (5 modes, remedy advisor as the flagship +
+   pre-score wiring + context budget), validator pass, prompt pack,
+   paste-ready export.
 6. **Proof + polish.** Full high-schooler golden-scenario evals (§9),
    independent Belt review of rubric + outputs, final fidelity pass, install
    guides, demo video, README and architecture writeup.
@@ -421,7 +453,10 @@ Deterministic gates first, judgment gates second:
 - **Stats correctness:** every computed statistic tested against
   NIST/SEMATECH reference datasets and published worked examples (control
   chart constants, capability indices, test statistics). These are unit
-  tests; they run in CI; they are the final authority on the math.
+  tests; they run in CI; they are the final authority on the math. As a
+  cheap extra cross-check, spot-verify outputs against DMAIC.io and the
+  Qualica Excel templates (independent open implementations of the same
+  formulas).
 - **Golden scenarios:** three complete projects with datasets (the Coffee
   Bar demo plus two held-out scenarios — one attribute-data/defects, one
   continuous-data/cycle-time). A scripted walkthrough drives each through all
@@ -480,7 +515,12 @@ Named explicitly so nothing changes silently:
 
 ## 11. Open decisions for Shawn
 
-None blocking the build. Two worth a ruling when convenient:
+**Ruled 2026-08-04:** Simple Experiment Planner (DOE-lite) is IN v1 (Shawn
+chose the tool over advice-only — resolving the GPT disagreement); license
+is **Apache 2.0**; the advisor's flagship mode is remedy advice (§5.1) —
+tool use belongs to the product, AI is for judgment on the problem.
+
+Still open, not blocking. Two worth a ruling when convenient:
 
 1. **Name/positioning of the free packs.** The PDF template pack + prompt
    pack as a standalone free download is a distribution decision (great
