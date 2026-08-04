@@ -1,7 +1,8 @@
 # Sigma AI — Green Belt in a Box: v1 Build Plan
 
-> Status: DRAFT v2 — revised after external review round 1 (GPT: FLAWED,
-> Grok: SOUND-WITH-FIXES). Changes from round 1 logged in §12.
+> Status: DRAFT v3 — external review round 2: Grok SOUND ("good to build"),
+> GPT FLAWED on five narrowed points, all addressed in this revision.
+> Review history in §12.
 > Supersedes the tool-scope portion of the 2026-04-22 scoping in the vault
 > (`Personal-AI/context/projects/sigma-ai.md`); carries its architecture forward.
 
@@ -21,13 +22,26 @@ analysis, tested improvement, control plan, final report — that a certified
 Black Belt grading against a Green Belt rubric would pass. This is not a
 metaphor; it is the shipping gate (see §9).
 
+**The acceptance contract, stated once so scope and claim can't drift
+apart:** the quality bar — Green Belt-grade work on everything the suite
+covers — is fixed and never softens. The *coverage list* is what flexes,
+and only visibly: milestone 0's traceability matrix (§6) names exactly
+which BoK items v1 covers, which are explain-only, and which exit to a
+human expert; the rubric grades against that declared scope; and if the
+matrix shows a genuinely-required Green Belt capability missing from the
+tool list, the tool list grows — the matrix corrects the plan, not the
+other way around. Marketing language follows the matrix ("covers the
+Green Belt core; the gaps are named"), never "full coverage" by assertion.
+
 Two honesty clauses on that claim: the suite teaches and enforces Green Belt
 **method**; it does not confer certification and will never claim to (the
 README and app say so plainly). And when a project runs past Green Belt
 territory — unstable process that won't stabilize, measurement system that
 fails, a question needing designed experiments — the suite's job is to say
 so by name and route to a human expert, not to fake an answer. "This needs
-a Black Belt" is a first-class output, not a failure state.
+a Black Belt" is a first-class output, not a failure state. The README also
+carries one policy sentence: outputs are working documents, not
+certification evidence and not validation for regulated processes.
 
 What separates a Black Belt is judgment built from experience. The suite
 cannot ship experience, so it ships the next best thing: an AI advisor
@@ -103,9 +117,9 @@ labeled as such in-app.
 | Measure | Pareto / Histogram / Run Chart | matplotlib; auto-annotated (80/20 line, distribution shape notes, standard runs rules for trends/shifts) |
 | Analyze | Fishbone (6M) + 5 Whys | Structured capture with 6M categories; every candidate cause carries an evidence field — "what data supports this?" — unproven causes visibly flagged; verified-cause status feeds Improve |
 | Analyze | FMEA (process) | Failure modes worksheet with industry-standard 1–10 severity/occurrence/detection anchor scales (generic wording, no licensed text), risk table sorted severity-first then RPN, with the known RPN limitation stated (equal RPNs are not equal risks; high severity never ignorable), action tracking. The "documenting failures" centerpiece. |
-| Analyze | Hypothesis Testing (guided) | Rule-based selector, deliberately narrow: 2-sample t / paired t / one-way ANOVA / chi-square (2-proportion), with Mann-Whitney as the stated nonparametric fallback. Routes on the question and data structure first (what are you comparing? paired or independent? continuous or count?), assumptions second. Output always includes effect size + confidence interval + practical-vs-statistical significance in plain English, never a bare p-value. Cases outside the tree (repeated measures, >1 factor, rates with exposure, regression beyond eyeballing a scatter plot) get a named exit: "this needs a Black Belt / v2 — here's why." |
+| Analyze | Hypothesis Testing (guided) | Rule-based selector, deliberately narrow: 2-sample t (Welch by default — no equal-variance assumption to trip on) / paired t / one-way ANOVA / chi-square or 2-proportion, with Mann-Whitney and Wilcoxon signed-rank as the stated nonparametric fallbacks. Routes on the question and data structure first (what are you comparing? paired or independent? continuous or count?), assumptions second. Output always includes effect size + confidence interval + practical-vs-statistical significance in plain English, never a bare p-value. **The selector's unsupported-case list is enumerated, not vibes:** the M0 matrix lists every route as supported / detected-and-exits (small n below stated floors, sparse cells, repeated measures, autocorrelated data, >1 factor, rates with exposure, multiple simultaneous comparisons) — an inexperienced user can receive a result or a named exit, never a formally-computed-but-wrong answer for a case the tree knows it can't handle. ANOVA-significant gets a canned next step ("these groups differ overall; comparing specific pairs fairly needs a correction — guided pairwise comparisons ship in v1.1; here's the honest interim read"). |
 | Improve | Solution Selection Matrix | Impact/effort grid + weighted-criteria matrix; solutions must link to verified causes or get flagged |
-| Improve | Pilot Plan | A small study designer, not a form: what changes, where, how long, success threshold and analysis plan declared **before** data collection; a confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) that carries into the proof |
+| Improve | Pilot Plan | A small study designer, not a form, teaching **basic Green Belt pilot discipline** (this is GB material, not deferred DOE): what changes and what it's compared against (before-period or parallel comparison), who/what is included and how selected, run order randomized where feasible, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. Multi-factor questions, factorial designs, power analysis = named Black Belt exits. |
 | Improve | Before/After Proof | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. |
 | Control | Control Charts | v1 families: **I-MR** (continuous) and **p** (attribute) — the two a Green Belt actually reaches for — selector driven by data type; constants from published tables; Western Electric rules with a conservative default subset (rules 1–4) to limit false alarms; limits frozen from baseline and recalculated only on deliberate, logged decision |
 | Control | Control Plan + Response Plan (OCAP) | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path |
@@ -239,8 +253,10 @@ Mechanics that keep the advisor honest and affordable:
   which also keeps context small.
 - **Context budget.** Tollgate reviews get artifact summaries plus the
   pre-score, not the full project dump; any artifact the model wants in full
-  it asks for by ID. Token cost per review is measured in M5 and kept under a
-  stated ceiling.
+  it asks for by ID. Provisional ceiling: ~30k tokens in / ~4k out per
+  tollgate review (roughly a few cents per call at current pricing);
+  measured and tuned in M5, but the architecture is designed to that budget
+  from the start.
 - **Injection defense.** User-entered fields and imported file content are
   data, never instructions: delimited and tagged in prompts, and the advisor's
   system prompt treats artifact content as untrusted quoted material.
@@ -331,13 +347,18 @@ can't get past setup never reaches DMAIC, and the §9 test gets quietly
 selection-biased toward people who can. So packaging is a **gated milestone-1
 requirement, not a polish item**:
 
-- **The clean-machine test, at M1:** a stock Windows machine and a stock Mac,
-  no dev tools, a written 5-step install guide, a non-developer tester. If
-  install doesn't succeed in ~15 minutes, the packaging approach changes
-  **before** the remaining tools are built — fallback order: bundled-Python
-  installer (e.g. Briefcase/PyInstaller-style) → stlite (Streamlit fully
-  in-browser; "downloadable" becomes "open an HTML file"). The stack choice
-  survives only if it passes the same bar the product claims.
+- **The clean-machine test, at M1, with a precise pass/fail:** a stock
+  Windows machine and a stock Mac, **no Python preinstalled**, fresh user
+  account, normal internet access, a written install guide, a non-developer
+  tester. Pass = within 15 minutes the tester reaches the Project Picker
+  with demo data open **and** a stats smoke check passes on that same
+  machine (the engine runs one NIST-verified calculation — so "UI installs
+  but the math engine doesn't" can't produce a false green). Fail → the
+  packaging approach changes **before** the remaining tools are built —
+  fallback order: bundled-Python installer (Briefcase/PyInstaller-style) →
+  stlite (Streamlit fully in-browser). Either fallback is adopted only
+  after a feasibility spike proves the scipy/statsmodels/PDF paths actually
+  run on it — no betting the stats engine on an untested runtime.
 - ReportLab over WeasyPrint (§4.5) removes the worst system-dependency risk
   up front; remaining deps (Streamlit, scipy, matplotlib, pydantic) all ship
   as ordinary wheels.
@@ -358,8 +379,14 @@ Testing and fidelity checks ride along per milestone — they are not a final
 phase (both reviewers called back-loaded proof the plan's structural risk):
 
 0. **Traceability matrix + rubric.** The BoK→tool→source→rubric→golden
-   matrix (§6), the Green Belt grading rubric drafted, tool list corrected
-   against the matrix. No app code before this exists.
+   matrix (§6) against **pinned editions** of the ASQ CSSGB BoK and IASSC
+   syllabus (editions named in the matrix header), the Green Belt grading
+   rubric drafted, tool list corrected against the matrix, the "Tier A done
+   means" checklist frozen (helper frame + rubric items + ≥1 golden +
+   decision tree if routed + export/provenance — so "full polish" can't
+   quietly thin under schedule pressure), and the **independent Belt
+   reviewer identified now**, not at M6 — the rubric locks only after
+   their pass. No app code before this exists.
 1. **Skeleton + Define + the packaging gate.** App shell, project save/load
    (JSON folder + provenance objects), soft/hard gate state machine, Project
    Picker, Charter, SIPOC, VoC/CTQ, Coffee Bar demo data, PDF export for one
@@ -399,7 +426,9 @@ Deterministic gates first, judgment gates second:
 - **Golden scenarios:** three complete projects with datasets (the Coffee
   Bar demo plus two held-out scenarios — one attribute-data/defects, one
   continuous-data/cycle-time). A scripted walkthrough drives each through all
-  19 tools; the outputs are frozen as goldens and diffed on every change.
+  every Tier-A tool (the inventory is the M0 matrix's tool list — one
+  authoritative count, no drift between milestones, rubric, and goldens);
+  outputs are frozen as goldens and diffed on every change.
 - **The high-schooler test, literally:** untrained testers (target 3–5;
   minimum two — a teenager and a non-ops adult; Shawn sources) each run a
   held-out scenario using only the suite, with task-level failure logging
@@ -411,7 +440,14 @@ Deterministic gates first, judgment gates second:
   Scenario datasets are pre-collected and realistic (the test measures the
   suite, not the tester's ability to gather data); a stall inside the
   suite's guidance is a v1 bug, a stall outside its stated scope goes to the
-  failure log for a scope ruling.
+  failure log for a scope ruling. Two additions so the test measures the
+  actual §1 claim, not just scenario-following: **at least one tester runs a
+  real problem of their own with their own data** (graded on method quality
+  given their data, since the data can't be controlled), and **one held-out
+  scenario deliberately requires a named exit** (a measurement check that
+  should fail, or a question needing a Black Belt) — recognizing the exit
+  is part of the pass bar, so honesty paths get graded, not just the happy
+  path.
 - **Advisor evals:** a frozen set of artifact-review and tollgate calls with
   known-defective artifacts — crude defects (solution-shaped problem
   statement, fishbone with zero evidence) *and* subtle Green-Belt-fail
@@ -489,3 +525,31 @@ is honest named exits and limitation flags, not more statistics an
 untrained user can't wield (§1, §4.1). Grok's "make zero-install the v1
 default" is handled as the M1 packaging gate rather than a pre-commitment —
 same risk, addressed earlier, without betting the stack on stlite untested.
+
+**Round 2 (2026-08-04) — GPT: FLAWED (narrowed to five points). Grok:
+SOUND ("good to build"; both §12 pushbacks upheld).** Transcripts:
+`runs/2026-08-04-round-2-*.md`.
+
+Accepted and folded in: the acceptance contract — fixed quality bar,
+matrix-governed coverage list, matrix corrects the plan (§1); **basic pilot
+discipline reclassified as Green Belt scope** and built into the Pilot
+designer (run order, selection, comparison definition, falsification line) —
+GPT was right that wholesale DOE deferral swept in things a GB does do,
+and Grok concurred (§4.1); enumerated unsupported-case detection for the
+test selector with Welch default and Wilcoxon fallback (§4.1); ANOVA
+next-step guidance (§4.1); tool-count ambiguity removed — the M0 matrix
+inventory is the one authoritative list (§9); bring-your-own-problem
+tester + a should-exit scenario in the eval (§9); precise install
+pass/fail (no Python preinstalled, fresh account, 15 min, stats smoke
+check) + fallback feasibility spikes (§7); pinned BoK editions, Belt
+reviewer identified at M0, "Tier A done means" checklist frozen at M0
+(§8); provisional advisor token budget (§5.1); non-certification /
+non-regulated-use policy sentence (§1).
+
+Remaining GPT items not adopted as written: demands to resolve
+matrix-level coverage questions (exact BoK edition contents, whether the
+rubric requires X-bar/R or regression) inside this plan document — that
+resolution is exactly what milestone 0 exists to produce, and the
+acceptance contract now states which way conflicts resolve. Data-import
+validation detail (missing values, units, duplicates) is implementation
+detail scheduled under M2's Data Collection Plan and import work.
