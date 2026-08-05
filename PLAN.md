@@ -66,9 +66,17 @@ first-class, unchanged from April.
 
 ## 3. Product shape — two layers
 
-**Layer 1 — the tool suite.** A local app (Python/Streamlit) containing every
-tool a Green Belt uses: guided forms, decision trees, deterministic statistics,
-charts, and field-by-field instructions. **Layer 1 is fully functional with no
+**Layer 1 — the tool suite.** A local desktop app — Python statistics engine
+(FastAPI + scipy/statsmodels, unchanged in role) with a real web interface
+(React + Konva canvas + Plotly.js), shipped as a single double-click
+installer (Tauri with a packaged Python sidecar; no Python install on the
+user's machine). Stack ruled by Shawn 2026-08-04 after the modern-UX
+research (`docs/research/modern-ops-tools-and-ux-2026-08.md`): Streamlit's
+interactivity ceiling would have capped exactly the tools the "slick, not
+spreadsheet hell" bar cares about — the spaghetti tracer, drag-and-drop
+process maps, the fishbone canvas. It contains every tool a Green Belt uses:
+guided forms, decision trees, deterministic statistics, charts, and
+field-by-field instructions. **Layer 1 is fully functional with no
 AI and no internet.** A student with no API key still gets the complete suite:
 every template, every chart, every decision tree, every instruction, and a
 complete worked example. This matters because the deterministic core is what
@@ -108,15 +116,20 @@ labeled as such in-app.
 
 | Phase | Tool | How it works |
 |---|---|---|
-| Intake | Project Picker | Before DMAIC starts: is this a good first project? Scoped narrow enough, measurable outcome, data obtainable, a process owner who cares, plausible business impact. Kills the "pet project / boil the ocean" failure the research ranks above statistics. |
+| Intake | Project Picker | Before DMAIC starts: is this a good first project? Scoped narrow enough, measurable outcome, data obtainable, a process owner who cares, plausible business impact. Kills the "pet project / boil the ocean" failure the research ranks above statistics. Also routes small problems to the **PDCA quick path** — a lightweight plan-do-check-act track (charter-lite, one fix, one check) for wins that don't warrant full DMAIC rigor; practitioners abandon tools that force ceremony on small problems. |
+| Define | COPQ / Benefit Calculator | Guided cost-of-poor-quality worksheet — scrap, rework, overtime, expediting, lost business — turning the problem into dollars, the language leadership hears. Feeds the charter's business-impact field; re-run at Wrap for realized benefits on the A3. |
 | Define | Project Charter | Guided form: problem statement builder (what/where/when/magnitude — no causes, no solutions), SMART goal, scope in/out, team + process owner, timeline, business impact in dollars-or-hours terms. Rule-based checks (regex/keyword heuristics + checklist confirmations) flag solution-shaped statements; the Layer-2 grader is the deeper check. |
 | Define | SIPOC | Guided form + auto-rendered diagram |
 | Define | VoC → CTQ Tree | Structured capture of customer statements → needs → measurable CTQs; tree diagram; explicit "is this what the *customer* critically needs, or what the process finds easy to measure?" check. (LLM theme extraction is a Layer-2 assist; manual entry always works.) |
-| Measure | Process Map (swimlane) + Waste Walk | Step-by-step map builder; each step tagged value-add / non-value-add / enabling; 8 wastes checklist per step |
+| Measure | Process Map (swimlane) + Waste Walk | Interactive canvas map builder (drag-drop steps, auto-routing connectors, pan/zoom); each step tagged value-add / non-value-add / enabling; 8 wastes checklist per step. Steps carry data (times, defect points, stratification factors) that downstream tools reuse — one project data model, many views. |
+| Measure | Spaghetti Diagram (interactive) | Promoted from paper-template to flagship visual tool: upload a floor-plan image (or a photo of the paper sketch), calibrate scale by drawing one known-length line, trace routes per operator/trip. Live metrics: distance per trip, trip count, path crossings, estimated walk time, distance × frequency = daily travel burden. **Heatmap toggle and before/after layout mode with delta metrics** — nothing in the free space offers either. Animated playback for demos. 2D canvas by design (the top-down plan view IS the recognizable artifact); an optional tilted 2.5D view is a possible later flourish, not v1. |
+| Measure | Check Sheet / Tally | The field's second-most-used tool: define categories, tap to count failures as they happen (works on a phone at the line), timestamps and stratification captured automatically, feeds Pareto with zero re-entry. |
+| Measure | Guided Time Study / Work Sampling | Phone-as-stopwatch observation: define the work elements, time repeated cycles or sample at intervals, get element times with spread, flag the outliers honestly. Warehouse-native; feeds baseline and the process map's step times. |
+| Measure | Yield Calculator (FPY/RTY) | First-pass yield and rolled throughput yield from simple good/rework/scrap counts, alongside DPMO — the honest version of the number Excel habitually flatters. |
 | Measure | Data Collection Plan | Operational definition builder ("two people would measure it the same way" check), data type identification, stratification factors (shift, machine, operator, day — captured as columns so later tools can use them), and **sample-size guidance as a first-class output** (n-for-a-stable-baseline rules of thumb + a calculator with plain-English framing, bias/convenience-sample warnings) |
 | Measure | Measurement Check (MSA) | Real, narrow: test/retest repeatability study for continuous data (%GRR-style verdict from a simplified Gage study) and a two-rater attribute agreement check for pass/fail judgments. Three outcomes: acceptable / marginal / **stop — fix your measurement first**. A failed check blocks capability-claim language downstream (results render as "unreliable — measurement system failed" until fixed). Full multi-operator Gage R&R stays v2; what ships is small but honest. |
 | Measure | Baseline: Stability then Capability | Order enforced because the math requires it: spec limits + operational definition first, then an I-MR chart to assess stability, then capability. Stable → Cp/Cpk (within) and Pp/Ppk (overall), with the distinction explained; not stable → the tool says "you don't have a baseline yet — here's what the instability pattern suggests doing," and Pp/Ppk only, labeled as performance-not-capability. Normality assessed advisorily (visual + test + n-aware guidance, never a silent auto-gate); non-normal → percentile method with plain-English caveat. DPMO/sigma level with the 1.5σ shift convention named and toggleable. |
-| Measure | Pareto / Histogram / Run Chart | matplotlib; auto-annotated (80/20 line, distribution shape notes, standard runs rules for trends/shifts) |
+| Measure | Pareto / Histogram / Run Chart | Auto-annotated per the chart-modernization checklist (§4.5): plain-English verdict headline, vital-few bars highlighted to the 80% line, runs-rule signals colored with hover explanations |
 | Analyze | Fishbone (6M) + 5 Whys | Structured capture with 6M categories; every candidate cause carries an evidence field — "what data supports this?" — unproven causes visibly flagged; verified-cause status feeds Improve |
 | Analyze | FMEA (process) | Failure modes worksheet with industry-standard 1–10 severity/occurrence/detection anchor scales (generic wording, no licensed text), risk table sorted severity-first then RPN, with the known RPN limitation stated (equal RPNs are not equal risks; high severity never ignorable), action tracking. The "documenting failures" centerpiece. |
 | Analyze | Hypothesis Testing (guided) | Rule-based selector, deliberately narrow: 2-sample t (Welch by default — no equal-variance assumption to trip on) / paired t / one-way ANOVA / chi-square or 2-proportion, with Mann-Whitney and Wilcoxon signed-rank as the stated nonparametric fallbacks. Routes on the question and data structure first (what are you comparing? paired or independent? continuous or count?), assumptions second. Output always includes effect size + confidence interval + practical-vs-statistical significance in plain English, never a bare p-value. **The selector's unsupported-case list is enumerated, not vibes:** the M0 matrix lists every route as supported / detected-and-exits (small n below stated floors, sparse cells, repeated measures, autocorrelated data, >1 factor, rates with exposure, multiple simultaneous comparisons) — an inexperienced user can receive a result or a named exit, never a formally-computed-but-wrong answer for a case the tree knows it can't handle. ANOVA-significant gets a canned next step ("these groups differ overall; comparing specific pairs fairly needs a correction — guided pairwise comparisons ship in v1.1; here's the honest interim read"). |
@@ -124,7 +137,8 @@ labeled as such in-app.
 | Improve | Pilot Plan | A small study designer, not a form, teaching basic pilot discipline: **one change at a time**, what it's compared against (before-period or parallel comparison), who/what is included and how selected, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. |
 | Improve | Before/After Proof + Remaining-Gap Check | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. Then the loop closes: the tool shows how much of the original gap this fix recovered and how much remains, and routes back to the next-ranked verified cause — "this fix got you 80% of the way; here's what's left and the next suspect" — until the goal is met or causes run out. |
 | Control | Control Charts | v1 families: **I-MR** (continuous) and **p** (attribute) — the two a Green Belt actually reaches for — selector driven by data type; constants from published tables; Western Electric rules with a conservative default subset (rules 1–4) to limit false alarms; limits frozen from baseline and recalculated only on deliberate, logged decision |
-| Control | Control Plan + Response Plan (OCAP) | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path |
+| Control | Control Plan + Response Plan (OCAP) + Scheduled Check-ins | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path. Plus the fix for the field's most-abandoned phase (Control = 6% of real tool usage): the app **schedules recurring check-ins** — "week 3: is the fix holding? enter this week's numbers" — with pass/fail against the control limits. Spreadsheets' real failure mode is that nobody chases the next step; this chases it. |
+| Control | 5S Audit (scored) | Promoted from explain-only: a scored 5S checklist with photos and a trend line — the single most-digitized lean activity at SMB level, and a natural recurring companion to the control plan. |
 | Control | Standard Work / SOP | The improved method written down so it survives the author |
 | Wrap | A3 Final Report + Tollgate Checklists | A3 as a **guided narrative builder**, not field concatenation: the user writes the story panel-by-panel with each panel pre-seeded from its source artifact and editable; Layer 2 can draft narrative from artifacts, user approves. Includes realized-benefits panel. Tollgate checklists per phase. |
 
@@ -142,12 +156,17 @@ multi-factor Experiment Planner (full spec preserved under v1.1) ships only
 if real use proves the need.
 
 **Tier B — guided templates (forms + instruction, no stats):** Stakeholder
-Analysis + Communication Plan; Spaghetti Diagram (physical walking-path
-sketch for the waste walk — named by Shawn 2026-08-04 as expected content);
-data-collection log sheets; kaizen/quick-win tracker.
+Analysis + Communication Plan; data-collection log sheets; kaizen/quick-win
+tracker. (Spaghetti Diagram graduated to Tier A as the interactive flagship,
+2026-08-04.)
 
 **v1.1 (next release, not v-someday):** X-bar/R, np, c, u chart families;
-correlation + simple linear regression as a guided tool; the multi-factor
+correlation + simple linear regression as a guided tool (with scatter
+plots); 8D corrective-action report as an export skin over existing project
+data (the de facto framework in manufacturing/supplier contexts — same
+fishbone/5-whys/pilot/control data, different paper); takt time + simple
+line balancing; guided OEE calculator (manual Excel OEE runs 8–12 points
+optimistic — an honest guided version has real value); the multi-factor
 Experiment Planner if real use shows the need — spec already settled:
 guided 2-level experiments up to 4 factors, full-factorial run table,
 randomized order, main effects + two-factor interactions computed
@@ -228,7 +247,13 @@ the mistake is half the teaching.
 
 ### 4.5 Charts and outputs
 
-- All charts matplotlib/plotly, embedded in the app and in exports.
+- All charts Plotly.js in-app (interactive: hover context, signal
+  explanations), rendered to static images for PDF export. **One design
+  system across every tool** — one type scale, one muted-plus-accent
+  palette, plain-English verdict headline above every chart, signals
+  colored and noise muted, σ-zones as soft bands — so twenty tools read as
+  one product, not twenty scripts (full checklist:
+  `docs/research/modern-ops-tools-and-ux-2026-08.md` §F).
 - Every artifact exports to PDF individually and rolls up into the A3 final
   report — the deliverables a sponsor actually sees. PDF engine:
   **ReportLab, not WeasyPrint** — pure Python, no system dependencies
@@ -358,7 +383,7 @@ a vibe — and it's proven by traceability, not citation-dropping:
   (or an explicit "explain-only" / "out of v1 scope" entry) → the
   formula/method source → the rubric item that grades it → the golden test
   that locks it. Tool scope in §4.1 gets corrected against this matrix before
-  any Streamlit page is written. Coverage claims come from the matrix.
+  any app screen is written. Coverage claims come from the matrix.
 - **Formulas** (capability indices, control limits, test statistics) follow
   the NIST/SEMATECH e-Handbook of Statistical Methods; control chart
   constants (A2, D3, D4, d2…) from the standard published tables; runs rules
@@ -388,34 +413,41 @@ showpiece by design: the README says so, with an honest comparison table
 against the free alternatives (stats toolboxes, template packs, chatbot
 coaches — see `docs/research/free-and-oss-landscape-2026-08.md`).
 
-Unchanged from April: **local install, not hosted.** Python + Streamlit,
-`pip install sigma-ai` then `sigma-ai` (a console entry point that launches
-Streamlit — one command, not two). No server, no accounts, no hosting costs;
-the user's data never leaves their machine, which for real ops data is a
-feature, not a compromise.
+Local-first, not hosted (unchanged in principle from April; stack ruled
+2026-08-04 after the modern-UX research): **a single double-click installer
+per platform** — Tauri desktop shell + React/Konva/Plotly.js interface +
+packaged Python sidecar (FastAPI, scipy/statsmodels) for all statistics. No
+Python install on the user's machine, no `pip`, no `localhost` copy-paste.
+No server, no accounts, no hosting costs; the user's data never leaves
+their machine, which for real ops data is a feature, not a compromise.
+This supersedes the April Streamlit decision — Streamlit's rerun-per-click
+model and sandboxed components cap the interactive canvas tools (spaghetti
+tracer, process map, fishbone) that the "slick" bar exists for.
 
 Both reviewers flagged install friction as a plan-level risk — a student who
 can't get past setup never reaches DMAIC, and the §9 test gets quietly
 selection-biased toward people who can. So packaging is a **gated milestone-1
 requirement, not a polish item**:
 
+- **The packaging spike is the first build task of M1:** prove the
+  Tauri + PyInstaller-sidecar pipeline produces working installers for
+  Windows and Mac before any tool UI is built on it (known-good open
+  templates exist for exactly this pattern).
 - **The clean-machine test, at M1, with a precise pass/fail:** a stock
   Windows machine and a stock Mac, **no Python preinstalled**, fresh user
-  account, normal internet access, a written install guide, a non-developer
-  tester. Pass = within 15 minutes the tester reaches the Project Picker
+  account, normal internet access, a non-developer tester. Pass = within 15
+  minutes the tester downloads, installs, and reaches the Project Picker
   with demo data open **and** a stats smoke check passes on that same
   machine (the engine runs one NIST-verified calculation — so "UI installs
   but the math engine doesn't" can't produce a false green). Fail → the
-  packaging approach changes **before** the remaining tools are built —
-  fallback order: bundled-Python installer (Briefcase/PyInstaller-style) →
-  stlite (Streamlit fully in-browser). Either fallback is adopted only
-  after a feasibility spike proves the scipy/statsmodels/PDF paths actually
-  run on it — no betting the stats engine on an untested runtime.
+  approach changes **before** the remaining tools are built — fallback
+  order: stlite+Electron (best install story in the Streamlit family,
+  lower interactivity ceiling) → Streamlit + pip with launchers (the
+  original April path). Either fallback is adopted only after a feasibility
+  spike proves the scipy/statsmodels/PDF paths run on it.
 - ReportLab over WeasyPrint (§4.5) removes the worst system-dependency risk
-  up front; remaining deps (Streamlit, scipy, matplotlib, pydantic) all ship
-  as ordinary wheels.
-- Windows `run-sigma.bat` / Mac `run-sigma.command` double-click launchers in
-  the release download; install guide with screenshots assuming nothing.
+  up front; remaining Python deps (FastAPI, scipy, statsmodels, pydantic)
+  all ship as ordinary wheels inside the sidecar.
 - The prompt pack and the PDF template pack are downloadable **on their own**
   from the repo — someone who never installs anything still gets a usable
   paper/chatbot version of the suite. The app is the full product; the packs
@@ -439,26 +471,31 @@ phase (both reviewers called back-loaded proof the plan's structural risk):
    quietly thin under schedule pressure), and the **independent Belt
    reviewer identified now**, not at M6 — the rubric locks only after
    their pass. No app code before this exists.
-1. **Skeleton + Define + the packaging gate.** App shell, project save/load
-   (JSON folder + provenance objects), soft/hard gate state machine, Project
-   Picker, Charter, SIPOC, VoC/CTQ, Coffee Bar demo data, PDF export for one
-   artifact — and the **clean-machine install test (§7)**; packaging pivots
-   now if it fails.
-2. **Measure.** Stats engine (stability, capability, normality, DPMO/sigma),
-   data import (CSV/Excel), Process Map + Waste Walk, Data Collection Plan
-   (+ sample-size guidance), Measurement Check, Pareto/Histogram/Run charts.
-   Deterministic tests for every formula against NIST reference values.
-   **Milestone exit: fidelity review of Measure content + one live
-   untrained-user test of Define+Measure** — Measure is where untrained
-   users actually die (operational definitions, data types, capability
-   misuse), so it gets a real user before Analyze is built.
-3. **Analyze.** Fishbone/5 Whys, FMEA, hypothesis selector + tests (with
-   effect sizes/CIs), printed decision-tree flowcharts.
+1. **Skeleton + Define + the packaging gate.** The Tauri + Python-sidecar
+   packaging spike FIRST (§7), then app shell (React + design system),
+   FastAPI engine skeleton, project save/load (JSON folder + provenance
+   objects), soft/hard gate state machine, Project Picker (+ PDCA quick
+   path routing), Charter, COPQ calculator, SIPOC, VoC/CTQ, Coffee Bar demo
+   data, PDF export for one artifact — and the **clean-machine install test
+   (§7)**; packaging pivots now if it fails.
+2. **Measure.** Stats engine (stability, capability, normality, DPMO/sigma,
+   FPY/RTY), data import (CSV/Excel), interactive Process Map + Waste Walk,
+   **Spaghetti Diagram (the canvas flagship)**, Check Sheet/Tally, Guided
+   Time Study, Data Collection Plan (+ sample-size guidance), Measurement
+   Check, Pareto/Histogram/Run charts. Deterministic tests for every
+   formula against NIST reference values. **Milestone exit: fidelity review
+   of Measure content + one live untrained-user test of Define+Measure** —
+   Measure is where untrained users actually die (operational definitions,
+   data types, capability misuse), so it gets a real user before Analyze is
+   built.
+3. **Analyze.** Fishbone/5 Whys (canvas), FMEA, hypothesis selector + tests
+   (with effect sizes/CIs), printed decision-tree flowcharts.
 4. **Improve + Control.** Solution matrix (ranked fix list), pilot
    designer, before/after proof with remaining-gap loop, I-MR + p charts +
-   constants + Western Electric rules, Control Plan/OCAP, Standard Work,
-   A3 narrative builder, tollgate checklists, Print Shop demo project
-   completed across the attribute path.
+   constants + Western Electric rules, Control Plan/OCAP + scheduled
+   check-ins, scored 5S audit, Standard Work, A3 narrative builder,
+   tollgate checklists, Print Shop demo project completed across the
+   attribute path.
 5. **Layer 2.** Advisor (5 modes, remedy advisor as the flagship +
    pre-score wiring + context budget), validator pass, prompt pack,
    paste-ready export.
@@ -533,8 +570,10 @@ Named explicitly so nothing changes silently:
 3. **Part 2 formalized:** the AI coach was already in scope; the four
    advisor modes, tollgate reviewer, and the portable prompt pack are new
    commitments.
-4. Everything else — local Streamlit deployment, stack, open source,
-   portfolio-first, six anti-hallucination layers — carries forward intact.
+4. Everything else — local-first deployment, open source, portfolio-first,
+   six anti-hallucination layers — carries forward intact. (The April
+   Streamlit stack was later superseded 2026-08-04 by React + Tauri +
+   Python sidecar, ruled after the modern-UX research; §3, §7.)
 
 ## 11. Open decisions for Shawn
 
@@ -548,6 +587,15 @@ Experiment Planner moved to v1.1, ships only if real use proves the need.
 (The durable rule from the exchange stands regardless: features gate on
 what the data can prove, never on belt level — vault 2026-08-04-001.)
 
+**Ruled 2026-08-04 (post-research):** all seven field-research tool
+additions are IN v1 (check sheet, COPQ calculator, FPY/RTY, scored 5S
+audit, guided time study, scheduled control check-ins, PDCA quick path);
+stack is **React + Konva + Plotly.js frontend, FastAPI/scipy Python
+sidecar, Tauri single-installer** — superseding April's Streamlit
+decision; spaghetti diagram promoted to Tier A interactive flagship, 2D
+canvas (three.js ruled out by research as unrecognizable overkill; 2.5D
+flourish possible later).
+
 Still open, not blocking. Two worth a ruling when convenient:
 
 1. **Name/positioning of the free packs.** The PDF template pack + prompt
@@ -555,9 +603,9 @@ Still open, not blocking. Two worth a ruling when convenient:
    on-ramp, but it's also the part easiest to copy). Default: ship them
    openly — the app and the architecture are the moat, and this is a
    portfolio piece.
-2. **Packaging fallback order** if the M1 clean-machine test fails (§7):
-   bundled installer first, stlite second is the default — flip it if he
-   has a preference.
+2. **Packaging fallback order** if the M1 spike or clean-machine test fails
+   (§7): stlite+Electron first, Streamlit+pip second is the default — flip
+   it if he has a preference.
 
 ## 12. External review log
 
