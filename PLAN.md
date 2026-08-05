@@ -34,11 +34,14 @@ Green Belt core; the gaps are named"), never "full coverage" by assertion.
 
 Two honesty clauses on that claim: the suite teaches and enforces Green Belt
 **method**; it does not confer certification and will never claim to (the
-README and app say so plainly). And when a project runs past Green Belt
-territory — unstable process that won't stabilize, measurement system that
-fails, a question needing designed experiments — the suite's job is to say
-so by name and route to a human expert, not to fake an answer. "This needs
-a Black Belt" is a first-class output, not a failure state. The README also
+README and app say so plainly). And when a project runs past what the suite
+can honestly compute or verify — an unstable process that won't stabilize, a
+measurement system that fails, an analysis needing methods the tool doesn't
+carry — the suite's job is to say so by name and route to a human expert,
+not to fake an answer. "This needs an experienced human" is a first-class
+output, not a failure state. (Exits are gated by method limits, never by
+belt level — vault correction 2026-08-04-001: the belt difference is
+experience interpreting output, not access to tools.) The README also
 carries one policy sentence: outputs are working documents, not
 certification evidence and not validation for regulated processes.
 
@@ -118,9 +121,9 @@ labeled as such in-app.
 | Analyze | FMEA (process) | Failure modes worksheet with industry-standard 1–10 severity/occurrence/detection anchor scales (generic wording, no licensed text), risk table sorted severity-first then RPN, with the known RPN limitation stated (equal RPNs are not equal risks; high severity never ignorable), action tracking. The "documenting failures" centerpiece. |
 | Analyze | Hypothesis Testing (guided) | Rule-based selector, deliberately narrow: 2-sample t (Welch by default — no equal-variance assumption to trip on) / paired t / one-way ANOVA / chi-square or 2-proportion, with Mann-Whitney and Wilcoxon signed-rank as the stated nonparametric fallbacks. Routes on the question and data structure first (what are you comparing? paired or independent? continuous or count?), assumptions second. Output always includes effect size + confidence interval + practical-vs-statistical significance in plain English, never a bare p-value. **The selector's unsupported-case list is enumerated, not vibes:** the M0 matrix lists every route as supported / detected-and-exits (small n below stated floors, sparse cells, repeated measures, autocorrelated data, >1 factor, rates with exposure, multiple simultaneous comparisons) — an inexperienced user can receive a result or a named exit, never a formally-computed-but-wrong answer for a case the tree knows it can't handle. ANOVA-significant gets a canned next step ("these groups differ overall; comparing specific pairs fairly needs a correction — guided pairwise comparisons ship in v1.1; here's the honest interim read"). |
 | Improve | Solution Selection Matrix | Impact/effort grid + weighted-criteria matrix; solutions must link to verified causes or get flagged |
-| Improve | Pilot Plan | A small study designer, not a form, teaching **basic Green Belt pilot discipline** (this is GB material, not deferred DOE): what changes and what it's compared against (before-period or parallel comparison), who/what is included and how selected, run order randomized where feasible, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. Multi-factor questions, factorial designs, power analysis = named Black Belt exits. |
+| Improve | Pilot Plan | A small study designer, not a form, teaching **basic Green Belt pilot discipline** (this is GB material, not deferred DOE): what changes and what it's compared against (before-period or parallel comparison), who/what is included and how selected, run order randomized where feasible, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. Multi-factor questions route to the Experiment Planner; designs beyond it (response surface, hard-to-change factors, power analysis) = named specialist exits. |
 | Improve | Before/After Proof | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. |
-| Improve | Simple Experiment Planner (DOE-lite) | **Added by Shawn's ruling 2026-08-04** (resolving the GPT round-1/2 disagreement in favor of a tool): when the fix has several moving parts, a guided 2-level experiment for 2–3 factors — the tool builds the run table, randomizes run order, and computes main effects deterministically (plain-English effect chart, basic interaction view as a caution signal, no regression modeling). Hard honesty rails: minimum-runs check before it will analyze, "one run per condition proves little" warnings, and anything beyond 3 factors / 2 levels / simple interactions exits by name to a Black Belt. The advisor helps *plan and interpret*; the tool computes — consistent with "tool use lives in the product, AI gives advice." Full/fractional factorial DOE beyond this stays v2. |
+| Improve | Experiment Planner (designed experiments) | **Added by Shawn's ruling 2026-08-04; scope re-based per his correction (vault 2026-08-04-001):** limits are set by what the runs can honestly prove — never by belt level. Certification syllabi park experiment design in Black Belt training, but that's a curriculum split, not a capability line; beltless practitioners run multi-factor tests constantly. The tool: guided 2-level experiments up to 4 factors — pick factors and levels in plain English, the tool builds the full-factorial run table, randomizes run order, and computes main effects **and two-factor interactions** deterministically ("speed only hurts when temperature is high" is exactly the real-world case). Honesty rails scale with the design, up front: a run-budget check before you start ("with 8 runs and no repeats, you can detect big effects only — here's what 16 buys you"), replication encouraged and accounted for, and significance for unreplicated designs judged by the standard published method (Lenth), with weak conclusions labeled weak. Named specialist exits only for genuinely specialist territory: >4 factors, fine-tuning optimal settings (response surface), hard-to-change factors. The advisor helps plan and interpret; the tool computes. |
 | Control | Control Charts | v1 families: **I-MR** (continuous) and **p** (attribute) — the two a Green Belt actually reaches for — selector driven by data type; constants from published tables; Western Electric rules with a conservative default subset (rules 1–4) to limit false alarms; limits frozen from baseline and recalculated only on deliberate, logged decision |
 | Control | Control Plan + Response Plan (OCAP) | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path |
 | Control | Standard Work / SOP | The improved method written down so it survives the author |
@@ -134,8 +137,9 @@ tracker.
 correlation + simple linear regression as a guided tool; second demo project
 polish beyond what §4.4 requires.
 
-Deferred to v2 (Black-Belt-tier or specialist): full multi-operator Gage
-R&R, DOE beyond the 2-level/2–3-factor planner, Multi-Vari, VSM
+Deferred to v2 (specialist-tier — gated by method complexity, not belt
+level): full multi-operator Gage R&R, DOE beyond the 2-level/4-factor
+planner (fractional designs, response surface), Multi-Vari, VSM
 future-state, EWMA/CUSUM, Monte Carlo, QFD, Taguchi, TRIZ. The coach can *explain* any of them; the suite only
 *generates* what it can generate correctly.
 
