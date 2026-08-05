@@ -120,14 +120,26 @@ labeled as such in-app.
 | Analyze | Fishbone (6M) + 5 Whys | Structured capture with 6M categories; every candidate cause carries an evidence field — "what data supports this?" — unproven causes visibly flagged; verified-cause status feeds Improve |
 | Analyze | FMEA (process) | Failure modes worksheet with industry-standard 1–10 severity/occurrence/detection anchor scales (generic wording, no licensed text), risk table sorted severity-first then RPN, with the known RPN limitation stated (equal RPNs are not equal risks; high severity never ignorable), action tracking. The "documenting failures" centerpiece. |
 | Analyze | Hypothesis Testing (guided) | Rule-based selector, deliberately narrow: 2-sample t (Welch by default — no equal-variance assumption to trip on) / paired t / one-way ANOVA / chi-square or 2-proportion, with Mann-Whitney and Wilcoxon signed-rank as the stated nonparametric fallbacks. Routes on the question and data structure first (what are you comparing? paired or independent? continuous or count?), assumptions second. Output always includes effect size + confidence interval + practical-vs-statistical significance in plain English, never a bare p-value. **The selector's unsupported-case list is enumerated, not vibes:** the M0 matrix lists every route as supported / detected-and-exits (small n below stated floors, sparse cells, repeated measures, autocorrelated data, >1 factor, rates with exposure, multiple simultaneous comparisons) — an inexperienced user can receive a result or a named exit, never a formally-computed-but-wrong answer for a case the tree knows it can't handle. ANOVA-significant gets a canned next step ("these groups differ overall; comparing specific pairs fairly needs a correction — guided pairwise comparisons ship in v1.1; here's the honest interim read"). |
-| Improve | Solution Selection Matrix | Impact/effort grid + weighted-criteria matrix; solutions must link to verified causes or get flagged |
-| Improve | Pilot Plan | A small study designer, not a form, teaching **basic Green Belt pilot discipline** (this is GB material, not deferred DOE): what changes and what it's compared against (before-period or parallel comparison), who/what is included and how selected, run order randomized where feasible, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. Multi-factor questions route to the Experiment Planner; designs beyond it (response surface, hard-to-change factors, power analysis) = named specialist exits. |
-| Improve | Before/After Proof | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. |
-| Improve | Experiment Planner (designed experiments) | **Added by Shawn's ruling 2026-08-04; scope re-based per his correction (vault 2026-08-04-001):** limits are set by what the runs can honestly prove — never by belt level. Certification syllabi park experiment design in Black Belt training, but that's a curriculum split, not a capability line; beltless practitioners run multi-factor tests constantly. The tool: guided 2-level experiments up to 4 factors — pick factors and levels in plain English, the tool builds the full-factorial run table, randomizes run order, and computes main effects **and two-factor interactions** deterministically ("speed only hurts when temperature is high" is exactly the real-world case). Honesty rails scale with the design, up front: a run-budget check before you start ("with 8 runs and no repeats, you can detect big effects only — here's what 16 buys you"), replication encouraged and accounted for, and significance for unreplicated designs judged by the standard published method (Lenth), with weak conclusions labeled weak. Named specialist exits only for genuinely specialist territory: >4 factors, fine-tuning optimal settings (response surface), hard-to-change factors. The advisor helps plan and interpret; the tool computes. |
+| Improve | Solution Selection Matrix | Impact/effort grid + weighted-criteria matrix; solutions must link to verified causes or get flagged. Output is a **ranked fix list** — the queue the improvement loop works through. |
+| Improve | Pilot Plan | A small study designer, not a form, teaching basic pilot discipline: **one change at a time**, what it's compared against (before-period or parallel comparison), who/what is included and how selected, success threshold and analysis plan declared **before** data collection, and a "what would prove this DIDN'T work" line. A confounder checklist in plain English (did anything else change? staffing, season, demand, measurement?) carries into the proof. |
+| Improve | Before/After Proof + Remaining-Gap Check | Stats engine re-run on pilot data: side-by-side stability + capability, the appropriate Tier-A test, effect size + CI, and the pilot's pre-declared threshold checked. The confounder checklist answers print on the result — "improvement shown, but you reported a staffing change; this proof is weakened" is a possible verdict. Then the loop closes: the tool shows how much of the original gap this fix recovered and how much remains, and routes back to the next-ranked verified cause — "this fix got you 80% of the way; here's what's left and the next suspect" — until the goal is met or causes run out. |
 | Control | Control Charts | v1 families: **I-MR** (continuous) and **p** (attribute) — the two a Green Belt actually reaches for — selector driven by data type; constants from published tables; Western Electric rules with a conservative default subset (rules 1–4) to limit false alarms; limits frozen from baseline and recalculated only on deliberate, logged decision |
 | Control | Control Plan + Response Plan (OCAP) | What's monitored, how often, by whom (a named owner is a required field — a control plan with no owner is flagged as theater), and the exact out-of-control action path |
 | Control | Standard Work / SOP | The improved method written down so it survives the author |
 | Wrap | A3 Final Report + Tollgate Checklists | A3 as a **guided narrative builder**, not field concatenation: the user writes the story panel-by-panel with each panel pre-seeded from its source artifact and editable; Layer 2 can draft narrative from artifacts, user approves. Includes realized-benefits panel. Tollgate checklists per phase. |
+
+**The Improve phase is a one-change-at-a-time loop by design** (Shawn's
+method, ruled 2026-08-04, superseding the same-day ruling that added a
+multi-factor experiment tool to v1): rank the verified causes by likely
+impact, fix the top one, prove it, check the remaining gap, take the next.
+Cheap — every fix proves itself on real work, no test schedules.
+Self-correcting — the gap tells you if your ranking was wrong. And every
+step yields a clean before/after story. Changing several things at once —
+throwing everything at the wall — is what the flow is built to prevent,
+because you never learn what actually stuck. When someone genuinely needs a
+combined test, the advisor helps think it through as advice; the
+multi-factor Experiment Planner (full spec preserved under v1.1) ships only
+if real use proves the need.
 
 **Tier B — guided templates (forms + instruction, no stats):** Stakeholder
 Analysis + Communication Plan; Spaghetti Diagram (physical walking-path
@@ -135,13 +147,19 @@ sketch for the waste walk — named by Shawn 2026-08-04 as expected content);
 data-collection log sheets; kaizen/quick-win tracker.
 
 **v1.1 (next release, not v-someday):** X-bar/R, np, c, u chart families;
-correlation + simple linear regression as a guided tool; second demo project
-polish beyond what §4.4 requires.
+correlation + simple linear regression as a guided tool; the multi-factor
+Experiment Planner if real use shows the need — spec already settled:
+guided 2-level experiments up to 4 factors, full-factorial run table,
+randomized order, main effects + two-factor interactions computed
+deterministically, run-budget honesty check up front, Lenth's method for
+unreplicated designs, limits gated by what the runs can prove (never belt
+level — vault correction 2026-08-04-001); second demo project polish
+beyond what §4.4 requires.
 
 Deferred to v2 (specialist-tier — gated by method complexity, not belt
-level): full multi-operator Gage R&R, DOE beyond the 2-level/4-factor
-planner (fractional designs, response surface), Multi-Vari, VSM
-future-state, EWMA/CUSUM, Monte Carlo, QFD, Taguchi, TRIZ. The coach can *explain* any of them; the suite only
+level): full multi-operator Gage R&R, DOE beyond the v1.1 planner spec
+(fractional designs, response surface), Multi-Vari, VSM future-state,
+EWMA/CUSUM, Monte Carlo, QFD, Taguchi, TRIZ. The coach can *explain* any of them; the suite only
 *generates* what it can generate correctly.
 
 ### 4.2 The Tool Picker — "what do I use now?"
@@ -436,8 +454,8 @@ phase (both reviewers called back-loaded proof the plan's structural risk):
    misuse), so it gets a real user before Analyze is built.
 3. **Analyze.** Fishbone/5 Whys, FMEA, hypothesis selector + tests (with
    effect sizes/CIs), printed decision-tree flowcharts.
-4. **Improve + Control.** Solution matrix, pilot designer, Simple
-   Experiment Planner (DOE-lite), before/after proof, I-MR + p charts +
+4. **Improve + Control.** Solution matrix (ranked fix list), pilot
+   designer, before/after proof with remaining-gap loop, I-MR + p charts +
    constants + Western Electric rules, Control Plan/OCAP, Standard Work,
    A3 narrative builder, tollgate checklists, Print Shop demo project
    completed across the attribute path.
@@ -520,10 +538,15 @@ Named explicitly so nothing changes silently:
 
 ## 11. Open decisions for Shawn
 
-**Ruled 2026-08-04:** Simple Experiment Planner (DOE-lite) is IN v1 (Shawn
-chose the tool over advice-only — resolving the GPT disagreement); license
-is **Apache 2.0**; the advisor's flagship mode is remedy advice (§5.1) —
-tool use belongs to the product, AI is for judgment on the problem.
+**Ruled 2026-08-04:** license is **Apache 2.0**; the advisor's flagship
+mode is remedy advice (§5.1) — tool use belongs to the product, AI is for
+judgment on the problem. On experiments, two rulings same day, second
+supersedes: Shawn first chose adding a multi-factor experiment tool to v1;
+after seeing what the tool actually is, he ruled for **one change at a
+time as the product's method** — the Improve loop (§4.1) — with the
+Experiment Planner moved to v1.1, ships only if real use proves the need.
+(The durable rule from the exchange stands regardless: features gate on
+what the data can prove, never on belt level — vault 2026-08-04-001.)
 
 Still open, not blocking. Two worth a ruling when convenient:
 
