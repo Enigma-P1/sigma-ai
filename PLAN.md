@@ -130,8 +130,9 @@ labeled as such in-app.
 | Wrap | A3 Final Report + Tollgate Checklists | A3 as a **guided narrative builder**, not field concatenation: the user writes the story panel-by-panel with each panel pre-seeded from its source artifact and editable; Layer 2 can draft narrative from artifacts, user approves. Includes realized-benefits panel. Tollgate checklists per phase. |
 
 **Tier B — guided templates (forms + instruction, no stats):** Stakeholder
-Analysis + Communication Plan; data-collection log sheets; kaizen/quick-win
-tracker.
+Analysis + Communication Plan; Spaghetti Diagram (physical walking-path
+sketch for the waste walk — named by Shawn 2026-08-04 as expected content);
+data-collection log sheets; kaizen/quick-win tracker.
 
 **v1.1 (next release, not v-someday):** X-bar/R, np, c, u chart families;
 correlation + simple linear regression as a guided tool; second demo project
