@@ -47,13 +47,14 @@ Milestone timing: items 1–7 are checked at the milestone that builds the tool
 
 ## 4. Decision trees (routed tools only)
 
-- [ ] If the matrix marks the tool as routed (test selector, chart selector,
-  stability→capability path, project picker), the decision tree is rendered
-  in-app as a visible flowchart.
+- [ ] If the tool appears in the **Routed** row of the matrix §1 Tier-A
+  attributes table (T-01, T-12, T-13, T-17, T-21), its decision tree or
+  threshold table is rendered in-app as a visible flowchart.
 - [ ] The rendered tree and the code path are generated from, or tested
   against, the same rule table — they cannot drift apart.
-- [ ] Every unsupported case the matrix's exit registry assigns to this tool
-  is detected and produces its named exit, never a computed-anyway answer.
+- [ ] Every exit the matrix §1 attributes table assigns this tool under
+  **Owns exits** is detected at the §4a frozen trigger values and produces
+  its named exit, never a computed-anyway answer.
 
 ## 5. Export and provenance
 
@@ -72,8 +73,9 @@ Milestone timing: items 1–7 are checked at the milestone that builds the tool
 - [ ] "Show me the example" works: the Coffee Bar demo project has this tool
   filled in at the right point in its flow (PLAN §4.4).
 - [ ] If the tool's attribute-data path differs, the Print Shop demo covers it.
-- [ ] If the matrix assigns this tool a flawed-example teaching moment, the
-  flawed version + its correction + the why are present.
+- [ ] If the tool appears in the **Flawed-example** row of the matrix §1
+  Tier-A attributes table (T-03, T-15), the flawed version + its correction
+  + the why are present.
 
 ## 7. Gates
 
@@ -86,6 +88,12 @@ Milestone timing: items 1–7 are checked at the milestone that builds the tool
   tool's language downstream exactly as the plan specifies — verified by test.
 
 ## 8. Advisor hooks (checked at M5, not at the tool's build milestone)
+
+Scope note (added at critic review 2026-08-07): **items 1–7 are the Tier-A
+"done" definition** — the M0–M4 shippable, AI-free suite is done when every
+Tier-A tool passes 1–7 (PLAN §8). Item 8 is the **Layer-2 gate**: Layer 2 is
+not done until every Tier-A tool passes it. If Layer 2 slips, 1–7 is the
+shipping bar and no tool is retroactively "not done."
 
 - [ ] "Review my artifact" grades against this tool's rubric items and returns
   structured pass / needs-work per criterion.
@@ -101,3 +109,15 @@ helper text but no golden, a chart with no verdict headline, a selector whose
 tree exists only in code, an export with no provenance — each is the exact
 thinning this checklist exists to block. If an item genuinely cannot apply to
 a tool, the matrix says so explicitly per tool; silence is not an exemption.
+
+## Change log
+
+Changes to this checklist require a logged decision — recorded here (public
+repo, visible to evaluators) and in the vault's `decisions/`.
+
+- **2026-08-07** — frozen at M0.
+- **2026-08-07 (critic review, same day):** items 4 and 6 re-pointed at the
+  matrix §1 Tier-A attributes table (the attributes they referenced now
+  exist as columns); §8 scope note added — items 1–7 are the Tier-A done
+  definition, item 8 is the Layer-2 gate (resolves the conflict with PLAN
+  §8's "shippable without Layer 2").
