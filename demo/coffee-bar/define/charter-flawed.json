@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-charter",
+  "tool_id": "T-03",
+  "created_at": "2026-07-03T15:20:00Z",
+  "updated_at": "2026-07-03T15:20:00Z",
+  "notes": "DEMO -- deliberately flawed first draft (version 1). Every flag this version trips is explained in charter-teaching-note.md; the corrected version is charter.json.",
+  "problem_statement": {
+    "what": "The morning line is way too slow because we only have one espresso machine, so baristas need training on it and we should install a second machine.",
+    "where": "The coffee bar",
+    "when": "Mornings",
+    "magnitude": {
+      "number": 10,
+      "unit": "",
+      "period": ""
+    }
+  },
+  "goal": {
+    "statement": "Install a second espresso machine and train all baristas on it by the end of September.",
+    "metric_name": "speed",
+    "baseline_value": null,
+    "target_value": 5,
+    "unit": "minutes",
+    "target_date": "2026-09-30",
+    "consequential_metrics": []
+  },
+  "scope": {
+    "in_scope": "Make mornings faster",
+    "out_scope": "Everything else"
+  },
+  "team": [
+    { "name": "Priya Shah", "role": "Shift lead" }
+  ],
+  "process_owner": {
+    "name": "TBD",
+    "role": "Whoever is on shift"
+  },
+  "timeline": [
+    { "name": "Finish project", "date": "2026-09-30" }
+  ],
+  "business_impact": {
+    "amount": 50000,
+    "unit": "dollars",
+    "basis": "feels like a lot of lost sales"
+  },
+  "risks": []
+}

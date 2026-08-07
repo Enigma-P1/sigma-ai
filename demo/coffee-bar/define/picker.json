@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-picker",
+  "tool_id": "T-01",
+  "created_at": "2026-07-02T14:10:00Z",
+  "updated_at": "2026-07-02T14:10:00Z",
+  "notes": "Routing note: all five criteria are Yes, and the problem is too big for the PDCA quick path -- there is no single obvious fix (queueing at the register, machine contention, and pileup at handoff are all suspects), so it needs a measured baseline and real cause verification. Route: full DMAIC.",
+  "scope_narrow": {
+    "answer": true,
+    "detail": "Espresso-drink orders during the weekday 7:00-10:00 morning peak at the campus coffee bar -- not food, not drip-only orders, not weekends, not the library cart."
+  },
+  "measurable_outcome": {
+    "answer": true,
+    "detail": "Order-to-handoff time in minutes per order, lower is better: the POS stamps the order time, and handoff time comes from a tally sheet at the pickup counter."
+  },
+  "data_obtainable": {
+    "answer": true,
+    "detail": "The POS exports order timestamps to CSV daily; the shift lead trialed a phone-stopwatch handoff tally for two mornings in June and it held up during rush."
+  },
+  "process_owner_engaged": {
+    "answer": true,
+    "detail": "Priya Shah, morning shift lead, runs the counter and asked for the project after June's walk-away complaints; cafe manager Dana Ellis sponsors it."
+  },
+  "business_impact_plausible": {
+    "answer": true,
+    "detail": "Q2 records and tallies put walk-aways, comped drinks, remakes, and peak-end overtime near $4,000 for the quarter -- roughly $16,000 a year if nothing changes."
+  },
+  "route": "full-DMAIC"
+}

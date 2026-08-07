@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-sipoc",
+  "tool_id": "T-04",
+  "created_at": "2026-07-08T14:05:00Z",
+  "updated_at": "2026-07-08T14:05:00Z",
+  "notes": "Walked at the counter with Priya and Marcus during the 7:00-10:00 peak on July 8. Boundaries match the charter scope: register order through handoff, espresso drinks only.",
+  "supplier_input_pairs": [
+    { "supplier": "Ordering customer", "input": "Drink order and payment" },
+    { "supplier": "Bean roastery", "input": "Roasted espresso beans" },
+    { "supplier": "Dairy distributor", "input": "Milk and milk alternatives" },
+    { "supplier": "POS vendor", "input": "Order tickets with timestamps" }
+  ],
+  "process_steps": [
+    { "step_number": 1, "description": "Take order and payment at the register" },
+    { "step_number": 2, "description": "Mark the cup and place it in the drink queue" },
+    { "step_number": 3, "description": "Prepare the drink at the espresso station" },
+    { "step_number": 4, "description": "Finish the drink (syrup, lid, sleeve)" },
+    { "step_number": 5, "description": "Call the customer's name at the pickup counter" },
+    { "step_number": 6, "description": "Hand the drink to the customer" }
+  ],
+  "output_customer_pairs": [
+    { "output": "Finished espresso drink, handed off", "customer": "Ordering customer (student, faculty, staff)" },
+    { "output": "Order record with timestamps", "customer": "Cafe manager (staffing and stocking decisions)" }
+  ],
+  "scope_start": "Customer places order at the register",
+  "scope_end": "Drink handed to the customer at the pickup counter"
+}
