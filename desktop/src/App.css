@@ -1,0 +1,141 @@
+:root {
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: #0f0f0f;
+  background-color: #f6f6f6;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+.container {
+  margin: 0 auto;
+  max-width: 640px;
+  padding: 3rem 1.5rem;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: #666;
+  margin-top: 0;
+  margin-bottom: 2rem;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+  background-color: #ffffff;
+}
+
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem 0;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #888;
+}
+
+.status {
+  font-size: 1rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.status-pending {
+  color: #888;
+}
+
+.status-ok {
+  color: #1a7f37;
+}
+
+.status-fail {
+  color: #cf222e;
+}
+
+.result-line {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 1rem;
+}
+
+.dataset-line {
+  color: #444;
+  margin: 0 0 0.75rem 0;
+}
+
+.smoke-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.smoke-table th,
+.smoke-table td {
+  text-align: left;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.smoke-table th {
+  color: #888;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color: #f6f6f6;
+    background-color: #2f2f2f;
+  }
+
+  .subtitle {
+    color: #aaa;
+  }
+
+  .card {
+    background-color: #232323;
+    border-color: #3a3a3a;
+  }
+
+  .card h2 {
+    color: #999;
+  }
+
+  .status-pending {
+    color: #aaa;
+  }
+
+  .status-ok {
+    color: #3fb950;
+  }
+
+  .status-fail {
+    color: #ff7b72;
+  }
+
+  .dataset-line {
+    color: #ccc;
+  }
+
+  .smoke-table th,
+  .smoke-table td {
+    border-bottom-color: #3a3a3a;
+  }
+
+  .smoke-table th {
+    color: #999;
+  }
+}
