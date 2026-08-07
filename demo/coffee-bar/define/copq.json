@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-copq",
+  "tool_id": "T-02",
+  "created_at": "2026-07-07T13:30:00Z",
+  "updated_at": "2026-07-07T13:30:00Z",
+  "notes": "The engine computes each row amount (quantity x rate) and the total; nothing here is hand-typed. Q2 2026 total feeds the charter's business-impact field: $4,021 x 4 = $16,084 per year, basis stated on the charter.",
+  "rows": [
+    {
+      "category": "rework",
+      "custom_label": null,
+      "quantity": 320,
+      "rate": 1.1,
+      "period": "Q2 2026",
+      "basis": "Remade drinks counted on the barista waste sheet, Q2 2026; per-remake ingredient and cup cost from supplier invoices",
+      "is_estimate": false
+    },
+    {
+      "category": "custom",
+      "custom_label": "Comped drinks (long-wait apologies)",
+      "quantity": 210,
+      "rate": 4.8,
+      "period": "Q2 2026",
+      "basis": "POS comp log, Q2 2026, reason code 'wait'; rate is the average comped-drink price",
+      "is_estimate": false
+    },
+    {
+      "category": "lost_business",
+      "custom_label": null,
+      "quantity": 378,
+      "rate": 5.25,
+      "period": "Q2 2026",
+      "basis": "Estimate: 10-morning walk-away tally in June 2026 averaged 6 per morning, extrapolated to 63 Q2 weekday mornings; average ticket from the POS",
+      "is_estimate": true
+    },
+    {
+      "category": "overtime",
+      "custom_label": null,
+      "quantity": 41,
+      "rate": 16.5,
+      "period": "Q2 2026",
+      "basis": "Time-clock export, Q2 2026, morning-shift overtime code -- extra time to clear the peak backlog",
+      "is_estimate": false
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-charter",
+  "tool_id": "T-03",
+  "created_at": "2026-07-03T15:20:00Z",
+  "updated_at": "2026-07-06T16:45:00Z",
+  "notes": "Version 2, corrected after prescore review -- see charter-teaching-note.md for what changed and why. Magnitude source: POS order timestamps plus the pickup-counter handoff tally, 15 mornings sampled across Q2 2026, n = 412 orders.",
+  "problem_statement": {
+    "what": "Espresso-drink orders take too long from register to handoff during the weekday morning peak, producing walk-aways, comped drinks, remakes, and peak-end overtime.",
+    "where": "Campus coffee bar, front counter and espresso station.",
+    "when": "Weekday mornings, 7:00-10:00 peak; observed throughout Q2 2026.",
+    "magnitude": {
+      "number": 8.4,
+      "unit": "minutes average order-to-handoff",
+      "period": "Q2 2026, weekday 7:00-10:00 peak"
+    }
+  },
+  "goal": {
+    "statement": "Reduce average order-to-handoff time during the weekday 7:00-10:00 peak from 8.4 minutes to 5.0 minutes by October 31, 2026.",
+    "metric_name": "Average order-to-handoff time, weekday 7:00-10:00 peak",
+    "baseline_value": 8.4,
+    "target_value": 5.0,
+    "unit": "minutes",
+    "target_date": "2026-10-31",
+    "consequential_metrics": [
+      "Drink remake rate (remakes per 100 orders)",
+      "Barista labor hours per morning shift"
+    ]
+  },
+  "scope": {
+    "in_scope": "Espresso-drink orders placed at the register during the weekday 7:00-10:00 peak: order-taking, drink preparation, and handoff at the campus coffee bar.",
+    "out_scope": "Food orders, drip-only orders, mobile pre-orders, weekend service, the library cart, menu changes, and pricing."
+  },
+  "team": [
+    { "name": "Priya Shah", "role": "Morning shift lead (project lead)" },
+    { "name": "Marcus Webb", "role": "Barista, morning shift" },
+    { "name": "Dana Ellis", "role": "Cafe manager (sponsor)" }
+  ],
+  "process_owner": {
+    "name": "Priya Shah",
+    "role": "Morning shift lead -- runs the order-to-handoff process daily"
+  },
+  "timeline": [
+    { "name": "Define complete", "date": "2026-07-18" },
+    { "name": "Measure complete (baseline in hand)", "date": "2026-08-15" },
+    { "name": "Analyze complete (causes verified)", "date": "2026-09-05" },
+    { "name": "Improve complete (fix proven)", "date": "2026-10-10" },
+    { "name": "Control plan in place", "date": "2026-10-31" }
+  ],
+  "business_impact": {
+    "amount": 16084,
+    "unit": "dollars per year",
+    "basis": "COPQ calculator Q2 2026 total ($4,021) x 4 -- Q2 actuals x 4"
+  },
+  "risks": [
+    {
+      "risk": "Fall semester starts late August and shifts morning demand, so before/after comparisons could be confounded",
+      "likelihood": "high",
+      "impact": "medium",
+      "mitigation": "Record daily order counts as a stratification factor and compare like-for-like weeks",
+      "owner": "Priya Shah"
+    },
+    {
+      "risk": "Student-barista turnover mid-project loses the trained morning crew",
+      "likelihood": "medium",
+      "impact": "medium",
+      "mitigation": "Cross-train a second regular on the espresso station; log staffing changes in the project record",
+      "owner": "Dana Ellis"
+    }
+  ]
+}

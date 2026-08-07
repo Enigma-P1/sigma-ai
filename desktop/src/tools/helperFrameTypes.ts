@@ -18,6 +18,10 @@ export interface HelperFrameContent {
   fieldGuidance: FieldGuidance[];
   whatGoodLooksLike: string[];
   commonMistakes: string[];
+  /** Method-source citation (PLAN §6 / tier-a-done-means §1: every tool's
+   * help panel cites its source) -- the traceability-matrix row's
+   * method/formula source for this tool, plus its rubric item IDs. */
+  source: string;
   /** True for every tool this milestone didn't write real content for. */
   isPlaceholder: boolean;
 }
@@ -31,6 +35,7 @@ export function placeholderHelperContent(toolId: string, toolName: string): Help
     fieldGuidance: [],
     whatGoodLooksLike: ["PLACEHOLDER — the rubric checklist for this tool ships with the tool."],
     commonMistakes: ["PLACEHOLDER — the common-mistakes list ships with the tool."],
+    source: "PLACEHOLDER — the method-source citation ships with the tool.",
     isPlaceholder: true,
   };
 }
