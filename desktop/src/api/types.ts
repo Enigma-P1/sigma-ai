@@ -303,3 +303,199 @@ export interface SmokeResponse {
   certified_stdev: number;
   match: boolean;
 }
+
+// ---- Datasets (engine/sigma_engine/datasets.py) — T-11 import half ----
+
+export type ColumnType = "numeric" | "text";
+
+export interface ColumnInfo {
+  name: string;
+  inferred_type: ColumnType;
+  /** Effective type: a caller's confirmed override if given, else
+   * inferred_type — "inferred but user-confirmable" (M2 brief). */
+  type: ColumnType;
+  sample_values: string[];
+}
+
+export interface QualityScanResult {
+  row_count: number;
+  missing_values: Record<string, number>;
+  non_numeric_in_numeric_columns: Record<string, number>;
+  duplicate_row_count: number;
+}
+
+/** Returned by the preview route — never persisted. */
+export interface DatasetPreview {
+  source_filename: string;
+  row_count: number;
+  columns: ColumnInfo[];
+  quality: QualityScanResult;
+  sample_rows: Record<string, string>[];
+}
+
+/** The persisted record (meta.json). */
+export interface DatasetMeta {
+  schema_version: number;
+  dataset_id: string;
+  project_id: string;
+  source_filename: string;
+  created_at: string;
+  sha256: string;
+  row_count: number;
+  columns: ColumnInfo[];
+  quality: QualityScanResult;
+}
+
+export interface DatasetDetail {
+  meta: DatasetMeta;
+  rows: Record<string, string>[];
+}
+
+// ---- Stats: descriptive + baseline (engine/sigma_engine/stats/*.py) — T-13 ----
+// Mirrored field-for-field from the Pydantic models routes/stats.py
+// serializes — T-13 renders BaselineResult faithfully and computes
+// nothing itself, so these shapes are load-bearing, not decorative.
+
+export interface DescriptiveStats {
+  n: number;
+  mean: number;
+  sd: number;
+  median: number;
+  q1: number;
+  q3: number;
+  iqr: number;
+  min: number;
+  max: number;
+}
+
+export type ImrSignalSide = "above" | "below";
+
+export interface ImrSignal {
+  rule_id: string;
+  start_index: number;
+  end_index: number;
+  side: ImrSignalSide;
+  description: string;
+}
+
+export interface ImrChartResult {
+  n: number;
+  xbar: number;
+  mr_bar: number;
+  sigma_within: number;
+  i_ucl: number;
+  i_cl: number;
+  i_lcl: number;
+  mr_ucl: number;
+  mr_cl: number;
+  mr_lcl: number;
+  signals: ImrSignal[];
+  rule2_enabled: boolean;
+  rule3_enabled: boolean;
+}
+
+export interface CapabilityResult {
+  n: number;
+  mean: number;
+  sigma_within: number;
+  sigma_overall: number;
+  usl: number | null;
+  lsl: number | null;
+  one_sided: boolean;
+  /** null whenever the process is not stable (EXIT-04) — render the
+   * EXIT-04 explanation in that case, never a blank (M2 brief). */
+  cp_index: number | null;
+  cpk_index: number | null;
+  pp_index: number | null;
+  ppk_index: number;
+  performance_not_capability: boolean;
+}
+
+export type NormalityAdvisory = "no_concern" | "concern" | "too_few_to_judge";
+
+export interface NormalityResult {
+  n: number;
+  statistic: number | null;
+  approx_pvalue: number | null;
+  p_band: string;
+  advisory: NormalityAdvisory;
+}
+
+export interface PercentileCapabilityResult {
+  n: number;
+  p_low: number;
+  p_median: number;
+  p_high: number;
+  pp_percentile: number | null;
+  ppk_percentile: number;
+  label: string;
+}
+
+export interface ObservedYieldResult {
+  n: number;
+  in_spec_fraction: number;
+  dpmo: number;
+}
+
+export type SigmaConvention = "with 1.5σ shift" | "without shift";
+
+export interface SigmaLevelResult {
+  dpmo: number;
+  /** Python's float can hold `inf` (an extremely capable process against
+   * very wide spec limits pushes the underlying z-score there); pydantic
+   * serializes a non-finite float as JSON `null` by default, so this is
+   * genuinely nullable on the wire even though the engine's own type
+   * annotation reads as a plain float — confirmed empirically against
+   * the route, not assumed. Render an honest "not finite at this scale"
+   * message rather than crashing .toFixed() on null. */
+  sigma_level: number | null;
+  convention: SigmaConvention;
+}
+
+export interface BaselineResult {
+  gate_ok: boolean;
+  gate_message: string | null;
+  n: number | null;
+  descriptive: Computed<DescriptiveStats> | null;
+  stability: Computed<ImrChartResult> | null;
+  stable: boolean | null;
+  stability_note: string | null;
+  capability: Computed<CapabilityResult> | null;
+  normality: Computed<NormalityResult> | null;
+  percentile_capability: Computed<PercentileCapabilityResult> | null;
+  observed_yield: Computed<ObservedYieldResult> | null;
+  sigma: Computed<SigmaLevelResult> | null;
+  exits: string[];
+}
+
+/** R-MEA-06's dataset -> BaselineResult hash chain, echoed back only when
+ * the baseline route was fed a dataset_id (routes/stats.py). */
+export interface DatasetProvenance {
+  dataset_id: string;
+  dataset_sha256: string;
+  column: string;
+  row_count_used: number;
+}
+
+export interface BaselineResponse extends BaselineResult {
+  dataset_provenance?: DatasetProvenance;
+}
+
+// ---- Stats: Pareto (engine/sigma_engine/stats/pareto.py) — T-14 ----
+
+export interface ParetoCategory {
+  category: string;
+  count: number;
+  share: number;
+  cumulative_share: number;
+  vital_few: boolean;
+}
+
+export interface ParetoResult {
+  total: number;
+  categories: ParetoCategory[];
+  vital_few_count: number;
+  /** No small subset of categories dominates — the honest "flat-bars"
+   * case (research §F), not a forced vital-few claim. */
+  flat: boolean;
+}

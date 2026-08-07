@@ -8,9 +8,17 @@ import { ApiError } from "./errors";
 import type { PydanticErrorItem } from "./errors";
 import type {
   ArtifactIndexEntry,
+  BaselineResponse,
+  Computed,
+  ColumnType,
+  DatasetDetail,
+  DatasetMeta,
+  DatasetPreview,
+  DescriptiveStats,
   GateResult,
   HealthResponse,
   OverrideLogEntry,
+  ParetoResult,
   PrescoreResult,
   ProjectMetadata,
   SmokeResponse,
@@ -170,6 +178,66 @@ export async function downloadCharterPdf(projectId: string, version?: number): P
   }
 
   return res.blob();
+}
+
+// ---- Datasets (routes/datasets.py) — T-11 import half ----
+
+export interface DatasetImportBody {
+  source_filename: string;
+  content_base64: string;
+  column_types?: Record<string, ColumnType>;
+}
+
+/** Parse+infer+scan only — nothing persisted. Safe to call repeatedly as
+ * the user tries different column-type overrides in the T-11 preview. */
+export function previewDataset(projectId: string, body: DatasetImportBody): Promise<DatasetPreview> {
+  return request<DatasetPreview>(`/project/${encodeURIComponent(projectId)}/datasets/preview`, postJson(body));
+}
+
+export function saveDataset(projectId: string, body: DatasetImportBody & { created_at: string }): Promise<DatasetMeta> {
+  return request<DatasetMeta>(`/project/${encodeURIComponent(projectId)}/datasets`, postJson(body));
+}
+
+export function listDatasets(projectId: string): Promise<DatasetMeta[]> {
+  return request<DatasetMeta[]>(`/project/${encodeURIComponent(projectId)}/datasets`);
+}
+
+export function getDataset(projectId: string, datasetId: string): Promise<DatasetDetail> {
+  return request<DatasetDetail>(`/project/${encodeURIComponent(projectId)}/datasets/${encodeURIComponent(datasetId)}`);
+}
+
+// ---- Stats (routes/stats.py) — T-13 baseline, T-14 chart facts ----
+
+export interface BaselineRequestBody {
+  data?: number[];
+  project_id?: string;
+  dataset_id?: string;
+  column?: string;
+  usl?: number | null;
+  lsl?: number | null;
+  operational_definition_ok: boolean;
+  enable_rule2?: boolean;
+  enable_rule3?: boolean;
+  apply_sigma_shift?: boolean;
+}
+
+/** The only way T-13 gets numbers onto the screen — every field in the
+ * response is rendered as-is, nothing recomputed client-side (M2 brief). */
+export function runBaseline(body: BaselineRequestBody): Promise<BaselineResponse> {
+  return request<BaselineResponse>("/stats/baseline", postJson(body));
+}
+
+/** Engine-computed n/mean/sd/median/IQR for a raw column pulled from a
+ * dataset — what T-14's chart headlines quote instead of re-deriving
+ * anything by hand (rubric R-MEA-10). */
+export function runDescriptive(data: number[]): Promise<Computed<DescriptiveStats>> {
+  return request<Computed<DescriptiveStats>>("/stats/descriptive", postJson({ data }));
+}
+
+/** Sorted tally + cumulative share + the engine-made vital-few call
+ * (T-14's Pareto chart never decides its own headline client-side). */
+export function runPareto(categories: string[]): Promise<Computed<ParetoResult>> {
+  return request<Computed<ParetoResult>>("/stats/pareto", postJson({ categories }));
 }
 
 // ---- diagnostics (main.py) ----

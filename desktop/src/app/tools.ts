@@ -6,13 +6,14 @@ export interface ToolDef {
   id: string;
   name: string;
   phase: Phase;
-  /** Registered in the engine's ARTIFACT_REGISTRY (registry.py) -- can be
-   * validated, saved, and pre-scored. T-01..T-05 only, this milestone. */
+  /** Real engine-backed functionality exists for this tool -- either
+   * registered in ARTIFACT_REGISTRY (T-01..T-05: validate/save/prescore)
+   * or, as of M2, its own bespoke routes (T-11 datasets, T-13 baseline,
+   * T-14 stats/charts). Drives the rail's Available-vs-Not-yet-built pill. */
   live: boolean;
   /** Has a dedicated form screen in this app (vs. a generic placeholder).
-   * T-01..T-05 only -- the whole Intake+Define tool set this milestone
-   * completes. T-06 and later stay placeholders (the engine doesn't
-   * register them yet either -- see `live`). */
+   * T-01..T-05 (M1) plus T-11/T-13/T-14 (M2). Everything else stays a
+   * placeholder until its own milestone. */
   hasForm: boolean;
 }
 
@@ -35,10 +36,12 @@ export const TOOLS: ToolDef[] = [
   { id: "T-08", name: "Check Sheet / Tally", phase: "Measure", live: false, hasForm: false },
   { id: "T-09", name: "Guided Time Study / Work Sampling", phase: "Measure", live: false, hasForm: false },
   { id: "T-10", name: "Yield Calculator (FPY/RTY + DPMO)", phase: "Measure", live: false, hasForm: false },
-  { id: "T-11", name: "Data Collection Plan (+ sample-size guidance)", phase: "Measure", live: false, hasForm: false },
+  // T-11 this milestone is the dataset-import half only -- sample-size
+  // guidance is a later unit (M2 brief).
+  { id: "T-11", name: "Data Collection Plan (+ sample-size guidance)", phase: "Measure", live: true, hasForm: true },
   { id: "T-12", name: "Measurement Check (narrow MSA)", phase: "Measure", live: false, hasForm: false },
-  { id: "T-13", name: "Baseline: Stability then Capability", phase: "Measure", live: false, hasForm: false },
-  { id: "T-14", name: "Pareto / Histogram / Run Chart", phase: "Measure", live: false, hasForm: false },
+  { id: "T-13", name: "Baseline: Stability then Capability", phase: "Measure", live: true, hasForm: true },
+  { id: "T-14", name: "Pareto / Histogram / Run Chart", phase: "Measure", live: true, hasForm: true },
 
   // Analyze
   { id: "T-15", name: "Fishbone (6M) + 5 Whys", phase: "Analyze", live: false, hasForm: false },

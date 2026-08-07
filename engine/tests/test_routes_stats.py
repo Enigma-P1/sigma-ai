@@ -51,3 +51,18 @@ def test_baseline_route_defaults_rule2_rule3_off():
     body = resp.json()
     assert body["stability"]["value"]["rule2_enabled"] is False
     assert body["stability"]["value"]["rule3_enabled"] is False
+
+
+def test_pareto_route_returns_sorted_categories_with_cumulative_share():
+    resp = client.post("/stats/pareto", json={"categories": ["register"] * 16 + ["grinder"] * 4 + ["restock"] * 2 + ["training"] * 2})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    cats = body["value"]["categories"]
+    assert [c["category"] for c in cats] == ["register", "grinder", "restock", "training"]
+    assert body["value"]["vital_few_count"] == 2
+    assert body["value"]["flat"] is False
+    assert body["provenance"]["method"]
+
+
+def test_pareto_route_rejects_empty_categories():
+    assert client.post("/stats/pareto", json={"categories": []}).status_code == 422
