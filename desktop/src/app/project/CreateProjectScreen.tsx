@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Field, Panel, TextInput, VerdictBanner } from "../../design/components";
 import { createProject } from "../../api/client";
 import { ApiError } from "../../api/errors";
-import { defaultProjectFolderPath, slugify } from "./path";
+import { defaultProjectFolderPath, projectFolderPath, slugify } from "./path";
 import { rememberProject } from "./recentProjects";
 
 export interface CreateProjectScreenProps {
@@ -26,12 +26,10 @@ export function CreateProjectScreen({ onCreated }: CreateProjectScreenProps) {
     try {
       const created_at = new Date().toISOString();
       const meta = await createProject({ project_id: effectiveId, name: name.trim(), created_at });
-      rememberProject({
-        project_id: meta.project_id,
-        name: meta.name,
-        folder_path: defaultProjectFolderPath(meta.project_id),
-        last_opened_at: created_at,
-      });
+      // The project now exists on disk -- ask the engine for its real path
+      // rather than repeating the pre-creation guess (path.ts).
+      const folder_path = await projectFolderPath(meta.project_id);
+      rememberProject({ project_id: meta.project_id, name: meta.name, folder_path, last_opened_at: created_at });
       onCreated(meta.project_id);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Could not create the project.");

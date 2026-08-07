@@ -42,6 +42,13 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+// Strips everything but digits/./- so "6,000" or "Total: 9,600" reads as a
+// plain number, regardless of the browser's thousands-separator locale.
+function numeric(text) {
+  if (text == null) return NaN;
+  return Number(text.replace(/[^\d.-]/g, ""));
+}
+
 const CRITERIA_KEYS = [
   "scope_narrow",
   "measurable_outcome",
@@ -182,6 +189,145 @@ async function main() {
         flagText?.toLowerCase().includes("solution") || flagText?.toLowerCase().includes("cause"),
         `expected the field-level flag to mention solution/cause language, got ${JSON.stringify(flagText)}`,
       );
+    });
+
+    // ---- Define-completion additions (M1 build-out): T-02/T-04/T-05 real
+    // forms, plus the gate override feedback loop (gates.py's
+    // _covering_override). The override is exercised BEFORE T-05 is saved
+    // on purpose: define_to_measure requires T-03+T-04+T-05, and by the
+    // time all three exist the gate is plain CLEAR with nothing left to
+    // override -- checking it here, with T-05 still missing, is the only
+    // point in this flow with a real soft block to clear. ----
+
+    await step("open T-02 COPQ and fill two cost rows", async () => {
+      await page.locator('[data-testid="nav-tool-T-02"]').click();
+      await page.locator('[data-testid="copq-save"]').waitFor();
+
+      await page.locator('[data-testid="copq-row-0-quantity"]').fill("500");
+      await page.locator('[data-testid="copq-row-0-rate"]').fill("12");
+      await page.locator('[data-testid="copq-row-0-period"]').fill("Q2 2026");
+      await page.locator('[data-testid="copq-row-0-basis"]').fill("Q2 scrap log export");
+
+      await page.getByRole("button", { name: "+ Add cost row" }).click();
+      await page.locator('[data-testid="copq-row-1-category"]').selectOption("rework");
+      await page.locator('[data-testid="copq-row-1-quantity"]').fill("80");
+      await page.locator('[data-testid="copq-row-1-rate"]').fill("45");
+      await page.locator('[data-testid="copq-row-1-period"]').fill("Q2 2026");
+      await page.locator('[data-testid="copq-row-1-basis"]').fill("labor hours x loaded rate");
+
+      assert(await page.locator('[data-testid="copq-save"]').isEnabled(), "COPQ save button should be enabled once both rows are filled");
+    });
+
+    await step("save T-02 and see the server-computed total render", async () => {
+      await page.locator('[data-testid="copq-save"]').click();
+      await page.locator('[data-testid="copq-version-badge"]').waitFor();
+      // The version badge renders as soon as the save POST resolves, but
+      // useCopqForm's reload-after-save GET (what actually populates the
+      // engine-computed amounts/total) is a separate awaited step just
+      // after -- wait for that render to land before reading values.
+      await page.waitForFunction(() => document.querySelector('[data-testid="copq-row-0-amount"]')?.value !== "not yet computed");
+
+      const row0Amount = await page.locator('[data-testid="copq-row-0-amount"]').inputValue();
+      const row1Amount = await page.locator('[data-testid="copq-row-1-amount"]').inputValue();
+      assert(numeric(row0Amount) === 6000, `expected row 0's engine-computed amount to be 6000 (500 x 12), got ${JSON.stringify(row0Amount)}`);
+      assert(numeric(row1Amount) === 3600, `expected row 1's engine-computed amount to be 3600 (80 x 45), got ${JSON.stringify(row1Amount)}`);
+
+      const totalHeadline = await page.locator('[data-testid="copq-total"] .sigma-verdict__headline').textContent();
+      assert(numeric(totalHeadline) === 9600, `expected the server-computed total to read 9600 (6000 + 3600), got ${JSON.stringify(totalHeadline)}`);
+      const totalDetail = await page.locator('[data-testid="copq-total"] .sigma-verdict__detail').textContent();
+      assert(
+        totalDetail?.toLowerCase().includes("computed by the engine"),
+        `expected the total panel to say it's engine-computed, got ${JSON.stringify(totalDetail)}`,
+      );
+    });
+
+    await step("open T-04 SIPOC and fill five clean process steps", async () => {
+      await page.locator('[data-testid="nav-tool-T-04"]').click();
+      await page.locator('[data-testid="sipoc-save"]').waitFor();
+
+      await page.locator('[data-testid="sipoc-supplier-0"]').fill("Resin vendor");
+      await page.locator('[data-testid="sipoc-input-0"]').fill("Raw resin pellets");
+
+      const stepNames = ["Receive order", "Prep", "Mold", "Inspect", "Package"];
+      await page.locator('[data-testid="sipoc-step-0"]').fill(stepNames[0]);
+      for (let i = 1; i < stepNames.length; i++) {
+        await page.getByRole("button", { name: "+ Add step" }).click();
+        await page.locator(`[data-testid="sipoc-step-${i}"]`).fill(stepNames[i]);
+      }
+
+      await page.locator('[data-testid="sipoc-scope-start"]').fill("Order received");
+      await page.locator('[data-testid="sipoc-scope-end"]').fill("Order handed off");
+
+      await page.locator('[data-testid="sipoc-output-0"]').fill("Molded part");
+      await page.locator('[data-testid="sipoc-customer-0"]').fill("Assembly line");
+
+      assert(await page.locator('[data-testid="sipoc-save"]').isEnabled(), "SIPOC save button should be enabled once all five columns are filled");
+    });
+
+    await step("save T-04 and assert the step-count prescore reads clean", async () => {
+      await page.locator('[data-testid="sipoc-save"]').click();
+      await page.locator('[data-testid="sipoc-version-badge"]').waitFor();
+
+      const pill = page.locator('[data-testid="prescore-check-step_count_range"]');
+      await pill.waitFor();
+      const status = await pill.getAttribute("data-status");
+      assert(status === "pass", `expected 5 steps to read a clean (pass) step-count range, got ${JSON.stringify(status)}`);
+    });
+
+    await step("switch to Measure and confirm the Define exit gate soft-blocks (T-05 still missing)", async () => {
+      await page.locator('[data-testid="nav-tool-T-06"]').click();
+      await page.locator('[data-testid="gate-override-open"]').waitFor();
+    });
+
+    await step("log a soft-block override with a reason and confirm the gate renders cleared-with-note", async () => {
+      const overrideReason = "Charter, COPQ, and SIPOC are done; unblocking Measure prep while VoC/CTQ is finished.";
+      await page.locator('[data-testid="gate-override-open"]').click();
+      await page.locator('[data-testid="gate-override-reason"]').fill(overrideReason);
+      await page.locator('[data-testid="gate-override-submit"]').click();
+
+      const clearedNote = page.locator(".sigma-verdict", { hasText: "cleared, override logged" });
+      await clearedNote.waitFor();
+      const bannerText = await clearedNote.textContent();
+      assert(
+        bannerText?.includes(overrideReason),
+        `expected the cleared-with-note banner to include the logged override reason, got ${JSON.stringify(bannerText)}`,
+      );
+    });
+
+    await step("open T-05 VoC -> CTQ and build one statement -> need -> CTQ", async () => {
+      await page.locator('[data-testid="nav-tool-T-05"]').click();
+      await page.locator('[data-testid="voc-ctq-save"]').waitFor();
+
+      await page.locator('[data-testid="voc-customer-0-role"]').fill("external - end buyer");
+
+      await page.locator('[data-testid="voc-statement-0-role"]').fill("external - end buyer");
+      await page.locator('[data-testid="voc-statement-0-text"]').fill("Parts sometimes arrive cracked.");
+      await page.locator('[data-testid="voc-statement-0-detail"]').fill("2026 Q2 complaint log");
+
+      await page.locator('[data-testid="voc-need-0-text"]').fill("Parts must arrive intact");
+      await page.locator('[data-testid="voc-need-0-statement-S1"]').check();
+
+      await page.locator('[data-testid="voc-ctq-0-need"]').selectOption("N1");
+      await page.locator('[data-testid="voc-ctq-0-measure"]').fill("crack rate at receiving");
+      await page.locator('[data-testid="voc-ctq-0-target"]').fill("<1%");
+      await page
+        .locator('[data-testid="voc-ctq-0-critical-check"]')
+        .fill("Customer-critical: cracked parts are returned and re-ordered; not chosen for ease of measurement.");
+
+      await page.locator('[data-testid="voc-primary-ctq"]').selectOption("C1");
+      await page.locator('[data-testid="voc-charter-link"]').fill("matches charter primary metric: line-2 scrap rate");
+
+      assert(await page.locator('[data-testid="voc-ctq-save"]').isEnabled(), "VoC/CTQ save button should be enabled once the tree is complete");
+    });
+
+    await step("save T-05 and assert tree-completeness prescore passes", async () => {
+      await page.locator('[data-testid="voc-ctq-save"]').click();
+      await page.locator('[data-testid="voc-ctq-version-badge"]').waitFor();
+
+      const pill = page.locator('[data-testid="prescore-check-tree_completeness"]');
+      await pill.waitFor();
+      const status = await pill.getAttribute("data-status");
+      assert(status === "pass", `expected the VoC/CTQ tree to read complete (pass), got ${JSON.stringify(status)}`);
     });
   } catch (err) {
     await finish(browser, false, err);

@@ -5,11 +5,14 @@ export interface ToolPlaceholderProps {
   tool: ToolDef;
 }
 
-/** Honest stand-in for every tool this milestone doesn't have a form for.
- * Distinguishes "the engine doesn't support this tool_id yet" (T-06..T-25)
- * from "the engine supports it, but this milestone's UI doesn't have a
- * dedicated form for it yet" (T-02, T-04, T-05) -- both true, different
- * claims, so the message says which one it is. */
+/** Honest stand-in for every tool this milestone doesn't have a form for
+ * (T-06 and later, once Intake+Define ship real forms for T-01..T-05).
+ * Distinguishes "the engine doesn't support this tool_id yet" from "the
+ * engine supports it, but no milestone has built its screen yet" -- both
+ * true claims in principle, so the message says which one applies; today
+ * every not-yet-built tool is also not yet engine-registered, so only the
+ * `!tool.live` branch actually renders, but the `tool.live` branch stays
+ * ready for the day a tool is engine-live before its screen ships. */
 export function ToolPlaceholder({ tool }: ToolPlaceholderProps) {
   if (tool.live) {
     return (

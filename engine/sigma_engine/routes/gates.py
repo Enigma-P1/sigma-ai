@@ -35,10 +35,11 @@ class GateCheckRequest(BaseModel):
 def check_gate(body: GateCheckRequest, store: ProjectStore = Depends(get_store)) -> gates_module.GateResult:
     try:
         snapshot = _build_snapshot(body.project_id, store)
+        overrides = store.list_overrides(body.project_id)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     try:
-        return gates_module.check(body.gate_id, snapshot)
+        return gates_module.check(body.gate_id, snapshot, overrides)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
@@ -53,7 +54,11 @@ class GateOverrideRequest(BaseModel):
 @router.post("/override", response_model=OverrideLogEntry)
 def override_gate(body: GateOverrideRequest, store: ProjectStore = Depends(get_store)) -> OverrideLogEntry:
     try:
-        return gates_module.override(body.gate_id, body.project_id, body.reason, body.timestamp, store)
+        snapshot = _build_snapshot(body.project_id, store)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    try:
+        return gates_module.override(body.gate_id, body.project_id, body.reason, body.timestamp, store, snapshot)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except PermissionError as exc:

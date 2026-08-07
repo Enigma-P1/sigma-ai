@@ -10,7 +10,9 @@ export interface ToolDef {
    * validated, saved, and pre-scored. T-01..T-05 only, this milestone. */
   live: boolean;
   /** Has a dedicated form screen in this app (vs. a generic placeholder).
-   * T-01 and T-03 only -- the two proof screens the M1 brief calls for. */
+   * T-01..T-05 only -- the whole Intake+Define tool set this milestone
+   * completes. T-06 and later stay placeholders (the engine doesn't
+   * register them yet either -- see `live`). */
   hasForm: boolean;
 }
 
@@ -22,10 +24,10 @@ export const TOOLS: ToolDef[] = [
   { id: "T-01", name: "Project Picker (+ PDCA quick path routing)", phase: "Intake", live: true, hasForm: true },
 
   // Define
-  { id: "T-02", name: "COPQ / Benefit Calculator", phase: "Define", live: true, hasForm: false },
+  { id: "T-02", name: "COPQ / Benefit Calculator", phase: "Define", live: true, hasForm: true },
   { id: "T-03", name: "Project Charter", phase: "Define", live: true, hasForm: true },
-  { id: "T-04", name: "SIPOC", phase: "Define", live: true, hasForm: false },
-  { id: "T-05", name: "VoC → CTQ Tree", phase: "Define", live: true, hasForm: false },
+  { id: "T-04", name: "SIPOC", phase: "Define", live: true, hasForm: true },
+  { id: "T-05", name: "VoC → CTQ Tree", phase: "Define", live: true, hasForm: true },
 
   // Measure
   { id: "T-06", name: "Process Map (swimlane) + Waste Walk", phase: "Measure", live: false, hasForm: false },

@@ -9,8 +9,9 @@ const MAX_ENTRIES = 20;
 export interface RecentProject {
   project_id: string;
   name: string;
-  /** Best-effort default project folder path -- see path.ts for why this
-   * is a convention, not a value the engine reports. */
+  /** The project's real folder path from the engine's /project/{id}/info
+   * (see path.ts's projectFolderPath), falling back to the documented
+   * default only if that call failed at the time this was recorded. */
   folder_path: string;
   last_opened_at: string;
 }

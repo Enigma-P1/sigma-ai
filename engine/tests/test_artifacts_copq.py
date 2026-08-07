@@ -56,3 +56,16 @@ def test_round_trip_via_model_dump():
     artifact = CopqArtifact.model_validate(make_copq())
     round_tripped = CopqArtifact.model_validate(artifact.model_dump(mode="json"))
     assert round_tripped == artifact
+
+
+def test_posted_total_is_discarded_and_recomputed():
+    """R-DEF-05: a hand-typed/tampered total can never survive a save."""
+    from sigma_engine.provenance import compute
+
+    art = CopqArtifact.model_validate(
+        make_copq(total=compute(999999.0, method="tampered", input_data=[]).model_dump(mode="json"))
+    )
+    assert art.total is not None
+    assert art.total.value == sum(r.amount for r in art.rows)
+    assert art.total.value != 999999.0
+    assert "copq_total" in art.total.provenance.method
