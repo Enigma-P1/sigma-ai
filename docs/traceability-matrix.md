@@ -1,13 +1,13 @@
 ---
 type: knowledge
-status: draft
+status: locked
 tags: [m0, traceability, bok]
 date: 2026-08-07
 ---
 
 # Green Belt BoK Traceability Matrix — Milestone 0
 
-**Status:** DRAFT — locks with the rubric after the independent review pass (owner ruling 2026-08-07: the reviewer chair is the external-model Belt panel, not a human certified Belt — PLAN §6; claims about this matrix say "externally AI-reviewed").
+**Status: LOCKED — 2026-08-07**, with the rubric, after the three-round external-model Belt-panel review (owner ruling 2026-08-07: the reviewer chair is the panel, not a human certified Belt — PLAN §6; claims about this matrix say "externally AI-reviewed"; the rubric header carries the full round-by-round record). Post-lock changes only by logged decision through the done-means change-log path.
 **Date:** 2026-08-07
 
 **Pinned references** (pins name outline versions, not licensed text — no ASQ/IASSC/PeopleCert copyrighted prose is reproduced here; topic names and original wording only):
@@ -317,13 +317,13 @@ Numeric trigger values for every exit are **frozen in §4a** — the qualitative
 
 ### 4a. Frozen trigger values
 
-Added at critic review 2026-08-07: an exit with no number is unfalsifiable, and floors chosen after demo data exists would be floors chosen to pass. These values are **frozen now**; they change only by a logged decision naming a source, and the goldens pin them. Default significance level throughout: α = 0.05, two-sided.
+Added at critic review 2026-08-07: an exit with no number is unfalsifiable, and floors chosen after demo data exists would be floors chosen to pass. These values are **frozen now**; they change only by a logged decision naming a source, through the done-means change-log path (repo change-log entry + vault decision record). The goldens pin them **including the exact boundary values** — each banded trigger gets a golden case at its boundary (10.0%, κ=0.75, n at each floor) so an off-by-one comparison can never ship silently (round-3 panel requirement). Default significance level throughout: α = 0.05, two-sided. Every interval below is exclusive-exhaustive: one value, one verdict.
 
 | Exit | Frozen trigger |
 |---|---|
 | EXIT-01 | Any of the five intake criteria answered No |
-| EXIT-02 (continuous) | Resolution pre-check first: gauge increment ≤ 1/10 of the span it must resolve (spec width when both limits exist, else observed spread), and ≥5 distinct recorded values — else automatic fail ("the gauge can't see the process"). Then **repeatability% (test/retest)** — renamed from "%EV" at Belt-panel round 2, since EV strictly names a component of a full variance-decomposed gauge study; defined as 6·s\_repeat ÷ denominator × 100 with the denominator named as which it is (tolerance width when specs exist, else 6·s\_study): ≤10% acceptable · 10–30% marginal · >30% fail. Belt-panel note, printed on every verdict: these bands are borrowed from full-gauge-study convention, so passing on repeatability alone is the **lenient** side — the artifact carries "repeatability-only; a full study could only read worse." Sample guidance: ≥10 items spanning the observed range, near-limit items when specs exist |
-| EXIT-02 (attribute) | Two-rater kappa: ≥0.75 acceptable · 0.40–0.75 marginal · <0.40 fail (generic agreement-strength anchors); % agreement reported alongside, never alone |
+| EXIT-02 (continuous) | Resolution pre-check first: gauge increment ≤ 1/10 of the span it must resolve (spec width when both limits exist, else observed spread), and ≥5 distinct recorded values — else automatic fail ("the gauge can't see the process"). Then **repeatability% (test/retest)** — renamed from "%EV" at Belt-panel round 2, since EV strictly names a component of a full variance-decomposed gauge study; defined as 6·s\_repeat ÷ denominator × 100, where s\_repeat is the **pooled within-item SD from ≥2 repeat readings per item across the ≥10-item sample, same operator, same procedure, blind to prior readings where practical; items with missing/invalid repeats are excluded and the exclusion logged** (round-3 lock fix — the repeat design was unstated), and the denominator named as which it is (tolerance width when specs exist, else 6·s\_study): **≤10% acceptable · >10% and ≤30% marginal · >30% fail** (boundaries made exclusive-exhaustive at round 3 — exactly 10% was previously two verdicts). Belt-panel note, printed on every verdict: these bands are borrowed from full-gauge-study convention, so passing on repeatability alone is the **lenient** side — the artifact carries "repeatability-only; a full study could only read worse." Sample guidance: ≥10 items spanning the observed range, near-limit items when specs exist |
+| EXIT-02 (attribute) | Two-rater kappa: **≥0.75 acceptable · ≥0.40 and <0.75 marginal · <0.40 fail** (generic agreement-strength anchors; boundaries made exclusive-exhaustive at round 3 — κ=0.75 was previously two verdicts); % agreement reported alongside, never alone |
 | EXIT-03 | Measurement question outside {test/retest repeatability, two-rater attribute agreement} — multi-operator, bias, linearity, stability → route out |
 | EXIT-04 | Any default-rule signal (rule 1 or rule 4, §VI.A.1 note) on the baseline I-MR / p-chart. Companion floor (Belt-panel round 2): any window used to **set or freeze control limits** — baseline or post-improvement — needs **≥ 20 points and no default-rule signal within it**; short of that the chart runs diagnostically, limits unfrozen, no stability or sustained-control claim. A cleaned, re-run stable baseline unlocks Cp/Cpk normally |
 | EXIT-05 | Advisory normality concern (visual + Anderson–Darling p < 0.05, n-aware framing, never silent). Non-normal path, method defined precisely (Belt-panel round 2 — an undefined "percentile method" would print nonstandard numbers under a standard label): when n ≥ 100, **percentile-method performance indices** — Pp\_perc = (USL−LSL)/(p₉₉.₈₆₅−p₀.₁₃₅), Ppk\_perc = min[(USL−p₅₀)/(p₉₉.₈₆₅−p₅₀), (p₅₀−LSL)/(p₅₀−p₀.₁₃₅)] with empirical quantiles (linear interpolation), always labeled "percentile method — not normal-theory Ppk"; below 100 no indices — observed yield/DPMO + caveat only. Fitted-percentile methods (Clements-style) deliberately deferred: they mislead at exactly the sample sizes untrained users have |

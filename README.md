@@ -4,7 +4,7 @@ AI-guided Six Sigma / Lean application that ingests operational data *and* Voice
 
 ## Status
 
-**Building — milestone 0 (of 7) underway.** The v1 build plan is approved after a three-round external review loop (see [`PLAN.md`](PLAN.md)). Milestone 0's governing documents are landing: the [BoK traceability matrix](docs/traceability-matrix.md) (coverage proven against the pinned ASQ 2022 + IASSC Green Belt bodies of knowledge), the [Green Belt grading rubric](docs/green-belt-rubric.md) (draft — locks after an external-model Belt review; per owner ruling no human certified Belt reviews this project, and no claim here implies otherwise), and the frozen [Tier-A definition of done](docs/tier-a-done-means.md). No app code before these existed, by design. This README predates the plan below this line and gets its full rewrite at the final milestone.
+**Building — milestone 0 (of 7) underway.** The v1 build plan is approved after a three-round external review loop (see [`PLAN.md`](PLAN.md)). Milestone 0's governing documents are landing: the [BoK traceability matrix](docs/traceability-matrix.md) (coverage proven against the pinned ASQ 2022 + IASSC Green Belt bodies of knowledge), the [Green Belt grading rubric](docs/green-belt-rubric.md) (locked 2026-08-07 after a three-round external-model Belt review — per owner ruling no human certified Belt reviews this project, and no claim here implies otherwise), and the frozen [Tier-A definition of done](docs/tier-a-done-means.md). No app code before these existed, by design. This README predates the plan below this line and gets its full rewrite at the final milestone.
 
 ## The positioning thesis (to stress-test)
 
