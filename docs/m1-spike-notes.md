@@ -93,13 +93,26 @@ fixup step was added to `build-windows`. This is inference from Tauri's
 docs, not a Windows reproduction (no Windows box available here); the
 Windows smoke-test step in the workflow (below) is what actually checks it.
 
-**macOS fix, applied in `build-mac`:** build `--bundles app` only, move
-`Contents/Resources/_internal` → `Contents/MacOS/_internal`, smoke-test the
-relocated sidecar for real (`curl 127.0.0.1:8756/health` and `/smoke`,
-asserting `match: true`), *then* `hdiutil create` the dmg from the fixed
-`.app`. If this step's assumptions ever stop holding, the fallback is
-switching `sigma_engine.spec` from onedir to onefile mode — a single
-self-contained executable sidesteps the sibling-directory requirement
+**macOS fix, applied in `build-mac`:** build `--bundles app` only, merge
+`Contents/Resources/_internal` into `Contents/Frameworks/` (ditto, symlinks
+preserved), smoke-test the relocated sidecar for real
+(`curl 127.0.0.1:8756/health` and `/smoke`, asserting `match: true`),
+*then* `hdiutil create` the dmg from the fixed `.app`.
+
+**Corrected by CI run 31202027106 (first real macOS run):** the sibling
+rule above is NOT what the bootloader does inside an .app. When the exe
+path ends in `Contents/MacOS/`, PyInstaller's bootloader resolves support
+files to **`Contents/Frameworks/`** — the run failed with
+`[PYI-9202] Failed to load Python shared library
+'.../Contents/Frameworks/Python'` while a sibling `_internal` sat unused
+in `Contents/MacOS/`. So: sibling `_internal` outside an .app
+(Linux/Windows), `Contents/Frameworks/` inside one. The workflow was
+fixed accordingly (same run also proved the Windows path green end-to-end
+— msi/nsis built, staged sidecar smoke passed, no fixup needed there,
+confirming the inference above). If these assumptions ever stop holding,
+the fallback is switching `sigma_engine.spec` from onedir to onefile mode
+— a single self-contained executable sidesteps the support-directory
+requirement
 entirely, at the cost of a slower (self-extracting) cold start.
 
 ## Verified in-container vs. CI must prove
