@@ -15,7 +15,7 @@ date: 2026-08-07
 1. **ASQ Certified Six Sigma Green Belt Body of Knowledge, 2022 edition** — six sections: I. Overview: Six Sigma and the Organization; II. Define; III. Measure; IV. Analyze; V. Improve; VI. Control. Outline taken from ASQ's official 2014→2022 BoK Map PDF (`asq.org/cert/resource/pdf/certification/2022-SSGB-BoK-Map.pdf`), **fetched and extracted live 2026-08-07** — every topic code and name below is verified against that document.
 2. **IASSC/PeopleCert Lean Six Sigma Green Belt Body of Knowledge** — five phases (D-M-A-I-C) with subtopics. Outline **fetched live 2026-08-07** from both `iassc.org/body-of-knowledge/green-belt-body-of-knowledge/` and the PeopleCert syllabus PDF at the v1.1 URL (`peoplecert.org/.../lsspeoplecertgbsyllabusenv11.pdf`); the two topic lists are identical. One discrepancy to record: the PDF served at the v1.1 URL self-identifies internally as "Version 1.0, June 2021" — the pin is the topic outline (verified), and the version-stamp mismatch goes to the M2 fidelity review.
 
-**Authority statement (PLAN §1, the acceptance contract):** the quality bar — Green Belt-grade work on everything the suite covers — is fixed and never softens. The coverage list is what flexes, and only visibly: this matrix names exactly which BoK items v1 covers, which are explain-only, and which exit to a human expert. The rubric grades against this declared scope. **If this matrix shows a genuinely-required Green Belt capability missing from the tool list, the tool list grows — the matrix corrects the plan, not the other way around.** Coverage claims in any README or marketing come from this matrix; the gaps are named, never asserted away. §5a below applies that clause: five corrections to PLAN §4.1 are proposed there, and rows they affect are marked `†`.
+**Authority statement (PLAN §1, the acceptance contract):** the quality bar — Green Belt-grade work on everything the suite covers — is fixed and never softens. The coverage list is what flexes, and only visibly: this matrix names exactly which BoK items v1 covers, which are explain-only, and which exit to a human expert. The rubric grades against this declared scope. **If this matrix shows a genuinely-required Green Belt capability missing from the tool list, the tool list grows — the matrix corrects the plan, not the other way around.** Coverage claims in any README or marketing come from this matrix; the gaps are named, never asserted away. §5a below applies that clause: six corrections to PLAN §4.1 are recorded there (all folded into the plan 2026-08-07), and rows they affect are marked `†`.
 
 **How to read the coverage column:** a `T-nn` ID means a shipping v1 tool does the work; `explain-only` means the suite teaches the topic (helper text, decision-tree annotations, advisor) but generates no artifact for it; `EXIT-nn` means the suite recognizes the case and routes it honestly (§4); `v1.1` / `v2` means a named, scheduled tool covers it in that release; `out-of-scope` means beyond Green Belt product scope with the exit named. `†` = coverage contingent on a §5a plan correction.
 
@@ -69,7 +69,7 @@ This table is **the single authoritative tool count** PLAN §9 refers to ("the i
 | T-42 | Taguchi | Improve | v2 |
 | T-43 | TRIZ | Improve | v2 |
 
-Notes: (1) PLAN §4.1's v1.1 list also includes "second demo project polish" — content, not a tool; excluded from the inventory. (2) Tier B = guided templates, real forms with instruction panels, no statistical claims, labeled as such in-app. (3) §5a proposes growing T-03, T-14, T-17, T-22 by specific form fields/routes — field-level growth, no new tool IDs.
+Notes: (1) PLAN §4.1's v1.1 list also includes "second demo project polish" — content, not a tool; excluded from the inventory. (2) Tier B = guided templates, real forms with instruction panels, no statistical claims, labeled as such in-app. (3) §5a grows T-03, T-06, T-14, T-17, T-22 by specific form fields/routes — field-level growth, no new tool IDs.
 
 **Tier-A attributes** (added at critic review 2026-08-07 — the columns `docs/tier-a-done-means.md` items 4 and 6 evaluate against; a tool absent from a column has no obligation there):
 
@@ -185,7 +185,7 @@ One row per 2022 BoK subtopic (leaf item), using ASQ's own numbering — 66 rows
 
 ## 3. IASSC delta rows
 
-The IASSC/PeopleCert GB syllabus (5 phases, 47 subtopics) was swept in full against §2. Most IASSC subtopics land on an existing ASQ row (e.g., IASSC 1.2.3 COPQ → ASQ II.E.1; 2.1.1 Fishbone → IV.C.2; 2.3.x MSA → III.E; 5.2.2 I-MR → VI.A.3; 5.3.2/5.3.3 control/response plan → VI.B.1) and are not duplicated here. The 15 rows below are the IASSC topics **not** already dispositioned by an ASQ row.
+The IASSC/PeopleCert GB syllabus (5 phases, **79 subtopics** — Define 19, Measure 16, Analyze 20, Improve 8, Control 16; the intro previously said 47, a drafting error corrected 2026-08-07 against the fetched outline) was swept in full against §2. Most IASSC subtopics land on an existing ASQ row and are not duplicated here — **the full 79-row crosswalk is §3a, so the sweep is auditable, not asserted**. The 15 rows below are the IASSC topics **not** already dispositioned by an ASQ row.
 
 | IASSC item | Coverage | Method/formula source | Rubric | Golden |
 |---|---|---|---|---|
@@ -204,6 +204,92 @@ The IASSC/PeopleCert GB syllabus (5 phases, 47 subtopics) was swept in full agai
 | 4.2 Multiple regression analysis (4.2.1 non-linear, 4.2.2 multiple linear, 4.2.3 CI/PI, 4.2.4 residuals) | out-of-scope for v1 tools (Black Belt-tier modeling); EXIT-10 (>1 factor) + EXIT-15 route it by name; advisor can explain | Std regression methods (v2 territory) | — | — |
 | 4.2.5 Data transformation, Box-Cox | explain-only — the suite's non-normal path is percentile capability with a plain-English caveat (EXIT-05), not transformation. See §5b | Std statistical methods | — | — |
 | 5.2.8 CuSum + 5.2.9 EWMA charts | out-of-scope v1 → T-39 (v2); explain-only meanwhile (I-MR + Western Electric rules are the GB reach) | Std SPC methods (v2) | — | — |
+
+### 3a. Full IASSC crosswalk (audit appendix)
+
+This crosswalk exists so the "swept in full" claim above is auditable from the document itself: one row per IASSC GB subtopic — all 79, numbered per the syllabus — each dispositioned to the ASQ §2 row that carries it or to its §3 delta row. Nothing is unmapped.
+
+| IASSC item | Disposition |
+|---|---|
+| 1.1.1 Meanings of Six Sigma | → ASQ I.A.1 |
+| 1.1.2 General History of Six Sigma & Continuous Improvement | → ASQ I.A.1 |
+| 1.1.3 Deliverables of a Lean Six Sigma Project | → ASQ II.C.2 + II.C.6 |
+| 1.1.4 The Problem Solving Strategy Y = f(x) | → §3 delta row |
+| 1.1.5 Voice of the Customer, Business and Employee | → §3 delta row (VOC core → ASQ II.B.1–.3) |
+| 1.1.6 Six Sigma Roles & Responsibilities | → ASQ II.F.2 |
+| 1.2.1 Defining a Process | → ASQ II.A.2 |
+| 1.2.2 Critical to Quality Characteristics (CTQ's) | → ASQ II.B.3 |
+| 1.2.3 Cost of Poor Quality (COPQ) | → ASQ II.E.1 |
+| 1.2.4 Pareto Analysis (80:20 rule) | → ASQ II.C.3 (charted by T-14) |
+| 1.2.5 Basic Six Sigma Metrics (DPU, DPMO, FTY, RTY) | → ASQ II.E.1 |
+| 1.3.1 Building a Business Case & Project Charter | → ASQ II.C.2 |
+| 1.3.2 Developing Project Metrics | → ASQ II.C.4 |
+| 1.3.3 Financial Evaluation & Benefits Capture | → ASQ II.E.1 (realized benefits: T-02 re-run at Wrap) |
+| 1.4.1 Understanding Lean | → ASQ I.B.1 |
+| 1.4.2 The History of Lean | → ASQ I.B.1 |
+| 1.4.3 Lean & Six Sigma | → ASQ I.B.1 |
+| 1.4.4 The Seven Elements of Waste | → ASQ I.B.2 (T-06 waste walk uses the 8-waste superset) |
+| 1.4.5 5S | → ASQ V.C.1 |
+| 2.1.1 Cause & Effect / Fishbone Diagrams | → ASQ IV.C.2 |
+| 2.1.2 Process Mapping, SIPOC, Value Stream Map | → ASQ III.A + II.A.4 + I.B.2 |
+| 2.1.3 X-Y Diagram | → §3 delta row |
+| 2.1.4 Failure Modes & Effects Analysis (FMEA) | → ASQ I.C.2 |
+| 2.2.1 Basic Statistics | → ASQ III.B.1 |
+| 2.2.2 Descriptive Statistics | → ASQ III.D.3 |
+| 2.2.3 Normal Distributions & Normality | → ASQ III.C + III.F.2 (normality handling) |
+| 2.2.4 Graphical Analysis | → ASQ III.D.4 |
+| 2.3.1 Precision & Accuracy | → ASQ III.E |
+| 2.3.2 Bias, Linearity & Stability | → ASQ III.E |
+| 2.3.3 Gage Repeatability & Reproducibility | → ASQ III.E |
+| 2.3.4 Variable & Attribute MSA | → ASQ III.E |
+| 2.4.1 Capability Analysis | → ASQ III.F.2 + III.F.3 |
+| 2.4.2 Concept of Stability | → ASQ III.F.2 |
+| 2.4.3 Attribute & Discrete Capability | → §3 delta row |
+| 2.4.4 Monitoring Techniques | → ASQ VI.A.1 + VI.A.3 |
+| 3.1.1 Multi-Vari Analysis | → ASQ IV.A.1 |
+| 3.1.2 Classes of Distributions | → ASQ III.C |
+| 3.2.1 Understanding Inference | → ASQ IV.B.1 |
+| 3.2.2 Sampling Techniques & Uses | → ASQ III.D.2 |
+| 3.2.3 Central Limit Theorem | → ASQ III.B.2 |
+| 3.3.1 General Concepts & Goals of Hypothesis Testing | → ASQ IV.B.1 |
+| 3.3.2 Significance: Practical vs. Statistical | → ASQ IV.B.1 |
+| 3.3.3 Risk: Alpha & Beta | → ASQ IV.B.1 |
+| 3.3.4 Types of Hypothesis Test | → ASQ IV.B.2 |
+| 3.4.1 1 & 2 sample t-tests | split: 2-sample → ASQ IV.B.2; 1-sample → §3 delta row |
+| 3.4.2 1 sample variance | → §3 delta row |
+| 3.4.3 One Way ANOVA (incl. equal-variance/normality/sample-size content) | → ASQ IV.B.2 (+ IV.B.1 for the assumption/sample-size content) |
+| 3.5.1 Mann-Whitney | → ASQ IV.B.2 (shipped fallback in T-17) |
+| 3.5.2 Kruskal-Wallis | → §3 delta row |
+| 3.5.3 Mood's Median | → §3 delta row |
+| 3.5.4 Friedman | → §3 delta row |
+| 3.5.5 1 Sample Sign | → §3 delta row |
+| 3.5.6 1 Sample Wilcoxon | → §3 delta row |
+| 3.5.7 One and Two Sample Proportion | split: 2-sample → ASQ IV.B.2; 1-sample → §3 delta row |
+| 3.5.8 Chi-Squared (Contingency Tables) | → ASQ IV.B.2 |
+| 4.1.1 Correlation | → ASQ IV.A.2 |
+| 4.1.2 Regression Equations | → ASQ IV.A.2 |
+| 4.1.3 Residuals Analysis (simple regression) | → ASQ IV.A.2 (rides with T-30 at v1.1) |
+| 4.2.1 Non-Linear Regression | → §3 delta row (4.2 group) |
+| 4.2.2 Multiple Linear Regression | → §3 delta row (4.2 group) |
+| 4.2.3 Confidence & Prediction Intervals | → §3 delta row (4.2 group; CIs on shipped tests → ASQ IV.B.1) |
+| 4.2.4 Residuals Analysis (multiple regression) | → §3 delta row (4.2 group) |
+| 4.2.5 Data Transformation, Box Cox | → §3 delta row |
+| 5.1.1 Control Methods for 5S | → ASQ V.C.1 (T-23 scored audit) |
+| 5.1.2 Kanban | → ASQ V.C.1 |
+| 5.1.3 Poka-Yoke (Mistake Proofing) | → ASQ V.C.1 |
+| 5.2.1 Data Collection for SPC | → ASQ VI.A.2 (sampling scheme: T-11/T-21) + III.D.2 |
+| 5.2.2 I-MR Chart | → ASQ VI.A.3 |
+| 5.2.3 Xbar-R Chart | → ASQ VI.A.3 (T-29, v1.1) |
+| 5.2.4 U Chart | → ASQ VI.A.3 (T-29, v1.1) |
+| 5.2.5 P Chart | → ASQ VI.A.3 |
+| 5.2.6 NP Chart | → ASQ VI.A.3 (T-29, v1.1) |
+| 5.2.7 Xbar-S Chart | → ASQ VI.A.3 (X̄-s: explain-only there) |
+| 5.2.8 CuSum Chart | → §3 delta row (5.2.8/5.2.9) |
+| 5.2.9 EWMA Chart | → §3 delta row (5.2.8/5.2.9) |
+| 5.2.10 Control Methods | → ASQ VI.A.1 + VI.B.1 |
+| 5.3.1 Cost Benefit Analysis | → ASQ II.E.1 (T-02; re-run at Wrap) |
+| 5.3.2 Elements of the Control Plan | → ASQ VI.B.1 |
+| 5.3.3 Elements of the Response Plan | → ASQ VI.B.1 (OCAP in T-22) |
 
 ## 4. Named-exit registry
 
