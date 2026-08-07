@@ -1,13 +1,13 @@
 ---
 type: knowledge
-status: draft
+status: locked
 tags: [m0, rubric, green-belt]
 date: 2026-08-07
 ---
 
 # Green Belt Project Rubric — Milestone 0
 
-**Status:** DRAFT — locks after the independent review pass. **Owner ruling 2026-08-07: no human certified-Belt reviewer will be sourced; the reviewer chair is an external-model Belt panel** (non-Claude models — GPT + Grok — charged as certified Belts, run through the vault's second-opinion tool; PLAN §6). Honesty note carried everywhere this rubric is described: it is externally AI-reviewed; no certified human has reviewed it. Until the panel's findings are folded, every criterion here is a proposal.
+**Status: LOCKED — 2026-08-07**, after a three-round external-model Belt-panel review (owner ruling 2026-08-07: no human certified-Belt reviewer — the reviewer chair is the panel: GPT `gpt-5.6-luna` + Grok `grok-4.5`, charged as certified Belts via the vault's second-opinion tool; PLAN §6). Round 1: Grok SOUND-WITH-FIXES, all findings folded. Round 2: GPT FLAWED on named method rules + Grok SOUND-WITH-FIXES — every disputed rule resolved toward correctness, three requests declined with logged reasons. Round 3 (lock verification): Grok **LOCK**; GPT DO-NOT-LOCK on exactly three defects (two grading-band boundary overlaps, one unstated repeat design), each fixed verbatim as prescribed the same day — no unresolved objection remains; lock called by the build director per the owner ruling. Transcripts: `Personal-AI/tools/second-opinion/runs/2026-08-07-*`. **Honesty note carried everywhere this rubric is described: it is externally AI-reviewed; no certified human has reviewed it.** Post-lock changes only by the §10 item-8 logged-edit path.
 **Date:** 2026-08-07
 
 **What this is.** The single grading authority for Sigma AI ("Green Belt in a Box"). It defines, for every phase of a DMAIC project run with the suite, what acceptable Green Belt work looks like — concretely enough that a grader can point at the artifact and decide. It grades **project work, not exam recall**: there are no R-ORG items, deliberately (matrix §1). Overview-section knowledge is graded where it lands in artifacts — FMEA knowledge in R-ANA-03, spaghetti/lean in R-MEA-03, SMART goals in R-DEF-03 — never as standalone knowledge checks.
@@ -32,21 +32,26 @@ Every item scores one of three grades. The grader writes one line of justificati
 
 **Phase pass bar ("acceptable Green Belt work," PLAN §9):** every applicable item in the phase at Pass, **or** at Needs-work with a recorded justification and no invalidation of the phase conclusion — bounded by two hard limits (added at critic review, 2026-08-07, so an all-Needs-work project cannot drift through):
 
-- **Anchor items must be Pass, not Needs-work:** R-DEF-02 (problem statement), R-MEA-07 (measurement check), R-MEA-08 (stability before capability), R-ANA-02 (evidence discipline), R-IMP-03 (before/after proof), R-CTL-03 (control plan core), R-WRAP-02 (realized benefits honest). These are the items the phase conclusion actually rests on.
+- **Anchor items must be Pass, not Needs-work:** R-DEF-02 (problem statement), R-MEA-07 (measurement check), R-MEA-08 (stability before capability), R-MEA-11 (baseline statement + reconciliation — promoted at Belt-panel round 2, both reviewers independently: Measure's conclusion *is* the baseline sentence), R-ANA-02 (evidence discipline), R-IMP-03 (before/after proof), R-IMP-04 (remaining-gap arithmetic and routing — promoted at Belt-panel review; a wrong remainder is already an invalidator), R-CTL-03 (control plan core), R-WRAP-02 (realized benefits honest). These are the items the phase conclusion actually rests on.
 - **Needs-work is capped at one-third of the phase's applicable items** (round up). More than that is not a passing phase with notes — it is a rework pass.
+- **Any Fail on an applicable item = phase not passed.** Implied by the two rules above; stated outright (Belt-panel review) so it cannot be misread.
 
 **"Invalidate" means, concretely** — a Needs-work or Fail invalidates the phase conclusion when it makes the conclusion untrue, not merely thin:
 
 - a **wrong number** — a stated value that differs from its computed source, or arithmetic that doesn't check;
 - an **unverified cause treated as verified** — an assumption carried downstream wearing a verification badge;
 - a **capability claim on an unstable process**, or any capability-language after a failed measurement check;
-- a **proof claimed when its pre-declared threshold was not met**, or with a reported confound stripped from the claim.
+- a **proof claimed when its pre-declared threshold was not met**, or with a reported confound stripped from the claim, or with a **material guardrail (consequential-metric) worsening omitted** from the claim, or measured with a **different gauge or operational definition than the baseline** (a changed yardstick proves nothing) — Belt-panel round 2 additions.
 
 A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a small sample with the shortfall named, a lessons panel that admits a dead end. Honesty about a limit is Pass-side behavior (see §8); concealing the limit is the failure.
 
-**Two bug taxonomies, per PLAN §9.** Usability failures — the student stalled, misread a screen, asked what to do — are logged against the **suite**. Validity failures — wrong method, wrong claim, wrong number — are graded against the **artifact**. This rubric grades the artifact axis only. When the suite's guidance *caused* a validity failure, log both: the item still fails (the claim is still wrong), and the root cause goes to the suite's bug log so the fix lands in the product, not on the student.
+**Two bug taxonomies, per PLAN §9.** Usability failures — the student stalled, misread a screen, asked what to do — are logged against the **suite**. Validity failures — wrong method, wrong claim, wrong number — are graded against the **artifact**. This rubric grades the artifact axis only. When the suite's guidance *caused* a validity failure, log both: the item still fails (the claim is still wrong), and the root cause goes to the suite's bug log so the fix lands in the product, not on the student. When a **tool defect** produced a numerically wrong but internally consistent output and the student reasonably followed it, the affected items grade the student's *reasoning given what was displayed* — the wrong number is the suite's validity bug, not the student's (Belt-panel round 2).
 
-**Applicability.** The graded set is the artifacts the project's route actually required — the guided DMAIC flow plus the picker's routing decide which tools were in play. A tool the route required but the student skipped scores **Fail** on its item. A tool the route never called for (e.g. a spaghetti diagram on a project with no movement component, a 5S audit with no workplace-organization component) is **N/A — recorded with the reason, excluded from the phase roll-up**. N/A ownership differs by mode (tightened at critic review — a student's own skips must not shrink their graded set): **in eval runs, the scenario spec declares up front which optional tools are in scope** (each §9 scenario names its N/A set when it is authored; the scenario set collectively exercises all 25 Tier-A tools), and a student skipping an in-scope tool scores Fail, not N/A. In real (non-eval) projects, N/A is a grader decision with a written reason. Never a silent omission in either mode.
+**Applicability.** The graded set is the artifacts the project's route actually required — the guided DMAIC flow plus the picker's routing decide which tools were in play. A tool the route required but the student skipped scores **Fail** on its item. A tool the route never called for (e.g. a spaghetti diagram on a project with no movement component, a 5S audit with no workplace-organization component) is **N/A — recorded with the reason, excluded from the phase roll-up**. N/A ownership differs by mode (tightened at critic review — a student's own skips must not shrink their graded set): **in eval runs, the scenario spec declares up front which optional tools are in scope** (each §9 scenario names its N/A set when it is authored; the scenario set collectively exercises all 25 Tier-A tools), and a student skipping an in-scope tool scores Fail, not N/A. In real (non-eval) projects, N/A is a grader decision with a written reason. Never a silent omission in either mode. Eval scenarios also supply the **organizational facts as scenario ground truth** — the named owner, the implementation window, the after-period — and items resting on them (R-IMP-05, R-CTL-03, R-WRAP-02) grade *consistency with that truth*, never the quality of invented fiction (Belt-panel constraint on §10.7a).
+
+**Honest-exit cascade** (added at Belt-panel review — without it the rubric punishes exactly what §8 rewards): when a named exit honestly **ends or pauses the project** — EXIT-01 not-viable-as-scoped, an unfixable EXIT-02, a hard data floor with no more data obtainable — and the exit is named, routed, and honored (§8), every downstream item the ended route never reached scores **N/A-exit** (recorded with the exit ID, excluded from the roll-up), not Fail. The project is then graded on everything up to and including the exit, and the overall verdict is "honest exit at EXIT-nn" — a **passing method outcome** for what was run, distinct from a completed project. "Artifact the route required was never produced" applies only to skips *inside* a continuing route, never to work an honest exit made moot. Worked example (round-3 panel request): a student's measurement check fails, the fix attempt fails, EXIT-02 is taken with no viable gauge — Define items grade normally, R-MEA-05/06/07 grade what was run (the exit earns R-MEA-07 its Pass), R-MEA-08 through R-WRAP-03 record N/A-exit(EXIT-02), phase verdicts read "ended honestly at Measure," and the overall verdict is "honest exit at EXIT-02 — passing method outcome, project incomplete."
+
+**PDCA quick-path applicability** (Belt-panel review — the picker's small-problem route needs its own graded set, not ad-hoc N/As): a project the picker correctly routes to PDCA grades on **R-DEF-01 (the routing itself), R-DEF-02 (problem statement, charter-lite form), R-IMP-02 (the one planned change, lite — one change + expected effect + how checked), R-IMP-03 (the check, honestly run), R-WRAP-03 (what was learned / kept)** — anchors within that set: R-DEF-02 and R-IMP-03. Every other item is N/A-by-route automatically. A full-DMAIC-sized problem smuggled down the PDCA path to dodge rigor fails R-DEF-01.
 
 **Item frame.** Each item states: **Grades** (which artifacts/tools, by matrix T-nn ID) · **Pass means** (numbered, checkable criteria) · **Needs work when** (the most common shortfalls) · **Fail / invalidates when** (the line that voids the conclusion, where one exists) · **Pre-scored in code** (the deterministic subset — schema presence, regex/keyword heuristics, computed-value matches, gate states) vs **Judgment-only** (what only a grader or the advisor can weigh). The pre-score split is deliberately honest: over-claiming what code can check would corrupt the advisor's pre-score design (PLAN §5.1).
 
@@ -136,7 +141,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** SIPOC form + rendered diagram (T-04). BoK II.A.2, II.A.4.
 
 **Pass means:**
-1. All five columns are populated, and the process column is 4–7 high-level steps whose start and end boundaries match the charter scope.
+1. All five columns are populated, and the process column is **4–7 high-level steps** (one declared range — Belt-panel round 2 caught the 4–7-vs-4–9 mismatch; the code check flags 8–9 as Needs-work-side, everything outside 4–9 hard-flags) whose start and end boundaries match the charter scope.
 2. Outputs are paired to the customers who actually receive them, and inputs to their suppliers — not free-floating lists.
 3. The CTQ-bearing output appears — the thing the customer cares about is on the map, so the CTQ tree (T-05) has something to hang from.
 
@@ -229,8 +234,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-MEA-04 — Time study / work sampling
 
-**Grades:** Guided time study / work sampling (T-09). Supports BoK III.D.3 (element-time spread). **Applicability:** graded when the route required timed observation; otherwise N/A with reason. *(ID inferred — see §10.)*
-
+**Grades:** Guided time study / work sampling (T-09). Supports BoK III.D.3 (element-time spread). **Applicability:** graded when the route required timed observation; otherwise N/A with reason.
 **Pass means:**
 1. Work elements are defined **before** timing starts — an element list with start/stop triggers, not categories invented mid-study.
 2. The tool's recommended cycle count is observed, or the shortfall is named on the artifact ("6 cycles; tool recommends 10 — treat spread as rough").
@@ -281,7 +285,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Narrow MSA — test/retest repeatability (continuous) or two-rater attribute agreement (pass/fail) (T-12). BoK III.E. Exits: EXIT-02, EXIT-03.
 
 **Pass means:**
-1. The check matching the data type was run **before** the baseline was trusted: test/retest repeatability for continuous data (reported as %EV — repeatability, with its denominator named), two-rater agreement **with kappa** for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math).
+1. The check matching the data type was run **before** the baseline was trusted: test/retest repeatability for continuous data (reported as **repeatability%** — renamed from %EV at Belt-panel round 2; defined in matrix §4a — with its denominator named **as which one it is** — tolerance when specs exist, else study variation, matching the tool's rule; an unnamed denominator lets the flatter number get shopped), two-rater agreement **with kappa** for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math). The student's narrative carries the tool's **repeatability-only caveat** ("full gauge study not done — a full study could only read worse, not better"): the 10/30 bands are borrowed from full-study convention, so passing them on repeatability alone is the lenient side, and saying so is part of the pass (Belt-panel review). The check's samples follow the tool's instruction: **≥10 items spanning the range the process actually shows**, near-limit items included when specs exist.
 2. The verdict is obeyed: acceptable → proceed; marginal → proceed with the caveat carried into the narrative; **fail → stop, fix the measurement (EXIT-02), re-run the check** — and only then resume. Taking that stop is Pass-level work (§8). Verdict thresholds are the matrix §4 frozen trigger values.
 3. If the measurement question exceeds the narrow check the suite ships — multi-operator variation, bias, linearity — the named exit is taken (EXIT-03: human quality engineer / v2 T-35), not improvised around.
 
@@ -341,11 +345,10 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-MEA-11 — Baseline statement and charter reconciliation
 
-**Grades:** The Measure-exit baseline statement (T-13 outputs + charter T-03, tollgate T-25). *(ID inferred — see §10.)*
-
+**Grades:** The Measure-exit baseline statement (T-13 outputs + charter T-03, tollgate T-25).
 **Pass means:**
 1. One baseline sentence exists and is complete: metric, value, period, n, stability status, and the capability-**or**-performance label — every element matching computed results.
-2. It is reconciled with the charter's claimed magnitude: confirmed, or the charter revised by logged edit ("charter said 6.2%; measured 9.1%; charter updated") — never both numbers left standing in conflict.
+2. It is reconciled with the charter's claimed magnitude: confirmed, or the charter revised by logged edit ("charter said 6.2%; measured 9.1%; charter updated") — never both numbers left standing in conflict. **Material** has a frozen default (Belt-panel round 2 — an undefined threshold leaves the gate to grader mood): relative delta > 10%, or any delta that changes goal feasibility or direction. A material magnitude change refreshes the money too: the COPQ/business-impact figure recomputes from the measured baseline (Belt-panel review — otherwise the dollar story stays fiction while the metric story gets fixed).
 3. The goal is re-checked against the measured baseline and restated in its terms if needed.
 
 **Needs work when:** the baseline sentence lacks period or n; the reconciliation happened but the goal went stale.
@@ -377,7 +380,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Evidence fields + verified/unproven status on every cause (T-15); verification tests where used (T-17, T-14 stratified views). BoK IV.C.2. This is the item the Improve phase stands on.
 
 **Pass means:**
-1. Every cause carried forward as **verified** has a non-empty evidence field citing data or direct observation — a stratified Pareto, a hypothesis-test result, a check-sheet split, a documented gemba observation. "Team consensus" alone verifies nothing.
+1. Every cause carries a three-state status — **candidate → supported → confirmed for action** (Belt-panel round 2; "verified" in this rubric = confirmed for action): *candidate* = proposed, evidence field empty; *supported* = evidence attached showing the condition exists (a dated gemba observation, a check-sheet split); *confirmed for action* = the evidence ties the cause to the CTQ gap — a stratified Pareto or view showing the gap concentrates where the cause operates, or a test result. Stratified descriptive evidence and dated observation **count**; formal tests are required only when the cause claims a measured difference. "Team consensus" alone moves nothing past candidate. Two calibration exemplars: *bare Pass* — "batch delays concentrate on shift B (check-sheet split, 31 of 42 delays, weeks 2–4); B uses the old fixture" = confirmed for action. *Fail* — "operators agree the fixture is the problem" carried as verified = an assumption wearing a badge.
 2. Causes claiming a measured difference cite the test or chart that shows it (T-17 output or a stratified view) — not an eyeballed pair of averages.
 3. The evidence pertains to *that* cause — the cited artifact addresses the cause's mechanism, not just the general problem.
 4. Unverified candidates stay visibly flagged unproven and are not used by Improve.
@@ -395,12 +398,12 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Pass means:**
 1. Failure modes are specific failures of specific process steps (drawn from the T-06 map), each with its effect and cause — "process fails" is not a mode.
 2. Severity/occurrence/detection are rated against the 1–10 anchor scales — spot-checked, a rating matches its anchor's wording, not gut feel.
-3. The table is worked severity-first, then RPN, and the student's action list reflects the stated RPN limitation: equal RPNs are not equal risks, and high severity is never ignorable.
+3. Prioritization is severity-sensitive in substance — the action list reflects the stated RPN limitation (equal RPNs are not equal risks, high severity never ignorable) whatever sort order the worksheet displays; severity-first is the tool's default view, not a graded requirement (Belt-panel round 2).
 4. Top items carry actions with owners.
 
 **Needs work when:** detection ratings are all the same middle number (anchor not consulted); actions exist without owners; modes sit at whole-process altitude.
 
-**Fail / invalidates when:** a severity-9/10 mode is visible and unaddressed while low-severity high-RPN items get the attention — the exact misuse the tool warns about, and the FMEA's protective purpose is voided. (Does not by itself invalidate the Analyze conclusion; it fails this item.)
+**Fail / invalidates when:** a severity-9/10 mode is visible and unaddressed while low-severity high-RPN items get the attention — the exact misuse the tool warns about, and the FMEA's protective purpose is voided. (Does not by itself invalidate the Analyze *cause* conclusion; it fails this item — **and** an unaddressed severity-9/10 on a safety or regulatory effect **blocks Wrap's "project may close"** under R-WRAP-03, however clean the rest of the stack — Belt-panel review.)
 
 **Pre-scored in code:** mode/effect/cause/S/O/D/action schema completeness; ratings in 1–10; severity-first sort tool-enforced; high-severity-without-action flag; action-owner fields. **Judgment-only:** mode specificity; anchor consistency spot-check.
 
@@ -438,11 +441,10 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-ANA-06 — Analyze conclusion: verified causes ranked against the gap
 
-**Grades:** The Analyze-exit ranked cause list — T-15 verified statuses ordered for the Improve loop (feeds T-18; tollgate T-25). *(ID inferred — see §10.)*
-
+**Grades:** The Analyze-exit ranked cause list — T-15 verified statuses ordered for the Improve loop (feeds T-18; tollgate T-25).
 **Pass means:**
 1. A closing list of verified causes exists, each with its evidence pointer, **ranked by likely impact on the baseline gap** with the ranking rationale stated (Pareto share, effect size, frequency — whatever the evidence supports). This ranking is what the Improve loop consumes first.
-2. The list is honest about coverage: it plausibly accounts for the gap the goal must close, **or the shortfall is named** ("verified causes explain perhaps half; remaining drivers unknown").
+2. The list is honest about coverage: it plausibly accounts for the gap the goal must close, **or the shortfall is named** ("verified causes explain perhaps half; remaining drivers unknown"). When the verified set plausibly explains **little or none** of the gap, naming it is necessary but not sufficient to proceed: the route is back to Analyze for more cause work, or the named human-expert exit — Improve does not launch on unverified guesses (Belt-panel review).
 3. Nothing unverified rides in the ranked list.
 
 **Needs work when:** the ranking has no stated rationale; a single verified cause is carried as if it explains everything, without saying so.
@@ -474,7 +476,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Pilot Plan — the small-study designer (T-19). BoK V.B. Exit: EXIT-10. This item enforces the product's method: **one change at a time** (PLAN §4.1).
 
 **Pass means:**
-1. **One change per pilot**, stated in one sentence. Multiple candidate fixes become sequential pilots through the loop — or, when a genuinely combined question exists, the named exit (EXIT-10: advisor / v1.1 Experiment Planner / human expert), never a bundle claimed as attributable.
+1. **One change per pilot**, stated in one sentence. Multiple candidate fixes become sequential pilots through the loop — or, when a genuinely combined question exists, the named exit (EXIT-10: advisor / v1.1 Experiment Planner / human expert), never a bundle claimed as attributable. One honest carve-out (Belt-panel round 2): a **declared inseparable package** — components that cannot be deployed apart — may run as one pilot when it is declared as the package up front, attribution goes to the package only, the components are listed, and no component-level claim is ever made. An undeclared bundle, or component credit claimed from a package pilot, stays EXIT-10's failure.
 2. The comparison is defined before running: baseline period or parallel comparison, stated, with who/what is included and how selected.
 3. Success threshold **and** analysis plan are declared before data collection — record-entry timestamps support the claim (they show entry order, not observation order; see the pre-score note below).
 4. The falsification line is filled in and substantive: "what would prove this DIDN'T work."
@@ -488,17 +490,18 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-IMP-03 — Before/after proof
 
-**Grades:** Before/After Proof — the stats-engine re-run on pilot data (T-20, proof half). *(ID inferred — see §10.)*
-
+**Grades:** Before/After Proof — the stats-engine re-run on pilot data (T-20, proof half).
 **Pass means:**
 1. The proof runs the **same metric, same operational definition, same measurement system** as the baseline — a changed yardstick proves nothing.
-2. The engine re-ran on the pilot data: side-by-side stability, the appropriate Tier-A test with effect size + CI, and the pre-declared threshold checked — with the verdict stated **as declared**: met, or not met.
+2. The engine re-ran on the pilot data: side-by-side stability, the appropriate Tier-A test with effect size + CI (or the criterion-4 descriptive form where the design can't carry a test), and the pre-declared threshold checked — with the verdict stated **as declared**: met, or not met. Across loop iterations, the **cumulative claim is final-state vs original baseline**; per-change credits stay descriptive and are never summed into a stacked total when effects overlap (Belt-panel round 2).
 3. The confounder checklist is re-answered and its answers print on the result; any reported confound tempers the claim in the student's own words ("improvement shown, but staffing changed — this proof is weakened").
-4. The after-period has enough run to say something — the tool's floors honored, EXIT-06 taken if not.
+4. The after-period has enough run to say something — the tool's floors honored; when the design honestly cannot support an inferential test (floor unreachable, no comparison window), the **descriptive-proof form** is the pass: before/after magnitudes shown against the pre-declared threshold, evidence strength stated plainly ("observed improvement, not statistically tested"), no inferential language (Belt-panel round 2 — a student is never forced into a nominal test the data can't carry).
+5. The charter's consequential (guardrail) metrics report alongside the primary: a primary win with a **material guardrail loss** cannot be claimed as plain "improvement proven" — the honest form is a stated tradeoff for the process owner to accept, and concealing the loss is Fail-side (Belt-panel review).
+6. A threshold met on the mean with an **unstable after-process** is not narrated as a clean win — the honest form tempers ("target hit on average; process not yet stable — loop continues / monitoring extended") (Belt-panel round 2).
 
 **Needs work when:** the after-window looks cherry-picked (best week) and isn't justified; a confounder answered "no" that the project record contradicts.
 
-**Fail / invalidates when:** improvement is claimed with the threshold unmet or the test unsupportive; a reported confound is stripped from the claim; or the metric/definition switched between before and after — a wrong number by construction. All three are named invalidators (§1).
+**Fail / invalidates when:** improvement is claimed with the threshold unmet or the test unsupportive; a reported confound is stripped from the claim; a material guardrail worsening is omitted from the claim; or the metric/definition/measurement system switched between before and after — a wrong number by construction. All four are named invalidators (§1).
 
 **Pre-scored in code:** metric/definition/measurement-system IDs match before↔after; threshold-met computed against the declared value; confounder answers present and printed in the export; test result + effect size as provenance objects. **Judgment-only:** cherry-picking detection; plausibility of confounder answers.
 
@@ -519,16 +522,15 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-IMP-05 — Improve conclusion: implementation and goal reconciliation
 
-**Grades:** The Improve-exit state — implementation beyond pilot, reconciled against the charter goal (T-20 outputs + charter T-03; feeds T-22/T-24; tollgate T-25). *(ID inferred — see §10.)*
-
+**Grades:** The Improve-exit state — implementation beyond pilot, reconciled against the charter goal (T-20 outputs + charter T-03; feeds T-22/T-24; tollgate T-25).
 **Pass means:**
 1. The proven change is implemented beyond the pilot scope, with what-changed documented — the material the SOP (T-24) and control plan (T-22) will carry.
 2. Improve closes with numbers against the charter goal: met / partially met with the remainder stated / not met with the honest route taken. Partial success stated as partial is Pass-side; see §8.
 3. What Control will monitor is the implemented state — pilot-only improvements are not claimed as implemented.
 
-**Needs work when:** implementation is asserted with no artifact trail; the guardrail (consequential) metric from R-DEF-03 is never re-checked.
+**Needs work when:** implementation is asserted with no artifact trail.
 
-**Fail / invalidates when:** the goal is claimed met against the computed remainder — same line as R-IMP-04, enforced at the phase gate.
+**Fail / invalidates when:** the goal is claimed met against the computed remainder — same line as R-IMP-04, enforced at the phase gate; or the guardrail (consequential) metric is never re-checked, or re-checks worse and the Improve verdict states the win without the tradeoff (mirrors R-IMP-03 — Belt-panel round 2 moved the guardrail from Needs-work to the invalidating line).
 
 **Pre-scored in code:** implementation fields/dates present; goal-vs-result delta computed and consistent with the claimed status; links to SOP and control plan resolve; guardrail-metric recheck present. **Judgment-only:** whether implementation is real beyond the record.
 
@@ -540,8 +542,8 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Pass means:**
 1. The chart family matches the data type through the printed selector — I-MR for continuous, p for attribute with the denominator handled per subgroup — and the chart monitors the primary CTQ/metric, not a convenient proxy (or the proxy is explained).
-2. Limits are computed by the tool from the post-improvement baseline period and then **frozen** — recalculated only on a deliberate, logged decision, never silently refit to recent data.
-3. The tool's minimum-points advisory is honored before the limits are treated as meaningful.
+2. Limits are computed by the tool from a post-improvement period that is itself **demonstrated stable** (Belt-panel round 2 — freezing limits from an unstable window preserves bad limits): the tool's frozen floor is **≥ 20 points** with no default-rule signal in the limit-setting window; short of that, the chart runs **diagnostically** — plotted, no frozen limits, no "sustained control" claim.
+3. Once established, limits are **frozen** — recalculated only on a deliberate, logged decision, never silently refit to recent data.
 4. Control limits and spec limits are kept distinct in the student's own language — "out of control" and "out of spec" are different sentences.
 
 **Needs work when:** limits are recalculated on every update (rubber limits); the monitored metric drifted from the CTQ without a stated link.
@@ -563,7 +565,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Fail / invalidates when:** sustained special-cause signals are ignored while the wrap-up declares the process "in control" — a false stability claim at the exact point the project exists to protect.
 
-**Pre-scored in code:** signal events + acknowledgment states; OCAP-invocation records linked to signals; adjustment log cross-checked against signal states (tampering flag); unacknowledged-repeat-signal flag. **Judgment-only:** correctness of each read; quality of the response. (§10: within a short eval window signals may simply never fire — then this item grades the recorded discipline and mechanics, and thin evidence is not a Fail.)
+**Pre-scored in code:** monitoring-armed state (chart configured, rules active, data flowing — **a missing signal log because charting never ran is a Fail, not a thin Pass**; Belt-panel review); signal events + acknowledgment states; OCAP-invocation records linked to signals; adjustment log cross-checked against signal states (tampering flag); unacknowledged-repeat-signal flag. **Judgment-only:** correctness of each read; quality of the response. (§10: within a short eval window signals may simply never fire — then this item grades the armed mechanics and recorded discipline, and thin evidence is not a Fail.)
 
 #### R-CTL-03 — Control plan core
 
@@ -574,7 +576,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 2. The monitoring frequency has a reason — tied to how fast the process could drift or how much volume flows — not a default left standing.
 3. The plan covers what Improve changed **plus** the primary CTQ — the fix is monitored, not just the outcome.
 
-**Needs work when:** an owner is named with no evidence of handoff; frequency is defaulted with no rationale; the guardrail metric is missing from the plan.
+**Needs work when:** an owner is named with no evidence of handoff; the charter-named owner has left or changed roles with no logged re-handoff to a present owner (Belt-panel round 2 — a stale owner is an unowned plan wearing a name); frequency is defaulted with no rationale; the guardrail metric is missing from the plan; a multi-shift or multi-site process names one global owner with no per-shift/site handoff — the passing form names a primary owner per operating unit (Belt-panel review).
 
 **Fail / invalidates when:** no named owner — the tool flags an ownerless plan as theater, and this rubric agrees: an unowned control plan is no control plan, and the project's sustainment claim is void.
 
@@ -585,7 +587,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** OCAP (response plan), training & handoff block (matrix correction A-5), scheduled check-ins (T-22); the SOP as the training artifact (T-24). BoK VI.B.1, VI.B.3.
 
 **Pass means:**
-1. **OCAP:** for each monitored item, the exact out-of-control action path — who acts first, what containment looks like, when and to whom it escalates — specific enough to follow at 2 a.m. without the author.
+1. **OCAP:** for each monitored item, the out-of-control action path carries four concrete elements — the actionable first response, the containment step, the escalation trigger and recipient, and the acting owner (Belt-panel round 2 recalibration: a first-project Green Belt writes an actionable path; fully executable emergency procedure depth belongs to the operational owner's SOP).
 2. **Training & handoff:** who gets trained, on what (the T-24 SOP, which exists and is referenced), by whom, by when, verified how (sign-off or observed demonstration) — a fix nobody is trained on dies with the project.
 3. **Check-ins:** the scheduled check-ins are accepted, and every check-in due within the grading window is answered with numbers against the limits.
 
@@ -612,8 +614,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-CTL-06 — Standard work / SOP
 
-**Grades:** Standard Work / SOP — the improved method written down (T-24). BoK V.C.1, and the training artifact for VI.B.3. *(ID inferred — see §10.)*
-
+**Grades:** Standard Work / SOP — the improved method written down (T-24). BoK V.C.1, and the training artifact for VI.B.3.
 **Pass means:**
 1. The **improved** method is written as steps a qualified-but-new person could follow: each step an action with its standard ("what right looks like"), and the points that changed from the old method highlighted.
 2. Version, owner, and date fields are set; if an older instruction existed, the SOP names what it supersedes.
@@ -644,8 +645,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-WRAP-02 — Realized benefits, honestly stated
 
-**Grades:** COPQ re-run at Wrap + realized-benefits panel (T-02, T-25; drawing on T-20/T-13 numbers). *(ID inferred — see §10.)*
-
+**Grades:** COPQ re-run at Wrap + realized-benefits panel (T-02, T-25; drawing on T-20/T-13 numbers).
 **Pass means:**
 1. The COPQ is re-run with post-improvement actuals over a **stated window**; realized-to-date is separated from annualized projection, each labeled as what it is. (A student project may have weeks of after-data, not quarters — realized-to-date with the window named is the passing form.)
 2. The benefit arithmetic ties to the measured improvement — the delta the proof showed — not to the goal, and not to the original COPQ hope.
@@ -685,7 +685,7 @@ Three conditions make an exit a Pass rather than an abandonment:
 2. **Routed** — the registry's route is taken or recorded: rescope (EXIT-01), fix-and-re-run (EXIT-02, EXIT-04), collect more (EXIT-06, EXIT-07), human expert / scheduled release (EXIT-03, EXIT-08..15).
 3. **Honored downstream** — no later artifact quietly claims what the exit declined to compute.
 
-**The failure is pushing past.** The invalidating push-pasts, by ID: capability-language after a failed measurement check (EXIT-02 ignored → R-MEA-07 Fail); a Cp/Cpk claim on an unstable process (EXIT-04 ignored → R-MEA-08 Fail); an underpowered or sparse test presented as a result (EXIT-06/EXIT-07 ignored → R-ANA-04 Fail); a rate-with-exposure question forced through a proportions route (EXIT-11 ignored → R-ANA-04 Fail); a multi-change pilot claimed as attributable (EXIT-10 ignored → R-IMP-02 Fail); shotgun p-values with the winner narrated (EXIT-12 ignored → R-ANA-04 Fail). A silent stall at a limit — no name, no route — is not an exit; it grades as the missing artifact it leaves behind.
+**The failure is pushing past.** The invalidating push-pasts, by ID: capability-language after a failed measurement check (EXIT-02 ignored → R-MEA-07 Fail); a Cp/Cpk claim on an unstable process (EXIT-04 ignored → R-MEA-08 Fail); an underpowered or sparse test presented as a result (EXIT-06/EXIT-07 ignored → R-ANA-04 Fail); a rate-with-exposure or defects-per-unit question forced through a proportions route or p-chart (EXIT-11 ignored → R-ANA-04 or R-CTL-01 Fail — defectives are pass/fail *units*, defects are *counts on* units, and the p-chart's math only fits the first; Belt-panel review); a multi-change pilot claimed as attributable (EXIT-10 ignored → R-IMP-02 Fail); shotgun p-values with the winner narrated (EXIT-12 ignored → R-ANA-04 Fail). A silent stall at a limit — no name, no route — is not an exit; it grades as the missing artifact it leaves behind.
 
 **Pre-scored in code:** exit-state records (which EXIT fired, acknowledged or overridden) are gate states — fully deterministic, and the first thing the advisor's pre-score reports. **Judgment-only:** whether the routing reasoning holds, and whether downstream prose honored the exit.
 
@@ -747,16 +747,18 @@ One line per item. Grade ∈ {Pass, Needs work, Fail, N/A + reason}; one written
 
 ## 10. Open items for the independent Belt reviewer
 
-Flagged per the calibration rule (§1): where "high-schooler passable" and "Green Belt grade" pull apart, the tension is named here rather than silently resolved. The external-model Belt panel rules on each (owner ruling 2026-08-07), with the owner as final arbiter.
+Flagged per the calibration rule (§1): where "high-schooler passable" and "Green Belt grade" pull apart, the tension is named here rather than silently resolved.
+
+**ALL ITEMS RULED — Belt-panel review, three rounds, 2026-08-07.** Every question below received **CONFIRM** from the panel (Grok explicit rulings round 1 and round 2; GPT's rounds raised no calibration objection to any of them and its bottom line named them settled). Strengtheners adopted with the confirmations: item 1 — R-MEA-11 promoted to anchor (the other two stay non-anchor, their Fail lines carry the void cases); item 2 — the three-state cause vocabulary and two calibration exemplars written into R-ANA-02; item 3 — the unchallenged process-convenience-CTQ check added to the grader's read; item 6 — armed-and-quiet is thin Pass, never-armed is Fail; item 7a — scenario ground truth is mandatory, the eval wall is machine-readable (`eval_mode: plan_quality_only`), and real-project grading reverts to organizational reality; item 8 — infeasible pre-score checks change the item text by logged edit before that tool's milestone closes, owned by the build director through the done-means change-log path. The questions remain below as the record of what was asked.
 
 1. **Three phase-conclusion IDs are rubric-side design.** (Updated at critic review 2026-08-07: the matrix now cites R-MEA-04, R-IMP-03, R-CTL-06, and R-WRAP-02 in its rows and documents all seven tool/phase-level homes in its §1 rubric-ID plan, so the earlier "seven uncited IDs" note is resolved.) What remains for your ruling: R-MEA-11 (baseline statement + charter reconciliation), R-ANA-06 (verified causes ranked against the gap), and R-IMP-05 (implementation + goal reconciliation) grade **phase conclusions** rather than single BoK topics — they exist so a phase cannot pass on good parts and a wrong whole. Confirm the three are legitimate Green Belt expectations at those gates.
 2. **R-ANA-02 evidence sufficiency.** The suite teaches: non-empty evidence field, T-17 for measured comparisons, stratified views. It does not teach how *much* evidence verifies a cause. The criterion holds at "data or observation a reasonable person would accept"; a reviewer instinct to demand statistical verification for every cause would exceed what the suite teaches and break high-schooler passability. Confirm the calibration.
 3. **R-DEF-07 critical-to-customer vs easy-to-measure.** Real VoC judgment carried by a single check question. Grading holds to "the check is answered thoughtfully" — confirm that is Green Belt enough.
 4. **R-MEA-07 scope.** The grader must hold to the narrow MSA the suite ships (test/retest + two-rater agreement), with EXIT-03 covering everything beyond. A certified reviewer's instinct to expect fuller MSA is out of declared scope by design.
 5. **R-IMP-02 pilot-unit selection.** Unbiased selection is design judgment the suite teaches only via prompts and the confounder checklist; the bar is "selection stated honestly," not sampling-theory rigor.
-6. **R-CTL-02 grading window.** In a short eval, signals may never fire; the item then grades recorded discipline and mechanics only. Confirm thin-evidence-≠-fail.
+6. **R-CTL-02 grading window.** In a short eval, signals may never fire; the item then grades recorded discipline and mechanics only — thin-evidence-≠-fail, with the panel's addition folded in: armed-and-quiet is thin Pass; never-armed is Fail.
 7. **R-WRAP-02 timeline.** Student projects rarely have quarters of after-data; realized-to-date with the window named, projection labeled projection, is the passing form.
 7a. **Eval-mode grading of organizational facts** (extends 6 and 7): three items rest on facts a time-boxed held-out scenario cannot supply — R-IMP-05 (implementation beyond the pilot), R-CTL-03 (a named owner who accepted the role), R-WRAP-02 (post-improvement actuals). In eval runs these grade the **plan and record quality with the time-box named** — the implementation plan written as if real, the owner role defined and assigned to a scenario person, benefits realized-to-date within the scenario window — never the organizational outcome itself. Each §9 scenario spec states this mode explicitly. Confirm the calibration.
-8. **Pre-score honesty.** Each item's "Pre-scored in code" line is a commitment the M1–M5 builds must implement (tier-a-done-means §2 requires the checks unit-tested). If any listed check proves infeasible, the item text changes by logged edit — the pre-score claims must never exceed what code actually checks.
+8. **Pre-score honesty.** Each item's "Pre-scored in code" line is a commitment the M1–M5 builds must implement (tier-a-done-means §2 requires the checks unit-tested). If any listed check proves infeasible, the item text changes by logged edit — **before that tool's milestone closes** (Belt-panel addition) — and the pre-score claims must never exceed what code actually checks. Post-lock, the logged-edit path and its owner are the done-means change-log rule: repo change-log entry + vault decision record, owned by the build director; no silent desync between code and this document.
 
 On the reviewer's pass, status moves from DRAFT to locked, and this section's resolved items move into the item texts.
