@@ -3,7 +3,6 @@ import { Button, Field, TextArea, VerdictBanner } from "../design/components";
 import { verdictToneForGateStatus } from "./statusTone";
 import { overrideGate } from "../api/client";
 import { ApiError } from "../api/errors";
-import { getGateOverride, recordGateOverride } from "./gateOverrides";
 import { toolById } from "./tools";
 import type { CombinedGate } from "./gateLogic";
 import type { Phase } from "../api/types";
@@ -22,22 +21,34 @@ function missingLabel(missing: string[]): string {
 }
 
 /** Renders the gate state for one phase's entry gate(s) exactly as the
- * engine reports it (M1 brief): CLEAR renders nothing (no noise for the
- * normal case), SOFT_BLOCK shows the missing list plus an override
- * affordance requiring a reason, HARD_BLOCK shows the reason with no
- * override control at all, NOT_YET_BUILT shows the engine's own note. */
+ * engine reports it (M1 brief): CLEAR renders nothing UNLESS it cleared via
+ * a logged override (then a quiet note, not silence -- the engine's own
+ * check() now feeds the override back in, gates.py's _covering_override, so
+ * this reads `gate.overridden` straight from the response rather than
+ * remembering client-side that a reason was submitted). SOFT_BLOCK shows
+ * the missing list plus an override affordance requiring a reason,
+ * HARD_BLOCK shows the reason with no override control at all,
+ * NOT_YET_BUILT shows the engine's own note. */
 export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerProps) {
   const [reason, setReason] = useState("");
   const [showOverrideForm, setShowOverrideForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (gate.status === "CLEAR") return null;
+  if (gate.status === "CLEAR") {
+    if (!gate.overridden) return null;
+    return (
+      <VerdictBanner
+        tone="flag"
+        headline={`${phase} — cleared, override logged`}
+        detail={`Reason: "${gate.overrideReasons.join("; ")}"`}
+      />
+    );
+  }
 
   const softGateIds = Object.entries(gate.byGateId)
     .filter(([, r]) => r.status === "SOFT_BLOCK")
     .map(([id]) => id);
-  const alreadyOverridden = gate.status === "SOFT_BLOCK" && softGateIds.every((id) => getGateOverride(projectId, id));
 
   async function submitOverride() {
     if (!reason.trim()) return;
@@ -47,7 +58,6 @@ export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerP
     try {
       for (const gateId of softGateIds) {
         await overrideGate({ gate_id: gateId, project_id: projectId, reason, timestamp });
-        recordGateOverride(projectId, gateId, reason, timestamp);
       }
       setShowOverrideForm(false);
       setReason("");
@@ -80,17 +90,6 @@ export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerP
   }
 
   // SOFT_BLOCK
-  if (alreadyOverridden) {
-    const rec = getGateOverride(projectId, softGateIds[0]);
-    return (
-      <VerdictBanner
-        tone="flag"
-        headline={`${phase} — SOFT_BLOCK, overridden`}
-        detail={`Missing: ${missingLabel(gate.missing)}. Reason logged: "${rec?.reason}"`}
-      />
-    );
-  }
-
   return (
     <VerdictBanner
       tone={verdictToneForGateStatus(gate.status)}

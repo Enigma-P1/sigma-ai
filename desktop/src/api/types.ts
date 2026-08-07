@@ -36,6 +36,10 @@ export interface OverrideLogEntry {
   gate_id: string;
   reason: string;
   timestamp: string;
+  /** The gate's missing-tool-ids set at override time (gates.py's
+   * OverrideLogEntry.missing) -- what a later /gates/check compares
+   * against to tell a still-covering override from a stale one. */
+  missing: string[];
 }
 
 // ---- Prescore (prescore/common.py) ----
@@ -57,6 +61,11 @@ export interface GateResult {
   status: GateStatus;
   missing: string[];
   reason?: string | null;
+  /** True when a SOFT_BLOCK cleared because the project's override log
+   * already carries a reason logged against exactly this missing set
+   * (gates.py's check() / _covering_override). Never true for HARD_BLOCK. */
+  overridden: boolean;
+  override_reason?: string | null;
 }
 
 export type Phase = "Intake" | "Define" | "Measure" | "Analyze" | "Improve" | "Control" | "Wrap";
@@ -158,6 +167,124 @@ export interface CharterArtifact extends ArtifactBase {
   timeline: TimelineMilestone[];
   business_impact: BusinessImpact;
   risks: RiskRow[];
+}
+
+// ---- Provenance (provenance.py) ----
+
+export interface ProvenanceRecord {
+  input_hash: string;
+  method: string;
+  engine_version: string;
+  assumptions_checked: string[];
+  warnings: string[];
+}
+
+export interface Computed<T> {
+  value: T;
+  provenance: ProvenanceRecord;
+}
+
+// ---- T-02 COPQ / Benefit Calculator (artifacts/copq.py) ----
+
+export const COPQ_CATEGORIES = ["scrap", "rework", "overtime", "expediting", "lost_business", "custom"] as const;
+export type CopqCategory = (typeof COPQ_CATEGORIES)[number];
+
+export interface CopqRow {
+  category: CopqCategory;
+  custom_label?: string | null;
+  quantity: number;
+  rate: number;
+  period: string;
+  basis: string;
+  is_estimate: boolean;
+  /** computed_field on the engine (CopqRow.amount) -- present on rows the
+   * engine has echoed back (validate/load), absent on a row the user is
+   * still filling in that hasn't round-tripped yet. */
+  amount?: number;
+}
+
+export interface CopqArtifact extends ArtifactBase {
+  tool_id: "T-02";
+  rows: CopqRow[];
+  total: Computed<number>;
+}
+
+// ---- T-04 SIPOC (artifacts/sipoc.py) ----
+
+export interface SupplierInputPair {
+  supplier: string;
+  input: string;
+}
+
+export interface ProcessStep {
+  step_number: number;
+  description: string;
+}
+
+export interface OutputCustomerPair {
+  output: string;
+  customer: string;
+}
+
+export interface SipocArtifact extends ArtifactBase {
+  tool_id: "T-04";
+  supplier_input_pairs: SupplierInputPair[];
+  process_steps: ProcessStep[];
+  output_customer_pairs: OutputCustomerPair[];
+  scope_start: string;
+  scope_end: string;
+}
+
+// ---- T-05 VoC -> CTQ Tree (artifacts/voc_ctq.py) ----
+
+export type CtqDirection = "higher_is_better" | "lower_is_better" | "target_is_best";
+export const CTQ_DIRECTIONS: CtqDirection[] = ["higher_is_better", "lower_is_better", "target_is_best"];
+
+export type VocStatementSource = "interview" | "complaint_log" | "survey" | "direct_observation" | "other";
+export const VOC_STATEMENT_SOURCES: VocStatementSource[] = [
+  "interview",
+  "complaint_log",
+  "survey",
+  "direct_observation",
+  "other",
+];
+
+export interface VocCustomer {
+  role: string;
+  is_internal: boolean;
+}
+
+export interface VocStatement {
+  statement_id: string;
+  customer_role: string;
+  text: string;
+  source: VocStatementSource;
+  source_detail: string;
+}
+
+export interface CustomerNeed {
+  need_id: string;
+  statement_ids: string[];
+  text: string;
+}
+
+export interface Ctq {
+  ctq_id: string;
+  need_id: string;
+  measure: string;
+  direction: CtqDirection;
+  target?: string | null;
+  critical_vs_easy_check: string;
+}
+
+export interface VocCtqArtifact extends ArtifactBase {
+  tool_id: "T-05";
+  customers: VocCustomer[];
+  statements: VocStatement[];
+  needs: CustomerNeed[];
+  ctqs: Ctq[];
+  primary_ctq_id: string;
+  charter_metric_link: string;
 }
 
 // ---- Diagnostics (main.py) ----

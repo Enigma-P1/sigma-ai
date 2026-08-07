@@ -15,7 +15,7 @@ NOT invent math guards yet").
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, Sequence
 
 from pydantic import BaseModel, Field
 
@@ -31,6 +31,13 @@ class GateResult(BaseModel):
     status: GateStatus
     missing: list[str] = Field(default_factory=list)
     reason: str | None = None
+    # Set when a SOFT_BLOCK cleared because the project's override log
+    # (project_store.py's overrides.log.jsonl) already carries a reason
+    # logged against exactly this missing-tool-ids set -- see check()'s
+    # _covering_override. Never set for HARD_BLOCK: hard gates can't be
+    # overridden (PLAN §4.2).
+    overridden: bool = False
+    override_reason: str | None = None
 
 
 class ProjectSnapshot(BaseModel):
@@ -88,7 +95,26 @@ GATE_TABLE: tuple[GateRequirement, ...] = (
 _BY_ID = {g.gate_id: g for g in GATE_TABLE}
 
 
-def check(gate_id: str, snapshot: ProjectSnapshot) -> GateResult:
+def _covering_override(
+    gate_id: str, missing: list[str], overrides: Sequence[OverrideLogEntry]
+) -> OverrideLogEntry | None:
+    """The logged override for `gate_id` whose recorded missing set exactly
+    matches the CURRENT missing set, if any (last/most-recent match wins).
+    An override logged against a different missing set doesn't match --
+    artifacts changed since, so the reason on file no longer describes what
+    is being skipped now, and the gate must not silently clear. Records
+    written before `missing` existed default it to `[]` (project_store.py),
+    which can never equal a real (non-empty) missing set, so old records
+    load fine and are correctly treated as not covering anything."""
+    current = set(missing)
+    match: OverrideLogEntry | None = None
+    for entry in overrides:
+        if entry.gate_id == gate_id and set(entry.missing) == current:
+            match = entry  # keep scanning -- last entry in log order wins
+    return match
+
+
+def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideLogEntry] = ()) -> GateResult:
     req = _BY_ID.get(gate_id)
     if req is None:
         raise KeyError(f"unknown gate_id {gate_id!r}")
@@ -100,7 +126,8 @@ def check(gate_id: str, snapshot: ProjectSnapshot) -> GateResult:
         # The only gate that can't be a generic required-tool-ids presence
         # check: it inspects the picker's *route value*, not whether a
         # picker artifact merely exists. Frozen rule source:
-        # docs/traceability-matrix.md §4a, EXIT-01 trigger.
+        # docs/traceability-matrix.md §4a, EXIT-01 trigger. Hard blocks
+        # can't be overridden (PLAN §4.2), so `overrides` plays no part here.
         if snapshot.picker_route == "EXIT-01":
             return GateResult(
                 status="HARD_BLOCK",
@@ -109,16 +136,25 @@ def check(gate_id: str, snapshot: ProjectSnapshot) -> GateResult:
         return GateResult(status="CLEAR")
 
     missing = [t for t in req.required_tool_ids if t not in snapshot.artifact_tool_ids]
-    if missing:
-        return GateResult(status="SOFT_BLOCK", missing=missing)
-    return GateResult(status="CLEAR")
+    if not missing:
+        return GateResult(status="CLEAR")
+
+    covering = _covering_override(gate_id, missing, overrides)
+    if covering is not None:
+        return GateResult(status="CLEAR", overridden=True, override_reason=covering.reason)
+    return GateResult(status="SOFT_BLOCK", missing=missing)
 
 
-def override(gate_id: str, project_id: str, reason: str, timestamp: str, store: ProjectStore) -> OverrideLogEntry:
+def override(
+    gate_id: str, project_id: str, reason: str, timestamp: str, store: ProjectStore, snapshot: ProjectSnapshot
+) -> OverrideLogEntry:
     """Clear a soft block with a logged, non-empty reason. Hard gates
     refuse outright -- PLAN §4.2 draws the hard/soft line at "the math (or
     the frozen routing rule) would be wrong," not at inconvenience, and
-    that line doesn't move for a determined override attempt."""
+    that line doesn't move for a determined override attempt. `snapshot` is
+    the project state *at override time*: the log entry records which
+    tool_ids were missing right now, so a later check() can tell a
+    still-covering override from a stale one (see _covering_override)."""
     req = _BY_ID.get(gate_id)
     if req is None:
         raise KeyError(f"unknown gate_id {gate_id!r}")
@@ -126,4 +162,5 @@ def override(gate_id: str, project_id: str, reason: str, timestamp: str, store: 
         raise PermissionError(f"gate {gate_id!r} is hard and cannot be overridden")
     if req.kind == "stub":
         raise PermissionError(f"gate {gate_id!r} is not yet built")
-    return store.append_override(project_id, gate_id, reason, timestamp)  # raises on empty reason
+    missing = [t for t in req.required_tool_ids if t not in snapshot.artifact_tool_ids]
+    return store.append_override(project_id, gate_id, reason, timestamp, missing=missing)  # raises on empty reason

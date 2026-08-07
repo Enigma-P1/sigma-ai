@@ -1,5 +1,7 @@
 """Route smoke tests for every new endpoint, plus /health and /smoke stay green."""
 
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -93,6 +95,7 @@ def test_gates_check_and_override_flow(client):
     assert check.status_code == 200
     assert check.json()["status"] == "SOFT_BLOCK"
     assert set(check.json()["missing"]) == {"T-04", "T-05"}
+    assert check.json()["overridden"] is False
 
     empty_reason = client.post(
         "/gates/override",
@@ -109,6 +112,60 @@ def test_gates_check_and_override_flow(client):
     )
     assert override.status_code == 200, override.text
     assert override.json()["gate_id"] == "define_to_measure"
+    assert set(override.json()["missing"]) == {"T-04", "T-05"}
+
+    # Re-checking the same gate now reads CLEAR-with-override-note -- the
+    # override loop feeds back into check() instead of the caller having to
+    # remember client-side that it already logged a reason.
+    recheck = client.post("/gates/check", json={"gate_id": "define_to_measure", "project_id": "proj-1"})
+    assert recheck.status_code == 200
+    assert recheck.json()["status"] == "CLEAR"
+    assert recheck.json()["overridden"] is True
+    assert recheck.json()["override_reason"] == "SIPOC and CTQ pending; unblocking to start Measure prep"
+    assert recheck.json()["missing"] == []
+
+
+def test_stale_override_does_not_clear_the_gate(client):
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+    client.post("/project/proj-1/artifacts/T-01", json=make_picker())
+    client.post("/project/proj-1/artifacts/T-03", json=make_charter())
+
+    # Override while both T-04 and T-05 are missing.
+    override = client.post(
+        "/gates/override",
+        json={
+            "gate_id": "define_to_measure", "project_id": "proj-1",
+            "reason": "SIPOC pending, unblocking to prep Measure templates", "timestamp": "2026-08-07T04:00:00",
+        },
+    )
+    assert override.status_code == 200, override.text
+
+    # Artifacts change: SIPOC gets saved for real, so the missing set is now
+    # just T-05 -- different from what the override covered.
+    client.post("/project/proj-1/artifacts/T-04", json=make_sipoc())
+
+    recheck = client.post("/gates/check", json={"gate_id": "define_to_measure", "project_id": "proj-1"})
+    assert recheck.status_code == 200
+    assert recheck.json()["status"] == "SOFT_BLOCK"
+    assert recheck.json()["overridden"] is False
+    assert recheck.json()["missing"] == ["T-05"]
+
+
+def test_project_info_returns_absolute_path_and_artifact_summary(client, tmp_path):
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+    client.post("/project/proj-1/artifacts/T-01", json=make_picker())
+
+    resp = client.get("/project/proj-1/info")
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["project_id"] == "proj-1"
+    assert body["name"] == "Coffee Bar"
+    assert body["artifact_count"] == 1
+    assert body["artifact_index"]["picker-001"] == {"tool_id": "T-01", "latest_version": 1}
+    assert Path(body["folder_path"]).is_absolute()
+    assert Path(body["folder_path"]) == (tmp_path / "projects" / "proj-1").resolve()
+
+    assert client.get("/project/no-such-project/info").status_code == 404
 
 
 def test_gates_hard_block_and_override_refused(client):

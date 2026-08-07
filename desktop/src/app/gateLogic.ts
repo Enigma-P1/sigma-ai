@@ -4,6 +4,10 @@ export interface CombinedGate {
   status: GateStatus;
   missing: string[];
   reasons: string[];
+  /** True when at least one combined gate cleared via a logged override
+   * covering its current missing set (gates.py's check()). */
+  overridden: boolean;
+  overrideReasons: string[];
   byGateId: Record<string, GateResult>;
 }
 
@@ -20,15 +24,17 @@ const SEVERITY: Record<GateStatus, number> = {
 export function combineGateResults(results: Record<string, GateResult>): CombinedGate {
   const entries = Object.entries(results);
   if (entries.length === 0) {
-    return { status: "CLEAR", missing: [], reasons: [], byGateId: {} };
+    return { status: "CLEAR", missing: [], reasons: [], overridden: false, overrideReasons: [], byGateId: {} };
   }
   let status: GateStatus = "CLEAR";
   const missing = new Set<string>();
   const reasons: string[] = [];
+  const overrideReasons: string[] = [];
   for (const [, result] of entries) {
     if (SEVERITY[result.status] > SEVERITY[status]) status = result.status;
     result.missing.forEach((m) => missing.add(m));
     if (result.reason) reasons.push(result.reason);
+    if (result.overridden && result.override_reason) overrideReasons.push(result.override_reason);
   }
-  return { status, missing: [...missing], reasons, byGateId: results };
+  return { status, missing: [...missing], reasons, overridden: overrideReasons.length > 0, overrideReasons, byGateId: results };
 }

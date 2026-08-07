@@ -45,7 +45,15 @@ class CopqRow(BaseModel):
 class CopqArtifact(ArtifactBase):
     tool_id: Literal["T-02"] = "T-02"
     rows: list[CopqRow] = Field(min_length=1)
-    total: Computed[float]
+    # Whatever a client posts here is discarded: _recompute_total replaces it
+    # unconditionally, so the stored total can only ever be the engine's own
+    # arithmetic (rubric R-DEF-05: no hand-typed totals anywhere).
+    total: Computed[float] | None = None
+
+    @model_validator(mode="after")
+    def _recompute_total(self) -> "CopqArtifact":
+        self.total = compute_copq_total(self.rows)
+        return self
 
 
 def compute_copq_total(rows: list[CopqRow]) -> Computed[float]:

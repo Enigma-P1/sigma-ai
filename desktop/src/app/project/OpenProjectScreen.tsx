@@ -4,7 +4,7 @@ import { openProject } from "../../api/client";
 import { ApiError } from "../../api/errors";
 import { forgetProject, loadRecentProjects, rememberProject } from "./recentProjects";
 import type { RecentProject } from "./recentProjects";
-import { defaultProjectFolderPath } from "./path";
+import { projectFolderPath } from "./path";
 import "./RecentProjects.css";
 
 export interface OpenProjectScreenProps {
@@ -26,11 +26,14 @@ export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
     setError(null);
     try {
       const meta = await openProject(projectId.trim());
+      // The project is confirmed to exist -- ask the engine for its real
+      // path rather than the documented-default guess (path.ts).
+      const folder_path = await projectFolderPath(meta.project_id);
       setRecents(
         rememberProject({
           project_id: meta.project_id,
           name: meta.name,
-          folder_path: defaultProjectFolderPath(meta.project_id),
+          folder_path,
           last_opened_at: new Date().toISOString(),
         }),
       );

@@ -82,12 +82,29 @@ def test_append_override_writes_jsonl_and_rejects_empty_reason(store):
     assert len(overrides) == 1
     assert overrides[0].gate_id == "define_to_measure"
     assert overrides[0].reason
+    assert overrides[0].missing == []  # no missing list passed -- defaults to empty, not an error
 
     raw_lines = (store.root / "proj-1" / "overrides.log.jsonl").read_text().strip().splitlines()
     assert len(raw_lines) == 1
     assert json.loads(raw_lines[0])["gate_id"] == "define_to_measure"
 
 
+def test_append_override_records_the_missing_set_it_covers(store):
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    entry = store.append_override(
+        "proj-1", "define_to_measure", "SIPOC and CTQ pending", "2026-08-07T03:00:00", missing=["T-04", "T-05"]
+    )
+    assert entry.missing == ["T-04", "T-05"]
+    assert store.list_overrides("proj-1")[0].missing == ["T-04", "T-05"]
+
+
 def test_list_overrides_empty_when_no_log(store):
     store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
     assert store.list_overrides("proj-1") == []
+
+
+def test_resolved_project_path_is_absolute_and_under_store_root(store):
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    path = store.resolved_project_path("proj-1")
+    assert path.is_absolute()
+    assert path == (store.root / "proj-1").resolve()

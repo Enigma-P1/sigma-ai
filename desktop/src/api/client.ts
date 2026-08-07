@@ -7,6 +7,7 @@ import { resolveEngineBaseUrl } from "./runtime";
 import { ApiError } from "./errors";
 import type { PydanticErrorItem } from "./errors";
 import type {
+  ArtifactIndexEntry,
   GateResult,
   HealthResponse,
   OverrideLogEntry,
@@ -61,6 +62,21 @@ export function createProject(input: { project_id: string; name: string; created
 
 export function openProject(projectId: string): Promise<ProjectMetadata> {
   return request<ProjectMetadata>(`/project/${encodeURIComponent(projectId)}`);
+}
+
+export interface ProjectInfoResponse {
+  project_id: string;
+  name: string;
+  /** Real, absolute on-disk folder path (routes/projects.py's /info,
+   * backed by ProjectStore.resolved_project_path) -- the value
+   * app/project/path.ts uses instead of the documented-default guess. */
+  folder_path: string;
+  artifact_count: number;
+  artifact_index: Record<string, ArtifactIndexEntry>;
+}
+
+export function getProjectInfo(projectId: string): Promise<ProjectInfoResponse> {
+  return request<ProjectInfoResponse>(`/project/${encodeURIComponent(projectId)}/info`);
 }
 
 // ---- /artifacts (routes/artifacts.py) ----

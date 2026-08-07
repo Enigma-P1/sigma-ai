@@ -35,6 +35,12 @@ class OverrideLogEntry(BaseModel):
     gate_id: str
     reason: str = Field(min_length=1)
     timestamp: str
+    # The gate's missing-tool-ids set *at override time*, so gates.check()
+    # can tell a still-covering override from a stale one after artifacts
+    # change (gates.py's _covering_override). Records written before this
+    # field existed default to [], which can never match a real (non-empty)
+    # missing set -- they load without error, they just never clear anything.
+    missing: list[str] = Field(default_factory=list)
 
 
 def _atomic_write_json(path: Path, data: dict[str, Any]) -> None:
@@ -128,8 +134,12 @@ class ProjectStore:
                 continue  # not one of ours; ignore rather than fail a whole listing
         return sorted(versions)
 
-    def append_override(self, project_id: str, gate_id: str, reason: str, timestamp: str) -> OverrideLogEntry:
-        entry = OverrideLogEntry(gate_id=gate_id, reason=reason, timestamp=timestamp)  # raises on empty reason
+    def append_override(
+        self, project_id: str, gate_id: str, reason: str, timestamp: str, missing: list[str] | None = None
+    ) -> OverrideLogEntry:
+        entry = OverrideLogEntry(
+            gate_id=gate_id, reason=reason, timestamp=timestamp, missing=missing or []
+        )  # raises on empty reason
         _append_jsonl(self._overrides_path(project_id), entry.model_dump(mode="json"))
         return entry
 
@@ -142,3 +152,10 @@ class ProjectStore:
             if line.strip():
                 entries.append(OverrideLogEntry.model_validate(json.loads(line)))
         return entries
+
+    def resolved_project_path(self, project_id: str) -> Path:
+        """The real, absolute on-disk folder for `project_id` -- what
+        routes/projects.py's /info endpoint reports to the desktop shell,
+        replacing the documented-default guess project/path.ts previously
+        had to fall back on (no endpoint reported a project's real path)."""
+        return self._project_dir(project_id).resolve()
