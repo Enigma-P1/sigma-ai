@@ -417,9 +417,14 @@ a vibe — and it's proven by traceability, not citation-dropping:
   teach wrong ideas.
 - Every tool's help panel cites its source.
 - **The Green Belt rubric has an independent author-checker split:** built
-  from the BoK, then reviewed by a certified Belt who didn't write it
-  (Shawn sources; §9). A self-graded rubric would make the whole eval
-  circular.
+  from the BoK, then checked by reviewers who didn't write it. **Owner
+  ruling 2026-08-07: no human certified-Belt reviewer will be sourced —
+  "we are the creator and the reviewer on this one."** The independent
+  check is a non-Claude external-model Belt review (GPT + Grok via the
+  vault's second-opinion tool, charged as certified Belts), findings
+  folded before the rubric locks. Honesty consequence: every claim about
+  the rubric says "externally AI-reviewed" — nothing may state or imply a
+  certified human reviewed it.
 - **Review gate for content:** teaching text and rubrics get a fidelity
   review pass against the BoK references at the end of the Measure milestone
   and again before v1 ships — not only at the end (§8).
@@ -488,9 +493,11 @@ phase (both reviewers called back-loaded proof the plan's structural risk):
    rubric drafted, tool list corrected against the matrix, the "Tier A done
    means" checklist frozen (helper frame + rubric items + ≥1 golden +
    decision tree if routed + export/provenance — so "full polish" can't
-   quietly thin under schedule pressure), and the **independent Belt
-   reviewer identified now**, not at M6 — the rubric locks only after
-   their pass. No app code before this exists.
+   quietly thin under schedule pressure), and the **independent reviewer
+   identified now**, not at M6 — the rubric locks only after their pass.
+   *(Resolved by owner ruling 2026-08-07: the reviewer chair is the
+   external-model Belt panel, §6 — no human Belt will be sourced.)* No
+   app code before this exists.
 1. **Skeleton + Define + the packaging gate.** The Tauri + Python-sidecar
    packaging spike FIRST (§7), then app shell (React + design system),
    FastAPI engine skeleton, project save/load (JSON folder + provenance
@@ -504,10 +511,12 @@ phase (both reviewers called back-loaded proof the plan's structural risk):
    Time Study, Data Collection Plan (+ sample-size guidance), Measurement
    Check, Pareto/Histogram/Run charts. Deterministic tests for every
    formula against NIST reference values. **Milestone exit: fidelity review
-   of Measure content + one live untrained-user test of Define+Measure** —
+   of Measure content + one untrained-user test of Define+Measure** —
    Measure is where untrained users actually die (operational definitions,
-   data types, capability misuse), so it gets a real user before Analyze is
-   built.
+   data types, capability misuse), so it gets a user-shaped run before
+   Analyze is built. *(Per the 2026-08-07 owner ruling: the tester is
+   Shawn if he wants the run, else a scripted untrained-persona run,
+   labeled as simulated — §9.)*
 3. **Analyze.** Fishbone/5 Whys (canvas), FMEA, hypothesis selector + tests
    (with effect sizes/CIs), printed decision-tree flowcharts.
 4. **Improve + Control.** Solution matrix (ranked fix list), pilot
@@ -551,12 +560,17 @@ Deterministic gates first, judgment gates second:
   cannot supply (implementation beyond the pilot, an owner who accepted
   the role, post-improvement actuals) grade plan-and-record quality in
   eval mode, per rubric §10.7a.
-- **The high-schooler test, literally:** untrained testers (target 3–5;
-  minimum two — a teenager and a non-ops adult; Shawn sources) each run a
-  held-out scenario using only the suite, with task-level failure logging
-  (where they stalled, what they misread, what they asked). Scoring uses
-  the shipped Green Belt rubric, applied by a certified Belt who did not
-  author the content. Pass bar: every phase scores "acceptable Green Belt
+- **The high-schooler test** *(amended by owner ruling 2026-08-07: no
+  external humans will be sourced — the human bench is Shawn plus anyone
+  he chooses to involve)*: each held-out scenario is run with only the
+  suite, by (a) Shawn and/or humans he brings, and (b) scripted
+  untrained-persona runs — an agent constrained to an untrained user's
+  knowledge, choices logged — **always labeled as simulated, never
+  presented as human results**. Task-level failure logging either way
+  (where the run stalled, what was misread, what was asked). Scoring uses
+  the shipped Green Belt rubric, applied by the external-model Belt panel
+  (§6) plus the in-app grader, with disagreements arbitrated on the
+  record. Pass bar: every phase scores "acceptable Green Belt
   work" or better, with **usability failures and validity failures logged
   separately** — a confusing screen and a wrong analysis are different bugs.
   Scenario datasets are pre-collected and realistic (the test measures the
