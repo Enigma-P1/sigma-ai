@@ -18,6 +18,7 @@ from pydantic import BaseModel
 
 from . import __version__
 from .routes import artifacts as artifacts_routes
+from .routes import export as export_routes
 from .routes import gates as gates_routes
 from .routes import prescore as prescore_routes
 from .routes import projects as projects_routes
@@ -29,6 +30,7 @@ app.include_router(projects_routes.router)
 app.include_router(artifacts_routes.router)
 app.include_router(prescore_routes.router)
 app.include_router(gates_routes.router)
+app.include_router(export_routes.router)
 
 # Must match the port the Tauri sidecar passes via --port (desktop/src-tauri/src/lib.rs).
 DEFAULT_PORT = 8756

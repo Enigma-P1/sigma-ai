@@ -163,6 +163,15 @@ async function main() {
       assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
     });
 
+    await step("assert the Export PDF button is enabled now that a version is saved", async () => {
+      // Button-state only -- actually triggering the download goes through
+      // a Tauri save dialog in the packaged app, which isn't reachable
+      // from a plain Chromium/Playwright session (M1 export brief).
+      const exportBtn = page.locator('[data-testid="charter-export-pdf"]');
+      await exportBtn.waitFor();
+      assert(await exportBtn.isEnabled(), "Export PDF button should be enabled once a charter version is saved");
+    });
+
     await step("assert the solution-language flag renders in the prescore strip", async () => {
       const pill = page.locator('[data-testid="prescore-check-problem_statement_solution_language"]');
       await pill.waitFor();

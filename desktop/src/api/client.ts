@@ -139,6 +139,39 @@ export function overrideGate(input: {
   return request<OverrideLogEntry>("/gates/override", postJson(input));
 }
 
+// ---- Export (routes/export.py) ----
+
+/** GET .../artifacts/T-03/pdf as a Blob, for the charter's "Export PDF"
+ * button (M1 brief) -- a separate path from request() above because the
+ * response body is a binary PDF, not JSON. Error handling mirrors
+ * request(): a non-JSON or non-string `detail` just falls back to the
+ * HTTP status text. */
+export async function downloadCharterPdf(projectId: string, version?: number): Promise<Blob> {
+  const base = resolveEngineBaseUrl();
+  const qs = version != null ? `?version=${version}` : "";
+  const url = `${base}/project/${encodeURIComponent(projectId)}/artifacts/T-03/pdf${qs}`;
+
+  let res: Response;
+  try {
+    res = await fetch(url);
+  } catch (err) {
+    throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
+  }
+
+  if (!res.ok) {
+    let detailText = res.statusText;
+    try {
+      const body = (await res.json()) as { detail?: unknown };
+      if (typeof body.detail === "string") detailText = body.detail;
+    } catch {
+      /* non-JSON error body -- fall back to statusText */
+    }
+    throw new ApiError(detailText || `HTTP ${res.status}`, res.status, { detail: detailText });
+  }
+
+  return res.blob();
+}
+
 // ---- diagnostics (main.py) ----
 
 export function getHealth(): Promise<HealthResponse> {
