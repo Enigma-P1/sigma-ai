@@ -7,7 +7,15 @@ date: 2026-08-07
 
 # Independent Belt Reviewer — the brief
 
-A one-page brief for the certified Belt being asked to review this project's
+> **SUPERSEDED — owner ruling 2026-08-07.** No human certified-Belt
+> reviewer will be sourced ("we are the creator and the reviewer on this
+> one"). The reviewer chair described below is filled by an external-model
+> Belt panel — non-Claude models charged with exactly this brief — and all
+> project claims say "externally AI-reviewed," never implying human
+> certification review. This page is kept as the charge document for that
+> panel, and stands ready as-is if a human Belt ever volunteers.
+
+A one-page brief for the reviewer asked to review this project's
 grading rubric. Written to be handed over as-is.
 
 ## The project, in three sentences

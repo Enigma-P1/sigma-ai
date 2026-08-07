@@ -7,7 +7,7 @@ date: 2026-08-07
 
 # Green Belt Project Rubric — Milestone 0
 
-**Status:** DRAFT — locks only after review by an independent certified Belt who did not author it (PLAN §6/§9 author/checker split; the reviewer is being sourced now, per PLAN §8 milestone 0). Until that pass, every criterion here is a proposal.
+**Status:** DRAFT — locks after the independent review pass. **Owner ruling 2026-08-07: no human certified-Belt reviewer will be sourced; the reviewer chair is an external-model Belt panel** (non-Claude models — GPT + Grok — charged as certified Belts, run through the vault's second-opinion tool; PLAN §6). Honesty note carried everywhere this rubric is described: it is externally AI-reviewed; no certified human has reviewed it. Until the panel's findings are folded, every criterion here is a proposal.
 **Date:** 2026-08-07
 
 **What this is.** The single grading authority for Sigma AI ("Green Belt in a Box"). It defines, for every phase of a DMAIC project run with the suite, what acceptable Green Belt work looks like — concretely enough that a grader can point at the artifact and decide. It grades **project work, not exam recall**: there are no R-ORG items, deliberately (matrix §1). Overview-section knowledge is graded where it lands in artifacts — FMEA knowledge in R-ANA-03, spaghetti/lean in R-MEA-03, SMART goals in R-DEF-03 — never as standalone knowledge checks.
@@ -747,7 +747,7 @@ One line per item. Grade ∈ {Pass, Needs work, Fail, N/A + reason}; one written
 
 ## 10. Open items for the independent Belt reviewer
 
-Flagged per the calibration rule (§1): where "high-schooler passable" and "Green Belt grade" pull apart, the tension is named here rather than silently resolved. The reviewer rules on each.
+Flagged per the calibration rule (§1): where "high-schooler passable" and "Green Belt grade" pull apart, the tension is named here rather than silently resolved. The external-model Belt panel rules on each (owner ruling 2026-08-07), with the owner as final arbiter.
 
 1. **Three phase-conclusion IDs are rubric-side design.** (Updated at critic review 2026-08-07: the matrix now cites R-MEA-04, R-IMP-03, R-CTL-06, and R-WRAP-02 in its rows and documents all seven tool/phase-level homes in its §1 rubric-ID plan, so the earlier "seven uncited IDs" note is resolved.) What remains for your ruling: R-MEA-11 (baseline statement + charter reconciliation), R-ANA-06 (verified causes ranked against the gap), and R-IMP-05 (implementation + goal reconciliation) grade **phase conclusions** rather than single BoK topics — they exist so a phase cannot pass on good parts and a wrong whole. Confirm the three are legitimate Green Belt expectations at those gates.
 2. **R-ANA-02 evidence sufficiency.** The suite teaches: non-empty evidence field, T-17 for measured comparisons, stratified views. It does not teach how *much* evidence verifies a cause. The criterion holds at "data or observation a reasonable person would accept"; a reviewer instinct to demand statistical verification for every cause would exceed what the suite teaches and break high-schooler passability. Confirm the calibration.

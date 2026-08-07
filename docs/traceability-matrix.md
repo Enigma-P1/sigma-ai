@@ -7,7 +7,7 @@ date: 2026-08-07
 
 # Green Belt BoK Traceability Matrix — Milestone 0
 
-**Status:** DRAFT — locks only after independent certified-Belt review of the rubric (PLAN §8, milestone 0).
+**Status:** DRAFT — locks with the rubric after the independent review pass (owner ruling 2026-08-07: the reviewer chair is the external-model Belt panel, not a human certified Belt — PLAN §6; claims about this matrix say "externally AI-reviewed").
 **Date:** 2026-08-07
 
 **Pinned references** (pins name outline versions, not licensed text — no ASQ/IASSC/PeopleCert copyrighted prose is reproduced here; topic names and original wording only):
