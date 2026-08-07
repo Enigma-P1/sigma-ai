@@ -1,0 +1,76 @@
+.sigma-phase {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-phase--active {
+  background: var(--color-accent-soft);
+}
+
+.sigma-phase__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.sigma-phase__name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sigma-phase__blurb {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin: 2px 0 var(--space-2);
+}
+
+.sigma-phase__tools {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sigma-phase__tool {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+  font-size: var(--text-xs);
+}
+
+.sigma-phase__tool:hover {
+  background: var(--color-surface);
+}
+
+.sigma-phase__tool--active {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.sigma-phase__tool-id {
+  font-family: var(--font-family-mono);
+  color: var(--color-text-faint);
+  flex: none;
+}
+
+.sigma-phase__tool-name {
+  flex: 1;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

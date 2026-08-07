@@ -1,0 +1,35 @@
+.sigma-stuck__intro {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-stuck__trail {
+  list-style: none;
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sigma-stuck__question {
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-stuck__actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-stuck__footer {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
