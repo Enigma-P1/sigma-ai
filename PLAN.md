@@ -559,7 +559,10 @@ Deterministic gates first, judgment gates second:
   Rubric items resting on organizational facts a time-boxed scenario
   cannot supply (implementation beyond the pilot, an owner who accepted
   the role, post-improvement actuals) grade plan-and-record quality in
-  eval mode, per rubric §10.7a.
+  eval mode, per rubric §10.7a — and each scenario spec supplies those
+  facts as **scenario ground truth** (the named owner, the window, the
+  after-data), so the items grade consistency with that truth, never
+  invented fiction (Belt-panel constraint).
 - **The high-schooler test** *(amended by owner ruling 2026-08-07: no
   external humans will be sourced — the human bench is Shawn plus anyone
   he chooses to involve)*: each held-out scenario is run with only the
