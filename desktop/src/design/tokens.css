@@ -1,0 +1,95 @@
+/* Sigma AI design system — tokens (PLAN §4.5, research §F).
+ * One type scale, one muted-plus-accent palette, semantic states for
+ * pass/flag/fail/exit so twenty tools read as one product. Light theme
+ * only for M1 (per build brief) — tokens live on :root so a dark palette
+ * is a follow-up of adding a media query, not a rewrite.
+ */
+
+:root {
+  /* ---- Type scale (1.25 ratio, major third) ---- */
+  --font-family:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Avenir, Helvetica,
+    Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-xs: 0.72rem;
+  --text-sm: 0.86rem;
+  --text-base: 1rem;
+  --text-md: 1.15rem;
+  --text-lg: 1.44rem;
+  --text-xl: 1.8rem;
+  --text-2xl: 2.25rem;
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---- Spacing scale (4px base) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* ---- Radius / shadow / border ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 20, 30, 0.06);
+  --shadow-md: 0 4px 16px rgba(20, 20, 30, 0.08);
+  --shadow-modal: 0 16px 48px rgba(20, 20, 30, 0.22);
+
+  --border-width: 1px;
+
+  /* ---- Motion ---- */
+  --motion-fast: 120ms ease;
+  --motion-normal: 200ms ease;
+
+  /* ---- Muted base palette (neutrals) ---- */
+  --color-bg: #f6f7f8;
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f0f1f3;
+  --color-border: #dde1e6;
+  --color-border-strong: #c3c9d1;
+
+  --color-text: #1c2128;
+  --color-text-muted: #5b6470;
+  --color-text-faint: #88919c;
+  --color-text-on-accent: #ffffff;
+
+  /* ---- Single accent (used sparingly: primary actions, active nav, focus) ---- */
+  --color-accent: #3556d6;
+  --color-accent-hover: #2c47ba;
+  --color-accent-soft: #eaeefc;
+  --color-accent-border: #b9c4f2;
+
+  /* ---- Semantic states: pass / flag / fail / exit (research §F) ---- */
+  --color-pass: #1a7f37;
+  --color-pass-soft: #e7f6ec;
+  --color-pass-border: #b4e0c1;
+
+  --color-flag: #9a6700;
+  --color-flag-soft: #fef3d6;
+  --color-flag-border: #f0d387;
+
+  --color-fail: #cf222e;
+  --color-fail-soft: #fdecec;
+  --color-fail-border: #f3b8bc;
+
+  --color-exit: #6e40c9;
+  --color-exit-soft: #f1ecfb;
+  --color-exit-border: #d3c1f0;
+
+  --color-neutral-soft: #eceef1;
+  --color-neutral-border: #d3d8de;
+
+  --focus-ring: 0 0 0 3px var(--color-accent-border);
+}

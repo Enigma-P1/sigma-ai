@@ -1,0 +1,52 @@
+.sigma-diag {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5);
+}
+
+.sigma-diag__back {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  padding: 0;
+  margin-bottom: var(--space-4);
+}
+
+.sigma-diag h1 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-1);
+}
+
+.sigma-diag__subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+}
+
+.sigma-diag__panel {
+  margin-bottom: var(--space-4);
+}
+
+.sigma-diag table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--space-3);
+}
+
+.sigma-diag th,
+.sigma-diag td {
+  text-align: left;
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.sigma-diag th {
+  color: var(--color-text-faint);
+  font-weight: var(--weight-medium);
+  font-size: var(--text-xs);
+}

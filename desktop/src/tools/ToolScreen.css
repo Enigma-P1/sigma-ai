@@ -1,0 +1,46 @@
+.sigma-tool-screen {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sigma-tool-screen__header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.sigma-tool-screen__tool-id {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-faint);
+}
+
+.sigma-tool-screen__tool-name {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.sigma-tool-screen__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 22rem;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.sigma-tool-screen__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+@media (max-width: 60rem) {
+  .sigma-tool-screen__body {
+    grid-template-columns: 1fr;
+  }
+}

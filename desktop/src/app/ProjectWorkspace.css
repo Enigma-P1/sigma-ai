@@ -1,0 +1,30 @@
+.sigma-workspace {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sigma-workspace__body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.sigma-workspace__main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+}
+
+.sigma-workspace__empty {
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.sigma-workspace__loading,
+.sigma-workspace__error {
+  padding: var(--space-6);
+  color: var(--color-text-muted);
+  text-align: center;
+}

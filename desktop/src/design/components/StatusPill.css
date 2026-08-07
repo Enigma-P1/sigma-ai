@@ -1,0 +1,57 @@
+.sigma-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  border: var(--border-width) solid transparent;
+  white-space: nowrap;
+  line-height: var(--leading-tight);
+}
+
+.sigma-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.sigma-pill--pass {
+  color: var(--color-pass);
+  background: var(--color-pass-soft);
+  border-color: var(--color-pass-border);
+}
+
+.sigma-pill--flag {
+  color: var(--color-flag);
+  background: var(--color-flag-soft);
+  border-color: var(--color-flag-border);
+}
+
+.sigma-pill--fail {
+  color: var(--color-fail);
+  background: var(--color-fail-soft);
+  border-color: var(--color-fail-border);
+}
+
+.sigma-pill--exit {
+  color: var(--color-exit);
+  background: var(--color-exit-soft);
+  border-color: var(--color-exit-border);
+}
+
+.sigma-pill--accent {
+  color: var(--color-accent);
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-border);
+}
+
+.sigma-pill--neutral {
+  color: var(--color-text-muted);
+  background: var(--color-neutral-soft);
+  border-color: var(--color-neutral-border);
+}

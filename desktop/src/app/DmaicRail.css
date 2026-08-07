@@ -1,0 +1,21 @@
+.sigma-rail {
+  width: 17rem;
+  flex: none;
+  background: var(--color-surface-sunken);
+  border-right: var(--border-width) solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sigma-rail__scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-3);
+}
+
+.sigma-rail__footer {
+  padding: var(--space-3);
+  border-top: var(--border-width) solid var(--color-border);
+  flex: none;
+}

@@ -1,0 +1,68 @@
+.sigma-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  border: var(--border-width) solid transparent;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast),
+    border-color var(--motion-fast),
+    color var(--motion-fast),
+    opacity var(--motion-fast);
+  white-space: nowrap;
+}
+
+.sigma-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.sigma-btn--sm {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-xs);
+}
+
+/* Primary: the single accent, used for the one main action on screen */
+.sigma-btn--primary {
+  background-color: var(--color-accent);
+  color: var(--color-text-on-accent);
+}
+.sigma-btn--primary:not(:disabled):hover {
+  background-color: var(--color-accent-hover);
+}
+
+/* Secondary: muted surface, bordered */
+.sigma-btn--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+.sigma-btn--secondary:not(:disabled):hover {
+  background-color: var(--color-surface-sunken);
+}
+
+/* Ghost: text-only, for low-emphasis actions inside dense UI */
+.sigma-btn--ghost {
+  background-color: transparent;
+  color: var(--color-text-muted);
+}
+.sigma-btn--ghost:not(:disabled):hover {
+  background-color: var(--color-surface-sunken);
+  color: var(--color-text);
+}
+
+/* Danger: destructive / override actions */
+.sigma-btn--danger {
+  background-color: var(--color-surface);
+  color: var(--color-fail);
+  border-color: var(--color-fail-border);
+}
+.sigma-btn--danger:not(:disabled):hover {
+  background-color: var(--color-fail-soft);
+}
