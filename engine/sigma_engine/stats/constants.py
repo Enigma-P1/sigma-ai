@@ -98,6 +98,12 @@ SIGMA_SHIFT_DEFAULT = 1.5
 CONVENTION_WITH_SHIFT = "with 1.5σ shift"
 CONVENTION_WITHOUT_SHIFT = "without shift"
 
+# --- Pareto vital-few line (pareto.py) -------------------------------------
+# Standard Pareto / Six Sigma "80/20" cumulative-share convention (not a
+# NIST quantity) -- PLAN §4.1 T-14 row: "vital-few bars highlighted to the
+# 80% line."
+PARETO_VITAL_FEW_CUMULATIVE_SHARE = 0.8
+
 # --- EXIT-05 non-normal capability path (baseline.py) ----------------------
 # Frozen exactly in docs/traceability-matrix.md §4a, EXIT-05 row: empirical
 # percentiles at the +/-3-sigma-equivalent normal coverage points, used

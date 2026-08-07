@@ -1,22 +1,33 @@
 #!/usr/bin/env node
-// Real-browser smoke test for the M1 app shell (M1 brief verification
-// step). Assumes the engine (uvicorn) and `npm run dev` (Vite, port 1420)
-// are already running -- this script only drives Chromium against them.
+// Real-browser smoke test for the app shell (M1 brief verification step,
+// extended at M2). Assumes the engine (uvicorn) and `npm run dev` (Vite,
+// port 1420) are already running -- this script only drives Chromium
+// against them.
 //
 // Flow: load the app -> create a project -> fill T-01 (Project Picker) to
 // a full-DMAIC route -> save -> see the version badge -> open T-03
 // (Charter) -> type a solution-shaped problem statement -> save -> assert
 // the solution-language prescore flag renders, both in the prescore strip
-// and as a field-level flag. Fails on any uncaught page error.
+// and as a field-level flag -> T-02/T-04/T-05 + a gate override -> M2:
+// import the coffee-bar wait-times fixture via T-11, confirm the quality
+// scan renders, save it -> run T-13 Baseline against it and assert the
+// stability verdict + sigma-convention-label render -> open T-14 and
+// assert a Pareto verdict headline renders. Fails on any uncaught page error.
 //
 // Usage: node tools/smoke-browser.mjs
 // Env:   APP_URL (default http://localhost:1420)
 
 import { chromium } from "playwright";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const APP_URL = process.env.APP_URL || "http://localhost:1420";
 const CHROMIUM_PATH = process.env.PW_CHROMIUM_PATH || "/opt/pw-browsers/chromium";
 const TIMEOUT_MS = 20_000;
+
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const FIXTURE_CSV_PATH = path.join(SCRIPT_DIR, "fixtures", "coffee-bar-wait-times.csv");
+const FIXTURE_LABEL = "coffee-bar-wait-times.csv (24 rows)"; // must match source_filename + row_count exactly
 
 const steps = [];
 const pageErrors = [];
@@ -337,6 +348,83 @@ async function main() {
       await pill.waitFor();
       const status = await pill.getAttribute("data-status");
       assert(status === "pass", `expected the VoC/CTQ tree to read complete (pass), got ${JSON.stringify(status)}`);
+    });
+
+    // ---- M2 additions: T-11 dataset import, T-13 baseline, T-14 charts.
+    // define_to_measure is already CLEAR by this point (T-03/T-04/T-05 all
+    // saved above), so no further gate handling is needed here. ----
+
+    await step("open T-11 Data Collection Plan and import the coffee-bar fixture", async () => {
+      await page.locator('[data-testid="nav-tool-T-11"]').click();
+      await page.locator('[data-testid="dataimport-file-input"]').setInputFiles(FIXTURE_CSV_PATH);
+      await page.locator('[data-testid="dataimport-column-preview"]').waitFor();
+      await page.locator('[data-testid="dataimport-quality-scan"]').waitFor();
+    });
+
+    await step("confirm the import quality scan renders", async () => {
+      const scanText = await page.locator('[data-testid="dataimport-quality-scan"]').textContent();
+      assert(
+        scanText?.includes("24 total rows scanned"),
+        `expected the quality scan to plainly report the fixture's 24 rows, got ${JSON.stringify(scanText)}`,
+      );
+    });
+
+    await step("save the imported dataset", async () => {
+      await page.locator('[data-testid="dataimport-save"]').click();
+      await page.locator('[data-testid="dataimport-save-confirmation"]').waitFor();
+      const confirmText = await page.locator('[data-testid="dataimport-save-confirmation"]').textContent();
+      assert(confirmText?.includes("24 rows"), `expected the save confirmation to mention 24 rows, got ${JSON.stringify(confirmText)}`);
+    });
+
+    await step("open T-13 Baseline and pick the imported dataset + wait_seconds column", async () => {
+      await page.locator('[data-testid="nav-tool-T-13"]').click();
+      await page.locator('[data-testid="baseline-dataset-select"]').waitFor();
+      await page.locator('[data-testid="baseline-dataset-select"]').selectOption({ label: FIXTURE_LABEL });
+      await page.locator('[data-testid="baseline-column-select"]').selectOption("wait_seconds");
+    });
+
+    await step("enter spec limits and confirm the operational definition", async () => {
+      await page.locator('[data-testid="baseline-usl-input"]').fill("105");
+      await page.locator('[data-testid="baseline-lsl-input"]').fill("85");
+      await page.locator('[data-testid="baseline-op-def-checkbox"]').check();
+      assert(
+        await page.locator('[data-testid="baseline-run"]').isEnabled(),
+        "Run baseline button should be enabled once data + specs + operational definition are set",
+      );
+    });
+
+    await step("run the baseline and assert the stability verdict + sigma-convention label render", async () => {
+      await page.locator('[data-testid="baseline-run"]').click();
+      await page.locator('[data-testid="baseline-stability-verdict"]').waitFor();
+
+      const stabilityHeadline = await page.locator('[data-testid="baseline-stability-verdict"] .sigma-verdict__headline').textContent();
+      assert(
+        stabilityHeadline?.includes("stable: 24 points"),
+        `expected the I-MR chart's verdict headline to carry the engine's stable-24-points note, got ${JSON.stringify(stabilityHeadline)}`,
+      );
+
+      await page.locator('[data-testid="baseline-sigma-level"]').waitFor();
+      const sigmaHeadline = await page.locator('[data-testid="baseline-sigma-level"] .sigma-verdict__headline').textContent();
+      assert(
+        sigmaHeadline?.includes("with 1.5σ shift"),
+        `expected the sigma level headline to carry the shift-convention label, got ${JSON.stringify(sigmaHeadline)}`,
+      );
+    });
+
+    await step("open T-14 and assert a Pareto verdict headline renders", async () => {
+      await page.locator('[data-testid="nav-tool-T-14"]').click();
+      await page.locator('[data-testid="chartset-dataset-select"]').waitFor();
+      await page.locator('[data-testid="chartset-dataset-select"]').selectOption({ label: FIXTURE_LABEL });
+      await page.locator('[data-testid="chartset-pareto-column"]').waitFor();
+      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("delay_cause");
+
+      const paretoHeadline = page.locator('[data-testid="chartset-pareto"] .sigma-verdict__headline');
+      await paretoHeadline.waitFor();
+      const text = await paretoHeadline.textContent();
+      assert(
+        text?.toLowerCase().includes("vital few") && text?.includes("register"),
+        `expected the Pareto verdict headline to name the vital few including "register", got ${JSON.stringify(text)}`,
+      );
     });
   } catch (err) {
     await finish(browser, false, err);

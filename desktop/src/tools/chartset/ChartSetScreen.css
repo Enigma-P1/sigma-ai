@@ -1,0 +1,18 @@
+.sigma-chartset__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  margin-top: var(--space-4);
+}
+
+.sigma-chartset__controls {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.sigma-chartset__controls > * {
+  flex: 1;
+  min-width: 10rem;
+}

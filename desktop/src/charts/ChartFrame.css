@@ -1,0 +1,19 @@
+.sigma-chart-frame {
+  display: flex;
+  flex-direction: column;
+}
+
+.sigma-chart-frame .sigma-verdict {
+  margin-bottom: var(--space-3);
+}
+
+.sigma-plotly {
+  width: 100%;
+}
+
+.sigma-chart-frame__caption {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-normal);
+}

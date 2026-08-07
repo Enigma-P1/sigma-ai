@@ -10,6 +10,9 @@ import { SipocForm } from "./sipoc/SipocForm";
 import { sipocHelperContent } from "./sipoc/sipocContent";
 import { VocCtqForm } from "./voc_ctq/VocCtqForm";
 import { vocCtqHelperContent } from "./voc_ctq/vocCtqContent";
+import { DataImportForm } from "./dataimport/DataImportForm";
+import { BaselineForm } from "./baseline/BaselineForm";
+import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -70,6 +73,33 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={vocCtqHelperContent}>
         <VocCtqForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-11/T-13/T-14 (M2): real engine-backed forms, but helper-frame
+  // content stays PLACEHOLDER this milestone -- a content unit follows
+  // (M2 brief item 7), same as every not-yet-content-written tool.
+  if (toolId === "T-11") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <DataImportForm projectId={projectId} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-13") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <BaselineForm projectId={projectId} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-14") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <ChartSetScreen projectId={projectId} />
       </ToolScreen>
     );
   }
