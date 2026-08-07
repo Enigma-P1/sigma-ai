@@ -8,7 +8,7 @@ import { TimelineImpactSection } from "./TimelineImpactSection";
 import { RisksSection } from "./RisksSection";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { CHARTER_CHECK_FIELD, CHARTER_CHECK_LABELS } from "./charterChecks";
-import { loadArtifact, runPrescore, saveArtifact } from "../../api/client";
+import { downloadCharterPdf, loadArtifact, runPrescore, saveArtifact } from "../../api/client";
 import { ApiError, groupValidationByField } from "../../api/errors";
 import { useSaveState } from "../../app/SaveStateContext";
 import type {
@@ -67,6 +67,8 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [prescore, setPrescore] = useState<PrescoreResult[]>([]);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const existingVersion = project.artifact_index[ARTIFACT_ID]?.latest_version;
 
@@ -174,15 +176,56 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
     }
   }
 
+  /** Downloads the currently-saved version as a PDF (routes/export.py).
+   * Disabled until a version exists -- there is nothing on the server to
+   * render yet (M1 brief: "disabled with reason when no saved version
+   * exists"). Browser-side only: triggering a save-to-disk dialog from
+   * here is Tauri's job, not this fetch-a-blob-and-click-an-anchor path. */
+  async function handleExportPdf() {
+    if (version == null) return;
+    setExporting(true);
+    setExportError(null);
+    try {
+      const blob = await downloadCharterPdf(projectId, version);
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = `charter-${projectId}-v${version}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      setExportError(err instanceof ApiError ? err.message : "Could not export PDF.");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div data-testid="charter-form">
       <Panel
         title="Project Charter"
-        right={version != null && <span data-testid="charter-version-badge">v{version} saved</span>}
+        right={
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-3)" }}>
+            {version != null && <span data-testid="charter-version-badge">v{version} saved</span>}
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={version == null || exporting}
+              title={version == null ? "Save the charter before exporting a PDF." : undefined}
+              onClick={() => void handleExportPdf()}
+              data-testid="charter-export-pdf"
+            >
+              {exporting ? "Exporting…" : "Export PDF"}
+            </Button>
+          </div>
+        }
       >
         {version != null ? null : (
           <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>Not saved yet.</p>
         )}
+        {exportError && <VerdictBanner tone="fail" headline={exportError} />}
       </Panel>
 
       <ProblemStatementSection

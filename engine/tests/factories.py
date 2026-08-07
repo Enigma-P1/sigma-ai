@@ -6,11 +6,21 @@ itself (no test_ prefix) -- pytest won't collect it.
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from typing import Any
 
 from sigma_engine.artifacts.copq import CopqRow, compute_copq_total
 
 TS = "2026-08-07T00:00:00"
+
+DEMO_CHARTER_PATH = Path(__file__).resolve().parents[2] / "demo" / "coffee-bar" / "define" / "charter.json"
+
+
+def load_demo_charter() -> dict[str, Any]:
+    """The real Coffee Bar demo charter (M1 export brief's test fixture),
+    as a plain dict -- callers validate it against CharterArtifact."""
+    return json.loads(DEMO_CHARTER_PATH.read_text(encoding="utf-8"))
 
 
 def make_picker(**overrides: Any) -> dict[str, Any]:
