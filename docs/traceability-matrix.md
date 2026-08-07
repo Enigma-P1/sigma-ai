@@ -71,7 +71,15 @@ This table is **the single authoritative tool count** PLAN §9 refers to ("the i
 
 Notes: (1) PLAN §4.1's v1.1 list also includes "second demo project polish" — content, not a tool; excluded from the inventory. (2) Tier B = guided templates, real forms with instruction panels, no statistical claims, labeled as such in-app. (3) §5a proposes growing T-03, T-14, T-17, T-22 by specific form fields/routes — field-level growth, no new tool IDs.
 
-**Golden coverage rule (PLAN §9):** every Tier-A tool carries ≥1 golden test; computational tools (T-10, T-12, T-13, T-14, T-17, T-20, T-21) additionally carry NIST-reference unit tests. Golden IDs proposed in the matrix below; the eval harness will be authored against them.
+**Tier-A attributes** (added at critic review 2026-08-07 — the columns `docs/tier-a-done-means.md` items 4 and 6 evaluate against; a tool absent from a column has no obligation there):
+
+| Attribute | Tools |
+|---|---|
+| **Routed** (ships a printed decision tree / visible threshold table that must match the code path) | T-01 (intake tree), T-12 (verdict thresholds, §4a), T-13 (stability→capability path), T-17 (test selector tree), T-21 (chart-type selector) |
+| **Owns exits** (detects and raises these registry entries) | T-01: EXIT-01 · T-12: EXIT-02, EXIT-03 · T-13: EXIT-04, EXIT-05 · T-17: EXIT-06..09, EXIT-11..15 · T-19: EXIT-10 (declared at pilot; T-20 enforces it at proof) |
+| **Flawed-example teaching moment** (PLAN §4.4 — the demo shows the mistake and its correction) | T-03 (Coffee Bar: the solution-shaped problem statement, fixed) · T-15 (Print Shop: the zero-evidence fishbone, corrected) |
+
+**Golden coverage rule (PLAN §9):** every Tier-A tool carries ≥1 golden test; computational tools (T-10, T-12, T-13, T-14, T-17, T-20, T-21) additionally carry NIST-reference unit tests. Golden IDs proposed in the matrix below; the eval harness will be authored against them. Frozen trigger values (§4a) are golden-pinned so they cannot drift silently.
 
 **Rubric ID plan:** R-\<PHASE\>-NN, PHASE ∈ {ORG, DEF, MEA, ANA, IMP, CTL, WRAP}. This matrix proposes 39 rubric items (R-DEF-01..08, R-MEA-01..11, R-ANA-01..06, R-IMP-01..05, R-CTL-01..06, R-WRAP-01..03); `docs/green-belt-rubric.md` defines all 39. **R-ORG-\* is deliberately empty in v1:** Overview-section knowledge is graded where it lands in project artifacts (FMEA → R-ANA-03, spaghetti → R-MEA-03, SMART goals → R-DEF-03), not as standalone knowledge checks — the suite grades project work, not exam recall. Seven IDs are tool- or phase-level rather than BoK-row-level (confirmed at rubric authoring, 2026-08-07): R-MEA-04 (T-09 time study), R-IMP-03 (T-20 proof), R-CTL-06 (T-24 SOP), R-WRAP-02 (realized benefits — T-02 re-run at Wrap), and three phase-conclusion items with no single BoK row — R-MEA-11 (baseline statement + charter reconciliation), R-ANA-06 (verified causes ranked against the gap), R-IMP-05 (implementation + goal reconciliation).
 
@@ -86,8 +94,8 @@ One row per 2022 BoK subtopic (leaf item), using ASQ's own numbering — 66 rows
 | I.A.1 Value of six sigma | explain-only (onboarding + helper text) | Std LSS curriculum | — | — |
 | I.A.2 Organizational goals and six sigma projects (SMART goals) | T-01, T-03 (goal linkage in picker; SMART goal builder in charter) | Std LSS curriculum; SMART criteria | R-DEF-01, R-DEF-03 | G-picker-01, G-charter-01 |
 | I.A.3 Organizational drivers and metrics (KPIs) | explain-only (T-01/T-02 helper frames business drivers) | Std LSS curriculum | — | — |
-| I.B.1 Lean concepts (TOC, value chain, flow, takt, JIT, Gemba, spaghetti diagrams, perfection) | T-07 (spaghetti — done, not just defined); T-32 (v1.1 takt); rest explain-only | Elementary geometry (scale calibration, distance × frequency); Std LSS curriculum | R-MEA-03 | G-spaghetti-01 |
-| I.B.2 Value-stream mapping (VA/waste identification) | T-06 (functional coverage: VA/NVA/enabling tagging + times + waste walk); formal VSM notation explain-only; future-state = T-38 (v2). See §5b | Std LSS curriculum (VA/NVA classification, 8 wastes) | R-MEA-01, R-MEA-02 | G-procmap-01 |
+| I.B.1 Lean concepts (TOC, value chain, flow, takt, JIT, Gemba, spaghetti diagrams, perfection) | T-07 (spaghetti — done, not just defined); T-06 † bottleneck readout (§5a A-7 — the constraint step named from step/element times vs required pace); T-32 (v1.1 full takt/balancing); rest explain-only | Elementary geometry (scale calibration, distance × frequency); TOC constraint identification = arithmetic on T-06/T-09 times; Std LSS curriculum | R-MEA-01, R-MEA-03 | G-spaghetti-01, G-procmap-01 |
+| I.B.2 Value-stream mapping (VA/waste identification) | T-06 (functional coverage: VA/NVA/enabling tagging + times + waste walk); formal VSM notation explain-only (justified in §5b); future-state = T-38 (v2) | Std LSS curriculum (VA/NVA classification, 8 wastes) | R-MEA-01, R-MEA-02 | G-procmap-01 |
 | I.C.1 Road maps for DFSS (DMADV, IDOV) | explain-only (out of a DMAIC project's path) | Std LSS curriculum | — | — |
 | I.C.2 Basic FMEA (scale criteria, RPN) | T-16 | Industry-standard 1–10 anchor structure, original generic wording; RPN = S×O×D with stated limitation | R-ANA-03 | G-fmea-01 |
 | I.C.3 Design FMEA and process FMEA (distinguish) | explain-only (T-16 helper text; the suite ships process FMEA) | Std LSS curriculum | — | — |
@@ -131,19 +139,19 @@ One row per 2022 BoK subtopic (leaf item), using ASQ's own numbering — 66 rows
 | III.D.1 Types of data and measurement scales (continuous/discrete; nominal/ordinal/interval/ratio) | T-11 (data-type identification is a first-class field, drives every downstream route) | Std LSS curriculum / standard measurement theory | R-MEA-05 | G-dcp-01 |
 | III.D.2 Sampling and data collection plans/methods (random, stratified; check sheets, coding, quality checks) | T-08 (check sheet), T-11 (plan + stratification + quality checks), T-27 (Tier B log sheets) | Std LSS curriculum; sample-size rules of thumb w/ plain-English framing | R-MEA-05, R-MEA-06 | G-checksheet-01, G-dcp-01 |
 | III.D.3 Descriptive statistics (central tendency, dispersion, frequency distributions) | T-13/T-14 (computed + displayed on every baseline chart); T-09 (element-time spread) | NIST/SEMATECH §1.3.5 (quantitative techniques); NIST ref test | R-MEA-04, R-MEA-10 | G-hist-01, G-timestudy-01 |
-| III.D.4 Graphical methods (scatter, normal probability plot, histogram, stem-and-leaf, box-and-whisker) | T-14 (histogram, run) + T-13 (normal probability plot) + box/scatter † (§5a A-2); stem-and-leaf explain-only | NIST/SEMATECH §1.3.3 (graphical techniques) | R-MEA-10 | G-hist-01, G-run-01 |
-| III.E Measurement system analysis (GR&R, correlation, bias, linearity, percent agreement, P/T) | T-12 (narrow: test/retest %GRR-style verdict + two-rater attribute agreement); full multi-operator GR&R = T-35 (v2); bias/linearity explain-only + EXIT-03 | NIST/SEMATECH §2.4 (gauge R&R studies); NIST ref test | R-MEA-07 | G-msa-01, G-msa-02 (fail path) |
+| III.D.4 Graphical methods (scatter, normal probability plot, histogram, stem-and-leaf, box-and-whisker) | T-14 (histogram, run) + T-13 (normal probability plot) + box/scatter † (§5a A-2); stem-and-leaf explain-only | NIST/SEMATECH §1.3.3 (graphical techniques) | R-MEA-10 | G-hist-01, G-run-01, G-pareto-01 (incl. a flat-bars no-vital-few case), G-scatter-01 (scatter + box render) |
+| III.E Measurement system analysis (GR&R, correlation, bias, linearity, percent agreement, P/T) | T-12 (narrow and named honestly: resolution pre-check, then single-operator test/retest **repeatability (%EV)** — not "GRR", since reproducibility is absent by design — with the denominator [vs tolerance when specs exist, else vs observed study variation] stated on the output; two-rater attribute agreement reported as % agreement **+ kappa** so chance agreement can't flatter a low-defect process); full multi-operator GR&R = T-35 (v2); bias/linearity explain-only + EXIT-03. Verdict thresholds frozen in §4a | NIST/SEMATECH §2.4 (gauge studies) for structure; generic industry threshold conventions (§4a) for verdicts; NIST ref test | R-MEA-07 | G-msa-01, G-msa-02 (fail path) |
 | III.F.1 Process performance vs. process specifications (natural limits vs spec limits) | T-13 (spec limits + operational definition enforced first) | NIST/SEMATECH §6.1.6 | R-MEA-08 | G-baseline-01 |
 | III.F.2 Process capability studies (characteristics, specs, tolerances; verify stability and normality) | T-13 (order-enforced: stability → then capability; normality advisory) + EXIT-04, EXIT-05 | NIST/SEMATECH §6.1.6; normality per §1.3.5 (Anderson-Darling + visual) | R-MEA-08 | G-baseline-01, G-baseline-02 (unstable path) |
 | III.F.3 Cp, Cpk / Pp, Ppk indices (relationship; Cpm; sigma level) | T-13 (Cp/Cpk within vs Pp/Ppk overall, distinction explained); Cpm explain-only | NIST/SEMATECH §6.1.6; NIST ref test | R-MEA-09 | G-baseline-01, G-baseline-03 (non-normal path) |
-| III.F.4 Short-term vs. long-term capability and sigma shift | T-13 (1.5σ shift convention named + toggleable) | Std LSS convention, stated explicitly (PLAN §6) | R-MEA-09 | G-baseline-01 |
+| III.F.4 Short-term vs. long-term capability and sigma shift | T-13 (1.5σ shift convention named + toggleable; **frozen default: shift applied** — the industry-convention reading — and every displayed or exported sigma level carries which convention produced it, so two projects can never show the same data as different sigma levels unlabeled) | Std LSS convention, stated explicitly (PLAN §6) | R-MEA-09 | G-baseline-01 |
 
 ### 2.IV — Analyze
 
 | BoK item | Coverage | Method/formula source | Rubric | Golden |
 |---|---|---|---|---|
 | IV.A.1 Multi-vari studies (positional, cyclical, temporal) | explain-only; formal tool = T-37 (v2); stratified views via T-08/T-11 tags + T-14 give the working GB equivalent. See §5b | Std LSS curriculum | — | — |
-| IV.A.2 Correlation and linear regression (correlation ≠ causation; coefficient, significance, prediction) | T-30 (v1.1 — guided, with scatter); v1: scatter plot † (§5a A-2) + EXIT-15 named deferral; correlation-vs-causation explain-only in v1 | NIST/SEMATECH ch. 7; scipy/statsmodels; NIST ref test (at v1.1) | R-ANA-05 (interpretation discipline) | G-hyp-06 (selector routes/exits); T-30 goldens at v1.1 |
+| IV.A.2 Correlation and linear regression (correlation ≠ causation; coefficient, significance, prediction) | T-30 (v1.1 — guided, with scatter); v1: scatter plot † (§5a A-2) + EXIT-15 named deferral; correlation-vs-causation explain-only in v1 | NIST/SEMATECH ch. 4 (Process Modeling) for regression + §1.3.3.26 (scatter plot); scipy/statsmodels; NIST StRD linear-regression reference datasets (Norris/Pontius) for the v1.1 ref test (chapter corrected at critic review — ch. 7 is comparisons, not regression) | R-ANA-05 (interpretation discipline) | G-hyp-06 (selector routes/exits); T-30 goldens at v1.1 |
 | IV.B.1 Hypothesis testing basics (statistical vs practical significance, sample size, power, Type I/II) | T-17 (selector output: effect size + CI + practical-vs-statistical, always); T-11 (sample-size calculator); power explain-only advisory + EXIT-06 (n floors) | NIST/SEMATECH ch. 7; std statistical definitions | R-ANA-04, R-ANA-05 | G-hyp-06 |
 | IV.B.2 Tests for means, variances, and proportions (paired t, F, ANOVA, chi-square) | T-17: Welch 2-sample t, paired t, one-way ANOVA, chi-square, 2-proportion; Mann-Whitney + Wilcoxon signed-rank fallbacks; 1-sample routes † (§5a A-1); variance tests (F) explain-only (see §5b) + EXIT-13 on ANOVA-significant | NIST/SEMATECH §7.3 (two-process comparisons), §7.4 (multi-process/ANOVA); scipy; NIST ref tests | R-ANA-04, R-ANA-05 | G-hyp-01 (Welch t), G-hyp-02 (ANOVA), G-hyp-03 (chi-sq), G-hyp-04 (proportions), G-hyp-05 (nonparametric fallbacks) |
 | IV.C.1 Gap analysis (current vs future state with predefined metrics) | T-20 (remaining-gap check — gap analysis operationalized) + T-02 (gap in dollars) | Std LSS curriculum; arithmetic on computed baselines | R-IMP-03, R-IMP-04 | G-proof-01 |
@@ -156,7 +164,7 @@ One row per 2022 BoK subtopic (leaf item), using ASQ's own numbering — 66 rows
 | V.A.1 DOE basic terms (factors, levels, responses, blocks, randomization, replication…) | explain-only in v1 (helper text draws the line from the pilot — a one-factor experiment — to DOE vocabulary); T-34 (v1.1, conditional). See §5b | Std experimental-design vocabulary | — | — |
 | V.A.2 DOE graphs and plots (main effects, interactions) | explain-only in v1; T-34 computes them at v1.1 | Std experimental-design methods | — | — |
 | V.B Implementation planning (proof of concept, try-storming, simulations, pilot tests) | T-19 (pilot designer — the doing core) + T-18 (ranked implementation queue); try-storming/simulation explain-only | Std LSS curriculum; pilot discipline per PLAN §4.1 (one change, pre-declared threshold, falsification line, confounder checklist) | R-IMP-01, R-IMP-02 | G-pilot-01, G-solmatrix-01 |
-| V.C.1 Waste elimination (pull, kanban, 5S, standard work, poka-yoke) | T-23 (5S — scored audit), T-24 (standard work); pull/kanban/poka-yoke explain-only + Layer-2 remedy advisor proposes them | Std lean practice, original wording | R-CTL-04, R-CTL-05, R-CTL-06 | G-5s-01, G-stdwork-01 |
+| V.C.1 Waste elimination (pull, kanban, 5S, standard work, poka-yoke) | T-23 (5S — scored audit), T-24 (standard work); pull/kanban/poka-yoke explain-only + Layer-2 remedy advisor proposes them | Std lean practice, original wording | R-CTL-05, R-CTL-06 | G-5s-01, G-stdwork-01 |
 | V.C.2 Cycle-time reduction (continuous flow, setup reduction, SMED) | explain-only as remedies (Layer-2 remedy advisor); T-06/T-09 quantify cycle time; T-32 (v1.1 takt/line balancing) | Std lean practice | — | — |
 | V.C.3 Kaizen and kaizen blitz | T-28 (Tier B quick-win tracker) + T-01 (PDCA quick path for small problems) | Std lean practice | R-DEF-01 (routing) | G-picker-02 (PDCA route) |
 
@@ -164,8 +172,8 @@ One row per 2022 BoK subtopic (leaf item), using ASQ's own numbering — 66 rows
 
 | BoK item | Coverage | Method/formula source | Rubric | Golden |
 |---|---|---|---|---|
-| VI.A.1 SPC basics (objectives; common vs special cause; chart deduction) | T-21 (verdict headlines name the signal and its meaning) | NIST/SEMATECH §6.3.1 (what are control charts); Western Electric rules | R-CTL-01, R-CTL-02 | G-imr-01, G-werules-01 |
-| VI.A.2 Rational subgrouping | explain-only in v1 (bites at X-bar/R, which is T-29 v1.1; I-MR needs only honest time-ordering — EXIT-09 guards the autocorrelation trap). See §5b | Std SPC practice | — | — |
+| VI.A.1 SPC basics (objectives; common vs special cause; chart deduction) | T-21 (verdict headlines name the signal and its meaning) | NIST/SEMATECH §6.3.1 (what are control charts); Western Electric rules — **default = rule 1 (point beyond 3σ) + rule 4 (8 consecutive one side); zone rules 2–3 opt-in with the false-alarm cost stated** (all four zone rules together cut in-control ARL from ~370 to ~92 — a ~4× false-alarm increase, the over-signalling trap on I-MR charts, which are also sensitive to non-normality; corrected at critic review 2026-08-07 — the plan's earlier "rules 1–4 conservative" wording had it backwards) | R-CTL-01, R-CTL-02 | G-imr-01, G-werules-01 |
+| VI.A.2 Rational subgrouping | T-11 + T-21 (reclassified at critic review — the sampling *scheme* decides what an I-MR chart's limits capture, and autocorrelation checks don't catch a bad scheme: one reading per shift on a three-shift process inflates the moving range and blinds the chart. T-11 carries a sampling-scheme field — how often, from where, one stream or several — and T-21 reads it: mixed-stream or too-sparse schemes get a named warning before limits are trusted; p-chart subgroup size handled the same way); full X̄-R subgrouping at T-29 (v1.1) | Std SPC practice (rational subgrouping) | R-MEA-05 | G-dcp-01, G-imr-01 |
 | VI.A.3 Control charts (X̄-R, X̄-s, ImR/XmR, median, p, np, c, u) | T-21 (I-MR, p — the two a GB reaches for); T-29 (v1.1: X̄-R, np, c, u); X̄-s + median explain-only; selector by data type is a printed decision tree | Standard published constant tables (d2, A2, D3, D4…); NIST/SEMATECH §6.3.2 (variables), §6.3.3 (attributes); NIST ref tests | R-CTL-01 | G-imr-01, G-pchart-01 |
 | VI.B.1 Control plan (develop, implement, document, monitor) | T-22 (named owner required; monitoring cadence; scheduled check-ins chase the follow-through) | Std LSS curriculum | R-CTL-03, R-CTL-04 | G-ctrlplan-01 |
 | VI.B.2 Document control | explain-only + embodied in architecture (artifact versioning, provenance objects — PLAN §4.5; T-24 SOP carries version/owner fields). See §5b | Std quality-system practice | — | — |
@@ -201,6 +209,8 @@ The IASSC/PeopleCert GB syllabus (5 phases, 47 subtopics) was swept in full agai
 
 Every honesty exit the suite must recognize, in flow order. Exits are gated by method limits, never by belt level (vault correction 2026-08-04-001). "This needs an experienced human" is a first-class output, not a failure state (PLAN §1). EXIT-01..05 are flow/quality gates; EXIT-06..15 are hypothesis-selector cases — the selector's enumerated unsupported-case list per PLAN §4.1, plus two cases this BoK sweep surfaced (EXIT-14, EXIT-15). Each exit path is itself golden-tested (an exit case appears in G-picker-02, G-msa-02, G-baseline-02, G-hyp-06) and one held-out eval scenario deliberately requires recognizing an exit (PLAN §9).
 
+Numeric trigger values for every exit are **frozen in §4a** — the qualitative conditions below say when, §4a says exactly at what value.
+
 | EXIT | Trigger condition | What the suite says/does | Routes to |
 |---|---|---|---|
 | EXIT-01 | Intake: problem too broad / outcome not measurable / no obtainable data / no process owner | Picker names the failed criterion; "not a viable first GB project as scoped" | Rescope guidance; small problem → PDCA quick path (T-01); organizational/political problem → sponsor or human expert |
@@ -219,11 +229,36 @@ Every honesty exit the suite must recognize, in flow order. Exits are gated by m
 | EXIT-14 | 3+ groups with markedly non-normal / ordinal data (Kruskal-Wallis territory) — *surfaced by IASSC 3.5.2* | Named: "the shipped tests don't cover this case honestly"; shows medians + distribution display, no formal verdict | Kruskal-Wallis route recommended for T-17 at v1.1 (§5a A-3); human expert meanwhile |
 | EXIT-15 | Continuous-x ↔ continuous-y relationship question (correlation/regression) — *surfaced by ASQ IV.A.2 / IASSC 4.1* | v1 shows the scatter plot († §5a A-2) and names the deferral: "quantified correlation/regression ships in v1.1" | T-30 (v1.1); advisor explains correlation ≠ causation meanwhile |
 
+### 4a. Frozen trigger values
+
+Added at critic review 2026-08-07: an exit with no number is unfalsifiable, and floors chosen after demo data exists would be floors chosen to pass. These values are **frozen now**; they change only by a logged decision naming a source, and the goldens pin them. Default significance level throughout: α = 0.05, two-sided.
+
+| Exit | Frozen trigger |
+|---|---|
+| EXIT-01 | Any of the five intake criteria answered No |
+| EXIT-02 (continuous) | Resolution pre-check first: gauge increment ≤ 1/10 of the span it must resolve (spec width when both limits exist, else observed spread), and ≥5 distinct recorded values — else automatic fail ("the gauge can't see the process"). Then repeatability %EV, denominator named: ≤10% acceptable · 10–30% marginal · >30% fail (generic industry convention thresholds) |
+| EXIT-02 (attribute) | Two-rater kappa: ≥0.75 acceptable · 0.40–0.75 marginal · <0.40 fail (generic agreement-strength anchors); % agreement reported alongside, never alone |
+| EXIT-03 | Measurement question outside {test/retest repeatability, two-rater attribute agreement} — multi-operator, bias, linearity, stability → route out |
+| EXIT-04 | Any default-rule signal (rule 1 or rule 4, §VI.A.1 note) on the baseline I-MR / p-chart |
+| EXIT-05 | Advisory normality concern (visual + Anderson–Darling p < 0.05, n-aware framing, never silent). Non-normal path: empirical-percentile Pp/Ppk only when n ≥ 100, labeled approximate; below 100 no percentile indices — observed yield/DPMO + caveat only. Fitted-percentile methods (Clements-style) deliberately deferred: they mislead at exactly the sample sizes untrained users have |
+| EXIT-06 | Route floors, below which the test cannot reach α or its approximation breaks: Welch / 1-sample t: n ≥ 5 per sample · paired t: ≥ 6 pairs · one-way ANOVA: ≥ 3 groups and ≥ 4 per group · 1- and 2-proportion: n·p̂ ≥ 5 and n·(1−p̂) ≥ 5 per sample · Mann-Whitney: ≥ 4 per group · Wilcoxon signed-rank: ≥ 6 non-zero differences |
+| EXIT-07 | Chi-square: expected count ≥ 5 in ≥ 80% of cells and no cell < 1 (Cochran's rule) — else exit |
+| EXIT-08 | Data shape shows >1 related measurement per unit beyond the paired design |
+| EXIT-09 | Lag-1 autocorrelation both significant (|r₁| > 2/√n) and large (|r₁| ≥ 0.5) |
+| EXIT-10 | Pilot plan declares more than one change |
+| EXIT-11 | Data-type field = events over an exposure window (rate), not a fixed-n proportion |
+| EXIT-12 | More than one primary comparison declared, or tests run exceed comparisons declared |
+| EXIT-13 | ANOVA p < α with ≥ 3 groups |
+| EXIT-14 | ≥ 3 groups and (data declared ordinal, or normality concern in any group with that group's n < 20) |
+| EXIT-15 | Question type = relationship between two continuous variables |
+
+**Parametric→nonparametric switch rule (T-17), stated to kill the pretest trap:** the switch is an n-and-shape decision shown to the user — small samples (per-group n < 15) with visible skew/outliers get the rank route recommended — never a silent normality pretest, which is the same conditional-testing mistake the Welch default exists to avoid on variances. Rank routes carry their own effect size and CI (rank-biserial correlation; Hodges–Lehmann shift estimate with CI), and Mann-Whitney output prints its equal-shape caveat: with very different shapes it compares distributions, not medians.
+
 ## 5. Gap analysis
 
 ### 5a. Real-project capabilities not covered by the current tool list
 
-Per the acceptance contract, these correct PLAN §4.1. All five corrections are **field/route-level growth inside existing tools** — no new tool IDs, no Tier-A count change. Rows marked `†` in §2–§3 depend on them.
+Per the acceptance contract, these correct PLAN §4.1. All six corrections (A-1..A-5 from the BoK sweep; A-7 from the critic review) are **field/route-level growth inside existing tools** — no new tool IDs, no Tier-A count change. Rows marked `†` in §2–§3 depend on them. **Status: all six are folded into PLAN §4.1 as of 2026-08-07** — the † marks remain as provenance of what the matrix changed.
 
 **A-1. One-sample tests against a target.** IASSC 3.4.1/3.5.6/3.5.7 require 1-sample t, 1-sample Wilcoxon, and 1-sample proportion; ASQ IV.B.2 "tests for means…and proportions" implies the one-sample case too. A real GB project routinely asks "is my baseline (or my pilot result) different from the stated target?" — the selector currently has no route for it and would either misroute or exit on a case it should handle. **Recommendation: grow T-17** with three thin routes — one-sample t vs target, Wilcoxon signed-rank vs target (its nonparametric fallback), one-proportion vs target. Same engine, same decision tree, same output contract (effect size + CI + plain English). New golden: G-hyp-07.
 
@@ -235,11 +270,13 @@ Per the acceptance contract, these correct PLAN §4.1. All five corrections are 
 
 **A-5. Training & handoff in the control plan.** ASQ VI.B.3 (training plans — new in the 2022 BoK) is a real sustainment requirement: a fix that nobody is trained on dies with the project. T-24 produces the training artifact (the SOP) but nothing plans who gets trained, by whom, verified how. **Recommendation: grow T-22** with a "training & handoff" block (who, on what, by when, verified how), graded under R-CTL-04 and checked by the scheduled check-ins.
 
+**A-7. Bottleneck readout on the process map** *(added at critic review 2026-08-07)*. ASQ I.B.1 lists Theory of Constraints, and the flagship cycle-time demo can map, time, and chart a process — yet nothing names the bottleneck, the single highest-value move in a Green Belt cycle-time project. The data already exists (T-06 step times, T-09 element times). **Recommendation: grow T-06** with a constraint readout: longest effective step time vs the pace demand requires (available time ÷ demand — two fields), the bottleneck step named on the map. Full takt/line-balancing stays T-32 (v1.1); this is arithmetic on data the map already holds. Graded under R-MEA-01.
+
 **A-6. Correlation/regression timing — flag, not a change.** ASQ IV.A.2 is Evaluate-level and genuinely used in GB projects (continuous x vs continuous y). T-30 already covers it **in v1.1**; with A-2's scatter plot and EXIT-15's named deferral, v1 is honest but not complete on this item. This is acceptable **only because** PLAN calls v1.1 "next release, not v-someday." Two conditions attach: the golden eval scenarios (PLAN §9) must not require regression to pass, and if v1.1 slips materially, this row becomes a real coverage gap and the README's coverage language must say so.
 
 ### 5b. Exam-knowledge topics where explain-only is honestly sufficient
 
-One line each on why explain-only honestly satisfies the item — these are things a Green Belt must *know*, not things a GB project *produces*:
+Why explain-only honestly satisfies each item — these are things a Green Belt must *know*, not things a GB project *produces*:
 
 - **I.A.1, I.A.3** (value of six sigma; drivers/metrics) — orientation knowledge; no project artifact exists to generate.
 - **I.C.1** (DFSS road maps) — DMADV/IDOV are design-methodology selection, outside a DMAIC project's path.
@@ -253,7 +290,8 @@ One line each on why explain-only honestly satisfies the item — these are thin
 - **IV.A.1** (multi-vari) — BB-leaning formal charts; stratified Pareto/box views over T-08/T-11 tags cover the GB need; T-37 at v2.
 - **IV.B.2-variance / IASSC 3.4.2** (F-test, 1-sample variance) — Welch-by-default removes the classic F-pretest misuse; spread changes are visible in I-MR + capability comparison.
 - **V.A.1, V.A.2** (DOE terms/plots) — the product's method is one-change-at-a-time (Shawn's ruling 2026-08-04); the pilot teaches one-factor discipline, T-34 arrives if use proves need.
-- **VI.A.2** (rational subgrouping) — bites at X̄-R (v1.1); I-MR needs only honest time-ordering, and EXIT-09 guards the trap.
+- **I.B.2 formal-VSM notation** (the VA/waste *identification* itself is tool-covered by T-06) — the swimlane map with VA/NVA/enabling tags, step times, and the waste walk does the Green Belt job of a current-state VSM; what stays explain-only is the VSM icon language and future-state drawing (T-38, v2), which are notation and design skills, not analysis the first project's conclusion depends on.
+- **V.C.2** (cycle-time reduction: continuous flow, setup reduction, SMED) — these are *remedies*, not analyses: the suite quantifies cycle time (T-06/T-09) and names the bottleneck (A-7), and the remedy advisor proposes flow/SMED-type fixes where the verified cause calls for them; a template can't do a setup-reduction workshop, and pretending one could is the AI-slop failure the plan bans. Takt/line-balancing arithmetic arrives as T-32 (v1.1).
 - **VI.B.2** (document control) — embodied in versioning + provenance architecture rather than taught as a form.
 - **VI.B.4** (audit types) — taxonomy; T-23 is a live audit the user actually runs.
 - **VI.C.1, VI.C.2** (TPM, visual factory) — remedy-level lean knowledge the advisor proposes where relevant.
@@ -269,8 +307,8 @@ Counting rule: each row is classified by its primary disposition (a row led by a
 | Category | Count |
 |---|---|
 | Total BoK items (rows) | **81** — 66 ASQ 2022 + 15 IASSC delta |
-| Covered by a shipping v1 tool | **47** (43 ASQ + 4 delta; 5 of these carry `†` — contingent on §5a corrections A-1/A-4/A-5) |
-| Explain-only (justified in §5b) | **30** (22 ASQ + 8 delta) |
+| Covered by a shipping v1 tool | **48** (44 ASQ + 4 delta; VI.A.2 reclassified tool-covered at critic review via the T-11/T-21 sampling-scheme field; `†` rows = coverage added by §5a corrections, all folded into PLAN 2026-08-07) |
+| Explain-only (justified in §5b) | **29** (21 ASQ + 8 delta) |
 | v1.1-primary (named, scheduled) | **1** (ASQ IV.A.2 — see A-6 conditions) |
 | Named-exit-primary | **1** (IASSC 3.5.2 → EXIT-14) |
 | Out-of-scope v1 (v2 tier, exits named) | **2** (IASSC 4.2 multiple regression; 5.2.8/5.2.9 CuSum/EWMA) |
@@ -280,4 +318,6 @@ Counting rule: each row is classified by its primary disposition (a row led by a
 | Goldens proposed | ≥1 per Tier-A tool; NIST-reference unit tests on T-10, T-12, T-13, T-14, T-17, T-20, T-21 |
 | Items awaiting outline verification | **0** — both outlines fetched live 2026-08-07 (ASQ BoK-map PDF; IASSC via iassc.org + PeopleCert PDF). One admin item for the M2 fidelity review: the PeopleCert v1.1-URL PDF self-stamps "Version 1.0, June 2021" (topic list identical to iassc.org) |
 
-**Plan corrections this matrix makes (per the §1 authority statement):** A-1 (one-sample test routes in T-17), A-2 (scatter + box plots in v1 chart set), A-3 (EXIT-14 now, Kruskal-Wallis at v1.1), A-4 (charter risk block), A-5 (control-plan training & handoff block) — plus the A-6 flag on v1.1 regression timing and the Tier-A count fixed at 25. PLAN §4.1 should be updated to reference this matrix; the rubric and golden documents are authored against the IDs proposed here.
+**Plan corrections this matrix makes (per the §1 authority statement):** A-1 (one-sample test routes in T-17), A-2 (scatter + box plots in v1 chart set), A-3 (EXIT-14 now, Kruskal-Wallis at v1.1), A-4 (charter risk block), A-5 (control-plan training & handoff block), A-7 (bottleneck readout on T-06) — plus the A-6 flag on v1.1 regression timing and the Tier-A count fixed at 25. All folded into PLAN §4.1, 2026-08-07. The rubric and golden documents are authored against the IDs proposed here.
+
+**Critic review, 2026-08-07** (fresh-context cross-model pass, per the model-economy doctrine): verdict SOUND-WITH-FIXES; all blockers and majors folded in same day — frozen exit trigger values (§4a), honest MSA naming + resolution pre-check (III.E), Western Electric default corrected to rules 1+4 (VI.A.1), regression source chapter corrected (IV.A.2), rational subgrouping reclassified (VI.A.2), A-7, and the rubric's pass-bar anchors and circularity fixes recorded in that document.

@@ -30,7 +30,10 @@ Every item scores one of three grades. The grader writes one line of justificati
 - **Needs work** — a shortfall a rework pass would fix, and which does **not** change what the phase concluded.
 - **Fail** — the item's failure line is crossed, or an artifact the project's route required was never produced.
 
-**Phase pass bar ("acceptable Green Belt work," PLAN §9):** every applicable item in the phase at Pass, **or** at Needs-work with a recorded justification and no invalidation of the phase conclusion.
+**Phase pass bar ("acceptable Green Belt work," PLAN §9):** every applicable item in the phase at Pass, **or** at Needs-work with a recorded justification and no invalidation of the phase conclusion — bounded by two hard limits (added at critic review, 2026-08-07, so an all-Needs-work project cannot drift through):
+
+- **Anchor items must be Pass, not Needs-work:** R-DEF-02 (problem statement), R-MEA-07 (measurement check), R-MEA-08 (stability before capability), R-ANA-02 (evidence discipline), R-IMP-03 (before/after proof), R-CTL-03 (control plan core), R-WRAP-02 (realized benefits honest). These are the items the phase conclusion actually rests on.
+- **Needs-work is capped at one-third of the phase's applicable items** (round up). More than that is not a passing phase with notes — it is a rework pass.
 
 **"Invalidate" means, concretely** — a Needs-work or Fail invalidates the phase conclusion when it makes the conclusion untrue, not merely thin:
 
@@ -43,7 +46,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Two bug taxonomies, per PLAN §9.** Usability failures — the student stalled, misread a screen, asked what to do — are logged against the **suite**. Validity failures — wrong method, wrong claim, wrong number — are graded against the **artifact**. This rubric grades the artifact axis only. When the suite's guidance *caused* a validity failure, log both: the item still fails (the claim is still wrong), and the root cause goes to the suite's bug log so the fix lands in the product, not on the student.
 
-**Applicability.** The graded set is the artifacts the project's route actually required — the guided DMAIC flow plus the picker's routing decide which tools were in play. A tool the route required but the student skipped scores **Fail** on its item. A tool the route never called for (e.g. a spaghetti diagram on a project with no movement component, a 5S audit with no workplace-organization component) is **N/A — recorded with the reason, excluded from the phase roll-up**. N/A is a grader decision with a written reason, never a silent omission.
+**Applicability.** The graded set is the artifacts the project's route actually required — the guided DMAIC flow plus the picker's routing decide which tools were in play. A tool the route required but the student skipped scores **Fail** on its item. A tool the route never called for (e.g. a spaghetti diagram on a project with no movement component, a 5S audit with no workplace-organization component) is **N/A — recorded with the reason, excluded from the phase roll-up**. N/A ownership differs by mode (tightened at critic review — a student's own skips must not shrink their graded set): **in eval runs, the scenario spec declares up front which optional tools are in scope** (each §9 scenario names its N/A set when it is authored; the scenario set collectively exercises all 25 Tier-A tools), and a student skipping an in-scope tool scores Fail, not N/A. In real (non-eval) projects, N/A is a grader decision with a written reason. Never a silent omission in either mode.
 
 **Item frame.** Each item states: **Grades** (which artifacts/tools, by matrix T-nn ID) · **Pass means** (numbered, checkable criteria) · **Needs work when** (the most common shortfalls) · **Fail / invalidates when** (the line that voids the conclusion, where one exists) · **Pre-scored in code** (the deterministic subset — schema presence, regex/keyword heuristics, computed-value matches, gate states) vs **Judgment-only** (what only a grader or the advisor can weigh). The pre-score split is deliberately honest: over-claiming what code can check would corrupt the advisor's pre-score design (PLAN §5.1).
 
@@ -173,7 +176,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Fail / invalidates when:** — (no invalidation line of its own; tollgate-skipping does its damage through the phase items it lets through). Persistent gate evasion caps this item at Needs-work and belongs in the grader's notes.
 
-**Pre-scored in code:** timeline fields present; tollgate checklist completion states; override log entries non-empty — this item is almost entirely gate-state readable. **Judgment-only:** date realism; whether override reasons are reasons.
+**Pre-scored in code:** timeline fields present; tollgate checklist completion states; override log entries non-empty. **Judgment-only — and where this item's grade actually lives:** date realism against the project's actual pace, and whether override reasons are reasons or ritual. Gate states alone grade checklist-clicking; the grader reads the plan as a plan.
 
 ## 3. Measure
 
@@ -271,15 +274,15 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Fail / invalidates when:** the dataset was edited without a trail — values changed or rows dropped silently. Untraceable data can support no conclusion.
 
-**Pre-scored in code:** timestamps present; achieved n computed vs plan with shortfall flag; missing/impossible/duplicate scans run and results stored; provenance hash links collection artifact → baseline input (no re-typing possible without breaking the hash). **Judgment-only:** whether collection circumstances match the plan (the convenience-sample smell no scan detects).
+**Pre-scored in code:** timestamps present; achieved n computed vs plan with shortfall flag; missing/impossible/duplicate scans run and results stored; provenance hash links collection artifact → baseline input — this verifies the in-app chain only (nothing changed between import and analysis); it cannot see edits made before import, so criterion 3 is verified for in-app tally data and a judgment call for imported files. **Judgment-only:** whether collection circumstances match the plan (the convenience-sample smell no scan detects); pre-import editing on imported datasets.
 
 #### R-MEA-07 — Measurement system check
 
 **Grades:** Narrow MSA — test/retest repeatability (continuous) or two-rater attribute agreement (pass/fail) (T-12). BoK III.E. Exits: EXIT-02, EXIT-03.
 
 **Pass means:**
-1. The check matching the data type was run **before** the baseline was trusted: test/retest for continuous data, two-rater agreement for judgment calls.
-2. The verdict is obeyed: acceptable → proceed; marginal → proceed with the caveat carried into the narrative; **fail → stop, fix the measurement (EXIT-02), re-run the check** — and only then resume. Taking that stop is Pass-level work (§8).
+1. The check matching the data type was run **before** the baseline was trusted: test/retest repeatability for continuous data (reported as %EV — repeatability, with its denominator named), two-rater agreement **with kappa** for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math).
+2. The verdict is obeyed: acceptable → proceed; marginal → proceed with the caveat carried into the narrative; **fail → stop, fix the measurement (EXIT-02), re-run the check** — and only then resume. Taking that stop is Pass-level work (§8). Verdict thresholds are the matrix §4 frozen trigger values.
 3. If the measurement question exceeds the narrow check the suite ships — multi-operator variation, bias, linearity — the named exit is taken (EXIT-03: human quality engineer / v2 T-35), not improvised around.
 
 **Needs work when:** the check ran on samples that don't span the working range; a marginal verdict is carried but narrated as a clean pass.
@@ -327,7 +330,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Pass means:**
 1. The charts the data shape calls for exist: histogram for shape, run chart for time behavior, Pareto where categorical defect data exists, box/scatter where the tool offers them.
-2. Each chart is read correctly **in the student's own words** — the vital few named from the Pareto (or its absence admitted when the bars are flat), shape and spread described from the histogram, drift/shift/runs noted from the run chart, consistent with the tool's verdict headline.
+2. Each chart is read correctly **in the student's own words**, graded against the data pattern itself — the vital few named from the Pareto (or its absence admitted when the bars are flat), shape and spread described from the histogram, drift/shift/runs noted from the run chart. A read that correctly disagrees with a wrong verdict headline is a **Pass** — and files a suite bug; agreement with the headline earns nothing by itself.
 3. Center and spread are quoted as the computed mean/median and SD/IQR — never re-derived by hand.
 
 **Needs work when:** charts exist but the narrative never touches them; a flat Pareto is narrated as if a vital few existed.
@@ -406,16 +409,16 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Hypothesis-test selector routing and its printed decision path (T-17, incl. matrix correction A-1 one-sample routes). BoK IV.B.1, IV.B.2; IASSC 3.4.1, 3.5.2, 3.5.6, 3.5.7. Exits: EXIT-06..14.
 
 **Pass means:**
-1. The comparison question is stated first, in plain words — what vs what, paired or independent, continuous or count, against-a-target or between-groups — and the selector's routed test matches that structure. (The tool routes by rule — Welch default, nonparametric fallbacks — so the student's job is answering the routing questions truthfully.)
-2. The printed decision path is retained with the artifact, and the student's narrative doesn't contradict the route it shows.
-3. When the data trips a floor or an unsupported case, the named exit is taken: small n (EXIT-06), sparse cells (EXIT-07), repeated measures (EXIT-08), autocorrelation (EXIT-09), multiple simultaneous comparisons (EXIT-12), ANOVA-significant pairwise (EXIT-13), non-normal 3+ groups (EXIT-14). **Recognizing the exit is a Pass** (§8).
+1. The comparison question is stated first, in plain words — what vs what, paired or independent, continuous or count, against-a-target or between-groups — and it is the real question the project needs answered (traceable to a verified cause or the goal), not a question retrofitted to a route.
+2. **The student explains in their own words why the routed test fits that structure** — what is being compared, why paired/independent, what the test can and cannot say — and the narrative doesn't contradict the printed decision path retained with the artifact. Restating the tool's output is not an explanation; the explanation must survive with the tool's headline covered up.
+3. When the data trips a floor or an unsupported case, the named exit is taken: small n (EXIT-06), sparse cells (EXIT-07), repeated measures (EXIT-08), autocorrelation (EXIT-09), rates with exposure (EXIT-11), multiple simultaneous comparisons (EXIT-12), ANOVA-significant pairwise (EXIT-13), non-normal 3+ groups (EXIT-14). **Recognizing the exit is a Pass** (§8).
 4. One pre-declared primary comparison — no shotgun p-values (EXIT-12's discipline, visible in the artifact).
 
 **Needs work when:** the question is written after the result (test-shopping smell); several tests were run and only the significant one is narrated.
 
 **Fail / invalidates when:** a route is forced past a triggered exit — an n-floor overridden, a sparse chi-square computed elsewhere and pasted in — the phase conclusion then rests on a test the method itself says is untrustworthy.
 
-**Pre-scored in code:** routing inputs recorded; route equals rule-tree output (true by construction — verified for tampering); exit gate states; n and expected-cell floors; count of tests run vs declared primary. **Judgment-only:** whether the stated question is the real question.
+**Pre-scored in code:** routing inputs recorded; route-tamper check (the artifact's route matches what the rule tree produces from the recorded inputs — this catches tampering only, and cannot grade fit, since it is true by construction whenever the tool ran); exit gate states against the matrix §4 frozen trigger values; count of tests run vs declared primary. **Judgment-only — the substance of this item:** whether the stated question is the real project question, and whether the student's own explanation of the route holds up (criterion 2).
 
 #### R-ANA-05 — Interpretation discipline
 
@@ -473,7 +476,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Pass means:**
 1. **One change per pilot**, stated in one sentence. Multiple candidate fixes become sequential pilots through the loop — or, when a genuinely combined question exists, the named exit (EXIT-10: advisor / v1.1 Experiment Planner / human expert), never a bundle claimed as attributable.
 2. The comparison is defined before running: baseline period or parallel comparison, stated, with who/what is included and how selected.
-3. Success threshold **and** analysis plan are declared before data collection — timestamps prove it.
+3. Success threshold **and** analysis plan are declared before data collection — record-entry timestamps support the claim (they show entry order, not observation order; see the pre-score note below).
 4. The falsification line is filled in and substantive: "what would prove this DIDN'T work."
 5. The confounder checklist (staffing, season, demand, measurement changed?) is answered up front, to be re-answered at proof.
 
@@ -481,7 +484,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Fail / invalidates when:** the threshold is set or changed after seeing results — pre-declaration is the entire point; or more than one change runs as one pilot and the result is claimed as attributable to a specific fix.
 
-**Pre-scored in code:** single-change field (plus a flag when the solution matrix maps >1 solution into one pilot); threshold/analysis-plan timestamps precede first pilot-data timestamps; falsification field non-empty; checklist answered; comparison-definition fields present. **Judgment-only:** adequacy of the comparison design; scope sanity; whether the falsification line has teeth. (§10: unit-selection bias is graded at "stated honestly," not at sampling-theory rigor.)
+**Pre-scored in code:** single-change field (plus a flag when the solution matrix maps >1 solution into one pilot); falsification field non-empty; checklist answered; comparison-definition fields present; threshold-vs-data timestamp order as an **advisory flag only** — entry timestamps cannot prove the threshold preceded the observations (a spreadsheet defeats them), so pre-declaration credibility is a judgment call the flag informs, never a proven fact. **Judgment-only:** pre-declaration credibility; adequacy of the comparison design; scope sanity; whether the falsification line has teeth. (§10: unit-selection bias is graded at "stated honestly," not at sampling-theory rigor.)
 
 #### R-IMP-03 — Before/after proof
 
@@ -549,10 +552,10 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 #### R-CTL-02 — Signal interpretation and response
 
-**Grades:** Western Electric rule signals (conservative default, rules 1–4) and what the student did about them (T-21). BoK VI.A.1.
+**Grades:** Western Electric rule signals (default: rules 1 + 4, the low-false-alarm pair; zone rules 2–3 opt-in — see matrix VI.A.1) and what the student did about them (T-21). BoK VI.A.1.
 
 **Pass means:**
-1. Every fired signal gets a recorded read in the student's words — special cause vs common cause — consistent with the chart's own explanation of the rule that fired.
+1. Every fired signal gets a recorded read in the student's words — special cause vs common cause — graded against what the data pattern shows, in process terms ("8 points above center starting when the new fixture arrived"), not by echoing the chart's explanation text. A read that correctly disagrees with a wrong signal explanation is a Pass and files a suite bug.
 2. Special-cause signals trigger the response path (OCAP, R-CTL-04): investigation/containment recorded against the signal.
 3. No tampering: no adjustments made on common-cause variation (the classic over-reaction), and no repeated signal left unacknowledged.
 
@@ -682,7 +685,7 @@ Three conditions make an exit a Pass rather than an abandonment:
 2. **Routed** — the registry's route is taken or recorded: rescope (EXIT-01), fix-and-re-run (EXIT-02, EXIT-04), collect more (EXIT-06, EXIT-07), human expert / scheduled release (EXIT-03, EXIT-08..15).
 3. **Honored downstream** — no later artifact quietly claims what the exit declined to compute.
 
-**The failure is pushing past.** The invalidating push-pasts, by ID: capability-language after a failed measurement check (EXIT-02 ignored → R-MEA-07 Fail); a Cp/Cpk claim on an unstable process (EXIT-04 ignored → R-MEA-08 Fail); an underpowered or sparse test presented as a result (EXIT-06/EXIT-07 ignored → R-ANA-04 Fail); a multi-change pilot claimed as attributable (EXIT-10 ignored → R-IMP-02 Fail); shotgun p-values with the winner narrated (EXIT-12 ignored → R-ANA-04 Fail). A silent stall at a limit — no name, no route — is not an exit; it grades as the missing artifact it leaves behind.
+**The failure is pushing past.** The invalidating push-pasts, by ID: capability-language after a failed measurement check (EXIT-02 ignored → R-MEA-07 Fail); a Cp/Cpk claim on an unstable process (EXIT-04 ignored → R-MEA-08 Fail); an underpowered or sparse test presented as a result (EXIT-06/EXIT-07 ignored → R-ANA-04 Fail); a rate-with-exposure question forced through a proportions route (EXIT-11 ignored → R-ANA-04 Fail); a multi-change pilot claimed as attributable (EXIT-10 ignored → R-IMP-02 Fail); shotgun p-values with the winner narrated (EXIT-12 ignored → R-ANA-04 Fail). A silent stall at a limit — no name, no route — is not an exit; it grades as the missing artifact it leaves behind.
 
 **Pre-scored in code:** exit-state records (which EXIT fired, acknowledged or overridden) are gate states — fully deterministic, and the first thing the advisor's pre-score reports. **Judgment-only:** whether the routing reasoning holds, and whether downstream prose honored the exit.
 
@@ -695,7 +698,7 @@ One line per item. Grade ∈ {Pass, Needs work, Fail, N/A + reason}; one written
 | R-DEF-01 | Project selection and routing | T-01 | | |
 | R-DEF-02 | Problem statement quality | T-03 | | |
 | R-DEF-03 | Goal and metrics | T-03 | | |
-| R-DEF-04 | Scope, team, and project risk | T-03, T-14, T-16 | | |
+| R-DEF-04 | Scope, team, and project risk | T-03, T-14 | | |
 | R-DEF-05 | Business impact quantified (COPQ) | T-02, T-03 | | |
 | R-DEF-06 | SIPOC | T-04 | | |
 | R-DEF-07 | VoC → CTQ tree | T-05 | | |
@@ -711,14 +714,14 @@ One line per item. Grade ∈ {Pass, Needs work, Fail, N/A + reason}; one written
 | R-MEA-08 | Stability before capability | T-13 | | |
 | R-MEA-09 | Capability, yield, sigma honest | T-13, T-10 | | |
 | R-MEA-10 | Descriptive and graphical reads | T-14, T-13 | | |
-| R-MEA-11 | Baseline statement + reconciliation | T-13, T-03 | | |
+| R-MEA-11 | Baseline statement + reconciliation | T-13, T-03, T-25 | | |
 | **Measure verdict** | | | | |
 | R-ANA-01 | Cause exploration | T-15 | | |
 | R-ANA-02 | Evidence discipline on causes | T-15, T-17, T-14 | | |
 | R-ANA-03 | Process FMEA | T-16 | | |
 | R-ANA-04 | Right test, right route | T-17 | | |
 | R-ANA-05 | Interpretation discipline | T-17, T-14 | | |
-| R-ANA-06 | Verified causes ranked vs gap | T-15 → T-18 | | |
+| R-ANA-06 | Verified causes ranked vs gap | T-15 → T-18, T-25 | | |
 | **Analyze verdict** | | | | |
 | R-IMP-01 | Solution selection | T-18 | | |
 | R-IMP-02 | Pilot design | T-19 | | |
@@ -746,13 +749,14 @@ One line per item. Grade ∈ {Pass, Needs work, Fail, N/A + reason}; one written
 
 Flagged per the calibration rule (§1): where "high-schooler passable" and "Green Belt grade" pull apart, the tension is named here rather than silently resolved. The reviewer rules on each.
 
-1. **Seven IDs are defined by inference.** The matrix proposes 39 IDs but its rows cite only 32; R-MEA-04, R-MEA-11, R-ANA-06, R-IMP-03, R-IMP-05, R-CTL-06, R-WRAP-02 appear in no row. Three are near-certain from tool/golden wiring — R-MEA-04 (T-09 is the only Tier-A Measure tool otherwise without a rubric home), R-IMP-03 (T-20's proof half; G-proof-01), R-CTL-06 (T-24; G-stdwork-01) — since tier-a-done-means §2 requires every Tier-A tool to have rubric items. The other four (the three phase-conclusion items and R-WRAP-02 realized benefits) are this author's design. Confirm they match matrix intent; if the matrix author meant something else, the matrix's next revision should cite these IDs explicitly either way.
+1. **Three phase-conclusion IDs are rubric-side design.** (Updated at critic review 2026-08-07: the matrix now cites R-MEA-04, R-IMP-03, R-CTL-06, and R-WRAP-02 in its rows and documents all seven tool/phase-level homes in its §1 rubric-ID plan, so the earlier "seven uncited IDs" note is resolved.) What remains for your ruling: R-MEA-11 (baseline statement + charter reconciliation), R-ANA-06 (verified causes ranked against the gap), and R-IMP-05 (implementation + goal reconciliation) grade **phase conclusions** rather than single BoK topics — they exist so a phase cannot pass on good parts and a wrong whole. Confirm the three are legitimate Green Belt expectations at those gates.
 2. **R-ANA-02 evidence sufficiency.** The suite teaches: non-empty evidence field, T-17 for measured comparisons, stratified views. It does not teach how *much* evidence verifies a cause. The criterion holds at "data or observation a reasonable person would accept"; a reviewer instinct to demand statistical verification for every cause would exceed what the suite teaches and break high-schooler passability. Confirm the calibration.
 3. **R-DEF-07 critical-to-customer vs easy-to-measure.** Real VoC judgment carried by a single check question. Grading holds to "the check is answered thoughtfully" — confirm that is Green Belt enough.
 4. **R-MEA-07 scope.** The grader must hold to the narrow MSA the suite ships (test/retest + two-rater agreement), with EXIT-03 covering everything beyond. A certified reviewer's instinct to expect fuller MSA is out of declared scope by design.
 5. **R-IMP-02 pilot-unit selection.** Unbiased selection is design judgment the suite teaches only via prompts and the confounder checklist; the bar is "selection stated honestly," not sampling-theory rigor.
 6. **R-CTL-02 grading window.** In a short eval, signals may never fire; the item then grades recorded discipline and mechanics only. Confirm thin-evidence-≠-fail.
 7. **R-WRAP-02 timeline.** Student projects rarely have quarters of after-data; realized-to-date with the window named, projection labeled projection, is the passing form.
+7a. **Eval-mode grading of organizational facts** (extends 6 and 7): three items rest on facts a time-boxed held-out scenario cannot supply — R-IMP-05 (implementation beyond the pilot), R-CTL-03 (a named owner who accepted the role), R-WRAP-02 (post-improvement actuals). In eval runs these grade the **plan and record quality with the time-box named** — the implementation plan written as if real, the owner role defined and assigned to a scenario person, benefits realized-to-date within the scenario window — never the organizational outcome itself. Each §9 scenario spec states this mode explicitly. Confirm the calibration.
 8. **Pre-score honesty.** Each item's "Pre-scored in code" line is a commitment the M1–M5 builds must implement (tier-a-done-means §2 requires the checks unit-tested). If any listed check proves infeasible, the item text changes by logged edit — the pre-score claims must never exceed what code actually checks.
 
 On the reviewer's pass, status moves from DRAFT to locked, and this section's resolved items move into the item texts.
