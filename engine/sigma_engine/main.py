@@ -3,6 +3,10 @@
 Run directly with `python -m sigma_engine.main --port 8756`, or via the
 PyInstaller-built binary (see run_engine.py / sigma_engine.spec), which the
 desktop shell spawns as a Tauri sidecar.
+
+M1 adds the Define/Intake engine core (artifacts, prescore, project
+storage, gates) as routers included below; /health and /smoke are
+untouched per the M1 brief.
 """
 
 from __future__ import annotations
@@ -13,9 +17,18 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from . import __version__
+from .routes import artifacts as artifacts_routes
+from .routes import gates as gates_routes
+from .routes import prescore as prescore_routes
+from .routes import projects as projects_routes
 from .smoke import compute_smoke_result
 
 app = FastAPI(title="Sigma AI Engine", version=__version__)
+
+app.include_router(projects_routes.router)
+app.include_router(artifacts_routes.router)
+app.include_router(prescore_routes.router)
+app.include_router(gates_routes.router)
 
 # Must match the port the Tauri sidecar passes via --port (desktop/src-tauri/src/lib.rs).
 DEFAULT_PORT = 8756
