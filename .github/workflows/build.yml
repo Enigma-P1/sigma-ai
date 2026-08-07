@@ -160,16 +160,18 @@ jobs:
         working-directory: desktop
         run: npm run tauri build -- --bundles app
 
-      # KNOWN, PROVEN-IN-CI-CONTAINER ISSUE (not just theoretical -- see
-      # docs/m1-spike-notes.md for the reproduction on an equivalent Linux
-      # .deb build): PyInstaller's onedir bootloader looks for its
-      # `_internal` support directory as a literal filesystem sibling of the
-      # running executable. Tauri's `externalBin` sidecar and `bundle.resources`
-      # are placed in DIFFERENT directories inside a macOS .app --
-      # Contents/MacOS (sidecar) vs Contents/Resources (resources), per
-      # Tauri's own documented resourceDir() behavior -- so the sidecar
-      # cannot find `_internal` unless something moves it. This step is that
-      # fix, applied to the real .app before it's sealed into a dmg.
+      # PyInstaller's onedir bootloader resolves its support directory
+      # differently depending on where the executable lives. Outside an .app
+      # it wants `_internal` as a sibling of the exe (that's the Linux/.deb
+      # reproduction in docs/m1-spike-notes.md, and the Windows layout).
+      # INSIDE a macOS .app -- an exe path ending in Contents/MacOS/ -- the
+      # bootloader instead resolves support files to Contents/Frameworks/
+      # (run 31202027106 proved it on a real runner: PYI-9202 "Failed to
+      # load Python shared library .../Contents/Frameworks/Python"; a
+      # sibling `_internal` in Contents/MacOS is never consulted). Tauri
+      # stages bundle.resources into Contents/Resources, so the fix is to
+      # merge `_internal`'s CONTENTS into Contents/Frameworks -- ditto, not
+      # cp, to preserve dylib symlinks -- before sealing the dmg.
       - name: Fix up onedir sidecar layout in the .app bundle
         run: |
           set -euo pipefail
@@ -183,12 +185,15 @@ jobs:
           echo "App bundle: $APP_PATH"
 
           INTERNAL_SRC="$APP_PATH/Contents/Resources/_internal"
-          INTERNAL_DST="$APP_PATH/Contents/MacOS/_internal"
+          FRAMEWORKS_DST="$APP_PATH/Contents/Frameworks"
           if [ ! -d "$INTERNAL_SRC" ]; then
             echo "ERROR: $INTERNAL_SRC not found -- tauri.conf.json's bundle.resources mapping may have changed." >&2
             exit 1
           fi
-          mv "$INTERNAL_SRC" "$INTERNAL_DST"
+          mkdir -p "$FRAMEWORKS_DST"
+          ditto "$INTERNAL_SRC" "$FRAMEWORKS_DST"
+          rm -rf "$INTERNAL_SRC"
+          ls "$FRAMEWORKS_DST" | head -5
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
       # Proves the fix actually worked, on real macOS, before we bother
