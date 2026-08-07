@@ -32,7 +32,7 @@ Every item scores one of three grades. The grader writes one line of justificati
 
 **Phase pass bar ("acceptable Green Belt work," PLAN §9):** every applicable item in the phase at Pass, **or** at Needs-work with a recorded justification and no invalidation of the phase conclusion — bounded by two hard limits (added at critic review, 2026-08-07, so an all-Needs-work project cannot drift through):
 
-- **Anchor items must be Pass, not Needs-work:** R-DEF-02 (problem statement), R-MEA-07 (measurement check), R-MEA-08 (stability before capability), R-ANA-02 (evidence discipline), R-IMP-03 (before/after proof), R-IMP-04 (remaining-gap arithmetic and routing — promoted at Belt-panel review; a wrong remainder is already an invalidator), R-CTL-03 (control plan core), R-WRAP-02 (realized benefits honest). These are the items the phase conclusion actually rests on.
+- **Anchor items must be Pass, not Needs-work:** R-DEF-02 (problem statement), R-MEA-07 (measurement check), R-MEA-08 (stability before capability), R-MEA-11 (baseline statement + reconciliation — promoted at Belt-panel round 2, both reviewers independently: Measure's conclusion *is* the baseline sentence), R-ANA-02 (evidence discipline), R-IMP-03 (before/after proof), R-IMP-04 (remaining-gap arithmetic and routing — promoted at Belt-panel review; a wrong remainder is already an invalidator), R-CTL-03 (control plan core), R-WRAP-02 (realized benefits honest). These are the items the phase conclusion actually rests on.
 - **Needs-work is capped at one-third of the phase's applicable items** (round up). More than that is not a passing phase with notes — it is a rework pass.
 - **Any Fail on an applicable item = phase not passed.** Implied by the two rules above; stated outright (Belt-panel review) so it cannot be misread.
 
@@ -41,11 +41,11 @@ Every item scores one of three grades. The grader writes one line of justificati
 - a **wrong number** — a stated value that differs from its computed source, or arithmetic that doesn't check;
 - an **unverified cause treated as verified** — an assumption carried downstream wearing a verification badge;
 - a **capability claim on an unstable process**, or any capability-language after a failed measurement check;
-- a **proof claimed when its pre-declared threshold was not met**, or with a reported confound stripped from the claim.
+- a **proof claimed when its pre-declared threshold was not met**, or with a reported confound stripped from the claim, or with a **material guardrail (consequential-metric) worsening omitted** from the claim, or measured with a **different gauge or operational definition than the baseline** (a changed yardstick proves nothing) — Belt-panel round 2 additions.
 
 A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a small sample with the shortfall named, a lessons panel that admits a dead end. Honesty about a limit is Pass-side behavior (see §8); concealing the limit is the failure.
 
-**Two bug taxonomies, per PLAN §9.** Usability failures — the student stalled, misread a screen, asked what to do — are logged against the **suite**. Validity failures — wrong method, wrong claim, wrong number — are graded against the **artifact**. This rubric grades the artifact axis only. When the suite's guidance *caused* a validity failure, log both: the item still fails (the claim is still wrong), and the root cause goes to the suite's bug log so the fix lands in the product, not on the student.
+**Two bug taxonomies, per PLAN §9.** Usability failures — the student stalled, misread a screen, asked what to do — are logged against the **suite**. Validity failures — wrong method, wrong claim, wrong number — are graded against the **artifact**. This rubric grades the artifact axis only. When the suite's guidance *caused* a validity failure, log both: the item still fails (the claim is still wrong), and the root cause goes to the suite's bug log so the fix lands in the product, not on the student. When a **tool defect** produced a numerically wrong but internally consistent output and the student reasonably followed it, the affected items grade the student's *reasoning given what was displayed* — the wrong number is the suite's validity bug, not the student's (Belt-panel round 2).
 
 **Applicability.** The graded set is the artifacts the project's route actually required — the guided DMAIC flow plus the picker's routing decide which tools were in play. A tool the route required but the student skipped scores **Fail** on its item. A tool the route never called for (e.g. a spaghetti diagram on a project with no movement component, a 5S audit with no workplace-organization component) is **N/A — recorded with the reason, excluded from the phase roll-up**. N/A ownership differs by mode (tightened at critic review — a student's own skips must not shrink their graded set): **in eval runs, the scenario spec declares up front which optional tools are in scope** (each §9 scenario names its N/A set when it is authored; the scenario set collectively exercises all 25 Tier-A tools), and a student skipping an in-scope tool scores Fail, not N/A. In real (non-eval) projects, N/A is a grader decision with a written reason. Never a silent omission in either mode. Eval scenarios also supply the **organizational facts as scenario ground truth** — the named owner, the implementation window, the after-period — and items resting on them (R-IMP-05, R-CTL-03, R-WRAP-02) grade *consistency with that truth*, never the quality of invented fiction (Belt-panel constraint on §10.7a).
 
@@ -141,7 +141,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** SIPOC form + rendered diagram (T-04). BoK II.A.2, II.A.4.
 
 **Pass means:**
-1. All five columns are populated, and the process column is 4–7 high-level steps whose start and end boundaries match the charter scope.
+1. All five columns are populated, and the process column is **4–7 high-level steps** (one declared range — Belt-panel round 2 caught the 4–7-vs-4–9 mismatch; the code check flags 8–9 as Needs-work-side, everything outside 4–9 hard-flags) whose start and end boundaries match the charter scope.
 2. Outputs are paired to the customers who actually receive them, and inputs to their suppliers — not free-floating lists.
 3. The CTQ-bearing output appears — the thing the customer cares about is on the map, so the CTQ tree (T-05) has something to hang from.
 
@@ -286,7 +286,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Narrow MSA — test/retest repeatability (continuous) or two-rater attribute agreement (pass/fail) (T-12). BoK III.E. Exits: EXIT-02, EXIT-03.
 
 **Pass means:**
-1. The check matching the data type was run **before** the baseline was trusted: test/retest repeatability for continuous data (reported as %EV — repeatability, with its denominator named **as which one it is** — tolerance when specs exist, else study variation, matching the tool's rule; an unnamed denominator lets the flatter number get shopped), two-rater agreement **with kappa** for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math). The student's narrative carries the tool's **repeatability-only caveat** ("full gauge study not done — a full study could only read worse, not better"): the 10/30 bands are borrowed from full-study convention, so passing them on repeatability alone is the lenient side, and saying so is part of the pass (Belt-panel review). The check's samples follow the tool's instruction: **≥10 items spanning the range the process actually shows**, near-limit items included when specs exist.
+1. The check matching the data type was run **before** the baseline was trusted: test/retest repeatability for continuous data (reported as **repeatability%** — renamed from %EV at Belt-panel round 2; defined in matrix §4a — with its denominator named **as which one it is** — tolerance when specs exist, else study variation, matching the tool's rule; an unnamed denominator lets the flatter number get shopped), two-rater agreement **with kappa** for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math). The student's narrative carries the tool's **repeatability-only caveat** ("full gauge study not done — a full study could only read worse, not better"): the 10/30 bands are borrowed from full-study convention, so passing them on repeatability alone is the lenient side, and saying so is part of the pass (Belt-panel review). The check's samples follow the tool's instruction: **≥10 items spanning the range the process actually shows**, near-limit items included when specs exist.
 2. The verdict is obeyed: acceptable → proceed; marginal → proceed with the caveat carried into the narrative; **fail → stop, fix the measurement (EXIT-02), re-run the check** — and only then resume. Taking that stop is Pass-level work (§8). Verdict thresholds are the matrix §4 frozen trigger values.
 3. If the measurement question exceeds the narrow check the suite ships — multi-operator variation, bias, linearity — the named exit is taken (EXIT-03: human quality engineer / v2 T-35), not improvised around.
 
@@ -350,7 +350,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Pass means:**
 1. One baseline sentence exists and is complete: metric, value, period, n, stability status, and the capability-**or**-performance label — every element matching computed results.
-2. It is reconciled with the charter's claimed magnitude: confirmed, or the charter revised by logged edit ("charter said 6.2%; measured 9.1%; charter updated") — never both numbers left standing in conflict. A material magnitude change refreshes the money too: the COPQ/business-impact figure recomputes from the measured baseline (Belt-panel review — otherwise the dollar story stays fiction while the metric story gets fixed).
+2. It is reconciled with the charter's claimed magnitude: confirmed, or the charter revised by logged edit ("charter said 6.2%; measured 9.1%; charter updated") — never both numbers left standing in conflict. **Material** has a frozen default (Belt-panel round 2 — an undefined threshold leaves the gate to grader mood): relative delta > 10%, or any delta that changes goal feasibility or direction. A material magnitude change refreshes the money too: the COPQ/business-impact figure recomputes from the measured baseline (Belt-panel review — otherwise the dollar story stays fiction while the metric story gets fixed).
 3. The goal is re-checked against the measured baseline and restated in its terms if needed.
 
 **Needs work when:** the baseline sentence lacks period or n; the reconciliation happened but the goal went stale.
@@ -382,7 +382,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Evidence fields + verified/unproven status on every cause (T-15); verification tests where used (T-17, T-14 stratified views). BoK IV.C.2. This is the item the Improve phase stands on.
 
 **Pass means:**
-1. Every cause carried forward as **verified** has a non-empty evidence field citing data or direct observation — a stratified Pareto, a hypothesis-test result, a check-sheet split, a documented gemba observation. "Team consensus" alone verifies nothing.
+1. Every cause carries a three-state status — **candidate → supported → confirmed for action** (Belt-panel round 2; "verified" in this rubric = confirmed for action): *candidate* = proposed, evidence field empty; *supported* = evidence attached showing the condition exists (a dated gemba observation, a check-sheet split); *confirmed for action* = the evidence ties the cause to the CTQ gap — a stratified Pareto or view showing the gap concentrates where the cause operates, or a test result. Stratified descriptive evidence and dated observation **count**; formal tests are required only when the cause claims a measured difference. "Team consensus" alone moves nothing past candidate. Two calibration exemplars: *bare Pass* — "batch delays concentrate on shift B (check-sheet split, 31 of 42 delays, weeks 2–4); B uses the old fixture" = confirmed for action. *Fail* — "operators agree the fixture is the problem" carried as verified = an assumption wearing a badge.
 2. Causes claiming a measured difference cite the test or chart that shows it (T-17 output or a stratified view) — not an eyeballed pair of averages.
 3. The evidence pertains to *that* cause — the cited artifact addresses the cause's mechanism, not just the general problem.
 4. Unverified candidates stay visibly flagged unproven and are not used by Improve.
@@ -400,7 +400,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Pass means:**
 1. Failure modes are specific failures of specific process steps (drawn from the T-06 map), each with its effect and cause — "process fails" is not a mode.
 2. Severity/occurrence/detection are rated against the 1–10 anchor scales — spot-checked, a rating matches its anchor's wording, not gut feel.
-3. The table is worked severity-first, then RPN, and the student's action list reflects the stated RPN limitation: equal RPNs are not equal risks, and high severity is never ignorable.
+3. Prioritization is severity-sensitive in substance — the action list reflects the stated RPN limitation (equal RPNs are not equal risks, high severity never ignorable) whatever sort order the worksheet displays; severity-first is the tool's default view, not a graded requirement (Belt-panel round 2).
 4. Top items carry actions with owners.
 
 **Needs work when:** detection ratings are all the same middle number (anchor not consulted); actions exist without owners; modes sit at whole-process altitude.
@@ -479,7 +479,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** Pilot Plan — the small-study designer (T-19). BoK V.B. Exit: EXIT-10. This item enforces the product's method: **one change at a time** (PLAN §4.1).
 
 **Pass means:**
-1. **One change per pilot**, stated in one sentence. Multiple candidate fixes become sequential pilots through the loop — or, when a genuinely combined question exists, the named exit (EXIT-10: advisor / v1.1 Experiment Planner / human expert), never a bundle claimed as attributable.
+1. **One change per pilot**, stated in one sentence. Multiple candidate fixes become sequential pilots through the loop — or, when a genuinely combined question exists, the named exit (EXIT-10: advisor / v1.1 Experiment Planner / human expert), never a bundle claimed as attributable. One honest carve-out (Belt-panel round 2): a **declared inseparable package** — components that cannot be deployed apart — may run as one pilot when it is declared as the package up front, attribution goes to the package only, the components are listed, and no component-level claim is ever made. An undeclared bundle, or component credit claimed from a package pilot, stays EXIT-10's failure.
 2. The comparison is defined before running: baseline period or parallel comparison, stated, with who/what is included and how selected.
 3. Success threshold **and** analysis plan are declared before data collection — record-entry timestamps support the claim (they show entry order, not observation order; see the pre-score note below).
 4. The falsification line is filled in and substantive: "what would prove this DIDN'T work."
@@ -497,14 +497,15 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Pass means:**
 1. The proof runs the **same metric, same operational definition, same measurement system** as the baseline — a changed yardstick proves nothing.
-2. The engine re-ran on the pilot data: side-by-side stability, the appropriate Tier-A test with effect size + CI, and the pre-declared threshold checked — with the verdict stated **as declared**: met, or not met.
+2. The engine re-ran on the pilot data: side-by-side stability, the appropriate Tier-A test with effect size + CI (or the criterion-4 descriptive form where the design can't carry a test), and the pre-declared threshold checked — with the verdict stated **as declared**: met, or not met. Across loop iterations, the **cumulative claim is final-state vs original baseline**; per-change credits stay descriptive and are never summed into a stacked total when effects overlap (Belt-panel round 2).
 3. The confounder checklist is re-answered and its answers print on the result; any reported confound tempers the claim in the student's own words ("improvement shown, but staffing changed — this proof is weakened").
-4. The after-period has enough run to say something — the tool's floors honored, EXIT-06 taken if not.
+4. The after-period has enough run to say something — the tool's floors honored; when the design honestly cannot support an inferential test (floor unreachable, no comparison window), the **descriptive-proof form** is the pass: before/after magnitudes shown against the pre-declared threshold, evidence strength stated plainly ("observed improvement, not statistically tested"), no inferential language (Belt-panel round 2 — a student is never forced into a nominal test the data can't carry).
 5. The charter's consequential (guardrail) metrics report alongside the primary: a primary win with a **material guardrail loss** cannot be claimed as plain "improvement proven" — the honest form is a stated tradeoff for the process owner to accept, and concealing the loss is Fail-side (Belt-panel review).
+6. A threshold met on the mean with an **unstable after-process** is not narrated as a clean win — the honest form tempers ("target hit on average; process not yet stable — loop continues / monitoring extended") (Belt-panel round 2).
 
 **Needs work when:** the after-window looks cherry-picked (best week) and isn't justified; a confounder answered "no" that the project record contradicts.
 
-**Fail / invalidates when:** improvement is claimed with the threshold unmet or the test unsupportive; a reported confound is stripped from the claim; or the metric/definition switched between before and after — a wrong number by construction. All three are named invalidators (§1).
+**Fail / invalidates when:** improvement is claimed with the threshold unmet or the test unsupportive; a reported confound is stripped from the claim; a material guardrail worsening is omitted from the claim; or the metric/definition/measurement system switched between before and after — a wrong number by construction. All four are named invalidators (§1).
 
 **Pre-scored in code:** metric/definition/measurement-system IDs match before↔after; threshold-met computed against the declared value; confounder answers present and printed in the export; test result + effect size as provenance objects. **Judgment-only:** cherry-picking detection; plausibility of confounder answers.
 
@@ -532,9 +533,9 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 2. Improve closes with numbers against the charter goal: met / partially met with the remainder stated / not met with the honest route taken. Partial success stated as partial is Pass-side; see §8.
 3. What Control will monitor is the implemented state — pilot-only improvements are not claimed as implemented.
 
-**Needs work when:** implementation is asserted with no artifact trail; the guardrail (consequential) metric from R-DEF-03 is never re-checked.
+**Needs work when:** implementation is asserted with no artifact trail.
 
-**Fail / invalidates when:** the goal is claimed met against the computed remainder — same line as R-IMP-04, enforced at the phase gate.
+**Fail / invalidates when:** the goal is claimed met against the computed remainder — same line as R-IMP-04, enforced at the phase gate; or the guardrail (consequential) metric is never re-checked, or re-checks worse and the Improve verdict states the win without the tradeoff (mirrors R-IMP-03 — Belt-panel round 2 moved the guardrail from Needs-work to the invalidating line).
 
 **Pre-scored in code:** implementation fields/dates present; goal-vs-result delta computed and consistent with the claimed status; links to SOP and control plan resolve; guardrail-metric recheck present. **Judgment-only:** whether implementation is real beyond the record.
 
@@ -546,8 +547,8 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 
 **Pass means:**
 1. The chart family matches the data type through the printed selector — I-MR for continuous, p for attribute with the denominator handled per subgroup — and the chart monitors the primary CTQ/metric, not a convenient proxy (or the proxy is explained).
-2. Limits are computed by the tool from the post-improvement baseline period and then **frozen** — recalculated only on a deliberate, logged decision, never silently refit to recent data.
-3. The tool's minimum-points advisory is honored before the limits are treated as meaningful.
+2. Limits are computed by the tool from a post-improvement period that is itself **demonstrated stable** (Belt-panel round 2 — freezing limits from an unstable window preserves bad limits): the tool's frozen floor is **≥ 20 points** with no default-rule signal in the limit-setting window; short of that, the chart runs **diagnostically** — plotted, no frozen limits, no "sustained control" claim.
+3. Once established, limits are **frozen** — recalculated only on a deliberate, logged decision, never silently refit to recent data.
 4. Control limits and spec limits are kept distinct in the student's own language — "out of control" and "out of spec" are different sentences.
 
 **Needs work when:** limits are recalculated on every update (rubber limits); the monitored metric drifted from the CTQ without a stated link.
@@ -580,7 +581,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 2. The monitoring frequency has a reason — tied to how fast the process could drift or how much volume flows — not a default left standing.
 3. The plan covers what Improve changed **plus** the primary CTQ — the fix is monitored, not just the outcome.
 
-**Needs work when:** an owner is named with no evidence of handoff; frequency is defaulted with no rationale; the guardrail metric is missing from the plan; a multi-shift or multi-site process names one global owner with no per-shift/site handoff — the passing form names a primary owner per operating unit (Belt-panel review).
+**Needs work when:** an owner is named with no evidence of handoff; the charter-named owner has left or changed roles with no logged re-handoff to a present owner (Belt-panel round 2 — a stale owner is an unowned plan wearing a name); frequency is defaulted with no rationale; the guardrail metric is missing from the plan; a multi-shift or multi-site process names one global owner with no per-shift/site handoff — the passing form names a primary owner per operating unit (Belt-panel review).
 
 **Fail / invalidates when:** no named owner — the tool flags an ownerless plan as theater, and this rubric agrees: an unowned control plan is no control plan, and the project's sustainment claim is void.
 
@@ -591,7 +592,7 @@ A **thin-but-honest field is not invalidating**: an estimate labeled estimate, a
 **Grades:** OCAP (response plan), training & handoff block (matrix correction A-5), scheduled check-ins (T-22); the SOP as the training artifact (T-24). BoK VI.B.1, VI.B.3.
 
 **Pass means:**
-1. **OCAP:** for each monitored item, the exact out-of-control action path — who acts first, what containment looks like, when and to whom it escalates — specific enough to follow at 2 a.m. without the author.
+1. **OCAP:** for each monitored item, the out-of-control action path carries four concrete elements — the actionable first response, the containment step, the escalation trigger and recipient, and the acting owner (Belt-panel round 2 recalibration: a first-project Green Belt writes an actionable path; fully executable emergency procedure depth belongs to the operational owner's SOP).
 2. **Training & handoff:** who gets trained, on what (the T-24 SOP, which exists and is referenced), by whom, by when, verified how (sign-off or observed demonstration) — a fix nobody is trained on dies with the project.
 3. **Check-ins:** the scheduled check-ins are accepted, and every check-in due within the grading window is answered with numbers against the limits.
 
