@@ -9,6 +9,7 @@ import type { PydanticErrorItem } from "./errors";
 import type {
   AdvisorAskRequest,
   AdvisorAskResponse,
+  AdvisorExportResponse,
   AdvisorSettingsResponse,
   AdvisorSettingsUpdateRequest,
   AdvisorStatusResponse,
@@ -34,6 +35,7 @@ import type {
   ProjectMetadata,
   SampleSizeResponse,
   SmokeResponse,
+  TollgatePhase,
   ValidatorReport,
 } from "./types";
 
@@ -402,6 +404,27 @@ export function getAdvisorStatus(): Promise<AdvisorStatusResponse> {
  * save call. */
 export function validateAdvisor(body: AdvisorValidateRequest): Promise<ValidatorReport> {
   return request<ValidatorReport>("/advisor/validate", postJson(body));
+}
+
+/** The paste-ready chatbot export (M5 unit 4, PLAN §5.2): the tool's
+ * portable prompt + the artifact's JSON + the engine-computed facts as one
+ * copyable block. Works with NO key configured — no model call happens
+ * anywhere behind this. Pass `{ mode: "tollgate", phase }` for the phase
+ * variant (tool prompt swapped for the Champion prompt, artifact JSON
+ * swapped for the phase's artifact summaries). */
+export function getAdvisorExport(
+  projectId: string,
+  toolId: string,
+  opts: { artifactId?: string; mode?: "tool" | "tollgate"; phase?: TollgatePhase } = {},
+): Promise<AdvisorExportResponse> {
+  const params = new URLSearchParams();
+  if (opts.artifactId) params.set("artifact_id", opts.artifactId);
+  if (opts.mode) params.set("mode", opts.mode);
+  if (opts.phase) params.set("phase", opts.phase);
+  const query = params.toString();
+  return request<AdvisorExportResponse>(
+    `/advisor/export/${encodeURIComponent(projectId)}/${encodeURIComponent(toolId)}${query ? `?${query}` : ""}`,
+  );
 }
 
 // ---- diagnostics (main.py) ----

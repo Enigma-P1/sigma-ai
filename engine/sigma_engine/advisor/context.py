@@ -297,6 +297,17 @@ def _extract_computed_facts(data: Any, path: str = "") -> list[str]:
     return facts
 
 
+def render_facts_block(data: dict[str, Any]) -> str:
+    """The facts block for one artifact's data: every Computed[T] leaf's
+    numeric/boolean value with its provenance method, one line each --
+    exactly what assemble_context puts in AssembledContext.facts_block for
+    the current artifact, exposed as its own function for the chatbot
+    export route (M5 unit 4, PLAN §5.2), which needs the same
+    engine-computed facts without assembling a whole advisor context.
+    Returns "" when the artifact carries no computed leaves."""
+    return "\n".join(_extract_computed_facts(data))
+
+
 def render_prescore_line(result: PrescoreResult) -> str:
     """check_id/tool_id/status are schema-level identifiers/enums --
     always engine-controlled, never user text. `detail` usually is too,

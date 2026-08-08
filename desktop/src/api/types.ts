@@ -2295,6 +2295,27 @@ export interface AdvisorStatusResponse {
   model: string;
 }
 
+// ---- Chatbot export (M5 unit 4, PLAN §5.2 -- routes/advisor.py's
+// GET /advisor/export/{project_id}/{tool_id}). Works with NO key
+// configured: the portable prompt pack exists for exactly those users. ----
+
+export interface AdvisorExportResponse {
+  /** The tool's (or, in tollgate mode, the phase's) portable prompt --
+   * prompts/tools/*.md / prompts/tollgates/*.md, shipped inside the engine. */
+  prompt_text: string;
+  /** mode=tool: the current artifact's pretty-printed JSON ("" when the tool
+   * has no saved artifact, e.g. T-13/T-14). mode=tollgate: the phase's
+   * artifact summaries block (plain text) in the same "user's work" slot. */
+  artifact_json: string;
+  /** Engine-computed facts (Computed[T] leaves with provenance methods);
+   * "" when nothing is computed. */
+  facts_block: string;
+  /** The one paste-ready block: prompt + "MY ARTIFACT:" (or the phase
+   * summaries heading) + "COMPUTED RESULTS (authoritative, from the app):".
+   * This is what the Copy button puts on the clipboard. */
+  combined: string;
+}
+
 // ---- Validator pass (PLAN §5.3.6, anti-hallucination layer 6,
 // engine/sigma_engine/advisor/validator.py + routes/advisor.py's
 // POST /advisor/validate) -- a second, cheaper-model call that reads one

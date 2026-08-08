@@ -1933,6 +1933,62 @@ async function main() {
       await page.locator('[data-testid="advisor-mode-select"]').selectOption("generic");
     });
 
+    // ---- M5 unit 4 (the portable prompt pack + export screen, PLAN §5.2):
+    // "Export for chatbot" works with NO key configured -- no model call
+    // behind it, just GET /advisor/export. The current screen here is T-25
+    // (A3), whose artifact "a3" was saved above, so the tool export must
+    // carry that artifact's JSON plus the pack's fixed footer text. ----
+
+    await step("export for chatbot: tool export produces the paste block (prompt + artifact + footer)", async () => {
+      await page.locator('[data-testid="advisor-export-tool-button"]').click();
+      const preview = page.locator('[data-testid="advisor-export-preview"]');
+      await preview.waitFor();
+      const text = await preview.inputValue();
+      assert(text.length > 0, "expected a non-empty combined export block");
+      assert(text.includes("MY ARTIFACT:"), "expected the MY ARTIFACT: heading in the combined block");
+      assert(
+        text.includes('"artifact_id": "a3"'),
+        "expected the saved a3 artifact's JSON (its artifact_id field) in the combined block",
+      );
+      assert(
+        text.includes("COMPUTED RESULTS (authoritative, from the app):"),
+        "expected the authoritative computed-results heading in the combined block",
+      );
+      assert(
+        text.includes("the app's computed results are the record"),
+        "expected the pack's fixed footer (the numbers-are-not-authoritative rule) in the combined block",
+      );
+      // Copy confirms -- Playwright's Chromium grants clipboard access on
+      // localhost, so the button should flip to its "Copied" confirmation.
+      await page.locator('[data-testid="advisor-export-copy"]').click();
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="advisor-export-copy"]')?.textContent === "Copied",
+      );
+    });
+
+    await step("export for chatbot: tollgate variant renders the phase's Champion prompt", async () => {
+      await page.locator('[data-testid="advisor-export-phase-select"]').selectOption("Improve");
+      await page.locator('[data-testid="advisor-export-tollgate-button"]').click();
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[data-testid="advisor-export-preview"]')
+          ?.value.includes("Improve tollgate -- Champion review prompt"),
+      );
+      const text = await page.locator('[data-testid="advisor-export-preview"]').inputValue();
+      assert(
+        text.includes("Was exactly one change piloted at a time, with a success threshold set before the data came in?"),
+        "expected the improve-1 tollgate question verbatim in the export",
+      );
+      assert(
+        text.includes("MY PHASE ARTIFACTS (summaries from the app):"),
+        "expected the phase-summaries heading in the tollgate export",
+      );
+      assert(
+        text.includes("the app's computed results are the record"),
+        "expected the pack's fixed footer in the tollgate export too",
+      );
+    });
+
     await step("the panel's link opens advisor settings, showing the exact privacy statement", async () => {
       await page.locator('[data-testid="advisor-open-settings"]').click();
       const privacy = page.locator('[data-testid="advisor-privacy-statement"]');

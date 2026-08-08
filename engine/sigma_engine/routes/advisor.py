@@ -25,17 +25,26 @@ save (validator.py's own module docstring); this route only ever reads.
 
 from __future__ import annotations
 
+import json
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, model_validator
 
 from ..advisor import modes as modes_module
+from ..advisor import prompt_pack
 from ..advisor.client import AdvisorCallFailed, AdvisorConfigured, AdvisorUnavailable
 from ..advisor.client import ask as client_ask
 from ..advisor.client import resolve_config, resolve_model
-from ..advisor.context import AssembledContext, BudgetReport, parse_requested_artifact_ids, wrap_untrusted
-from ..advisor.modes import AdvisorFocusRef, ModeSpec
+from ..advisor.context import (
+    AssembledContext,
+    BudgetReport,
+    parse_requested_artifact_ids,
+    render_facts_block,
+    summarize_artifact,
+    wrap_untrusted,
+)
+from ..advisor.modes import PHASE_TOOL_IDS, AdvisorFocusRef, ModeSpec
 from ..advisor.settings_store import AdvisorSettings, AdvisorSettingsStore, mask_api_key
 from ..advisor.structured import run_structured_mode
 from ..advisor.validator import ValidatorReport, run_validator
@@ -230,6 +239,143 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
         budget_report=assembled.budget_report,
         requested_artifact_ids=parse_requested_artifact_ids(answer_text),
     )
+
+
+# ---- GET /advisor/export/{project_id}/{tool_id} (M5 unit 4, PLAN §5.2) ----
+#
+# The paste-ready chatbot export: the tool's portable prompt (prompt_pack.py,
+# shipped inside the engine -- no filesystem read of prompts/) + the current
+# artifact's JSON + the engine-computed facts, combined into one copyable
+# block. Deliberately NOT behind _require_configured: the prompt pack exists
+# exactly for users with no API key, so this route works with Layer 2
+# entirely unconfigured. Nothing here calls a model -- it only reads the
+# project store and string-assembles.
+
+# The combined block's fixed section headings (PLAN §5.2's one copy action:
+# "prompt + artifact JSON + computed stats"). The facts heading carries the
+# authority label in-line so the pasted chat itself says which numbers are
+# the record.
+_EXPORT_ARTIFACT_HEADING = "MY ARTIFACT:"
+_EXPORT_SUMMARIES_HEADING = "MY PHASE ARTIFACTS (summaries from the app):"
+_EXPORT_FACTS_HEADING = "COMPUTED RESULTS (authoritative, from the app):"
+
+ExportMode = Literal["tool", "tollgate"]
+
+
+class AdvisorExportResponse(BaseModel):
+    prompt_text: str
+    # mode=tool: the current artifact's pretty-printed JSON ("" when no
+    # artifact_id was given -- T-13/T-14 have no saved artifact, and the
+    # prompt alone is still a valid export). mode=tollgate: the phase's
+    # artifact summaries block (summarize_artifact per saved phase tool,
+    # plain text) -- the same "user's work" slot, phase-shaped.
+    artifact_json: str
+    # Engine-computed facts (render_facts_block): the current artifact's
+    # Computed[T] leaves, or in tollgate mode every phase artifact's,
+    # labeled by artifact id. "" when nothing is computed.
+    facts_block: str
+    # The one block the desktop copies to the clipboard: prompt_text +
+    # headings + artifact/facts content, in paste order.
+    combined: str
+
+
+def _combine_export(prompt_text: str, work_heading: str, work_block: str, facts_block: str) -> str:
+    return "\n\n".join(
+        [
+            prompt_text.rstrip("\n"),
+            f"{work_heading}\n{work_block}",
+            f"{_EXPORT_FACTS_HEADING}\n{facts_block if facts_block else '(none computed yet)'}",
+        ]
+    )
+
+
+def _export_tool(store: ProjectStore, project_id: str, tool_id: str, artifact_id: str | None) -> AdvisorExportResponse:
+    prompt_text = prompt_pack.tool_prompt_text(tool_id)
+    if prompt_text is None:
+        raise HTTPException(status_code=404, detail=f"no prompt exists for tool {tool_id!r}")
+
+    meta = store.load_project(project_id)  # FileNotFoundError -> 404 below
+
+    artifact_json = ""
+    facts_block = ""
+    if artifact_id is not None:
+        entry = meta.artifact_index.get(artifact_id)
+        if entry is None:
+            raise HTTPException(status_code=404, detail=f"artifact {artifact_id!r} not found in project {project_id!r}")
+        if entry.tool_id != tool_id:
+            # Same "current state conflicts with the request" convention as
+            # the 409s above -- exporting T-03's prompt around a T-02
+            # artifact would produce a block that lies about itself.
+            raise HTTPException(
+                status_code=409,
+                detail=f"artifact {artifact_id!r} belongs to tool {entry.tool_id}, not {tool_id}",
+            )
+        data = store.load_artifact(project_id, artifact_id)
+        artifact_json = json.dumps(data, indent=2, sort_keys=True)
+        facts_block = render_facts_block(data)
+
+    work_block = artifact_json if artifact_json else "(no saved artifact in the app for this tool -- paste or describe your work here)"
+    return AdvisorExportResponse(
+        prompt_text=prompt_text,
+        artifact_json=artifact_json,
+        facts_block=facts_block,
+        combined=_combine_export(prompt_text, _EXPORT_ARTIFACT_HEADING, work_block, facts_block),
+    )
+
+
+def _export_tollgate(store: ProjectStore, project_id: str, phase: TollgatePhase) -> AdvisorExportResponse:
+    prompt_text = prompt_pack.tollgate_prompt_text(phase)
+    if prompt_text is None:  # unreachable behind the TollgatePhase Literal; honest fallback anyway
+        raise HTTPException(status_code=404, detail=f"no tollgate prompt exists for phase {phase!r}")
+
+    meta = store.load_project(project_id)  # FileNotFoundError -> 404 below
+
+    summaries: list[str] = []
+    facts_sections: list[str] = []
+    for tool_id in PHASE_TOOL_IDS.get(phase, ()):
+        data = store.latest_artifact_for_tool(project_id, meta, tool_id)
+        if data is None:
+            continue
+        artifact_id = data["artifact_id"]
+        summaries.append(summarize_artifact(artifact_id, tool_id, data))
+        facts = render_facts_block(data)
+        if facts:
+            facts_sections.append(f"{artifact_id} ({tool_id}):\n{facts}")
+
+    summaries_block = "\n\n".join(summaries)
+    facts_block = "\n\n".join(facts_sections)
+    work_block = summaries_block if summaries_block else "(no artifacts saved for this phase yet -- paste or describe the phase's work here)"
+    return AdvisorExportResponse(
+        prompt_text=prompt_text,
+        artifact_json=summaries_block,
+        facts_block=facts_block,
+        combined=_combine_export(prompt_text, _EXPORT_SUMMARIES_HEADING, work_block, facts_block),
+    )
+
+
+@router.get("/export/{project_id}/{tool_id}", response_model=AdvisorExportResponse)
+def export_for_chatbot(
+    project_id: str,
+    tool_id: str,
+    artifact_id: str | None = None,
+    mode: ExportMode = "tool",
+    phase: TollgatePhase | None = None,
+    store: ProjectStore = Depends(get_store),
+) -> AdvisorExportResponse:
+    """mode=tool (default): this tool's prompt + the named artifact's JSON +
+    its computed facts. mode=tollgate: the phase's Champion prompt + phase
+    artifact summaries + per-artifact facts (tool_id and artifact_id are
+    ignored -- the phase names its own tools via PHASE_TOOL_IDS, mirroring
+    tollgate ask mode's own contract of targeting the project, not the
+    screen the panel happened to be open on)."""
+    try:
+        if mode == "tollgate":
+            if phase is None:
+                raise HTTPException(status_code=422, detail="mode=tollgate requires `phase`")
+            return _export_tollgate(store, project_id, phase)
+        return _export_tool(store, project_id, tool_id, artifact_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 # ---- POST /advisor/validate (PLAN §5.3.6, M5 unit 3) ----

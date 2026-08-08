@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import type { PillTone } from "../design/components";
 import { Button, Field, Panel, SelectInput, StatusPill, TextArea, TextInput, VerdictBanner } from "../design/components";
-import { askAdvisor, getAdvisorStatus, loadArtifact, validateAdvisor } from "../api/client";
+import { askAdvisor, getAdvisorExport, getAdvisorStatus, loadArtifact, validateAdvisor } from "../api/client";
 import { ApiError } from "../api/errors";
 import type {
   AdvisorAskRequest,
   AdvisorAskResponse,
+  AdvisorExportResponse,
   AdvisorMode,
   AdvisorProposal,
   AdvisorRemedyCandidate,
@@ -139,12 +140,105 @@ function CopyButton({ text, testId }: { text: string; testId: string }) {
   );
 }
 
+type ExportState =
+  | { phase: "idle" }
+  | { phase: "loading" }
+  | { phase: "ready"; response: AdvisorExportResponse }
+  | { phase: "error"; message: string };
+
+/** "Export for chatbot" (M5 unit 4, PLAN §5.2) -- the portable prompt
+ * pack's in-app surface. Renders independent of the configured/unconfigured
+ * split because it is exactly for people WITHOUT in-app Layer 2: one call
+ * to GET /advisor/export (no model behind it, no key needed) produces the
+ * tool's expert prompt + this tool's saved artifact JSON + the app's
+ * computed results as one block to paste into any chatbot. The tollgate
+ * variant swaps in the phase's Champion prompt + phase artifact summaries. */
+function ExportForChatbot({ projectId, toolId, artifactId }: { projectId: string; toolId: string; artifactId?: string }) {
+  const [state, setState] = useState<ExportState>({ phase: "idle" });
+  const [exportPhase, setExportPhase] = useState<TollgatePhase>("Define");
+
+  async function run(kind: "tool" | "tollgate") {
+    setState({ phase: "loading" });
+    try {
+      const response = await getAdvisorExport(
+        projectId,
+        toolId,
+        kind === "tollgate" ? { mode: "tollgate", phase: exportPhase } : { artifactId },
+      );
+      setState({ phase: "ready", response });
+    } catch (err) {
+      setState({ phase: "error", message: err instanceof ApiError ? err.message : "The export call failed." });
+    }
+  }
+
+  return (
+    <div className="sigma-advisor-panel__export" data-testid="advisor-export-section">
+      <p className="sigma-advisor-panel__muted">
+        No API key? Use the portable prompt pack: one block -- this tool&apos;s expert prompt, your saved artifact,
+        and the app&apos;s computed results -- to paste into any chatbot.
+      </p>
+      <div className="sigma-advisor-panel__export-actions">
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => run("tool")}
+          disabled={state.phase === "loading"}
+          data-testid="advisor-export-tool-button"
+        >
+          Export for chatbot
+        </Button>
+        <SelectInput
+          aria-label="Tollgate export phase"
+          data-testid="advisor-export-phase-select"
+          value={exportPhase}
+          onChange={(e) => setExportPhase(e.target.value as TollgatePhase)}
+        >
+          {TOLLGATE_PHASES.map((p) => (
+            <option key={p} value={p}>
+              {p}
+            </option>
+          ))}
+        </SelectInput>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => run("tollgate")}
+          disabled={state.phase === "loading"}
+          data-testid="advisor-export-tollgate-button"
+        >
+          Export tollgate
+        </Button>
+      </div>
+
+      {state.phase === "error" && <VerdictBanner tone="fail" headline="The export call failed" detail={state.message} />}
+
+      {state.phase === "ready" && (
+        <div className="sigma-advisor-panel__export-result" data-testid="advisor-export-result">
+          <TextArea
+            aria-label="Paste-ready chatbot block"
+            data-testid="advisor-export-preview"
+            value={state.response.combined}
+            readOnly
+            rows={8}
+          />
+          <CopyButton text={state.response.combined} testId="advisor-export-copy" />
+          <p className="sigma-advisor-panel__muted">
+            Paste the whole block into any chatbot. Numbers that come back are not authoritative -- the app&apos;s
+            computed results are the record.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Collapsible "Advisor" panel on every ToolScreen (M5 brief) -- Layer 2,
  * strictly optional. The mode picker and every mode's input affordances
  * render regardless of configured state (M5 unit 2 brief: "with no key
  * configured, each mode's UI renders its input affordances and the
  * unconfigured state on submit paths") -- only the actual ask attempt is
- * gated on being configured. */
+ * gated on being configured. M5 unit 4 adds the ExportForChatbot section,
+ * also configured-state-independent -- see its own docstring. */
 export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: AdvisorPanelProps) {
   const [status, setStatus] = useState<StatusState>({ phase: "loading" });
   const [mode, setMode] = useState<AdvisorMode>("generic");
@@ -333,6 +427,8 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
               />
             </Field>
           )}
+
+          <ExportForChatbot projectId={projectId} toolId={toolId} artifactId={artifactId} />
 
           {status.phase === "unreachable" && (
             <VerdictBanner tone="fail" headline="Could not reach the engine" detail={status.message} />

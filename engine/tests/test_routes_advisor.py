@@ -567,3 +567,91 @@ def test_validate_never_creates_or_changes_a_saved_artifact(client):
 
     after = client.get("/project/proj-1/info").json()["artifact_index"]
     assert after == before  # the validator call saved nothing and changed nothing
+
+
+# ---- GET /advisor/export/{project_id}/{tool_id} (M5 unit 4, PLAN §5.2) ----
+# The paste-ready chatbot export. Every test here runs with NO key
+# configured (the client fixture clears the env and nothing calls
+# _fully_configure) -- proving the route's whole point: it works with
+# Layer 2 entirely unconfigured, because the pack exists for exactly the
+# users who have no key.
+
+from sigma_engine.advisor.prompt_pack import FIXED_FOOTER, TOOL_PROMPT_FILES, TOLLGATE_PROMPT_FILES  # noqa: E402
+
+
+def test_export_tool_combines_prompt_artifact_json_and_facts(client):
+    _create_project_and_copq(client)
+    resp = client.get("/advisor/export/proj-1/T-02", params={"artifact_id": "copq-001"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+
+    assert body["prompt_text"] == TOOL_PROMPT_FILES["T-02"][1]
+    assert '"artifact_id": "copq-001"' in body["artifact_json"]
+    # The COPQ total is a Computed[T] leaf -- engine-computed facts present.
+    assert "total" in body["facts_block"]
+
+    combined = body["combined"]
+    assert combined.index(body["prompt_text"].rstrip("\n")) == 0
+    assert "MY ARTIFACT:" in combined
+    assert combined.index("MY ARTIFACT:") < combined.index("COMPUTED RESULTS (authoritative, from the app):")
+    assert '"artifact_id": "copq-001"' in combined
+    assert FIXED_FOOTER in combined
+    assert "the app's computed results are the record" in combined
+
+
+def test_export_tool_without_artifact_id_still_ships_the_prompt(client):
+    _create_project_and_copq(client)
+    resp = client.get("/advisor/export/proj-1/T-13")  # T-13 never has a saved artifact
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["artifact_json"] == ""
+    assert body["facts_block"] == ""
+    assert body["prompt_text"] == TOOL_PROMPT_FILES["T-13"][1]
+    assert "no saved artifact in the app for this tool" in body["combined"]
+
+
+def test_export_404s_for_unknown_project_tool_and_artifact(client):
+    _create_project_and_copq(client)
+    assert client.get("/advisor/export/nope/T-02").status_code == 404
+    assert client.get("/advisor/export/proj-1/T-99").status_code == 404
+    assert client.get("/advisor/export/proj-1/T-02", params={"artifact_id": "ghost"}).status_code == 404
+
+
+def test_export_409s_when_the_artifact_belongs_to_a_different_tool(client):
+    _create_project_and_copq(client)
+    resp = client.get("/advisor/export/proj-1/T-03", params={"artifact_id": "copq-001"})
+    assert resp.status_code == 409
+    assert "belongs to tool T-02" in resp.json()["detail"]
+
+
+def test_export_tollgate_combines_phase_prompt_summaries_and_facts(client):
+    _create_project_and_fishbone(client)
+    resp = client.get("/advisor/export/proj-1/T-15", params={"mode": "tollgate", "phase": "Analyze"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+
+    assert body["prompt_text"] == TOLLGATE_PROMPT_FILES["Analyze"][1]
+    assert "analyze-1" in body["prompt_text"]
+    # The phase summaries block reuses summarize_artifact -- the saved T-15
+    # appears by id in the summaries slot.
+    assert "fishbone-001" in body["artifact_json"]
+    combined = body["combined"]
+    assert "MY PHASE ARTIFACTS (summaries from the app):" in combined
+    assert "fishbone-001" in combined
+    assert FIXED_FOOTER in combined
+
+
+def test_export_tollgate_with_empty_phase_says_so_honestly(client):
+    _create_project_and_fishbone(client)  # nothing saved in Improve
+    resp = client.get("/advisor/export/proj-1/T-15", params={"mode": "tollgate", "phase": "Improve"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["artifact_json"] == ""
+    assert "no artifacts saved for this phase yet" in body["combined"]
+
+
+def test_export_tollgate_requires_phase(client):
+    _create_project_and_copq(client)
+    assert client.get("/advisor/export/proj-1/T-02", params={"mode": "tollgate"}).status_code == 422
+    # An invalid phase name fails the TollgatePhase Literal's own validation.
+    assert client.get("/advisor/export/proj-1/T-02", params={"mode": "tollgate", "phase": "Sprint"}).status_code == 422
