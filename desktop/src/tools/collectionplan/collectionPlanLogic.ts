@@ -17,11 +17,19 @@ export function emptyLogistics(): CollectionLogistics {
   return { who_collects: "", where_collected: "", when_how_often: "", planned_n: null, sample_size_rationale: "" };
 }
 
-/** Structural gate only (PLAN §4.2 hard/soft split -- content completeness
- * is prescore's job): a stratification factor row needs a name to mean
- * anything, mirrored client-side from the engine's own schema rule. */
+/** The exact fields the Save button's disabled state depends on (PLAN
+ * §4.2 hard/soft split -- content completeness is prescore's job, this is
+ * only the structural gate): a stratification factor row needs a name to
+ * mean anything, mirrored client-side from the engine's own schema rule.
+ * canSaveCollectionPlan below and the rendered "Missing: ..." hint both
+ * read from this one list (Jordan usability fix). */
+export function collectionPlanMissingFields(factors: StratificationFactor[]): string[] {
+  const unnamed = factors.filter((f) => f.name.trim() === "").length;
+  return unnamed > 0 ? [`${unnamed} stratification factor${unnamed === 1 ? "" : "s"} missing a name`] : [];
+}
+
 export function canSaveCollectionPlan(factors: StratificationFactor[]): boolean {
-  return factors.every((f) => f.name.trim() !== "");
+  return collectionPlanMissingFields(factors).length === 0;
 }
 
 /** A factor's "values expected" is authored as one comma-separated field

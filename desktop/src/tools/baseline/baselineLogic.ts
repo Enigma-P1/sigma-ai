@@ -50,6 +50,14 @@ export const MEASUREMENT_CHECK_FAILED_DETAIL =
   "The project's latest measurement check (T-12) reads fail. Capability language is blocked until a passing " +
   "re-run — fix the measurement system, re-run T-12, then come back and re-run this baseline.";
 
+// Appended inside the I-MR chart's own verdict banner whenever stable is
+// false (EXIT-04) -- Jordan usability fix: an instability read landed as
+// pure diagnosis with no next action, which reads as a dead end (or a
+// verdict on the team) rather than the method doing its job.
+export const EXIT04_NEXT_ACTION =
+  "Look at what was different about the flagged points (day? shift? event?), fix or explain it, then collect " +
+  "again. This is the method working — not a punishment.";
+
 export function normalityText(n: NormalityResult): string {
   switch (n.advisory) {
     case "too_few_to_judge":

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Field, Modal, TextInput } from "../design/components";
+import { splitCite } from "./rubricCite";
 import "./DeleteReasonModal.css";
 
 export interface DeleteReasonModalProps {
@@ -25,9 +26,11 @@ export function DeleteReasonModal({ title, bodyText, onConfirm, onClose, testIdP
     onConfirm(reason.trim());
   }
 
+  const body = splitCite(bodyText);
+
   return (
     <Modal title={title} onClose={onClose}>
-      <p>{bodyText}</p>
+      <p title={body.cite ?? undefined}>{body.text}</p>
       <Field label="Reason for deleting this row" required htmlFor={`${testIdPrefix}-input`}>
         <TextInput
           id={`${testIdPrefix}-input`} data-testid={`${testIdPrefix}-input`} autoFocus

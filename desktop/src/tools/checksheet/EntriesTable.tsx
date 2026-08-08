@@ -40,7 +40,14 @@ export function EntriesTable({ entries, categories, strataFields, onUpdateNote, 
               key={e.entry_id} data-testid={`checksheet-entry-${e.entry_id}`}
               title={isDeleted ? `Deleted: ${e.deleted!.reason}` : undefined}
             >
-              <span className="sigma-checksheet-entries__category">{labelById[e.category_id] ?? e.category_id}</span>
+              <span className="sigma-checksheet-entries__category">
+                {labelById[e.category_id] ?? e.category_id}
+                {e.entry_mode === "transcribed" && (
+                  <span className="sigma-checksheet-entries__mode-badge" title="Logged via Transcribe a paper tally, not tapped live">
+                    {" "}transcribed ×{e.count ?? 1}
+                  </span>
+                )}
+              </span>
               <span className="sigma-checksheet-entries__timestamp">{e.timestamp}</span>
               <span className="sigma-checksheet-entries__strata">
                 {strataFields.map((f) => e.strata[f.key]).filter(Boolean).join(", ") || "—"}

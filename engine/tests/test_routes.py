@@ -170,13 +170,18 @@ def test_project_info_returns_absolute_path_and_artifact_summary(client, tmp_pat
 
 def test_process_map_crud_and_prescore_via_registry(client):
     """T-06 end-to-end through the generic registry-driven routes: validate,
-    save (bottleneck computed server-side), load, and prescore."""
+    save (longest_step/constraint_step computed server-side), load, and
+    prescore."""
     client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
 
     body = make_process_map(demand={"available_time_minutes": 480, "demand_units": 96})
     validated = client.post("/artifacts/T-06/validate", json=body)
     assert validated.status_code == 200, validated.text
-    assert validated.json()["artifact"]["bottleneck"]["value"]["bottleneck_step_id"] == "step-2"
+    # step-2 ("Wait for register", non_value_add, 4.0 min) is the longest
+    # step of any type; step-3 ("Make drink", value_add, 3.0 min) is the
+    # longest PROCESSING step, so it's named the constraint.
+    assert validated.json()["artifact"]["longest_step"]["value"]["step_id"] == "step-2"
+    assert validated.json()["artifact"]["constraint_step"]["value"]["step_id"] == "step-3"
 
     saved = client.post("/project/proj-1/artifacts/T-06", json=body)
     assert saved.status_code == 200, saved.text
@@ -184,7 +189,7 @@ def test_process_map_crud_and_prescore_via_registry(client):
 
     loaded = client.get("/project/proj-1/artifacts/process-map-001")
     assert loaded.status_code == 200
-    assert loaded.json()["bottleneck"]["value"]["meets_pace"] is True
+    assert loaded.json()["constraint_step"]["value"]["meets_pace"] is True
 
     prescore = client.post("/prescore/T-06", json=body)
     assert prescore.status_code == 200, prescore.text

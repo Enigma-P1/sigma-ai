@@ -1,12 +1,19 @@
 """T-06 Process Map (swimlane) + Waste Walk: lanes, steps tagged value-add /
 non-value-add / enabling with the 8-wastes checklist, connectors, and an
-optional demand block. When both demand fields are present and at least one
-step carries a time, the engine names the bottleneck server-side (matrix
-§5a A-7: longest effective step time vs the pace demand requires) --
-CopqArtifact.total's pattern (artifacts/copq.py): the computation lives
-next to the schema, stamped through provenance.compute(), and the
-model_validator unconditionally overwrites whatever a client posts, so
-`bottleneck` can only ever be the engine's own arithmetic.
+optional demand block. The engine reports two distinct, separately
+provenance-stamped readouts (fidelity fix, M2 close-out): `longest_step` is
+the longest-timed step of ANY type (a pure wait included) whenever at least
+one step carries a time; `constraint_step` is the longest-timed step among
+PROCESSING steps only (step_type value_add or enabling), computed once both
+demand fields are present -- a pure-wait non_value_add step can queue up
+behind the real constraint, but it cannot *be* the constraint (matrix §5a
+A-7 read together with the Theory-of-Constraints sense of the word: a queue
+is the constraint's consequence, not the constraint itself). `meets_pace` is
+judged on `constraint_step` alone. Both follow CopqArtifact.total's pattern
+(artifacts/copq.py): the computation lives next to the schema, stamped
+through provenance.compute(), and the model_validator unconditionally
+overwrites whatever a client posts, so neither field can ever be anything
+but the engine's own arithmetic.
 
 Content-quality checks (a VA/NVA step with no reason, a checked waste with
 no note, a lane with no owner) are prescore *flags*, not schema rejections
@@ -104,13 +111,26 @@ class DemandBlock(BaseModel):
     demand_units: float | None = Field(default=None, gt=0)
 
 
-class BottleneckResult(BaseModel):
-    """A-7's constraint readout. Engine-computed only -- see
-    ProcessMapArtifact.bottleneck below."""
+class LongestStepResult(BaseModel):
+    """The longest-timed step of ANY step_type, waits included -- an honest
+    "what takes the longest, period" readout that needs no demand block.
+    Engine-computed only -- see ProcessMapArtifact.longest_step below."""
 
-    bottleneck_step_id: str
-    bottleneck_step_name: str
-    bottleneck_time_minutes: float
+    step_id: str
+    step_name: str
+    step_type: StepType
+    time_minutes: float
+
+
+class ConstraintStepResult(BaseModel):
+    """A-7's constraint readout, restricted to PROCESSING steps (step_type
+    value_add or enabling) -- see the module docstring for why a pure wait
+    is excluded. Engine-computed only -- see ProcessMapArtifact.constraint_step
+    below."""
+
+    step_id: str
+    step_name: str
+    time_minutes: float
     pace_minutes_per_unit: float
     meets_pace: bool
 
@@ -127,10 +147,12 @@ class ProcessMapArtifact(ArtifactBase):
     layout: dict[str, StepPosition] = Field(default_factory=dict)
 
     # Server-computed, never hand-typed -- unconditionally replaced below,
-    # same contract as CopqArtifact.total / MsaArtifact.result. None
-    # whenever there isn't enough on the artifact to name a bottleneck from
-    # (an honest "nothing to compute yet", not a zero).
-    bottleneck: Computed[BottleneckResult] | None = None
+    # same contract as CopqArtifact.total / MsaArtifact.result. Each is None
+    # whenever there isn't enough on the artifact to compute it from yet (an
+    # honest "nothing to name", not a zero) -- see compute_longest_step /
+    # compute_constraint_step below for the exact preconditions.
+    longest_step: Computed[LongestStepResult] | None = None
+    constraint_step: Computed[ConstraintStepResult] | None = None
 
     @model_validator(mode="after")
     def _referential_integrity(self) -> "ProcessMapArtifact":
@@ -155,56 +177,95 @@ class ProcessMapArtifact(ArtifactBase):
         return self
 
     @model_validator(mode="after")
-    def _recompute_bottleneck(self) -> "ProcessMapArtifact":
-        self.bottleneck = compute_bottleneck(self.steps, self.demand)
+    def _recompute_longest_and_constraint(self) -> "ProcessMapArtifact":
+        self.longest_step = compute_longest_step(self.steps)
+        self.constraint_step = compute_constraint_step(self.steps, self.demand)
         return self
 
 
-def compute_bottleneck(
-    steps: list[ProcessStepModel], demand: DemandBlock | None
-) -> Computed[BottleneckResult] | None:
-    """A-7 (matrix §5a): longest effective step time vs the pace demand
-    requires (available time / demand -- two fields), the bottleneck step
-    named. None whenever the inputs to compute from aren't there yet -- an
-    absent/partial demand block, or no step carrying a time -- which is an
-    honest "nothing to name," not a zero."""
-    if demand is None or demand.available_time_minutes is None or demand.demand_units is None:
-        return None
-    timed = [s for s in steps if s.time_minutes is not None]
-    if not timed:
-        return None
+# Processing steps only -- the set a step's time can compete to be named
+# `constraint_step` from (module docstring: a pure wait can queue up behind
+# the constraint, but it cannot be the constraint).
+PROCESSING_STEP_TYPES: frozenset[StepType] = frozenset({"value_add", "enabling"})
 
-    max_time = max(s.time_minutes for s in timed)
-    # Tie-break deterministically (lane_id, order, step_id) -- there's no
-    # business meaning to breaking a tie one way or another, only a
-    # requirement that the same inputs always name the same step.
-    bottleneck_step = sorted(
-        (s for s in timed if s.time_minutes == max_time),
+
+def _pick_longest(candidates: list[ProcessStepModel]) -> ProcessStepModel:
+    """Deterministic argmax by time_minutes, tie-broken on (lane_id, order,
+    step_id) -- there's no business meaning to breaking a tie one way or
+    another, only a requirement that the same inputs always name the same
+    step."""
+    max_time = max(s.time_minutes for s in candidates)
+    return sorted(
+        (s for s in candidates if s.time_minutes == max_time),
         key=lambda s: (s.lane_id, s.order, s.step_id),
     )[0]
 
+
+def compute_longest_step(steps: list[ProcessStepModel]) -> Computed[LongestStepResult] | None:
+    """The longest-timed step of any step_type, waits included. None
+    whenever no step carries a time yet -- an honest "nothing to name,"
+    not a zero. Needs no demand block: this is a plain "what takes the
+    longest" fact, not a pace judgment."""
+    timed = [s for s in steps if s.time_minutes is not None]
+    if not timed:
+        return None
+    step = _pick_longest(timed)
+    result = LongestStepResult(
+        step_id=step.step_id, step_name=step.name, step_type=step.step_type, time_minutes=step.time_minutes,
+    )
+    return compute(
+        result,
+        method="longest_step = argmax(step.time_minutes) over ALL timed steps, any step_type (waits included)",
+        input_data={
+            "steps": [
+                {"step_id": s.step_id, "lane_id": s.lane_id, "order": s.order, "step_type": s.step_type, "time_minutes": s.time_minutes}
+                for s in steps
+            ],
+        },
+        assumptions_checked=["no step_type filter -- a pure wait is eligible here even though it can't be the constraint_step"],
+    )
+
+
+def compute_constraint_step(
+    steps: list[ProcessStepModel], demand: DemandBlock | None
+) -> Computed[ConstraintStepResult] | None:
+    """A-7 (matrix §5a): longest effective step time vs the pace demand
+    requires (available time / demand -- two fields), restricted to
+    PROCESSING steps only (module docstring) -- meets_pace is judged on
+    this step. None whenever the inputs to compute from aren't there yet --
+    an absent/partial demand block, or no PROCESSING step carrying a time
+    -- which is an honest "nothing to name," not a zero."""
+    if demand is None or demand.available_time_minutes is None or demand.demand_units is None:
+        return None
+    processing = [s for s in steps if s.time_minutes is not None and s.step_type in PROCESSING_STEP_TYPES]
+    if not processing:
+        return None
+
+    step = _pick_longest(processing)
     pace = demand.available_time_minutes / demand.demand_units
-    result = BottleneckResult(
-        bottleneck_step_id=bottleneck_step.step_id,
-        bottleneck_step_name=bottleneck_step.name,
-        bottleneck_time_minutes=bottleneck_step.time_minutes,
+    result = ConstraintStepResult(
+        step_id=step.step_id,
+        step_name=step.name,
+        time_minutes=step.time_minutes,
         pace_minutes_per_unit=pace,
-        meets_pace=bottleneck_step.time_minutes <= pace,
+        meets_pace=step.time_minutes <= pace,
     )
     return compute(
         result,
         method=(
-            "bottleneck = argmax(step.time_minutes) over steps with a time; "
-            "pace_minutes_per_unit = available_time_minutes / demand_units (matrix §5a A-7)"
+            "constraint_step = argmax(step.time_minutes) over PROCESSING steps only (step_type value_add or "
+            "enabling) -- a pure-wait non_value_add step cannot be the constraint (matrix §5a A-7, fidelity fix); "
+            "pace_minutes_per_unit = available_time_minutes / demand_units; meets_pace judged on this step"
         ),
         input_data={
             "steps": [
-                {"step_id": s.step_id, "lane_id": s.lane_id, "order": s.order, "time_minutes": s.time_minutes}
+                {"step_id": s.step_id, "lane_id": s.lane_id, "order": s.order, "step_type": s.step_type, "time_minutes": s.time_minutes}
                 for s in steps
             ],
             "demand": demand.model_dump(mode="json"),
         },
         assumptions_checked=[
             "pace is arithmetic on two fields (available time / demand), not full takt/line-balancing (T-32, v1.1)",
+            "only value_add/enabling steps are eligible -- a non_value_add (wait) step is excluded by construction",
         ],
     )

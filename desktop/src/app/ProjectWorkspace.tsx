@@ -101,7 +101,7 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
             activePhase={activePhase}
             activeToolId={activeToolId}
             onSelectTool={handleSelectTool}
-            footer={<StuckButton onNavigateToTool={handleStuckNavigate} />}
+            footer={<StuckButton phase={activePhase} project={project} onNavigateToTool={handleStuckNavigate} />}
           />
           <main className="sigma-workspace__main">
             {activeToolId ? (

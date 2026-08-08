@@ -254,7 +254,10 @@ async function main() {
       assert(numeric(row1Amount) === 3600, `expected row 1's engine-computed amount to be 3600 (80 x 45), got ${JSON.stringify(row1Amount)}`);
 
       const totalHeadline = await page.locator('[data-testid="copq-total"] .sigma-verdict__headline').textContent();
-      assert(numeric(totalHeadline) === 9600, `expected the server-computed total to read 9600 (6000 + 3600), got ${JSON.stringify(totalHeadline)}`);
+      assert(
+        totalHeadline?.includes("$9,600") && totalHeadline?.includes("Q2 2026"),
+        `expected the server-computed total to read $9,600 (6000 + 3600) with its unit and period, got ${JSON.stringify(totalHeadline)}`,
+      );
       const totalDetail = await page.locator('[data-testid="copq-total"] .sigma-verdict__detail').textContent();
       assert(
         totalDetail?.toLowerCase().includes("computed by the engine"),
@@ -501,8 +504,12 @@ async function main() {
     });
 
     await step("enter demand fields and save", async () => {
-      // available=240, demand=48 -> pace=5.00 min/unit; the 9-minute "Wait
-      // for register" step is the hand-checkable bottleneck and exceeds it.
+      // available=240, demand=48 -> pace=5.00 min/unit. The 9-minute "Wait
+      // for register" step (non_value_add) is the hand-checkable longest
+      // step of any type and exceeds the pace, but it's a wait, so it's
+      // never the constraint (fidelity fix). Among PROCESSING steps
+      // (value_add/enabling) the longest is "Make drink" at 3 min, which
+      // is the hand-checkable constraint and meets the pace.
       await page.locator('[data-testid="processmap-demand-time"]').fill("240");
       await page.locator('[data-testid="processmap-demand-units"]').fill("48");
       await page.locator('[data-testid="processmap-save"]').click();
@@ -511,13 +518,28 @@ async function main() {
       assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
     });
 
-    await step("assert the engine's bottleneck banner names the right step from the fixture times", async () => {
-      const headline = page.locator('[data-testid="processmap-bottleneck-banner"] .sigma-verdict__headline');
+    await step("assert the engine's constraint banner names the processing step, not the wait", async () => {
+      const headline = page.locator('[data-testid="processmap-constraint-banner"] .sigma-verdict__headline');
       await headline.waitFor();
       const text = await headline.textContent();
       assert(
-        text?.includes("Wait for register") && text?.includes("9") && text?.includes("5.00"),
-        `expected the bottleneck banner to name "Wait for register" at 9 min vs a 5.00 pace, got ${JSON.stringify(text)}`,
+        text?.includes("Make drink") && text?.includes("3") && text?.includes("5.00"),
+        `expected the constraint banner to name "Make drink" at 3 min vs a 5.00 pace, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    await step("assert the engine's longest-step banner names the wait, and explains it isn't the constraint", async () => {
+      const headline = page.locator('[data-testid="processmap-longest-step-banner"] .sigma-verdict__headline');
+      await headline.waitFor();
+      const text = await headline.textContent();
+      assert(
+        text?.includes("Wait for register") && text?.includes("9"),
+        `expected the longest-step banner to name "Wait for register" at 9 min, got ${JSON.stringify(text)}`,
+      );
+      const detail = await page.locator('[data-testid="processmap-longest-step-banner"] .sigma-verdict__detail').textContent();
+      assert(
+        detail?.toLowerCase().includes("not a constraint"),
+        `expected the longest-step banner's detail to explain the wait isn't the constraint, got ${JSON.stringify(detail)}`,
       );
     });
 

@@ -1,6 +1,6 @@
 import { ChartFrame } from "../../charts/ChartFrame";
 import { CHART_COLORS } from "../../charts/palette";
-import { pointColor, pointHoverText } from "./baselineLogic";
+import { EXIT04_NEXT_ACTION, pointColor, pointHoverText } from "./baselineLogic";
 import type { Computed, ImrChartResult } from "../../api/types";
 import type { VerdictTone } from "../../design/components";
 
@@ -31,7 +31,12 @@ export function ImrChart({ values, stability, stable, stabilityNote, unitLabel =
       title="I-MR Chart — Individuals"
       headline={stabilityNote}
       tone={tone}
-      detail={`Center line ${s.i_cl.toFixed(3)}${unitLabel} · limits ${s.i_lcl.toFixed(3)} to ${s.i_ucl.toFixed(3)}${unitLabel} (3σ, sigma_within=${s.sigma_within.toFixed(3)})`}
+      detail={
+        <>
+          {!stable && <p data-testid="baseline-exit04-next-action">{EXIT04_NEXT_ACTION}</p>}
+          {`Center line ${s.i_cl.toFixed(3)}${unitLabel} · limits ${s.i_lcl.toFixed(3)} to ${s.i_ucl.toFixed(3)}${unitLabel} (3σ, sigma_within=${s.sigma_within.toFixed(3)})`}
+        </>
+      }
       data={[{
         type: "scatter", mode: "lines+markers",
         x: values.map((_, i) => i + 1), y: values,

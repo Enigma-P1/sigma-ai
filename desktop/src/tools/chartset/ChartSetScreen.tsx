@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Field, Panel, SelectInput, VerdictBanner } from "../../design/components";
 import { getDataset, listDatasets } from "../../api/client";
 import { ApiError } from "../../api/errors";
+import { markToolVisited } from "../../app/toolVisitedStore";
 import type { DatasetDetail, DatasetMeta } from "../../api/types";
 import { HistogramPanel } from "./HistogramPanel";
 import { RunChartPanel } from "./RunChartPanel";
@@ -15,13 +16,19 @@ export interface ChartSetScreenProps {
   /** T-08's "send to Pareto" deep link (ToolRouter's DatasetPreset) --
    * preselects the dataset once it loads. */
   initialDatasetId?: string;
+  /** Fired once charts have rendered for a chosen dataset (Jordan
+   * usability fix: T-14 has no artifact of its own, so it could never
+   * mark itself Done in the rail). ToolRouter wires this to the same
+   * onSaved callback every artifact-backed tool already uses to refresh
+   * the rail after a change -- the mark itself is toolVisitedStore.ts. */
+  onVisited?: () => void;
 }
 
 /** T-14: pick a dataset, then the five-chart set, each with its own
  * column picker and its own engine-computed verdict headline (M2 brief).
  * Rows are fetched once here and passed down — chart panels only choose
  * which stored columns to look at, they don't compute statistics. */
-export function ChartSetScreen({ projectId, initialDatasetId }: ChartSetScreenProps) {
+export function ChartSetScreen({ projectId, initialDatasetId, onVisited }: ChartSetScreenProps) {
   const [datasets, setDatasets] = useState<DatasetMeta[]>([]);
   const [datasetId, setDatasetId] = useState("");
   const [detail, setDetail] = useState<DatasetDetail | null>(null);
@@ -53,9 +60,20 @@ export function ChartSetScreen({ projectId, initialDatasetId }: ChartSetScreenPr
     setLoading(true);
     setError(null);
     getDataset(projectId, datasetId)
-      .then(setDetail)
+      .then((d) => {
+        setDetail(d);
+        // Charts are about to render for a chosen dataset -- mark T-14
+        // visited/Done in the rail (toolVisitedStore.ts), the same
+        // "something changed, refresh" signal onSaved carries everywhere else.
+        markToolVisited(projectId, "T-14");
+        onVisited?.();
+      })
       .catch((err) => setError(err instanceof ApiError ? err.message : "Could not load this dataset."))
       .finally(() => setLoading(false));
+    // onVisited deliberately excluded: ProjectWorkspace's onSaved isn't
+    // memoized, and this effect must only re-run when the chosen dataset
+    // changes, not on every parent re-render (that would refetch in a loop).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, datasetId]);
 
   return (

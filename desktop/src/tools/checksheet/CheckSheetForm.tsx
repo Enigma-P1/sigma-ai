@@ -1,13 +1,17 @@
-import { Button, Panel, VerdictBanner } from "../../design/components";
+import { useState } from "react";
+import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import { CategorySetup } from "./CategorySetup";
 import { TallyView } from "./TallyView";
+import { TranscribePanel } from "./TranscribePanel";
 import { EntriesTable } from "./EntriesTable";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { CHECK_SHEET_CHECK_LABELS } from "./checkSheetChecks";
-import { tallyCounts } from "./checkSheetLogic";
+import { checkSheetMissingFields, tallyCounts } from "./checkSheetLogic";
 import { useCheckSheetForm } from "./useCheckSheetForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./CheckSheetForm.css";
+
+type EntryModeTab = "live" | "transcribe";
 
 export interface CheckSheetFormProps {
   projectId: string;
@@ -25,6 +29,7 @@ export interface CheckSheetFormProps {
  * to a dataset that feeds Pareto with zero re-entry (rubric R-MEA-06 #3). */
 export function CheckSheetForm({ projectId, project, onSaved, onNavigateToDataset }: CheckSheetFormProps) {
   const f = useCheckSheetForm(projectId, project, onSaved);
+  const [mode, setMode] = useState<EntryModeTab>("live");
 
   return (
     <Panel title="Check Sheet / Tally" right={f.version != null && <span data-testid="checksheet-version-badge">v{f.version} saved</span>}>
@@ -33,11 +38,30 @@ export function CheckSheetForm({ projectId, project, onSaved, onNavigateToDatase
         strataFields={f.strataFields} onAddStrataField={f.addStrataField} onUpdateStrataField={f.updateStrataField} onRemoveStrataField={f.removeStrataField}
       />
 
-      <TallyView
-        categories={f.categories} strataFields={f.strataFields} strataOptions={f.strataOptions}
-        activeStrata={f.activeStrata} onSetActiveStratum={f.setActiveStratumValue} onAddStrataOption={f.addStrataOption}
-        tallyCounts={tallyCounts(f.entries)} onTap={f.tap}
-      />
+      <div className="sigma-checksheet-mode-tabs" role="tablist" aria-label="How entries are being captured">
+        <Button
+          variant={mode === "live" ? "primary" : "secondary"} size="sm" type="button"
+          onClick={() => setMode("live")} data-testid="checksheet-mode-live"
+        >
+          Live tally
+        </Button>
+        <Button
+          variant={mode === "transcribe" ? "primary" : "secondary"} size="sm" type="button"
+          onClick={() => setMode("transcribe")} data-testid="checksheet-mode-transcribe"
+        >
+          Transcribe a paper tally
+        </Button>
+      </div>
+
+      {mode === "live" ? (
+        <TallyView
+          categories={f.categories} strataFields={f.strataFields} strataOptions={f.strataOptions}
+          activeStrata={f.activeStrata} onSetActiveStratum={f.setActiveStratumValue} onAddStrataOption={f.addStrataOption}
+          tallyCounts={tallyCounts(f.entries)} onTap={f.tap}
+        />
+      ) : (
+        <TranscribePanel categories={f.categories} onLog={f.logTranscribed} />
+      )}
 
       <EntriesTable entries={f.entries} categories={f.categories} strataFields={f.strataFields} onUpdateNote={f.updateEntryNote} onDeleteEntry={f.deleteEntry} />
 
@@ -46,6 +70,7 @@ export function CheckSheetForm({ projectId, project, onSaved, onNavigateToDatase
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="checksheet-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={checkSheetMissingFields(f.categories)} />}
 
       <PrescoreStrip results={f.prescore} labels={CHECK_SHEET_CHECK_LABELS} />
 

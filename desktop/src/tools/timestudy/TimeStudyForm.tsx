@@ -1,4 +1,4 @@
-import { Button, Panel, VerdictBanner } from "../../design/components";
+import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import { ElementsSetup } from "./ElementsSetup";
 import { StopwatchPanel } from "./StopwatchPanel";
 import { CyclesTable } from "./CyclesTable";
@@ -6,6 +6,7 @@ import { ElementStatsPanel } from "./ElementStatsPanel";
 import { WorkSamplingPanel } from "./WorkSamplingPanel";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { TIME_STUDY_CHECK_LABELS } from "./timeStudyChecks";
+import { timeStudyMissingFields } from "./timeStudyLogic";
 import { useTimeStudyForm } from "./useTimeStudyForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./TimeStudyForm.css";
@@ -48,6 +49,7 @@ export function TimeStudyForm({ projectId, project, onSaved, onNavigateToDataset
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="timestudy-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={timeStudyMissingFields(f.elements)} />}
 
       {f.serverArtifact?.element_stats && (
         <ElementStatsPanel stats={f.serverArtifact.element_stats.value} cycles={f.cycles} onEditCycleNote={f.updateCycleNote} />

@@ -104,7 +104,7 @@ def test_denominator_is_tolerance_when_both_specs_exist():
     result = compute_repeatability(items, usl=110.0, lsl=90.0)
     assert result.value.denominator == "tolerance"
     assert result.value.denominator_value == pytest.approx(20.0)
-    assert result.value.ev_percent == pytest.approx(0.0)
+    assert result.value.repeatability_percent == pytest.approx(0.0)
     assert result.value.verdict == "acceptable"
 
 
@@ -114,9 +114,9 @@ def test_denominator_is_study_variation_when_no_full_spec_pair_exists():
     assert result.value.denominator == "study_variation"
 
 
-@pytest.mark.parametrize("ev_percent,expected", [(0.0, "acceptable"), (10.0, "acceptable"), (10.0001, "marginal"), (30.0, "marginal"), (30.0001, "fail"), (99.0, "fail")])
-def test_repeatability_verdict_boundaries_exclusive_exhaustive(ev_percent, expected):
-    assert repeatability_verdict(ev_percent) == expected
+@pytest.mark.parametrize("repeatability_percent,expected", [(0.0, "acceptable"), (10.0, "acceptable"), (10.0001, "marginal"), (30.0, "marginal"), (30.0001, "fail"), (99.0, "fail")])
+def test_repeatability_verdict_boundaries_exclusive_exhaustive(repeatability_percent, expected):
+    assert repeatability_verdict(repeatability_percent) == expected
 
 
 def test_repeatability_golden_exactly_10_percent_is_acceptable():
@@ -127,7 +127,7 @@ def test_repeatability_golden_exactly_10_percent_is_acceptable():
     s_repeat = s * (2 ** 0.5)
     denom = 6 * s_repeat / 0.10  # solve so 6*s_repeat/denom*100 == 10.0 exactly
     result = compute_repeatability([ItemRepeats(item_id="only", readings=(100.0 - s, 100.0 + s))], usl=denom, lsl=0.0)
-    assert result.value.ev_percent == pytest.approx(10.0, abs=1e-9)
+    assert result.value.repeatability_percent == pytest.approx(10.0, abs=1e-9)
     assert result.value.verdict == "acceptable"
 
 
@@ -137,7 +137,7 @@ def test_repeatability_golden_exactly_30_percent_is_marginal():
     s_repeat = s * (2 ** 0.5)
     denom = 6 * s_repeat / 0.30  # solve so 6*s_repeat/denom*100 == 30.0 exactly
     result = compute_repeatability([ItemRepeats(item_id="only", readings=(100.0 - s, 100.0 + s))], usl=denom, lsl=0.0)
-    assert result.value.ev_percent == pytest.approx(30.0, abs=1e-9)
+    assert result.value.repeatability_percent == pytest.approx(30.0, abs=1e-9)
     assert result.value.verdict == "marginal"
 
 

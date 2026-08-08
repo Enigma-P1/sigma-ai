@@ -11,8 +11,17 @@ export function emptyElement(index: number): WorkElement {
   return { element_id: genId("elem"), name: `Element ${index + 1}`, description: "" };
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- canSaveTimeStudy below and the rendered "Missing: ..."
+ * hint both read from this one list (Jordan usability fix). */
+export function timeStudyMissingFields(elements: WorkElement[]): string[] {
+  if (elements.length === 0) return ["at least one element"];
+  if (!elements.every((e) => e.name.trim() !== "")) return ["every element's name"];
+  return [];
+}
+
 export function canSaveTimeStudy(elements: WorkElement[]): boolean {
-  return elements.length > 0 && elements.every((e) => e.name.trim() !== "");
+  return timeStudyMissingFields(elements).length === 0;
 }
 
 export function nextCycleNumber(cycles: TimeStudyCycle[]): number {

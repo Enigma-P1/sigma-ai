@@ -35,11 +35,26 @@ class StrataFieldDef(BaseModel):
     label: str = Field(min_length=1)
 
 
+EntryMode = Literal["tap", "transcribed"]
+
+
 class CheckSheetEntry(BaseModel):
-    """One tally tap: which category, when (caller-supplied ISO8601 --
-    never generated server-side, base.py's validate_iso8601 pattern, same
-    as every other artifact's timestamps), the strata values in effect at
-    tap time, and an optional note.
+    """One tally: which category, when (caller-supplied ISO8601 -- never
+    generated server-side, base.py's validate_iso8601 pattern, same as
+    every other artifact's timestamps), the strata values in effect at tap
+    time, and an optional note.
+
+    `entry_mode` distinguishes how the entry was captured (M2 close-out
+    fix): "tap" is the live, tap-a-category-as-it-happens path this tool
+    was built around, one tally per tap (`count` stays 1). "transcribed"
+    is the honest path for reading counts off an existing paper tally
+    sheet after the fact -- several counts entered together at one
+    as-of `timestamp`, with `count` carrying how many marks that single
+    entry represents and `note` doubling as the required source note
+    (which sheet, whose handwriting). The cross-artifact burst-entry check
+    (prescore/cross_checks.py) only ever looks at "tap"-mode entries, so
+    a legitimate transcription session (many entries landing at the same
+    timestamp) is never mistaken for a suspicious real-time burst.
 
     `deleted` is a soft-delete marker (rubric R-MEA-04's "logged reason"
     rule, generalized to this tool too): a mis-tapped entry stays on the
@@ -52,6 +67,12 @@ class CheckSheetEntry(BaseModel):
     timestamp: str
     strata: dict[str, str] = Field(default_factory=dict)
     note: str = ""
+    entry_mode: EntryMode = "tap"
+    # How many tally marks this one entry represents -- always 1 on the
+    # tap path (schema-enforced nowhere else, but tap-mode entries are
+    # never constructed with anything else); a transcribed entry carries
+    # the paper tally's count for one category as of `timestamp`.
+    count: int = Field(default=1, ge=1)
     deleted: DeletionInfo | None = None
 
     @field_validator("timestamp")
@@ -99,14 +120,17 @@ class CheckSheetArtifact(ArtifactBase):
 
 
 def check_sheet_export_rows(artifact: CheckSheetArtifact) -> tuple[list[str], list[dict[str, str]]]:
-    """(header, rows) for `to_dataset`: one row per LIVE entry (a
-    soft-deleted one -- entry.deleted, rubric R-MEA-04 -- is excluded here
-    exactly like a deleted time-study cycle is excluded from element
-    stats; it stays in artifact.entries, just not in what Pareto counts),
-    `category` as the human-readable label (unique, enforced above) so
-    Pareto's category column needs no id -> label join downstream. Sorted
-    by timestamp so the exported dataset reads as an event log, not
-    tap-entry order."""
+    """(header, rows) for `to_dataset`: one row per tally mark on a LIVE
+    entry (a soft-deleted one -- entry.deleted, rubric R-MEA-04 -- is
+    excluded here exactly like a deleted time-study cycle is excluded from
+    element stats; it stays in artifact.entries, just not in what Pareto
+    counts). A transcribed entry's `count` expands to that many identical
+    rows so Pareto counts the paper tally's marks correctly, not just its
+    one on-screen entry -- the tap path's count is always 1, so this is a
+    no-op there. `category` as the human-readable label (unique, enforced
+    above) so Pareto's category column needs no id -> label join
+    downstream. Sorted by timestamp so the exported dataset reads as an
+    event log, not tap-entry order."""
     live_entries = [e for e in artifact.entries if e.deleted is None]
     if not live_entries:
         raise ValueError("this check sheet has no entries yet -- nothing to export")
@@ -121,6 +145,7 @@ def check_sheet_export_rows(artifact: CheckSheetArtifact) -> tuple[list[str], li
             "note": e.note,
         }
         for e in sorted(live_entries, key=lambda e: e.timestamp)
+        for _ in range(e.count)
     ]
     return header, rows
 

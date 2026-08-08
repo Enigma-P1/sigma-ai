@@ -1,4 +1,4 @@
-import { Button, Panel, VerdictBanner } from "../../design/components";
+import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import { ProcessMapCanvas } from "./ProcessMapCanvas";
 import { LanesPanel } from "./LanesPanel";
 import { StepsList } from "./StepsList";
@@ -9,6 +9,7 @@ import { Legend } from "./Legend";
 import { WasteWalkSummary } from "./WasteWalkSummary";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { PROCESS_MAP_CHECK_LABELS } from "./processMapChecks";
+import { processMapMissingFields } from "./processMapLogic";
 import { useProcessMapForm } from "./useProcessMapForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./ProcessMapForm.css";
@@ -22,8 +23,8 @@ export interface ProcessMapFormProps {
 /** T-06 Process Map (swimlane) + Waste Walk: the interactive canvas map
  * builder -- the first Konva-canvas tool (PLAN §3's reason the product
  * left Streamlit). Every mutation goes through useProcessMapForm; the
- * bottleneck banner renders only DemandPanel's server-echoed value, never
- * a client-side max() over step times (matrix §5a A-7). */
+ * constraint/longest-step banners render only DemandPanel's server-echoed
+ * values, never a client-side max() over step times (matrix §5a A-7). */
 export function ProcessMapForm({ projectId, project, onSaved }: ProcessMapFormProps) {
   const f = useProcessMapForm(projectId, project, onSaved);
   const selectedStep = f.steps.find((s) => s.step_id === f.selectedStepId) ?? null;
@@ -54,13 +55,18 @@ export function ProcessMapForm({ projectId, project, onSaved }: ProcessMapFormPr
         <StepInspector step={selectedStep} lanes={f.lanes} onChange={(patch) => f.updateStep(selectedStep.step_id, patch)} />
       )}
 
-      <DemandPanel demand={f.demand} onChange={f.updateDemand} bottleneck={f.serverArtifact?.bottleneck} saved={f.version != null} />
+      <DemandPanel
+        demand={f.demand} onChange={f.updateDemand}
+        longestStep={f.serverArtifact?.longest_step} constraintStep={f.serverArtifact?.constraint_step}
+        saved={f.version != null}
+      />
 
       {f.generalError && <VerdictBanner tone="fail" headline={f.generalError} />}
 
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="processmap-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={processMapMissingFields(f.lanes, f.steps)} />}
 
       <PrescoreStrip results={f.prescore} labels={PROCESS_MAP_CHECK_LABELS} />
     </Panel>

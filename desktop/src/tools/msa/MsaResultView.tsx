@@ -41,7 +41,7 @@ export function MsaResultView({ result }: MsaResultViewProps) {
       {result.repeatability && (
         <Panel title="Repeatability%">
           <dl className="sigma-msa-dl">
-            <div><dt>Repeatability %</dt><dd data-testid="msa-ev-percent">{fmtPercent(result.repeatability.value.ev_percent)}</dd></div>
+            <div><dt>Repeatability %</dt><dd data-testid="msa-repeatability-percent">{fmtPercent(result.repeatability.value.repeatability_percent)}</dd></div>
             <div><dt>Denominator</dt><dd data-testid="msa-denominator">{result.repeatability.value.denominator === "tolerance" ? "Tolerance width (USL−LSL)" : "6 × study variation"}</dd></div>
             <div><dt>s_repeat</dt><dd>{fmt(result.repeatability.value.s_repeat)}</dd></div>
             <div><dt>Items used</dt><dd>{result.repeatability.value.items_used}</dd></div>

@@ -62,9 +62,10 @@ Stable but not capable — the two claims are different claims, and this
 process earns exactly one of them: nothing special is happening morning to
 morning (no signals, limits trustworthy at n=120), the process is simply
 *designed* to run at 8.4 minutes against a 5.0-minute limit, so it reliably
-makes people wait — every one of 120 sampled orders blew the customer's
+makes people wait — every one of 120 sampled orders blew past the customer's
 five-minute line, and a negative Cpk says the center sits three
 within-sigmas past the only spec limit. That is the Measure handoff to
 Analyze: don't chase yesterday's bad morning (there wasn't one); find and
-remove the common causes — the 4.5-minute cup queue and the grinder rework
+remove the common causes — the 4.5-minute drink queue (in front of the
+espresso station, the engine-named constraint) and the grinder rework
 the Pareto named — that this stable process is built out of.

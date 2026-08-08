@@ -1,10 +1,11 @@
-import { Button, Panel, VerdictBanner } from "../../design/components";
+import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import type { FieldFlag } from "../../design/components";
 import { SupplierInputSection } from "./SupplierInputSection";
 import { ProcessStepsSection } from "./ProcessStepsSection";
 import { OutputCustomerSection } from "./OutputCustomerSection";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { SIPOC_CHECK_FIELD, SIPOC_CHECK_LABELS } from "./sipocChecks";
+import { sipocMissingFields } from "./sipocLogic";
 import { useSipocForm } from "./useSipocForm";
 import type { ProjectMetadata } from "../../api/types";
 
@@ -58,6 +59,7 @@ export function SipocForm({ projectId, project, onSaved }: SipocFormProps) {
         <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="sipoc-save">
           {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
         </Button>
+        {!f.saving && <MissingHint fields={sipocMissingFields(f.state)} />}
         <PrescoreStrip results={f.prescore} labels={SIPOC_CHECK_LABELS} />
       </Panel>
     </div>

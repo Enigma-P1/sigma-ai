@@ -1,10 +1,12 @@
-"""Schema + bottleneck-arithmetic tests for T-06 ProcessMapArtifact."""
+"""Schema + longest-step/constraint-step arithmetic tests for T-06
+ProcessMapArtifact (fidelity fix: a pure-wait step can be the longest step
+but can never be the constraint -- see artifacts/process_map.py)."""
 
 import pytest
 from pydantic import ValidationError
 
 from factories import make_process_map, make_process_map_steps
-from sigma_engine.artifacts.process_map import ProcessMapArtifact, compute_bottleneck
+from sigma_engine.artifacts.process_map import ProcessMapArtifact, compute_constraint_step, compute_longest_step
 from sigma_engine.provenance import compute
 
 
@@ -12,50 +14,84 @@ def test_accepts_a_complete_map_with_no_demand():
     artifact = ProcessMapArtifact.model_validate(make_process_map())
     assert len(artifact.lanes) == 2
     assert len(artifact.steps) == 3
-    assert artifact.bottleneck is None  # no demand block -- nothing to name yet
+    # step-2 ("Wait for register", non_value_add, 4.0 min) is still the
+    # longest step even with no demand block -- longest_step needs no pace.
+    assert artifact.longest_step.value.step_id == "step-2"
+    assert artifact.constraint_step is None  # no demand block -- nothing to judge pace against yet
 
 
-def test_bottleneck_hand_checked_meets_pace():
-    # available=480, demand=96 -> pace=5.0 min/unit. Step times: 1.0, 4.0,
-    # 3.0 -- the longest is step-2 at 4.0, which is <= the 5.0 pace.
+def test_constraint_step_meets_pace():
+    # available=480, demand=96 -> pace=5.0 min/unit. Step times: step-1
+    # (value_add) 1.0, step-2 (non_value_add wait) 4.0, step-3 (value_add)
+    # 3.0. The wait is excluded from constraint_step -- among PROCESSING
+    # steps the longest is step-3 at 3.0, which is <= the 5.0 pace.
     artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 480, "demand_units": 96}))
-    result = artifact.bottleneck.value
-    assert result.bottleneck_step_id == "step-2"
-    assert result.bottleneck_step_name == "Wait for register"
-    assert result.bottleneck_time_minutes == 4.0
-    assert result.pace_minutes_per_unit == pytest.approx(5.0)
-    assert result.meets_pace is True
-    assert artifact.bottleneck.provenance.method
-    assert artifact.bottleneck.provenance.input_hash
+    longest = artifact.longest_step.value
+    assert longest.step_id == "step-2"
+    assert longest.step_type == "non_value_add"
+    assert longest.time_minutes == 4.0
+
+    constraint = artifact.constraint_step.value
+    assert constraint.step_id == "step-3"
+    assert constraint.step_name == "Make drink"
+    assert constraint.time_minutes == 3.0
+    assert constraint.pace_minutes_per_unit == pytest.approx(5.0)
+    assert constraint.meets_pace is True
+    assert artifact.longest_step.provenance.method
+    assert artifact.longest_step.provenance.input_hash
+    assert artifact.constraint_step.provenance.method
+    assert artifact.constraint_step.provenance.input_hash
 
 
-def test_bottleneck_hand_checked_misses_pace():
-    # available=200, demand=100 -> pace=2.0 min/unit; the 4.0-minute
-    # bottleneck step exceeds it.
+def test_constraint_step_misses_pace():
+    # available=200, demand=100 -> pace=2.0 min/unit; step-3's 3.0-minute
+    # constraint exceeds it even though step-2's 4.0-minute wait is longer
+    # still -- meets_pace is judged on the constraint, not the longest step.
     artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 200, "demand_units": 100}))
-    result = artifact.bottleneck.value
-    assert result.pace_minutes_per_unit == pytest.approx(2.0)
-    assert result.bottleneck_time_minutes == 4.0
-    assert result.meets_pace is False
+    constraint = artifact.constraint_step.value
+    assert constraint.step_id == "step-3"
+    assert constraint.pace_minutes_per_unit == pytest.approx(2.0)
+    assert constraint.time_minutes == 3.0
+    assert constraint.meets_pace is False
 
 
-def test_bottleneck_none_when_demand_partial():
+def test_constraint_step_none_when_demand_partial():
     artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 480, "demand_units": None}))
-    assert artifact.bottleneck is None
+    assert artifact.constraint_step is None
+    # longest_step doesn't need a demand block at all -- still populated.
+    assert artifact.longest_step is not None
 
 
-def test_bottleneck_none_when_no_step_has_a_time():
+def test_both_none_when_no_step_has_a_time():
     steps = [{**s, "time_minutes": None} for s in make_process_map_steps()]
     artifact = ProcessMapArtifact.model_validate(
         make_process_map(steps=steps, demand={"available_time_minutes": 480, "demand_units": 96})
     )
-    assert artifact.bottleneck is None
+    assert artifact.longest_step is None
+    assert artifact.constraint_step is None
 
 
-def test_bottleneck_tie_break_is_deterministic():
+def test_constraint_step_none_when_no_processing_step_has_a_time():
+    # Every PROCESSING step (value_add/enabling) has its time cleared;
+    # only the non_value_add wait keeps one -- longest_step can still name
+    # it, but constraint_step has nothing eligible to name.
+    steps = make_process_map_steps()
+    steps = [{**s, "time_minutes": None} if s["step_type"] != "non_value_add" else s for s in steps]
+    artifact = ProcessMapArtifact.model_validate(
+        make_process_map(steps=steps, demand={"available_time_minutes": 480, "demand_units": 96})
+    )
+    assert artifact.longest_step.value.step_id == "step-2"
+    assert artifact.constraint_step is None
+
+
+def test_longest_step_tie_break_is_deterministic():
     steps = make_process_map_steps()
     # step-4 ties step-2's 4.0-minute max but sits in lane-1 (alphabetically
     # before lane-2) -- (lane_id, order, step_id) tie-break must pick it.
+    # step-4 is itself enabling (a processing type), so this also exercises
+    # longest_step and constraint_step picking DIFFERENT steps: step-4 ties
+    # step-2 on raw time, but constraint_step only ever compares against
+    # other processing steps (step-1, step-3), never against step-2 at all.
     steps.append({
         "step_id": "step-4", "lane_id": "lane-1", "name": "Tie step", "order": 2,
         "step_type": "enabling", "reason": "", "time_minutes": 4.0, "defect_point": False, "strata": [], "wastes": [],
@@ -67,24 +103,57 @@ def test_bottleneck_tie_break_is_deterministic():
     artifact = ProcessMapArtifact.model_validate(
         make_process_map(steps=steps, connectors=connectors, demand={"available_time_minutes": 480, "demand_units": 96})
     )
-    assert artifact.bottleneck.value.bottleneck_step_id == "step-4"
+    assert artifact.longest_step.value.step_id == "step-4"
+    assert artifact.constraint_step.value.step_id == "step-4"  # uniquely the longest PROCESSING step at 4.0
 
 
-def test_posted_bottleneck_is_discarded_and_recomputed():
-    """R-DEF-05-style guarantee, applied to T-06: a hand-typed/tampered
-    bottleneck can never survive a save."""
-    tampered = compute({"bottleneck_step_id": "nope", "bottleneck_step_name": "nope", "bottleneck_time_minutes": 999.0,
-                         "pace_minutes_per_unit": 1.0, "meets_pace": False}, method="tampered", input_data=[])
+def test_constraint_step_tie_break_is_deterministic():
+    # Two PROCESSING steps genuinely tie for the constraint (step-3 at 3.0
+    # bumped up to tie a new step-4 at 3.0); step-2's 4.0-minute wait stays
+    # the longest_step throughout and never enters this tie at all.
+    steps = make_process_map_steps()
+    steps[2]["time_minutes"] = 3.0  # step-3, already 3.0 -- explicit for clarity
+    steps.append({
+        "step_id": "step-4", "lane_id": "lane-1", "name": "Tie step", "order": 2,
+        "step_type": "value_add", "reason": "x", "time_minutes": 3.0, "defect_point": False, "strata": [], "wastes": [],
+    })
+    connectors = [
+        {"from_step": "step-1", "to_step": "step-4", "label": None},
+        {"from_step": "step-2", "to_step": "step-3", "label": None},
+    ]
     artifact = ProcessMapArtifact.model_validate(
-        make_process_map(demand={"available_time_minutes": 480, "demand_units": 96}, bottleneck=tampered.model_dump(mode="json"))
+        make_process_map(steps=steps, connectors=connectors, demand={"available_time_minutes": 480, "demand_units": 96})
     )
-    assert artifact.bottleneck.value.bottleneck_step_id == "step-2"
+    assert artifact.longest_step.value.step_id == "step-2"  # the 4.0-minute wait, unaffected by the tie
+    assert artifact.constraint_step.value.step_id == "step-4"  # lane-1 sorts before lane-2 (step-3)
 
 
-def test_compute_bottleneck_matches_artifact_field():
+def test_posted_bottleneck_fields_are_discarded_and_recomputed():
+    """R-DEF-05-style guarantee, applied to T-06: hand-typed/tampered
+    longest_step/constraint_step can never survive a save."""
+    tampered_longest = compute(
+        {"step_id": "nope", "step_name": "nope", "step_type": "value_add", "time_minutes": 999.0},
+        method="tampered", input_data=[],
+    )
+    tampered_constraint = compute(
+        {"step_id": "nope", "step_name": "nope", "time_minutes": 999.0, "pace_minutes_per_unit": 1.0, "meets_pace": False},
+        method="tampered", input_data=[],
+    )
+    artifact = ProcessMapArtifact.model_validate(
+        make_process_map(
+            demand={"available_time_minutes": 480, "demand_units": 96},
+            longest_step=tampered_longest.model_dump(mode="json"),
+            constraint_step=tampered_constraint.model_dump(mode="json"),
+        )
+    )
+    assert artifact.longest_step.value.step_id == "step-2"
+    assert artifact.constraint_step.value.step_id == "step-3"
+
+
+def test_compute_longest_and_constraint_step_match_artifact_fields():
     artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 480, "demand_units": 96}))
-    recomputed = compute_bottleneck(artifact.steps, artifact.demand)
-    assert recomputed.value == artifact.bottleneck.value
+    assert compute_longest_step(artifact.steps).value == artifact.longest_step.value
+    assert compute_constraint_step(artifact.steps, artifact.demand).value == artifact.constraint_step.value
 
 
 def test_round_trip_via_model_dump():

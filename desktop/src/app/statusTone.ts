@@ -31,6 +31,25 @@ export function verdictToneForGateStatus(status: GateStatus): VerdictTone {
   }
 }
 
+/** Plain-English stand-in for the raw GateStatus enum wherever it would
+ * otherwise render verbatim on screen (Jordan usability fix: SOFT_BLOCK /
+ * HARD_BLOCK / etc. read as internal jargon to a first-time user). The
+ * engine's own code is still available as this same string's `title`
+ * tooltip wherever it's rendered as a chip -- never deleted, just not the
+ * first thing on screen. */
+export function labelForGateStatus(status: GateStatus): string {
+  switch (status) {
+    case "CLEAR":
+      return "Ready";
+    case "SOFT_BLOCK":
+      return "Needs earlier steps (can override)";
+    case "HARD_BLOCK":
+      return "Blocked until fixed";
+    case "NOT_YET_BUILT":
+      return "Coming in a later version";
+  }
+}
+
 export function toneForPrescoreStatus(status: PrescoreStatus): PillTone {
   switch (status) {
     case "pass":

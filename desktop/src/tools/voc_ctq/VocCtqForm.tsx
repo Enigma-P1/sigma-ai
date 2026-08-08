@@ -1,11 +1,11 @@
-import { Button, Field, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
 import { CustomersSection } from "./CustomersSection";
 import { StatementsSection } from "./StatementsSection";
 import { NeedsSection } from "./NeedsSection";
 import { CtqsSection } from "./CtqsSection";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { VOC_CTQ_CHECK_LABELS } from "./vocCtqChecks";
-import { makeCtq, makeNeed, makeStatement } from "./vocCtqLogic";
+import { makeCtq, makeNeed, makeStatement, vocCtqMissingFields } from "./vocCtqLogic";
 import { useVocCtqForm } from "./useVocCtqForm";
 import type { ProjectMetadata } from "../../api/types";
 
@@ -64,6 +64,7 @@ export function VocCtqForm({ projectId, project, onSaved }: VocCtqFormProps) {
         <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="voc-ctq-save">
           {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
         </Button>
+        {!f.saving && <MissingHint fields={vocCtqMissingFields(f.state)} />}
         <PrescoreStrip results={f.prescore} labels={VOC_CTQ_CHECK_LABELS} />
       </Panel>
     </div>
