@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-standard-work",
+  "tool_id": "T-24",
+  "created_at": "2026-09-21T17:30:00Z",
+  "updated_at": "2026-09-22T09:30:00Z",
+  "notes": "The improved morning method as one clean sequence -- not the old process with a patch note. Steps seed from the process map's register-to-handoff walk (coffee-process-map s1-s5) and carry the standards a qualified-but-new barista could be checked against; the four steps the two pilots changed are marked changed-from-prior, because that is where training starts and where backsliding starts. Step times thread to the time study's element medians where the method did not change (order ~0.8 min, finish ~0.6, handoff ~0.5) and to the 2.0-minute single-drink prepare standard (map s3); what the batching changed is the SEQUENCE around that prepare step -- pair scan before the build, both shots of a same-milk pair pulled back-to-back on the one group head, one shared pitcher -- which is how the drink queue's 4.5-minute median wait in the old state became the ~1.1-minute residual the round-2 window shows (mean 4.90 total against the old 8.41: the improved typical cycle 0.8 + ~1.1 + 2.0 + 0.6 + 0.5 reads straight off the measured windows; observed, not derived). The demand pace both pilots ran against is the map's: 180-minute peak, now ~55 semester orders, ~3.3 min per order -- the paired build keeps effective station time under that pace on the head we have. The FMEA's severity-8 steam-scald action lives here as written: purge-and-park outboard is part of the steam standard, not a memo. Supersedes the 2024 laminated drink-build card, which came down from the machine the day this went up -- one method, one source; the control plan's training rows point at this artifact id.",
+  "title": "Morning espresso service -- drink build at the espresso station (weekday 7:00-10:00 peak)",
+  "version": 1,
+  "owner": "Priya Shah",
+  "effective_date": "2026-09-22",
+  "supersedes": "The 2024 laminated 'drink build basics' card taped at the espresso machine (removed 2026-09-22)",
+  "seeded_from_process_map_id": "coffee-process-map",
+  "linked_control_plan_id": "coffee-control-plan",
+  "steps": [
+    {
+      "step_id": "st-1",
+      "order": 1,
+      "action": "Take the order and payment, read back size/milk/decaf, and mark the cup from the printed ticket before it leaves the register",
+      "standard": "Read-back spoken on every peak order; cup marked from the ticket, never from memory; register step inside one minute (time-study el-order median 0.8 min)",
+      "changed_from_prior": false,
+      "source_step_ref": "s1",
+      "note": "The read-back predates the pilots -- it is FMEA action r-register-miskey (2026-08), kept here so the SOP is the one current method"
+    },
+    {
+      "step_id": "st-2",
+      "order": 2,
+      "action": "Set the marked cup at the BACK of the queue rail; always build from the marked FRONT position -- strict ticket order, no mid-rail grabs",
+      "standard": "Oldest mark is always the next build; every handoff cycle ends with an oldest-mark sweep of the rail (FMEA r-queue-mixup / r-buried-cup); queue ahead of the station no deeper than three cups before the second barista is called on",
+      "changed_from_prior": true,
+      "source_step_ref": "s2",
+      "note": "Round-1 change, sequencing half -- pilot coffee-pilot-round1"
+    },
+    {
+      "step_id": "st-3",
+      "order": 3,
+      "action": "Before starting each build, scan the next three marked cups for a same-milk pair",
+      "standard": "Pairing decided before the first shot is dosed; a pair is two adjacent same-milk drinks, worked as one build; never hold a cup back to wait for a partner -- an unpaired cup builds alone immediately",
+      "changed_from_prior": true,
+      "source_step_ref": "s2",
+      "note": "Round-1 change, new step -- the batching decision point"
+    },
+    {
+      "step_id": "st-4",
+      "order": 4,
+      "action": "Build the drink(s): dose and pull the shots -- for a pair, both drinks' shots back-to-back -- while the milk steams in the sized pitcher, then pour",
+      "standard": "Single build holds the 2.0-minute prepare standard (map s3: dose, pull, steam, build); paired build starts the second drink's shots within 30 seconds of the first and shares one large pitcher, split at the pour; steam wand purged and parked OUTBOARD of the work path after every steam (FMEA r-steam-burn, severity-8 action -- part of the standard, not a memo)",
+      "changed_from_prior": true,
+      "source_step_ref": "s3",
+      "note": "Round-1 change, batch-steam half -- pilot coffee-pilot-round1"
+    },
+    {
+      "step_id": "st-5",
+      "order": 5,
+      "action": "Keep the grinder dialed: dial in before 7:00 and log it on the grinder card; re-dial after every hopper refill; if dose drifts mid-peak, swap in the pre-dialed standby grinder instead of re-dialing while cups wait",
+      "standard": "Dial-in logged before peak, every refill followed by a logged re-dial (FMEA r-repull); a mid-peak drift takes the standby swap, never an under-queue re-dial; the standby grinder is dialed to the morning's setting as part of the pre-peak routine",
+      "changed_from_prior": true,
+      "source_step_ref": "s3",
+      "note": "Round-2 change -- pilot coffee-pilot-round2"
+    },
+    {
+      "step_id": "st-6",
+      "order": 6,
+      "action": "Finish the drink: syrup from the labeled rail, lid, sleeve",
+      "standard": "Finish holds the 0.6-minute standard (time-study el-finish median); syrups pumped only from the labeled row -- an unlabeled bottle goes to the manager, not into a drink",
+      "changed_from_prior": false,
+      "source_step_ref": "s4",
+      "note": ""
+    },
+    {
+      "step_id": "st-7",
+      "order": 7,
+      "action": "Call the name toward the room -- twice if the first call gets no movement -- and set the drink on the pickup counter",
+      "standard": "Handoff within the 0.5-minute standard of finish (time-study el-handoff median); the call is the recorded stop of the C1 clock, so it is spoken, not skipped, even when the customer is standing there",
+      "changed_from_prior": false,
+      "source_step_ref": "s5",
+      "note": ""
+    }
+  ],
+  "change_log": [
+    {
+      "version": 1,
+      "at": "2026-09-22T09:30:00Z",
+      "note": "v1 effective: both proven pilot changes written as the one standard method; supersedes the 2024 laminated card"
+    }
+  ]
+}
