@@ -1265,3 +1265,143 @@ export interface HypothesisRunArtifact extends ArtifactBase {
   result?: Computed<HypothesisTestResult> | null;
   refused: boolean;
 }
+
+// ---- T-15 Fishbone (6M) + 5 Whys (artifacts/fishbone.py) ----
+
+export type FishboneBranch = "people" | "method" | "machine" | "material" | "measurement" | "environment";
+export const FISHBONE_BRANCHES: FishboneBranch[] = [
+  "people",
+  "method",
+  "machine",
+  "material",
+  "measurement",
+  "environment",
+];
+
+export type CauseStatus = "candidate" | "investigating" | "verified" | "ruled_out";
+export const CAUSE_STATUSES: CauseStatus[] = ["candidate", "investigating", "verified", "ruled_out"];
+
+export type EvidenceKind = "dataset" | "hypothesis_run" | "check_sheet" | "observation_note";
+export const EVIDENCE_KINDS: EvidenceKind[] = ["dataset", "hypothesis_run", "check_sheet", "observation_note"];
+
+/** `ref` is an artifact/dataset id for the three artifact-backed kinds, or
+ * the note text itself for `observation_note` -- artifacts/fishbone.py's
+ * Evidence model, unchecked cross-reference (no project-store lookup at
+ * the schema layer; the desktop resolves it for display). */
+export interface FishboneEvidence {
+  kind: EvidenceKind;
+  ref: string;
+}
+
+export interface FishboneCause {
+  cause_id: string;
+  branch: FishboneBranch;
+  text: string;
+  parent_cause_id?: string | null;
+  status: CauseStatus;
+  evidence?: FishboneEvidence | null;
+  why_chain_position?: number | null;
+}
+
+export interface FishboneEffect {
+  text: string;
+  charter_ref?: string | null;
+}
+
+export interface CausePosition {
+  x: number;
+  y: number;
+}
+
+/** One verified cause as it feeds Improve (R-ANA-06) -- evidence is never
+ * null here, unlike FishboneCause.evidence (schema-guaranteed). */
+export interface VerifiedCauseEntry {
+  cause_id: string;
+  branch: FishboneBranch;
+  text: string;
+  evidence: FishboneEvidence;
+  parent_cause_id?: string | null;
+  why_chain_position?: number | null;
+}
+
+export interface VerifiedCausesSummary {
+  count: number;
+  causes: VerifiedCauseEntry[];
+}
+
+export interface FishboneArtifact extends ArtifactBase {
+  tool_id: "T-15";
+  effect: FishboneEffect;
+  causes: FishboneCause[];
+  /** Keyed by cause_id -- opaque display data, round-tripped, never
+   * interpreted by the engine (process_map.py's layout pattern). */
+  layout: Record<string, CausePosition>;
+  /** Server-computed, never hand-typed -- present once the engine has
+   * echoed the artifact back. An empty list is itself the honest
+   * zero-verified-causes state, not "nothing computed yet". */
+  verified_causes?: Computed<VerifiedCausesSummary> | null;
+}
+
+// ---- T-16 FMEA (process) (artifacts/fmea.py) ----
+
+export type FmeaActionStatus = "open" | "done" | "na";
+export const FMEA_ACTION_STATUSES: FmeaActionStatus[] = ["open", "done", "na"];
+
+export interface FmeaRow {
+  row_id: string;
+  /** Optional link to a T-06 ProcessMapArtifact step_id -- unchecked
+   * cross-reference; `step_name` is always present so a row never floats
+   * with no named step, linked or not. */
+  process_step_ref?: string | null;
+  step_name: string;
+  failure_mode: string;
+  effect: string;
+  cause: string;
+  severity: number;
+  occurrence: number;
+  detection: number;
+  action: string;
+  action_owner: string;
+  action_due?: string | null;
+  action_status: FmeaActionStatus;
+  /** Honest self-report: the desktop sets this once the anchor text has
+   * actually been shown for this row's rating (T-11's two_people_confirmed
+   * "checklist confirmation" idiom). */
+  anchors_consulted: boolean;
+  /** computed_field on the engine (FmeaRow.rpn = severity * occurrence *
+   * detection) -- present on rows the engine has echoed back, absent on a
+   * fresh client-side draft that hasn't round-tripped yet (CopqRow.amount's
+   * pattern). */
+  rpn?: number;
+}
+
+/** This engine's own original 1-10 anchor wording (PLAN §6: no AIAG/ASQ
+ * licensed text) -- embedded on the artifact itself, never client-supplied.
+ * JSON object keys are always strings on the wire. */
+export interface FmeaAnchors {
+  severity: Record<string, string>;
+  occurrence: Record<string, string>;
+  detection: Record<string, string>;
+}
+
+export interface FmeaBlockingFlag {
+  row_id: string;
+  failure_mode: string;
+  effect: string;
+  severity: number;
+  reason: string;
+}
+
+export interface FmeaArtifact extends ArtifactBase {
+  tool_id: "T-16";
+  rows: FmeaRow[];
+  /** Server-computed reference data -- present once the engine has echoed
+   * the artifact back. */
+  anchors?: FmeaAnchors | null;
+  /** Server-computed, never hand-typed. An empty list is itself the
+   * honest "nothing to block" state, not "nothing computed yet". */
+  blocking_flags?: Computed<FmeaBlockingFlag[]> | null;
+  /** row_id order, severity desc then rpn desc (rubric R-ANA-03's stated
+   * RPN limitation: severity-first, RPN alone can't outrank it). */
+  sorted_view?: Computed<string[]> | null;
+}

@@ -5,6 +5,8 @@ from .check_sheet import run_check_sheet_prescore
 from .common import PrescoreResult
 from .copq import run_copq_prescore
 from .data_collection_plan import run_data_collection_plan_prescore
+from .fishbone import run_fishbone_prescore
+from .fmea import run_fmea_prescore
 from .hypothesis import run_hypothesis_prescore
 from .msa import run_msa_prescore
 from .picker import run_picker_prescore
@@ -20,6 +22,8 @@ __all__ = [
     "run_check_sheet_prescore",
     "run_copq_prescore",
     "run_data_collection_plan_prescore",
+    "run_fishbone_prescore",
+    "run_fmea_prescore",
     "run_hypothesis_prescore",
     "run_msa_prescore",
     "run_picker_prescore",

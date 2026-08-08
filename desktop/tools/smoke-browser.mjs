@@ -978,6 +978,163 @@ async function main() {
       const pValueCount = await page.locator('[data-testid="hyp-p-value"]').count();
       assert(pValueCount === 0, "expected no p-value to render for a refused test");
     });
+
+    // ---- Milestone-3 addition: T-15 Fishbone (6M) + 5 Whys -- the
+    // evidence-disciplined cause explorer. Konva nodes are canvas-drawn (no
+    // DOM test ids), so this drives the diagram through the BranchList /
+    // CauseInspector HTML control surface next to the canvas, same
+    // philosophy as T-06's StepsList (processmap's own precedent). Causes
+    // are re-selected by their row's visible text (their generated
+    // cause_id is not known ahead of time), same trick T-06's smoke flow
+    // uses to re-open "Wait for register" by label. ----
+
+    await step("open T-15 Fishbone and write the effect statement", async () => {
+      await page.locator('[data-testid="nav-tool-T-15"]').click();
+      await page.locator('[data-testid="fishbone-save"]').waitFor();
+      await page.locator('[data-testid="fishbone-effect-text"]').fill("Line 2 scrap rate averaged 6.2% in Q2 2026.");
+    });
+
+    await step("add 3 causes across 2 branches (method x2, machine x1)", async () => {
+      await page.locator('[data-testid="fishbone-add-cause-1"]').click(); // method
+      await page.locator('[data-testid="fishbone-cause-text"]').fill("Fixture alignment not checked before shift start");
+
+      await page.locator('[data-testid="fishbone-add-cause-1"]').click(); // method
+      await page.locator('[data-testid="fishbone-cause-text"]').fill("Operators skip the calibration step");
+
+      await page.locator('[data-testid="fishbone-add-cause-2"]').click(); // machine
+      await page.locator('[data-testid="fishbone-cause-text"]').fill("Injector pressure drifts low over a shift");
+
+      const rows = page.locator('[data-testid^="fishbone-cause-row-"]');
+      assert((await rows.count()) === 3, `expected 3 cause rows to render, got ${await rows.count()}`);
+    });
+
+    await step("run a why-chain 2 deep off the fixture-alignment cause", async () => {
+      await page.locator('[data-testid^="fishbone-cause-row-"]', { hasText: "Fixture alignment not checked" }).click();
+      await page.locator('[data-testid="fishbone-ask-why"]').click(); // depth 1
+      await page.locator('[data-testid="fishbone-cause-text"]').fill("No checklist posted at the fixture station");
+      await page.locator('[data-testid="fishbone-ask-why"]').click(); // depth 2
+      await page.locator('[data-testid="fishbone-cause-text"]').fill("Checklist ownership was never assigned after the shift-change process changed");
+
+      const rows = page.locator('[data-testid^="fishbone-cause-row-"]');
+      assert((await rows.count()) === 5, `expected 5 cause rows after the why-chain, got ${await rows.count()}`);
+    });
+
+    await step("attach an observation-note evidence to the fixture-alignment cause and mark it verified", async () => {
+      await page.locator('[data-testid^="fishbone-cause-row-"]', { hasText: "Fixture alignment not checked" }).click();
+      await page.locator('[data-testid="fishbone-evidence-open"]').click();
+      await page.locator('[data-testid="fishbone-evidence-kind"]').waitFor();
+      await page.locator('[data-testid="fishbone-evidence-note"]').fill(
+        "Gemba walk, Tuesday AM shift: fixture alignment unverified before start on 4 of 5 observed days.",
+      );
+      await page.locator('[data-testid="fishbone-evidence-confirm"]').click();
+      await page.locator('[data-testid="fishbone-evidence-summary"]').waitFor();
+
+      await page.locator('[data-testid="fishbone-cause-status"]').selectOption("verified");
+      const statusText = await page.locator('[data-testid="fishbone-cause-status"]').inputValue();
+      assert(statusText === "verified", `expected the cause's status to read verified, got ${JSON.stringify(statusText)}`);
+    });
+
+    await step("select the still-candidate calibration cause and assert the no-evidence chip renders", async () => {
+      await page.locator('[data-testid^="fishbone-cause-row-"]', { hasText: "Operators skip the calibration step" }).click();
+      await page.locator('[data-testid="fishbone-inspector-unproven-chip"]').waitFor();
+    });
+
+    await step("save T-15 and assert the verified-causes summary lists the fixture-alignment cause", async () => {
+      await page.locator('[data-testid="fishbone-save"]').click();
+      await page.locator('[data-testid="fishbone-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="fishbone-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
+
+      const summaryText = await page.locator('[data-testid="fishbone-verified-summary"]').textContent();
+      assert(
+        summaryText?.includes("Fixture alignment not checked"),
+        `expected the verified-causes summary to list the fixture-alignment cause, got ${JSON.stringify(summaryText)}`,
+      );
+    });
+
+    // ---- Milestone-3 addition: T-16 FMEA (process). Row 1 is
+    // deliberately severity-9, safety-worded, and left without an action
+    // (the blocking-flags fixture); row 2 is a lower-severity, addressed
+    // row. Row 1's severity is set while it is still the only row on the
+    // sheet, so the default severity-first sort never reorders either row
+    // mid-fill (row 2's default severity of 1, then 4, always stays below
+    // row 1's 9). ----
+
+    await step("open T-16 FMEA and fill row 1: severity 9, safety-worded effect, no action", async () => {
+      await page.locator('[data-testid="nav-tool-T-16"]').click();
+      await page.locator('[data-testid="fmea-save"]').waitFor();
+      await page.locator('[data-testid="fmea-add-row"]').click();
+
+      const row1 = page.locator('[data-testid="fmea-table"] tbody tr').nth(0);
+      await row1.locator('[data-testid$="-step-name"]').fill("Mold part");
+      await row1.locator('[data-testid$="-mode"]').fill("Short pour incomplete fill");
+      await row1.locator('[data-testid$="-effect"]').fill("Part fails safety inspection, unsafe to ship");
+      await row1.locator('[data-testid$="-cause"]').fill("Injector pressure drifts low");
+      await row1.locator('[data-testid$="-severity"]').selectOption("9");
+      await row1.locator('[data-testid$="-occurrence"]').selectOption("3");
+      await row1.locator('[data-testid$="-detection"]').selectOption("2");
+      // action / action_owner left blank on purpose -- the blocking fixture.
+
+      const anchorHelper = await page.locator('[data-testid="fmea-anchor-helper"]').textContent();
+      assert(
+        anchorHelper?.toLowerCase().includes("detection 2") && anchorHelper?.toLowerCase().includes("very high chance"),
+        `expected the anchor helper to show the Detection-2 anchor text after that select, got ${JSON.stringify(anchorHelper)}`,
+      );
+    });
+
+    await step("add row 2: lower severity, addressed with an action", async () => {
+      await page.locator('[data-testid="fmea-add-row"]').click();
+      const row2 = page.locator('[data-testid="fmea-table"] tbody tr').nth(1);
+      await row2.locator('[data-testid$="-step-name"]').fill("Package");
+      await row2.locator('[data-testid$="-mode"]').fill("Wrong label applied");
+      await row2.locator('[data-testid$="-effect"]').fill("Customer receives wrong item, reorder needed");
+      await row2.locator('[data-testid$="-cause"]').fill("Label roll swapped by mistake");
+      await row2.locator('[data-testid$="-severity"]').selectOption("4");
+      await row2.locator('[data-testid$="-occurrence"]').selectOption("3");
+      await row2.locator('[data-testid$="-detection"]').selectOption("5");
+      await row2.locator('[data-testid$="-action"]').fill("Add barcode scan check before sealing");
+      await row2.locator('[data-testid$="-owner"]').fill("Sam Lee");
+
+      const rowCount = await page.locator('[data-testid="fmea-table"] tbody tr').count();
+      assert(rowCount === 2, `expected 2 rows, got ${rowCount}`);
+    });
+
+    await step("save T-16 and assert the blocking banner names row 1", async () => {
+      await page.locator('[data-testid="fmea-save"]').click();
+      await page.locator('[data-testid="fmea-version-badge"]').waitFor();
+
+      const bannerText = await page.locator('[data-testid="fmea-blocking-banner"]').textContent();
+      assert(
+        bannerText?.includes("Short pour incomplete fill"),
+        `expected the blocking banner to name row 1's failure mode, got ${JSON.stringify(bannerText)}`,
+      );
+    });
+
+    await step("assert severity-first ordering and RPN computed after save", async () => {
+      const firstRow = page.locator('[data-testid="fmea-table"] tbody tr').nth(0);
+      const firstMode = await firstRow.locator('[data-testid$="-mode"]').inputValue();
+      assert(
+        firstMode === "Short pour incomplete fill",
+        `expected the severity-9 row to sort first by default, got ${JSON.stringify(firstMode)}`,
+      );
+      const firstRpn = await firstRow.locator('[data-testid$="-rpn"]').textContent();
+      assert(firstRpn?.trim() === "54", `expected row 1's engine-computed RPN to read 54 (9x3x2), got ${JSON.stringify(firstRpn)}`);
+      assert(!firstRpn?.includes("draft"), `expected row 1's RPN to be the saved engine value, not a draft, got ${JSON.stringify(firstRpn)}`);
+
+      const secondRow = page.locator('[data-testid="fmea-table"] tbody tr').nth(1);
+      const secondRpn = await secondRow.locator('[data-testid$="-rpn"]').textContent();
+      assert(secondRpn?.trim() === "60", `expected row 2's engine-computed RPN to read 60 (4x3x5), got ${JSON.stringify(secondRpn)}`);
+    });
+
+    await step("toggle to RPN sort and confirm the higher-RPN row now leads despite lower severity", async () => {
+      await page.locator('[data-testid="fmea-sort-rpn"]').click();
+      const firstRow = page.locator('[data-testid="fmea-table"] tbody tr').nth(0);
+      const firstMode = await firstRow.locator('[data-testid$="-mode"]').inputValue();
+      assert(
+        firstMode === "Wrong label applied",
+        `expected the RPN-sort toggle to put row 2 (rpn 60 > 54) first, got ${JSON.stringify(firstMode)}`,
+      );
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;

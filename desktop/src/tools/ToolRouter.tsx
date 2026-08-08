@@ -27,6 +27,8 @@ import { baselineHelperContent } from "./baseline/baselineContent";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { chartSetHelperContent } from "./chartset/chartSetContent";
 import { HypothesisForm } from "./hypothesis/HypothesisForm";
+import { FishboneForm } from "./fishbone/FishboneForm";
+import { FmeaForm } from "./fmea/FmeaForm";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -171,9 +173,25 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
-  // T-17 (M3): the guided hypothesis-testing screen. Helper content stays
+  // T-15/T-16/T-17 (M3): the Analyze-phase screens. Helper content stays
   // the honest placeholder -- the Analyze five-part content unit (PLAN
-  // §4.3) ships with a later milestone; the form itself is real.
+  // §4.3) ships with a later milestone; the forms themselves are real.
+  if (toolId === "T-15") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <FishboneForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-16") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <FmeaForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
   if (toolId === "T-17") {
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
