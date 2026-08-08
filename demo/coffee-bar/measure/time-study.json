@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-time-study",
+  "tool_id": "T-09",
+  "created_at": "2026-07-28T07:00:00Z",
+  "updated_at": "2026-07-29T11:40:00Z",
+  "notes": "Eight full order-to-handoff cycles timed by Dana Ellis with a phone stopwatch across the July 28 and 29 morning peaks -- four cycles each morning, orders picked at random from the sampled stream. Elements are the SIPOC steps inside the charter boundary; SIPOC steps 5 and 6 (call the name, hand the drink over) are timed as one element because the call and the hand are one continuous act at the pickup counter. Element medians thread to the process map's step times (0.8 / 4.5 / 2.0 / 0.6 / 0.5 min, totalling the charter's 8.4). Cycle 6 is the July 28 8:12 class-break rush; the engine flags its queue time as a high outlier and it stays in the record, flagged, never dropped. Eight cycles is below the tool's 10-cycle guidance -- the per-element note says so; spread is read as rough.",
+  "elements": [
+    { "element_id": "el-order", "name": "Take order and payment at register", "description": "SIPOC step 1: ticket ordered and paid, POS prints the ticket" },
+    { "element_id": "el-queue", "name": "Cup waits in drink queue", "description": "SIPOC step 2: cup marked and set in line at the espresso station until the shot for it starts" },
+    { "element_id": "el-prepare", "name": "Prepare drink at espresso station", "description": "SIPOC step 3: dose, pull, steam, build" },
+    { "element_id": "el-finish", "name": "Finish drink (syrup, lid, sleeve)", "description": "SIPOC step 4" },
+    { "element_id": "el-handoff", "name": "Call name and hand off", "description": "SIPOC steps 5-6 merged: name called, drink set on the pickup counter and collected" }
+  ],
+  "cycles": [
+    { "cycle_number": 1, "observer_note": "July 28, 7:24 -- two tickets ahead in the cup line", "element_times": [
+      { "element_id": "el-order", "seconds": 45 }, { "element_id": "el-queue", "seconds": 268 }, { "element_id": "el-prepare", "seconds": 119 }, { "element_id": "el-finish", "seconds": 35 }, { "element_id": "el-handoff", "seconds": 28 } ] },
+    { "cycle_number": 2, "observer_note": "July 28, 7:47", "element_times": [
+      { "element_id": "el-order", "seconds": 40 }, { "element_id": "el-queue", "seconds": 252 }, { "element_id": "el-prepare", "seconds": 111 }, { "element_id": "el-finish", "seconds": 32 }, { "element_id": "el-handoff", "seconds": 26 } ] },
+    { "cycle_number": 3, "observer_note": "July 28, 9:03 -- mocha with an extra syrup pump", "element_times": [
+      { "element_id": "el-order", "seconds": 52 }, { "element_id": "el-queue", "seconds": 281 }, { "element_id": "el-prepare", "seconds": 128 }, { "element_id": "el-finish", "seconds": 40 }, { "element_id": "el-handoff", "seconds": 34 } ] },
+    { "cycle_number": 4, "observer_note": "July 28, 9:41 -- quiet stretch, one ticket in the line", "element_times": [
+      { "element_id": "el-order", "seconds": 43 }, { "element_id": "el-queue", "seconds": 236 }, { "element_id": "el-prepare", "seconds": 104 }, { "element_id": "el-finish", "seconds": 29 }, { "element_id": "el-handoff", "seconds": 22 } ] },
+    { "cycle_number": 5, "observer_note": "July 29, 7:31", "element_times": [
+      { "element_id": "el-order", "seconds": 49 }, { "element_id": "el-queue", "seconds": 272 }, { "element_id": "el-prepare", "seconds": 121 }, { "element_id": "el-finish", "seconds": 37 }, { "element_id": "el-handoff", "seconds": 31 } ] },
+    { "cycle_number": 6, "observer_note": "July 28, 8:12 class-break rush -- 14 people hit the register at once, cup line ran nine deep; queue time is the real event, kept in the record and flagged by the fence, not dropped", "element_times": [
+      { "element_id": "el-order", "seconds": 60 }, { "element_id": "el-queue", "seconds": 452 }, { "element_id": "el-prepare", "seconds": 146 }, { "element_id": "el-finish", "seconds": 47 }, { "element_id": "el-handoff", "seconds": 44 } ] },
+    { "cycle_number": 7, "observer_note": "July 29, 8:26 -- steady line, three tickets waiting", "element_times": [
+      { "element_id": "el-order", "seconds": 55 }, { "element_id": "el-queue", "seconds": 294 }, { "element_id": "el-prepare", "seconds": 134 }, { "element_id": "el-finish", "seconds": 43 }, { "element_id": "el-handoff", "seconds": 38 } ] },
+    { "cycle_number": 8, "observer_note": "July 29, 9:17", "element_times": [
+      { "element_id": "el-order", "seconds": 47 }, { "element_id": "el-queue", "seconds": 261 }, { "element_id": "el-prepare", "seconds": 116 }, { "element_id": "el-finish", "seconds": 34 }, { "element_id": "el-handoff", "seconds": 29 } ] }
+  ]
+}
