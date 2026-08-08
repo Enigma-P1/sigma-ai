@@ -20,6 +20,7 @@ const CHECK_LABELS: Record<string, string> = {
   never_armed: "Monitoring armed",
   signal_acknowledgment_completeness: "Every signal acknowledged",
   recalculation_log_has_reasons: "Recalculation log has reasons",
+  measurement_check_on_file: "Measurement check on file",
 };
 
 /** T-21 Control Charts: the printed selector (data shape, then --

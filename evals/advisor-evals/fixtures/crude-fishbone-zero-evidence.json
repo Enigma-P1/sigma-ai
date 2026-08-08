@@ -1,0 +1,70 @@
+{
+  "artifact_id": "eval-fishbone-1",
+  "causes": [
+    {
+      "branch": "people",
+      "cause_id": "C-1",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Confirmed: new hires skip the barcode verification step, proven root cause of mislabeled orders",
+      "why_chain_position": null
+    },
+    {
+      "branch": "method",
+      "cause_id": "C-2",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Proven: the packing checklist order does not match the pick path, causing skipped steps",
+      "why_chain_position": null
+    },
+    {
+      "branch": "machine",
+      "cause_id": "C-3",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Verified as the primary driver: the label printer misalignment produces unreadable barcodes on one in ten labels",
+      "why_chain_position": null
+    },
+    {
+      "branch": "material",
+      "cause_id": "C-4",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Established fact: mixed box sizes from the new supplier lead directly to mis-picks",
+      "why_chain_position": null
+    },
+    {
+      "branch": "measurement",
+      "cause_id": "C-5",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Definitively the cause: the scan gun's old firmware misreads damaged labels",
+      "why_chain_position": null
+    },
+    {
+      "branch": "environment",
+      "cause_id": "C-6",
+      "evidence": null,
+      "parent_cause_id": null,
+      "status": "candidate",
+      "text": "Root cause confirmed by the team: dim lighting at the pack station causes misreads",
+      "why_chain_position": null
+    }
+  ],
+  "created_at": "2026-08-01T09:00:00",
+  "effect": {
+    "charter_ref": null,
+    "text": "Weekly order-fulfillment defect rate stuck at 9% against a 2% goal"
+  },
+  "layout": {},
+  "notes": null,
+  "schema_version": 1,
+  "tool_id": "T-15",
+  "updated_at": "2026-08-01T09:00:00",
+  "verified_causes": null
+}

@@ -1,6 +1,7 @@
 """Prescore tests for T-21: family-matches-data, frozen-before-signals,
 never-armed (hard_flag, not a thin pass), acknowledgment completeness,
-and the recalculation log's reason discipline."""
+the recalculation log's reason discipline, and the project-aware
+measurement_check_on_file check (M6 eval fix, persona finding FL-07)."""
 
 from factories import RULE2_ONLY_DATA, make_control_chart_imr, make_control_chart_p
 from sigma_engine.artifacts.control_chart import ControlChartArtifact
@@ -206,3 +207,53 @@ def test_frozen_baseline_matches_window_hard_flags_a_tampered_rule2_signal_list(
     tampered = a.model_copy(update={"imr_baseline": a.imr_baseline.model_copy(update={"value": tampered_value})})
     results = _by_id(run_control_chart_prescore(tampered))
     assert results["frozen_baseline_matches_window"].status == "hard_flag"
+
+
+# --- measurement_check_on_file (M6 eval fix, persona finding FL-07) --------
+
+
+def test_measurement_check_on_file_is_omitted_without_project_context():
+    """The registry's artifact-only call shape can't know the project's
+    T-12 state -- the check is omitted, never guessed (module docstring)."""
+    a = ControlChartArtifact.model_validate(make_control_chart_imr())
+    results = run_control_chart_prescore(a)
+    assert {r.check_id for r in results} == EXPECTED_CHECK_IDS
+
+
+def test_measurement_check_on_file_flags_a_frozen_chart_with_no_t12():
+    a = ControlChartArtifact.model_validate(make_control_chart_imr())  # freeze_requested fixture -> frozen
+    assert a.imr_baseline is not None
+    results = _by_id(run_control_chart_prescore(a, msa_on_file=False))
+    check = results["measurement_check_on_file"]
+    assert check.status == "flag"
+    assert "no measurement check (T-12) on file" in check.detail
+    assert "Freezing is not blocked" in check.detail  # flag names the risk; it does not block the freeze
+
+
+def test_measurement_check_on_file_passes_naming_the_verdict_when_a_t12_exists():
+    a = ControlChartArtifact.model_validate(make_control_chart_p())
+    assert a.p_baseline is not None
+    results = _by_id(run_control_chart_prescore(a, msa_on_file=True, msa_verdict="acceptable"))
+    check = results["measurement_check_on_file"]
+    assert check.status == "pass"
+    assert "'acceptable'" in check.detail
+
+
+def test_measurement_check_on_file_not_applicable_on_a_diagnostic_unfrozen_chart():
+    """Charting your own data diagnostically with no T-12 is legitimate --
+    the concern attaches to FROZEN limits (a stability claim), same
+    not-yet-applicable shape as never_armed."""
+    a = ControlChartArtifact.model_validate(make_control_chart_imr(freeze_requested=False, action_at=None))
+    assert a.imr_baseline is None
+    results = _by_id(run_control_chart_prescore(a, msa_on_file=False))
+    check = results["measurement_check_on_file"]
+    assert check.status == "pass"
+    assert "diagnostically" in check.detail
+
+
+def test_measurement_check_on_file_passes_but_says_so_when_the_t12_has_no_verdict():
+    a = ControlChartArtifact.model_validate(make_control_chart_imr())
+    results = _by_id(run_control_chart_prescore(a, msa_on_file=True, msa_verdict=None))
+    check = results["measurement_check_on_file"]
+    assert check.status == "pass"
+    assert "records no verdict" in check.detail

@@ -147,8 +147,13 @@ export function listArtifactVersions(projectId: string, artifactId: string): Pro
 
 // ---- /prescore (routes/prescore.py) ----
 
-export function runPrescore(toolId: string, body: unknown): Promise<PrescoreResult[]> {
-  return request<PrescoreResult[]>(`/prescore/${toolId}`, postJson(body));
+/** `projectId` (optional) turns on the engine's project-aware prescore
+ * checks for tools that have one -- today that is T-21's
+ * measurement_check_on_file only (routes/prescore.py). Omitted, the call
+ * stays artifact-only exactly as before. */
+export function runPrescore(toolId: string, body: unknown, projectId?: string): Promise<PrescoreResult[]> {
+  const query = projectId ? `?project_id=${encodeURIComponent(projectId)}` : "";
+  return request<PrescoreResult[]>(`/prescore/${toolId}${query}`, postJson(body));
 }
 
 // ---- /gates (routes/gates.py) ----

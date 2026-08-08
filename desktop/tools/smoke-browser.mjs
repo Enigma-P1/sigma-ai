@@ -416,6 +416,36 @@ async function main() {
       );
     });
 
+    await step("toggle 'my data is pass/fail counts' and assert the attribute p-chart routing notice renders", async () => {
+      // M6 fix (persona FL-05/FL-08): the attribute baseline path (p-chart
+      // on T-21 run diagnostically + DPMO/sigma on T-10) must be visible
+      // FROM the tool named "Baseline", not left for the user to guess.
+      await page.locator('[data-testid="baseline-attribute-toggle"]').check();
+      await page.locator('[data-testid="baseline-attribute-notice"]').waitFor();
+      const noticeText = await page.locator('[data-testid="baseline-attribute-notice"]').textContent();
+      assert(
+        noticeText?.includes("p-chart") && noticeText?.includes("T-21") && noticeText?.includes("T-10"),
+        `expected the attribute notice to route to the T-21 p-chart + T-10 DPMO pairing, got ${JSON.stringify(noticeText)}`,
+      );
+      assert(
+        noticeText?.includes("no freeze needed"),
+        `expected the attribute notice to say the p-chart runs diagnostically with no freeze needed, got ${JSON.stringify(noticeText)}`,
+      );
+      // Both handoff buttons present (rail navigation, the app's own idiom).
+      assert(
+        (await page.locator('[data-testid="baseline-attribute-open-t21"]').count()) === 1 &&
+          (await page.locator('[data-testid="baseline-attribute-open-t10"]').count()) === 1,
+        "expected Open Control Charts (T-21) and Open Yield Calculator (T-10) buttons inside the attribute notice",
+      );
+      // Untoggle: this smoke project's data really is continuous, and the
+      // baseline-run step below continues on the continuous path.
+      await page.locator('[data-testid="baseline-attribute-toggle"]').uncheck();
+      assert(
+        (await page.locator('[data-testid="baseline-attribute-notice"]').count()) === 0,
+        "the attribute notice should disappear once the toggle is cleared",
+      );
+    });
+
     await step("run the baseline and assert the stability verdict + sigma-convention label render", async () => {
       await page.locator('[data-testid="baseline-run"]').click();
       await page.locator('[data-testid="baseline-stability-verdict"]').waitFor();

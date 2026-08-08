@@ -1,0 +1,15 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-CTL-03",
+        "specific_fix": "M-1 has no owner at all, which the tool already flags. Look past that: M-2's owner is 'TBD' -- a placeholder, not a named person -- even though owner_accepted is marked true. That is not a real accountable owner just because the checkbox is set. Name an actual person for both M-1 and M-2, and get M-3's 'the team' owner to actually accept the role.",
+        "verdict": "needs_work"
+      }
+    ],
+    "overall_note": "OCAP and training coverage are solid, but ownership across the three monitored items ranges from missing to a placeholder marked accepted."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

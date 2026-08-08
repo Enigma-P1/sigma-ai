@@ -1,0 +1,15 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-IMP-03",
+        "specific_fix": "The confounder checklist reports staffing changed (two new baristas started the week the pilot began), and the artifact's own computed verdict already says this weakens the proof -- but the notes field claims the improvement is 'fully attributable' to the fix. Rewrite the narrative to temper the claim the way the confounder checklist and the computed verdict already do, not to contradict them.",
+        "verdict": "needs_work"
+      }
+    ],
+    "overall_note": "Clean, stable before/after data and a threshold met on the mean, but the narrative overrides a confound the artifact itself already reported."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

@@ -629,10 +629,10 @@
       ]
     },
     {
-      "input_hash": "d32f36601d6b0b141410ff77f20eac11726c7bdce45432acd900746595c01944",
+      "input_hash": "722d49aaec2a1e741b62572ce36f75130f10340d5ffc8fa328901123751fa55f",
       "method": "POST",
       "name": "T-21.prescore",
-      "path": "/prescore/T-21",
+      "path": "/prescore/T-21?project_id=eval-s1-helpdesk",
       "status_code": 200,
       "tool_ids": [
         "T-21"

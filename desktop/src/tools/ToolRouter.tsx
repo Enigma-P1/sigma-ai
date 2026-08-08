@@ -75,6 +75,11 @@ export interface ToolRouterProps {
   onSaved: () => void;
   presetDataset?: DatasetPreset | null;
   onNavigateToDataset?: (toolId: string, datasetId: string) => void;
+  /** Plain rail navigation to another tool, no dataset preset -- the same
+   * jump the "I'm stuck" button makes (ProjectWorkspace's
+   * handleStuckNavigate). T-13's attribute-data notice uses it to hand
+   * off to T-21/T-10. */
+  onNavigateToTool?: (toolId: string) => void;
   onOpenAdvisorSettings: () => void;
 }
 
@@ -82,7 +87,7 @@ export interface ToolRouterProps {
  * Intake+Define set this milestone completes) or an honest placeholder
  * (everything else), always inside the generic ToolScreen scaffold. */
 export function ToolRouter({
-  toolId, phase, projectId, project, gate, onGateOverridden, onSaved, presetDataset, onNavigateToDataset, onOpenAdvisorSettings,
+  toolId, phase, projectId, project, gate, onGateOverridden, onSaved, presetDataset, onNavigateToDataset, onNavigateToTool, onOpenAdvisorSettings,
 }: ToolRouterProps) {
   const tool = toolById(toolId);
   if (!tool) return null;
@@ -197,7 +202,10 @@ export function ToolRouter({
   if (toolId === "T-13") {
     return (
       <ToolScreen {...screenProps} helperContent={baselineHelperContent}>
-        <BaselineForm projectId={projectId} project={project} initialDatasetId={presetFor("T-13")} />
+        <BaselineForm
+          projectId={projectId} project={project} initialDatasetId={presetFor("T-13")}
+          onNavigateToTool={onNavigateToTool}
+        />
       </ToolScreen>
     );
   }

@@ -2,9 +2,11 @@ import type { Phase } from "../api/types";
 
 /** Which gate_id(s) (gates.py's GATE_TABLE) must be checked before a phase
  * is considered entered. Mirrored by hand from gates.py -- Define has two
- * gates (one soft, one hard) covering the same Intake->Define transition;
- * every other transition has exactly one (currently stub) gate. Intake has
- * none: it's the first phase, always open. */
+ * gates (one soft, one hard) covering the same Intake->Define transition,
+ * and Analyze likewise pairs the soft measure_to_analyze sequence gate
+ * with the hard capability-language gate; every other transition has
+ * exactly one soft gate. Intake has none: it's the first phase, always
+ * open. */
 export const PHASE_ENTRY_GATES: Record<Phase, string[]> = {
   Intake: [],
   Define: ["intake_picker_present", "intake_picker_not_exit01"],

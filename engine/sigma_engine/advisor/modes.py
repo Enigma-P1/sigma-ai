@@ -101,9 +101,8 @@ PHASE_TOOL_IDS: dict[TollgatePhase, tuple[str, ...]] = {
 
 # Phase -> the gate_id(s) gating LEAVING that phase (gates.GATE_TABLE is
 # keyed by (from_phase, to_phase), not by a single phase, and Measure has
-# two gates leaving it -- both included). "Wrap" has none: gates.py has no
-# gate defined past Control yet (its own module docstring: gates are
-# stubbed phase by phase as each milestone builds their math guards).
+# two gates leaving it -- both included). "Wrap" has none: Wrap is the
+# last phase, so gates.GATE_TABLE defines no transition out of it.
 TOLLGATE_PHASE_GATE_IDS: dict[TollgatePhase, tuple[str, ...]] = {
     "Define": ("define_to_measure",),
     "Measure": ("measure_to_analyze", "measure_capability_language_requires_msa_pass"),

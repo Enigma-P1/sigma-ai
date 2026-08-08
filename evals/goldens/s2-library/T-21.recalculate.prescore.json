@@ -34,5 +34,11 @@
     "detail": "2 log entry(ies), every reason non-blank",
     "status": "pass",
     "tool_id": "T-21"
+  },
+  {
+    "check_id": "measurement_check_on_file",
+    "detail": "measurement check on file: latest T-12 verdict 'acceptable'",
+    "status": "pass",
+    "tool_id": "T-21"
   }
 ]

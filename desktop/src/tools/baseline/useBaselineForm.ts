@@ -26,6 +26,14 @@ export function useBaselineForm(projectId: string, project: ProjectMetadata, ini
     setDatasetIdRaw(id);
   }
   const [column, setColumn] = useState<string>("");
+  // "My data is pass/fail counts" (M6 eval fix, persona FL-05/FL-08): an
+  // explicit toggle, not an inference -- attribute counts import as
+  // ordinary numeric columns, so the shape alone can't tell a measurement
+  // from a defective count. When set, BaselineForm shows the attribute
+  // routing notice (p-chart on T-21 run diagnostically + DPMO/sigma on
+  // T-10, the matrix's own pairing) instead of letting this continuous-
+  // only screen dead-end the attribute path.
+  const [attributeData, setAttributeData] = useState(false);
   const [uslText, setUslText] = useState("");
   const [lslText, setLslText] = useState("");
   const [operationalDefinitionOk, setOperationalDefinitionOk] = useState(false);
@@ -72,6 +80,9 @@ export function useBaselineForm(projectId: string, project: ProjectMetadata, ini
 
   const specsReady = usl != null || lsl != null;
   const dataReady = datasetId !== "" && column !== "";
+  // The attribute toggle does not disable Run (the user may have picked
+  // the wrong toggle, and this screen never computes anything client-side
+  // anyway) -- it exists to surface the routing notice.
   const canRun = dataReady && specsReady && operationalDefinitionOk && !running;
 
   async function handleRun() {
@@ -99,6 +110,7 @@ export function useBaselineForm(projectId: string, project: ProjectMetadata, ini
 
   return {
     datasets, datasetId, setDatasetId, column, setColumn, numericColumns,
+    attributeData, setAttributeData,
     uslText, setUslText, lslText, setLslText,
     operationalDefinitionOk, setOperationalDefinitionOk,
     enableRule2, setEnableRule2, enableRule3, setEnableRule3, applySigmaShift, setApplySigmaShift,

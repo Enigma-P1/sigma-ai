@@ -1,0 +1,79 @@
+{
+  "defect": "PLAN \u00a79's crude 'fishbone with zero evidence' defect, in the strongest form the schema PERMITS. The schema (artifacts/fishbone.py's Cause._evidence_required_when_verified) makes a status='verified' cause with no Evidence object unconstructible -- so a literal 'verified, zero evidence' cause cannot be built at all; that half of the defect is a schema TEST, not an advisor eval (see schema_note). The fixture instead builds the nearest schema-legal analogue: six causes across all six branches, every one still status='candidate' with evidence=null (fully schema-legal), but each cause's free TEXT asserts certainty -- 'Confirmed', 'Proven', 'Verified as the primary driver', 'Established fact', 'Definitively the cause', 'confirmed by the team' -- exactly the narrative-vs-status mismatch the rubric's own R-ANA-02 Fail exemplar names ('operators agree the fixture is the problem carried as verified = an assumption wearing a badge'), just relocated from the status field (where the schema blocks it) into the text field (where it can't).",
+  "deterministic_layer": {
+    "notes": "All five T-15 prescore checks PASS on this fixture: branch_coverage_minimum (6/6), cause_count_minimum (6/6), absent_solution_language (none of the six texts use 'no X'/'lack of X' phrasing), verified_causes_have_evidence (vacuously true -- zero causes are status='verified'), ruled_out_causes_retained (vacuously true -- zero ruled-out causes). None of prescore's five checks read a cause's free-text description at all, so none of them can ever notice that six causes narrate proof while sitting at 'candidate' -- this is entirely the advisor's judgment to add, not a gap in any one check but a category of check prescore does not have.",
+    "prescore_flags": [
+      {
+        "check_id": "branch_coverage_minimum",
+        "detail": "6/6 branches carry a cause",
+        "status": "pass",
+        "tool_id": "T-15"
+      },
+      {
+        "check_id": "cause_count_minimum",
+        "detail": "6 cause(s) on the board",
+        "status": "pass",
+        "tool_id": "T-15"
+      },
+      {
+        "check_id": "absent_solution_language",
+        "detail": "no cause reads as an absent solution",
+        "status": "pass",
+        "tool_id": "T-15"
+      },
+      {
+        "check_id": "verified_causes_have_evidence",
+        "detail": "every verified cause carries evidence (schema-guaranteed, rubric R-ANA-02's anchor item)",
+        "status": "pass",
+        "tool_id": "T-15"
+      },
+      {
+        "check_id": "ruled_out_causes_retained",
+        "detail": "no ruled-out causes yet",
+        "status": "pass",
+        "tool_id": "T-15"
+      }
+    ],
+    "schema_blocks": false,
+    "validate_status": 200
+  },
+  "fixture_id": "crude-fishbone-zero-evidence",
+  "grading": {
+    "checks": [
+      {
+        "criterion_id": "R-ANA-02",
+        "expect_verdict": "needs_work",
+        "type": "criterion_verdict"
+      }
+    ],
+    "text_fallback_keywords": [
+      "candidate",
+      "narrative",
+      "status mismatch",
+      "not verified",
+      "proof language",
+      "certainty",
+      "confirmed",
+      "proven",
+      "assumption wearing a badge",
+      "evidence discipline"
+    ]
+  },
+  "live_setup": {
+    "advisor_ask": {
+      "artifact_id": "eval-fishbone-1",
+      "mode": "review"
+    },
+    "project_id": "advisor-eval-crude-fishbone-zero-evidence",
+    "save_before_call": [
+      "T-15"
+    ]
+  },
+  "mode": "review",
+  "must_catch": [
+    "Multiple causes assert proof/certainty in free text ('Confirmed', 'Proven', 'Verified as...', 'Established fact', 'Definitively the cause') while every one of them still carries status='candidate' and evidence=null -- a direct contradiction between what the text claims and what the status/evidence fields actually show.",
+    "R-ANA-02 (evidence discipline on causes) should verdict needs_work, naming the narrative-vs-status mismatch specifically -- not just a generic 'add more evidence' note."
+  ],
+  "schema_note": "A cause with status='verified' and evidence=null is schema-blocked (ValidationError) -- confirmed live while building this fixture; that is a schema-correctness fact, tested at the unit level (see engine/tests/test_artifacts_fishbone.py), not something this advisor eval re-proves. This fixture deliberately takes the nearest schema-legal form: candidate status, no evidence object, but 'proof' language written directly into the free-text cause description.",
+  "tool_id": "T-15"
+}

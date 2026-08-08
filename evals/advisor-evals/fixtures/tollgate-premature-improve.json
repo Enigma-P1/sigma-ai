@@ -1,0 +1,121 @@
+{
+  "after": {
+    "column": null,
+    "dataset_id": null,
+    "dataset_sha256": null,
+    "values": [
+      5.0,
+      5.2,
+      4.8,
+      5.1,
+      4.9,
+      5.3,
+      4.7,
+      5.0,
+      5.0,
+      5.2,
+      4.8,
+      5.1,
+      4.9,
+      5.3,
+      4.7,
+      5.0,
+      5.0,
+      5.2,
+      4.8,
+      5.1,
+      4.9,
+      5.3,
+      4.7,
+      5.0
+    ],
+    "weights": null
+  },
+  "artifact_id": "eval-proof-noPilot",
+  "before": {
+    "column": null,
+    "dataset_id": null,
+    "dataset_sha256": null,
+    "values": [
+      8.4,
+      8.6,
+      8.2,
+      8.5,
+      8.3,
+      8.7,
+      8.1,
+      8.4,
+      8.4,
+      8.6,
+      8.2,
+      8.5,
+      8.3,
+      8.7,
+      8.1,
+      8.4,
+      8.4,
+      8.6,
+      8.2,
+      8.5,
+      8.3,
+      8.7,
+      8.1,
+      8.4
+    ],
+    "weights": null
+  },
+  "charter_baseline_value": 8.4,
+  "charter_goal_direction": "lower_is_better",
+  "charter_goal_value": 5.0,
+  "charter_ref": "eval-charter-1",
+  "confounders": {
+    "demand": {
+      "changed": false,
+      "note": ""
+    },
+    "measurement": {
+      "changed": false,
+      "note": ""
+    },
+    "other": {
+      "changed": false,
+      "note": ""
+    },
+    "season": {
+      "changed": false,
+      "note": ""
+    },
+    "staffing": {
+      "changed": false,
+      "note": ""
+    }
+  },
+  "created_at": "2026-08-01T09:00:00",
+  "declared_package": null,
+  "declared_threshold": {
+    "declared_at": "2026-07-01T00:00:00",
+    "direction": "lower_is_better",
+    "metric_ref": "order cycle time (minutes)",
+    "value": 6.0
+  },
+  "guardrails": [
+    {
+      "after_value": 2.6,
+      "before_value": 3.0,
+      "direction": "lower_is_better",
+      "metric_ref": "rework rate (%)"
+    }
+  ],
+  "lsl": 2.0,
+  "measurement_system_ref": "MSA-passed stopwatch check, T-12 artifact MSA-1",
+  "metric_ref": "order cycle time (minutes)",
+  "next_cause_ref": null,
+  "notes": "We rolled this out to the full team immediately -- no need for a small pilot first, this is now our standard way of working across every shift.",
+  "operational_definition_ok": true,
+  "operational_definition_ref": "OpDef: time from order placed to order handed to customer, stopwatch, whole seconds, station clock",
+  "pilot_ref": "P-2026-08-01",
+  "schema_version": 1,
+  "tool_id": "T-20",
+  "updated_at": "2026-08-01T09:00:00",
+  "usl": 12.0
+}

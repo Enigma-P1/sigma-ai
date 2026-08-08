@@ -1,0 +1,15 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-ANA-02",
+        "specific_fix": "",
+        "verdict": "pass"
+      }
+    ],
+    "overall_note": "Good breadth across all six branches, causes look well-developed."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

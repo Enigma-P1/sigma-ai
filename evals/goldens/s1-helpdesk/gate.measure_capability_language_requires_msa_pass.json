@@ -2,6 +2,6 @@
   "missing": [],
   "overridden": false,
   "override_reason": null,
-  "reason": null,
+  "reason": "Latest T-12 measurement check reads 'acceptable' -- capability language is not blocked.",
   "status": "CLEAR"
 }

@@ -1,0 +1,63 @@
+{
+  "artifact_id": "eval-charter-1",
+  "business_impact": {
+    "amount": 8400.0,
+    "basis": "lost morning sales from walkouts, June-July actuals x 2",
+    "unit": "dollars"
+  },
+  "created_at": "2026-08-01T09:00:00",
+  "goal": {
+    "baseline_value": 14.0,
+    "consequential_metrics": [
+      "customer complaints per week"
+    ],
+    "metric_name": "average order wait time",
+    "statement": "Install a second espresso machine at the main counter to eliminate rush-hour wait times by September 1",
+    "target_date": "2026-09-01",
+    "target_value": 5.0,
+    "unit": "minutes"
+  },
+  "notes": null,
+  "problem_statement": {
+    "magnitude": {
+      "number": 14.0,
+      "period": "per weekday morning rush",
+      "unit": "minutes average wait"
+    },
+    "what": "Morning rush orders back up at the espresso bar because we only have one machine, so we need to buy a second espresso machine",
+    "when": "Weekdays 7-9am, past 6 weeks",
+    "where": "Main counter, weekday morning rush"
+  },
+  "process_owner": {
+    "name": "Maria Chen",
+    "role": "Shift Lead"
+  },
+  "risks": [
+    {
+      "impact": "medium",
+      "likelihood": "medium",
+      "mitigation": "Order this week from the backup supplier",
+      "owner": "Maria Chen",
+      "risk": "Second machine lead time may exceed 4 weeks"
+    }
+  ],
+  "schema_version": 1,
+  "scope": {
+    "in_scope": "Espresso bar station during weekday morning rush (7-9am)",
+    "out_scope": "Drip coffee, pastry case, afternoon/evening service"
+  },
+  "team": [
+    {
+      "name": "Maria Chen",
+      "role": "Shift Lead"
+    }
+  ],
+  "timeline": [
+    {
+      "date": "2026-08-01",
+      "name": "Charter approved"
+    }
+  ],
+  "tool_id": "T-03",
+  "updated_at": "2026-08-01T09:00:00"
+}

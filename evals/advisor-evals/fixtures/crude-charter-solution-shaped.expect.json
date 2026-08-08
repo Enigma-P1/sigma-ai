@@ -1,0 +1,88 @@
+{
+  "defect": "Crude Define-phase defect (PLAN \u00a79): the problem statement embeds the fix ('...so we need to buy a second espresso machine') and cause language ('because we only have one machine'), and the SMART goal is written as the same solution ('Install a second espresso machine...') rather than a measurable target outcome. Both fields are otherwise complete (what/where/when/magnitude all present; the goal carries a metric, baseline, target, unit, date, and a guardrail metric) so the ONLY thing wrong is that the student wrote the fix where the effect belongs -- the textbook 'solution-shaped problem statement' PLAN \u00a79 names by name.",
+  "deterministic_layer": {
+    "notes": "Prescore's problem_statement_solution_language and goal_solution_language keyword heuristics both fire correctly (they catch 'because' and 'install' -- prescore/charter.py's SOLUTION_LANGUAGE_KEYWORDS). What prescore CANNOT do is grade whether the fix has been proven appropriate to the (still-unverified) cause, whether the goal is sized to the problem's magnitude, or write the concrete rewrite a student needs -- that judgment is the review mode's job, using these two flags as its starting checklist (PLAN \u00a75.1: 'the model's job is judgment on top of the checklist, not rediscovering it').",
+    "prescore_flags": [
+      {
+        "check_id": "problem_statement_solution_language",
+        "detail": "solution/cause language found: ['because']",
+        "status": "flag",
+        "tool_id": "T-03"
+      },
+      {
+        "check_id": "goal_solution_language",
+        "detail": "solution/cause language found: ['install']",
+        "status": "flag",
+        "tool_id": "T-03"
+      },
+      {
+        "check_id": "magnitude_pattern",
+        "detail": "number+unit+period all present",
+        "status": "pass",
+        "tool_id": "T-03"
+      },
+      {
+        "check_id": "owner_not_placeholder",
+        "detail": "owner is named",
+        "status": "pass",
+        "tool_id": "T-03"
+      },
+      {
+        "check_id": "consequential_metric_present",
+        "detail": "at least one guardrail metric named",
+        "status": "pass",
+        "tool_id": "T-03"
+      },
+      {
+        "check_id": "risk_block_present",
+        "detail": "1 risk row(s)",
+        "status": "pass",
+        "tool_id": "T-03"
+      }
+    ],
+    "schema_blocks": false,
+    "validate_status": 200
+  },
+  "fixture_id": "crude-charter-solution-shaped",
+  "grading": {
+    "checks": [
+      {
+        "criterion_id": "R-DEF-02",
+        "expect_verdict": "needs_work",
+        "type": "criterion_verdict"
+      },
+      {
+        "criterion_id": "R-DEF-03",
+        "expect_verdict": "needs_work",
+        "type": "criterion_verdict"
+      }
+    ],
+    "text_fallback_keywords": [
+      "solution-shaped",
+      "embeds the fix",
+      "cause language",
+      "solution language",
+      "prescribes a fix",
+      "states the fix",
+      "written as a solution",
+      "second espresso machine"
+    ]
+  },
+  "live_setup": {
+    "advisor_ask": {
+      "artifact_id": "eval-charter-1",
+      "mode": "review"
+    },
+    "project_id": "advisor-eval-crude-charter-solution-shaped",
+    "save_before_call": [
+      "T-03"
+    ]
+  },
+  "mode": "review",
+  "must_catch": [
+    "R-DEF-02 (problem statement quality) should verdict needs_work: the statement embeds the fix ('buy a second espresso machine') and cause language ('because') instead of stating only what/where/when/magnitude.",
+    "R-DEF-03 (goal and metrics) should verdict needs_work: the goal statement itself is the prescribed fix ('Install a second espresso machine...') rather than a measurable target outcome -- SMART in mechanical shape (metric/baseline/target/date all present) but not in substance."
+  ],
+  "schema_note": "Nothing here is schema-blocked. CharterArtifact.problem_statement and .goal are free-text fields with no content-quality validator at the schema layer (charter.py's own docstring: solution-shaped language is a prescore flag, never a rejection, per PLAN \u00a74.2's hard/soft split) -- this fixture needed no compromise to reach its strongest form.",
+  "tool_id": "T-03"
+}

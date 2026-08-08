@@ -1,0 +1,15 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-IMP-03",
+        "specific_fix": "",
+        "verdict": "pass"
+      }
+    ],
+    "overall_note": "Threshold met with a stable before/after read -- solid proof."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

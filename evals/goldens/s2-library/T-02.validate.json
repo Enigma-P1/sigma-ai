@@ -5,13 +5,13 @@
     "notes": "Q3 ingredients per the charter's cost case; the engine computes each row amount and the total.",
     "rows": [
       {
-        "amount": 352.82,
-        "basis": "74 searches averaging 11 staff-minutes each (13.57 staff-hours); loaded staff rate $26/hour",
+        "amount": 1530.1000000000001,
+        "basis": "74 searches averaging 11 staff-minutes each in a 3-week desk-log sample, extrapolated to the quarter (~321 searches, 58.85 staff-hours); loaded staff rate $26/hour",
         "category": "custom",
         "custom_label": "Catalog-said-available searches (desk staff time)",
         "is_estimate": true,
-        "period": "Q3 2026 (3-week sample, extrapolated)",
-        "quantity": 13.57,
+        "period": "Q3 2026",
+        "quantity": 58.85,
         "rate": 26.0
       },
       {
@@ -43,11 +43,11 @@
           "each row's amount is quantity * rate, never hand-entered"
         ],
         "engine_version": "0.1.0",
-        "input_hash": "75dac1afd0a257871fb421a856b899938a2448e769fd39179725b3bf4db99561",
+        "input_hash": "9984047af4ff0bce75cf76d2688618ffeccd68db8452a6bc96870f7597ec0792",
         "method": "copq_total = sum(quantity * rate per row)",
         "warnings": []
       },
-      "value": 1017.6200000000001
+      "value": 2194.9
     },
     "updated_at": "2026-08-01T10:00:00Z"
   },

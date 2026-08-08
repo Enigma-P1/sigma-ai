@@ -1,0 +1,18 @@
+{
+  "answer": "```json\n{\"recommendation\": \"no_go\", ...}\n```",
+  "structured": {
+    "actions": [
+      {
+        "action": "Design and run a real pilot for this change (comparison window, success threshold, confounder checklist) before declaring full rollout.",
+        "tied_to_question_id": "improve-1"
+      }
+    ],
+    "reasons": [
+      "No T-19 Pilot Plan was ever saved for this project -- Improve is being closed out on a full-rollout claim with no piloted, one-change-at-a-time discipline behind it (rubric R-IMP-02).",
+      "The proof's own notes say the pilot step was skipped by design ('no need for a small pilot first'), which the tollgate should not accept at face value."
+    ],
+    "recommendation": "no_go"
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}
