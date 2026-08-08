@@ -1,0 +1,30 @@
+.sigma-standardwork-header {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.sigma-standardwork-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-2);
+}
+.sigma-standardwork-step__order {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-faint);
+  padding-top: var(--space-4);
+}
+.sigma-standardwork-step__source {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.sigma-standardwork-save-row {
+  margin-top: var(--space-4);
+}

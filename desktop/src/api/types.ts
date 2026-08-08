@@ -1723,3 +1723,342 @@ export interface ProofArtifact extends ArtifactBase {
   gap?: Computed<GapResult> | null;
   verdict?: Computed<ProofVerdict> | null;
 }
+
+// ---- T-22 Control Plan + Response Plan (OCAP) + Scheduled Check-ins (artifacts/control_plan.py) ----
+
+export type CadenceUnit = "days" | "weeks" | "months";
+export const CADENCE_UNITS: CadenceUnit[] = ["days", "weeks", "months"];
+export type CheckInVerdict = "pass" | "fail";
+export type ControlPlanChartType = "imr" | "p";
+
+export interface ShiftOwner {
+  shift: string;
+  owner_name: string;
+  owner_accepted: boolean;
+}
+
+export interface MonitoredItem {
+  item_id: string;
+  characteristic: string;
+  how_measured: string;
+  operational_definition_ref: string;
+  where: string;
+  frequency: string;
+  frequency_reason: string;
+  is_primary_ctq: boolean;
+  is_improve_change: boolean;
+  /** Schema-loose on purpose (engine module docstring) -- blank is legal so
+   * an ownerless item can be saved and then flagged as theater by
+   * plan_health/prescore, never blocked outright. */
+  owner_name: string;
+  owner_accepted: boolean;
+  per_shift_owners: ShiftOwner[];
+}
+
+export interface OcapEntry {
+  ocap_id: string;
+  monitored_item_id: string;
+  trigger_signal: string;
+  action_steps: string[];
+  escalation_trigger: string;
+  escalation_contact: string;
+  acting_owner: string;
+}
+
+export interface TrainingRow {
+  row_id: string;
+  who: string;
+  sop_ref?: string | null;
+  by_whom: string;
+  by_when?: string | null;
+  verified_how: string;
+  verified_at?: string | null;
+  done: boolean;
+}
+
+export interface CheckInCadence {
+  unit: CadenceUnit;
+  interval: number;
+}
+
+/** The caller-resolved snapshot of a T-21 chart's own FROZEN baseline --
+ * the desktop copies these numbers in from a loaded ControlChartArtifact,
+ * exactly once per freeze, never recomputed here. */
+export interface FrozenLimitsRef {
+  control_chart_artifact_id: string;
+  chart_type: ControlPlanChartType;
+  center?: number | null;
+  ucl?: number | null;
+  lcl?: number | null;
+  p_bar?: number | null;
+  frozen_at: string;
+}
+
+export interface ControlPlanEnteredValues {
+  kind: "dataset" | "manual";
+  dataset_id?: string | null;
+  values?: number[] | null;
+  subgroup?: PSubgroup | null;
+}
+
+export interface CheckInResult {
+  verdict: CheckInVerdict;
+  detail: string;
+}
+
+export interface CompletedCheckIn {
+  check_in_id: string;
+  label: string;
+  due_date: string;
+  completed_at: string;
+  entered: ControlPlanEnteredValues;
+  note: string;
+  /** Server-computed pass/fail against the frozen band -- never hand-typed. */
+  result?: Computed<CheckInResult> | null;
+}
+
+export interface CheckInSchedule {
+  cadence: CheckInCadence;
+  start_date: string;
+  control_chart_ref: string;
+  frozen_limits: FrozenLimitsRef;
+  completed: CompletedCheckIn[];
+  /** Server-computed = start_date advanced by len(completed) cadence steps. */
+  next_due?: Computed<string> | null;
+}
+
+export interface PlanHealthResult {
+  ownerless_item_ids: string[];
+  unaccepted_owner_item_ids: string[];
+  check_in_overdue: boolean;
+  check_in_overdue_detail: string;
+  /** R-CTL-03's Fail line made machine-checkable: true whenever any item is ownerless. */
+  is_theater: boolean;
+}
+
+export interface ControlPlanArtifact extends ArtifactBase {
+  tool_id: "T-22";
+  monitored_items: MonitoredItem[];
+  ocap_entries: OcapEntry[];
+  training_rows: TrainingRow[];
+  check_in_schedule?: CheckInSchedule | null;
+  /** Caller-supplied "now" for plan_health's overdue read -- never
+   * generated client-side except at save time (control_chart.py's
+   * action_at precedent). */
+  as_of: string;
+  plan_health?: Computed<PlanHealthResult> | null;
+}
+
+// ---- T-23 5S Audit (scored) (artifacts/five_s.py) ----
+
+export type FiveSCategory = "sort" | "set_in_order" | "shine" | "standardize" | "sustain";
+export const FIVE_S_CATEGORIES: FiveSCategory[] = ["sort", "set_in_order", "shine", "standardize", "sustain"];
+export const FIVE_S_CATEGORY_LABELS: Record<FiveSCategory, string> = {
+  sort: "Sort", set_in_order: "Set in Order", shine: "Shine", standardize: "Standardize", sustain: "Sustain",
+};
+
+export interface CategoryScore {
+  category: FiveSCategory;
+  score: number;
+  note: string;
+}
+
+/** Rubric R-CTL-05 #3's first path to "recurrence is real" (the second is
+ * >=2 existing trend points). */
+export interface RecurrenceSchedule {
+  cadence_note: string;
+  next_round_due?: string | null;
+}
+
+export interface AuditRound {
+  round_id: string;
+  date: string;
+  area: string;
+  scores: CategoryScore[];
+  /** Reuses T-07's FloorPlanRef/floorplan-image store verbatim -- no new
+   * photo store for 5S (task brief's reuse instruction). */
+  photos: FloorPlanRef[];
+  improvement_action: string;
+  improvement_action_owner: string;
+  /** computed_field on the engine -- present once echoed back. */
+  total?: number;
+  lowest_category?: FiveSCategory;
+}
+
+export interface TrendPoint {
+  round_id: string;
+  date: string;
+  area: string;
+  total: number;
+  per_category: Record<string, number>;
+  lowest_category: FiveSCategory;
+}
+
+export interface FiveSArtifact extends ArtifactBase {
+  tool_id: "T-23";
+  rounds: AuditRound[];
+  schedule?: RecurrenceSchedule | null;
+  trend?: Computed<TrendPoint[]> | null;
+}
+
+// ---- T-24 Standard Work / SOP (artifacts/standard_work.py) ----
+
+export interface SopStep {
+  step_id: string;
+  order: number;
+  action: string;
+  standard: string;
+  changed_from_prior: boolean;
+  /** Unchecked cross-ref -> T-06 ProcessMapArtifact step_id. */
+  source_step_ref?: string | null;
+  note: string;
+}
+
+export interface ChangeLogEntry {
+  version: number;
+  at: string;
+  note: string;
+}
+
+export interface StandardWorkArtifact extends ArtifactBase {
+  tool_id: "T-24";
+  title: string;
+  version: number;
+  owner: string;
+  effective_date: string;
+  supersedes?: string | null;
+  seeded_from_process_map_id?: string | null;
+  linked_control_plan_id?: string | null;
+  steps: SopStep[];
+  change_log: ChangeLogEntry[];
+}
+
+// ---- T-25 A3 Final Report + Tollgate Checklists (artifacts/a3.py) ----
+
+export type A3PanelKind =
+  | "background" | "current_condition" | "goal" | "analysis"
+  | "countermeasures" | "results" | "follow_up_control" | "lessons";
+
+export const A3_PANEL_ORDER: A3PanelKind[] = [
+  "background", "current_condition", "goal", "analysis",
+  "countermeasures", "results", "follow_up_control", "lessons",
+];
+
+export const A3_PANEL_TITLES: Record<A3PanelKind, string> = {
+  background: "Background", current_condition: "Current Condition", goal: "Goal / Target",
+  analysis: "Analysis", countermeasures: "Countermeasures", results: "Results / Realized Benefits",
+  follow_up_control: "Follow-up / Control", lessons: "Lessons Learned",
+};
+
+/** Which tool a "re-seed from artifact" affordance pulls from by default
+ * -- a desktop-side hint mirroring artifacts/a3.py's PANEL_SEED_TOOL_HINT. */
+export const A3_PANEL_SEED_TOOL_HINT: Record<A3PanelKind, string> = {
+  background: "T-03", current_condition: "T-13", goal: "T-03", analysis: "T-15",
+  countermeasures: "T-18", results: "T-20", follow_up_control: "T-22", lessons: "T-20",
+};
+
+export interface A3SeededFrom {
+  artifact_ref: string;
+  tool_id: string;
+  fields: string[];
+}
+
+export interface A3Panel {
+  panel: A3PanelKind;
+  seeded_from?: A3SeededFrom | null;
+  narrative: string;
+  seeded_at?: string | null;
+}
+
+export interface RealizedBenefitsResult {
+  realized_to_date: number;
+  net_of_fix_cost: number;
+}
+
+export interface RealizedBenefits {
+  copq_rerun_artifact_id: string;
+  window: string;
+  before_amount: number;
+  after_amount: number;
+  fix_cost: number;
+  annualized_projection?: number | null;
+  result?: Computed<RealizedBenefitsResult> | null;
+}
+
+export type TollgatePhase = "Define" | "Measure" | "Analyze" | "Improve" | "Control" | "Wrap";
+export const TOLLGATE_PHASES: TollgatePhase[] = ["Define", "Measure", "Analyze", "Improve", "Control", "Wrap"];
+
+export interface TollgateQuestion {
+  question_id: string;
+  text: string;
+}
+
+export interface TollgateAnswer {
+  question_id: string;
+  answered: boolean;
+  response: string;
+  evidence_ref?: string | null;
+}
+
+/** `questions` is engine-stamped (original wording, FmeaAnchors' pattern)
+ * -- only `answers` survives a round trip from whatever the client posts. */
+export interface TollgateChecklist {
+  phase: TollgatePhase;
+  questions: TollgateQuestion[];
+  answers: TollgateAnswer[];
+}
+
+export interface ObjectivesInput {
+  charter_baseline_value: number;
+  charter_goal_value: number;
+  achieved_value: number;
+  direction: PilotDirection;
+}
+
+export interface LessonEntry {
+  lesson_id: string;
+  text: string;
+  went_wrong: boolean;
+}
+
+export interface OpenItem {
+  item_id: string;
+  description: string;
+  owner: string;
+}
+
+/** Caller-resolved snapshot of the linked FMEA's own computed
+ * blocking_flags (fmea.py, reused verbatim) -- the desktop loads the
+ * project's latest T-16 artifact and copies its blocking_flags in. */
+export interface FmeaCloseCheckInput {
+  fmea_artifact_id: string;
+  blocking_flags: FmeaBlockingFlag[];
+}
+
+export interface CloseBlockResult {
+  close_blocked: boolean;
+  blocking_rows: FmeaBlockingFlag[];
+  reason: string;
+}
+
+export interface ClosureBlock {
+  objectives_input?: ObjectivesInput | null;
+  /** Server-computed via proof.py's compute_gap, reused verbatim -- same
+   * numbers/shape as T-20's own gap panel. */
+  objectives_verdict?: Computed<GapResult> | null;
+  lessons: LessonEntry[];
+  open_items: OpenItem[];
+  fmea_check?: FmeaCloseCheckInput | null;
+  /** Server-computed -- true whenever the linked FMEA carries an
+   * unaddressed severity-9/10 safety/regulatory row (R-WRAP-03/R-ANA-03). */
+  close_check?: Computed<CloseBlockResult> | null;
+  project_status: "open" | "closed";
+}
+
+export interface A3Artifact extends ArtifactBase {
+  tool_id: "T-25";
+  panels: A3Panel[];
+  realized_benefits?: RealizedBenefits | null;
+  tollgates: TollgateChecklist[];
+  closure: ClosureBlock;
+}

@@ -36,6 +36,10 @@ import { SolutionMatrixForm } from "./solutionmatrix/SolutionMatrixForm";
 import { PilotPlanForm } from "./pilotplan/PilotPlanForm";
 import { ProofForm } from "./proof/ProofForm";
 import { ControlChartForm } from "./controlchart/ControlChartForm";
+import { ControlPlanForm } from "./controlplan/ControlPlanForm";
+import { FiveSForm } from "./fives/FiveSForm";
+import { StandardWorkForm } from "./standardwork/StandardWorkForm";
+import { A3Form } from "./a3/A3Form";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -241,6 +245,40 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
         <ControlChartForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-22..T-25 (M4): real engine-backed forms, helper content left an
+  // honest PLACEHOLDER this milestone (task brief), same as T-18..T-21 above.
+  if (toolId === "T-22") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <ControlPlanForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-23") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <FiveSForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-24") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <StandardWorkForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-25") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <A3Form projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

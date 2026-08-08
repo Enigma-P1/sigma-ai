@@ -10,7 +10,9 @@ import json
 from pathlib import Path
 from typing import Any
 
+from sigma_engine.artifacts.a3 import PANEL_ORDER
 from sigma_engine.artifacts.copq import CopqRow, compute_copq_total
+from sigma_engine.artifacts.five_s import FIVE_S_CATEGORIES
 
 TS = "2026-08-07T00:00:00"
 
@@ -722,6 +724,186 @@ def make_proof(**overrides: Any) -> dict[str, Any]:
             "cause_id": "c-2", "cause_text": "Injector pressure drifts low over a shift",
             "via_solution_id": "s-2", "via_solution_name": "Replace the injector", "rank": 2,
         },
+    }
+    base.update(overrides)
+    return base
+
+
+# T-22 Control Plan fixtures. FrozenLimitsRef carries the coffee-bar IMR
+# baseline's OWN frozen i_ucl/i_lcl/i_cl -- the exact numbers
+# compute_imr_chart(COFFEE_BAR_WAIT_SECONDS) produces (test_artifacts_
+# control_chart.py's stable, no-signal fixture) -- so a check-in's pass/
+# fail is tested against a REAL frozen band, not an invented one. 95.0 is
+# inside [81.28, 107.64] (pass); 150.0 is clearly beyond ucl (fail).
+COFFEE_BAR_FROZEN_LIMITS: dict[str, Any] = {
+    "control_chart_artifact_id": "cc-imr-001", "chart_type": "imr",
+    "center": 94.45833333333333, "ucl": 107.64057200123342, "lcl": 81.27609466543323,
+    "p_bar": None, "frozen_at": TS,
+}
+
+
+def make_monitored_item(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "item_id": "item-wait-time", "characteristic": "order-to-handoff wait time",
+        "how_measured": "POS timestamp minus order timestamp, per the T-11 operational definition",
+        "operational_definition_ref": "dcp-001", "where": "front counter register",
+        "frequency": "weekly", "frequency_reason": "matches the check-in cadence and the volume of orders per week",
+        "is_primary_ctq": True, "is_improve_change": True,
+        "owner_name": "Maria Ortiz", "owner_accepted": True, "per_shift_owners": [],
+    }
+    base.update(overrides)
+    return base
+
+
+def make_check_in(check_in_id: str = "chk-1", value: float = 95.0, **overrides: Any) -> dict[str, Any]:
+    base = {
+        "check_in_id": check_in_id, "label": "week 1: is the fix holding?",
+        "due_date": "2026-08-10", "completed_at": "2026-08-10",
+        "entered": {"kind": "manual", "dataset_id": None, "values": [value], "subgroup": None},
+        "note": "",
+    }
+    base.update(overrides)
+    return base
+
+
+def make_check_in_schedule(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "cadence": {"unit": "weeks", "interval": 1}, "start_date": "2026-08-10",
+        "control_chart_ref": "cc-imr-001", "frozen_limits": dict(COFFEE_BAR_FROZEN_LIMITS), "completed": [],
+    }
+    base.update(overrides)
+    return base
+
+
+def make_control_plan(**overrides: Any) -> dict[str, Any]:
+    items = overrides.pop("monitored_items") if "monitored_items" in overrides else [make_monitored_item()]
+    schedule = overrides.pop("check_in_schedule") if "check_in_schedule" in overrides else make_check_in_schedule()
+    base = {
+        "schema_version": 1, "artifact_id": "control-plan-001", "tool_id": "T-22",
+        "created_at": TS, "updated_at": TS,
+        "monitored_items": items,
+        "ocap_entries": [
+            {
+                "ocap_id": "ocap-1", "monitored_item_id": items[0]["item_id"] if items else "item-wait-time",
+                "trigger_signal": "a beyond-limits or 8-in-a-row signal fires on the T-21 wait-time chart",
+                "action_steps": [
+                    "Barista on shift checks the register timestamp clock against the wall clock",
+                    "Shift lead pulls the last hour's orders and looks for a common cause",
+                ],
+                "escalation_trigger": "the signal repeats on the next shift",
+                "escalation_contact": "Maria Ortiz (line-2 supervisor)", "acting_owner": "Shift lead",
+            }
+        ],
+        "training_rows": [
+            {
+                "row_id": "train-1", "who": "Sam Lee", "sop_ref": "sop-001", "by_whom": "Maria Ortiz",
+                "by_when": "2026-08-14", "verified_how": "observed demonstration on shift",
+                "verified_at": "2026-08-13", "done": True,
+            }
+        ],
+        "check_in_schedule": schedule,
+        "as_of": "2026-08-10",
+    }
+    base.update(overrides)
+    return base
+
+
+# T-23 5S Audit fixtures.
+def make_five_s_round(round_id: str = "round-1", date: str = "2026-08-01", scores: dict[str, int] | None = None, **overrides: Any) -> dict[str, Any]:
+    scores = scores or {"sort": 4, "set_in_order": 3, "shine": 4, "standardize": 3, "sustain": 2}
+    base = {
+        "round_id": round_id, "date": date, "area": "front counter",
+        "scores": [{"category": c, "score": scores[c], "note": f"{c} looked {scores[c]}/5"} for c in FIVE_S_CATEGORIES],
+        "photos": [], "improvement_action": "Label the syrup shelf and retrain on the new layout",
+        "improvement_action_owner": "Maria Ortiz",
+    }
+    base.update(overrides)
+    return base
+
+
+def make_five_s(**overrides: Any) -> dict[str, Any]:
+    rounds = overrides.pop("rounds") if "rounds" in overrides else [make_five_s_round()]
+    base = {
+        "schema_version": 1, "artifact_id": "five-s-001", "tool_id": "T-23",
+        "created_at": TS, "updated_at": TS, "rounds": rounds,
+        "schedule": {"cadence_note": "monthly, first Monday", "next_round_due": "2026-09-01"},
+    }
+    base.update(overrides)
+    return base
+
+
+# T-24 Standard Work / SOP fixtures.
+def make_standard_work_steps() -> list[dict[str, Any]]:
+    return [
+        {
+            "step_id": "sw-1", "order": 1,
+            "action": "Check the fixture alignment against the taped guide before the first drink of the shift",
+            "standard": "Guide marks line up within 1mm, confirmed visually before the first order",
+            "changed_from_prior": True, "source_step_ref": "step-1", "note": "new step -- the old method had no pre-shift check",
+        },
+        {
+            "step_id": "sw-2", "order": 2,
+            "action": "Steam the milk to 150F using the thermometer clipped to the pitcher",
+            "standard": "Thermometer reads 150F +/-5F before pouring", "changed_from_prior": False,
+            "source_step_ref": "step-3", "note": "",
+        },
+    ]
+
+
+def make_standard_work(**overrides: Any) -> dict[str, Any]:
+    steps = overrides.pop("steps") if "steps" in overrides else make_standard_work_steps()
+    base = {
+        "schema_version": 1, "artifact_id": "sop-001", "tool_id": "T-24",
+        "created_at": TS, "updated_at": TS,
+        "title": "Coffee Bar Fixture Alignment SOP", "version": 1, "owner": "Maria Ortiz",
+        "effective_date": "2026-08-14", "supersedes": None,
+        "seeded_from_process_map_id": "process-map-001", "linked_control_plan_id": "control-plan-001",
+        "steps": steps, "change_log": [],
+    }
+    base.update(overrides)
+    return base
+
+
+# T-25 A3 fixtures.
+def make_a3_panels(narrative_overrides: dict[str, str] | None = None) -> list[dict[str, Any]]:
+    narrative_overrides = narrative_overrides or {}
+    return [
+        {
+            "panel": kind,
+            "seeded_from": {"artifact_ref": "charter-001", "tool_id": "T-03", "fields": ["problem_statement"]} if kind == "background" else None,
+            "narrative": narrative_overrides.get(kind, f"{kind} narrative text describing what happened, in the student's own words."),
+            "seeded_at": TS if kind == "background" else None,
+        }
+        for kind in PANEL_ORDER
+    ]
+
+
+def make_a3_closure(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "objectives_input": {"charter_baseline_value": 6.2, "charter_goal_value": 3.0, "achieved_value": 4.03, "direction": "lower_is_better"},
+        "lessons": [
+            {"lesson_id": "l-1", "text": "The fixture checklist worked once posted at eye level.", "went_wrong": False},
+            {"lesson_id": "l-2", "text": "The first posting failed -- nobody looked at a checklist taped behind the register.", "went_wrong": True},
+        ],
+        "open_items": [{"item_id": "oi-1", "description": "Injector-pressure cause still unverified", "owner": "Sam Lee"}],
+        "fmea_check": None,
+        "project_status": "open",
+    }
+    base.update(overrides)
+    return base
+
+
+def make_a3(**overrides: Any) -> dict[str, Any]:
+    panels = overrides.pop("panels") if "panels" in overrides else make_a3_panels()
+    realized_benefits = overrides.pop("realized_benefits") if "realized_benefits" in overrides else {
+        "copq_rerun_artifact_id": "copq-002", "window": "6 weeks post-rollout",
+        "before_amount": 40000.0, "after_amount": 15000.0, "fix_cost": 2000.0, "annualized_projection": 100000.0,
+    }
+    closure = overrides.pop("closure") if "closure" in overrides else make_a3_closure()
+    base = {
+        "schema_version": 1, "artifact_id": "a3-001", "tool_id": "T-25",
+        "created_at": TS, "updated_at": TS,
+        "panels": panels, "realized_benefits": realized_benefits, "tollgates": [], "closure": closure,
     }
     base.update(overrides)
     return base

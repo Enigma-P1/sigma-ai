@@ -59,14 +59,14 @@ export const TOOLS: ToolDef[] = [
     id: "T-22",
     name: "Control Plan + Response Plan (OCAP) + Scheduled Check-ins",
     phase: "Control",
-    live: false,
-    hasForm: false,
+    live: true,
+    hasForm: true,
   },
-  { id: "T-23", name: "5S Audit (scored)", phase: "Control", live: false, hasForm: false },
-  { id: "T-24", name: "Standard Work / SOP", phase: "Control", live: false, hasForm: false },
+  { id: "T-23", name: "5S Audit (scored)", phase: "Control", live: true, hasForm: true },
+  { id: "T-24", name: "Standard Work / SOP", phase: "Control", live: true, hasForm: true },
 
   // Wrap
-  { id: "T-25", name: "A3 Final Report + Tollgate Checklists", phase: "Wrap", live: false, hasForm: false },
+  { id: "T-25", name: "A3 Final Report + Tollgate Checklists", phase: "Wrap", live: true, hasForm: true },
 ];
 
 export function toolsForPhase(phase: Phase): ToolDef[] {
