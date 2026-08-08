@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-voc-ctq",
+  "tool_id": "T-05",
+  "created_at": "2026-06-25T14:10:00Z",
+  "updated_at": "2026-06-25T14:10:00Z",
+  "notes": "Statements from the Q2 complaint log plus three short interviews at pickup (June 24-25). The tree lands on a binary CTQ: an order either survives its first presentation or it does not -- there is no partial credit in the customer's test, which is what makes this the attribute thread (pass/fail units, proportions math) rather than a measured quantity.",
+  "customers": [
+    {
+      "role": "internal -- faculty ordering course packets and exam sets",
+      "is_internal": true
+    },
+    {
+      "role": "internal -- department admin staff ordering programs, posters, signage",
+      "is_internal": true
+    },
+    {
+      "role": "external -- student organizations at the retail counter",
+      "is_internal": false
+    }
+  ],
+  "statements": [
+    {
+      "statement_id": "S1",
+      "customer_role": "faculty",
+      "text": "The course packets came back with the chapter dividers trimmed crooked -- I sent the whole box back.",
+      "source": "complaint_log",
+      "source_detail": "Q2 log #23, June -- the 90-packet order returned in one box"
+    },
+    {
+      "statement_id": "S2",
+      "customer_role": "student organization",
+      "text": "The flyers were on flimsy paper, not the cardstock I picked on the form.",
+      "source": "complaint_log",
+      "source_detail": "Q2 log #31"
+    },
+    {
+      "statement_id": "S3",
+      "customer_role": "department admin",
+      "text": "I ordered 250 programs and the box had 210, the afternoon of the event.",
+      "source": "interview",
+      "source_detail": "pickup-counter interview, June 24"
+    },
+    {
+      "statement_id": "S4",
+      "customer_role": "faculty",
+      "text": "There were smudge streaks across the first twenty pages of the exam copies.",
+      "source": "complaint_log",
+      "source_detail": "Q2 log #27"
+    },
+    {
+      "statement_id": "S5",
+      "customer_role": "department admin",
+      "text": "I don't have time to proof your work at the counter -- it needs to be right the first time I see it.",
+      "source": "interview",
+      "source_detail": "pickup-counter interview, June 25"
+    }
+  ],
+  "needs": [
+    {
+      "need_id": "N1",
+      "statement_ids": [
+        "S5",
+        "S1"
+      ],
+      "text": "The order is right the first time it is presented -- the customer never has to inspect, return, or wait for a redo."
+    },
+    {
+      "need_id": "N2",
+      "statement_ids": [
+        "S2",
+        "S3"
+      ],
+      "text": "What was ordered is what is delivered -- the specified stock and the exact quantity."
+    },
+    {
+      "need_id": "N3",
+      "statement_ids": [
+        "S4",
+        "S1"
+      ],
+      "text": "Print and finish quality is clean enough to hand out as-is -- straight trim, no visible smudge or banding."
+    }
+  ],
+  "ctqs": [
+    {
+      "ctq_id": "C1",
+      "need_id": "N1",
+      "measure": "First-presentation acceptance, binary per order: the order passes all four named checks at the QC desk -- paper stock matches the ticket, trim within 2 mm of spec, no smudge or banding visible at arm's length, quantity exact. Tracked as the proportion of orders REJECTED (defect rate), daily, by shift.",
+      "direction": "lower_is_better",
+      "target": "0.043 (half the Q2 2026 rate of 0.086) by 2026-09-30",
+      "critical_vs_easy_check": "The easy number is turnaround time -- the order system already stamps it. The statements point somewhere else: S5 is a right-first-time demand, S1-S4 are four concrete ways an order fails it. Pass/fail at first presentation is the customer's own test, and it is measurable at the QC desk in under a minute with the four named checks."
+    },
+    {
+      "ctq_id": "C2",
+      "need_id": "N1",
+      "measure": "Turnaround: business days from order confirmation to ready-for-pickup",
+      "direction": "lower_is_better",
+      "target": "hold at or under the Q2 median (1.9 days) while the defect work runs",
+      "critical_vs_easy_check": "Turnaround IS the easy-to-measure number -- kept, but demoted: it rides as the charter's first consequential metric so the defect fix cannot quietly buy quality with speed, not as a second primary."
+    }
+  ],
+  "primary_ctq_id": "C1",
+  "charter_metric_link": "C1 is the charter's primary metric verbatim: first-presentation defect rate, proportion of orders (0-1), baseline 0.086, target 0.043 by 2026-09-30. C2 is the charter's consequential metric 'median turnaround (business days)' -- a guardrail, not a second goal."
+}

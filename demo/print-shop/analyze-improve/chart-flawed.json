@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-pchart-defects-draft",
+  "tool_id": "T-21",
+  "created_at": "2026-09-06T17:20:00Z",
+  "updated_at": "2026-09-06T17:20:00Z",
+  "notes": "DRAFT, refused by the engine -- kept as the record of the refusal (teaching-note.md). Proposal from the 2026-09-06 wrap-up: recalculate the monitoring chart over daily TOTAL FAILED-CHECK MARKS ('the chart should show how many things went wrong, not just how many orders') -- i.e., defect counts through the p route. The selector answers the printed defectives-or-defects question honestly and the engine refuses by name (EXIT-11) before touching the data: counts are not pass/fail units -- the baseline window alone logged 139 marks on 135 rejected orders, and a p-chart's binomial math has no honest reading for marks. The corrected chart (control-chart.json) stays on defective orders; defect-type trending stays with the check sheet and Pareto re-runs, and T-10's DPMO remains the descriptive summary for counts -- exactly where the refusal routes it.",
+  "chart_type": "p",
+  "metric_ref": "daily total failed-check marks across the four checks (defect counts)",
+  "selector": {
+    "data_shape": "attribute",
+    "defectives_or_defects": "defects"
+  },
+  "source": {
+    "kind": "manual",
+    "dataset_id": null,
+    "dataset_sha256": null,
+    "column": null,
+    "check_sheet_artifact_id": "print-check-sheet"
+  },
+  "p_subgroups": [
+    {
+      "label": "2026-08-10",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-11",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-12",
+      "n": 76,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-13",
+      "n": 74,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-14",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-15",
+      "n": 58,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-17",
+      "n": 85,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-08-18",
+      "n": 82,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-19",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-20",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-21",
+      "n": 87,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-22",
+      "n": 60,
+      "defective_count": 0
+    },
+    {
+      "label": "2026-08-24",
+      "n": 79,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-25",
+      "n": 71,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-26",
+      "n": 73,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-27",
+      "n": 73,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-28",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-29",
+      "n": 58,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-31",
+      "n": 90,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-09-01",
+      "n": 91,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-02",
+      "n": 85,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-03",
+      "n": 89,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-04",
+      "n": 81,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-05",
+      "n": 67,
+      "defective_count": 3
+    }
+  ],
+  "freeze_requested": true,
+  "action_at": "2026-09-06T17:20:00Z"
+}

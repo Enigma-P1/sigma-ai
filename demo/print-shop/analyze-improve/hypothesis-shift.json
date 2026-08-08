@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-hyp-shift",
+  "tool_id": "T-17",
+  "created_at": "2026-07-27T15:00:00Z",
+  "updated_at": "2026-07-27T15:00:00Z",
+  "notes": "Stratification screen, declared at the 2026-07-27 huddle BEFORE the shift split was tabulated: if evening's defect mix differed from day's, the causes would be people-shaped (training, handover) and the fix would have to split by shift. Declared as its own single question with its own single test -- the project's pre-declared primary comparison is the before/after proportion test (print-hyp-beforeafter), and this screen is not it, hence declared_primary false. Input is the check sheet's own table: failed-check marks by type and shift, both from the same to-dataset export the Pareto ran on. Cochran's rule is checked by the engine before it will compute (one light cell is within the rule; the route echo shows the check). Verdict: no association shown -- the defect mix is the same process on both shifts, which routes the fix at the process, not at a shift.",
+  "question": {
+    "question_text": "Baseline window, failed-check marks by defect type and shift: is the defect-type mix associated with shift (day vs evening)?",
+    "comparison_type": "association_categorical",
+    "declared_data_type": "nominal_categorical",
+    "groups": [],
+    "paired_before": null,
+    "paired_after": null,
+    "paired_before_label": "before",
+    "paired_after_label": "after",
+    "sample": null,
+    "sample_label": "sample",
+    "target": null,
+    "contingency_table": [
+      [
+        38,
+        29
+      ],
+      [
+        29,
+        21
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        5,
+        4
+      ]
+    ],
+    "row_labels": [
+      "Trim misalignment",
+      "Wrong paper stock",
+      "Ink smudge / banding",
+      "Wrong quantity"
+    ],
+    "col_labels": [
+      "Day shift",
+      "Evening shift"
+    ],
+    "time_ordered": false,
+    "user_shape_concern": false,
+    "measurements_per_unit": 1,
+    "question_intent": null,
+    "comparisons_declared": 1,
+    "tests_run_including_this_one": 1,
+    "declared_primary": false
+  },
+  "declared_primary": false,
+  "routing": {
+    "question": "Baseline window, failed-check marks by defect type and shift: is the defect-type mix associated with shift (day vs evening)?",
+    "comparison_type": "association_categorical",
+    "decision_path": [
+      {
+        "question": "Is exactly one primary comparison declared, and does the test count stay within it?",
+        "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+        "branch": "one pre-declared primary comparison -- continue"
+      },
+      {
+        "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?",
+        "answer": "declared_data_type='nominal_categorical'",
+        "branch": "not count/rate data -- continue"
+      },
+      {
+        "question": "How many related measurements per unit are there?",
+        "answer": "measurements_per_unit=1",
+        "branch": "at most paired (<=2) -- continue"
+      },
+      {
+        "question": "What kind of comparison is this?",
+        "answer": "association_categorical",
+        "branch": "the association_categorical path"
+      },
+      {
+        "question": "Does the table clear Cochran's rule?",
+        "answer": "88% of cells have expected>=5 (need >=80%); smallest expected cell=3.95 (need >=1)",
+        "branch": "cleared -- compute"
+      }
+    ],
+    "route": "chi_square_independence",
+    "exit": null,
+    "switch_reason": null,
+    "recommend_nonparametric": false
+  },
+  "result": {
+    "value": {
+      "test_name": "chi_square_independence",
+      "statistic_name": "chi-square",
+      "statistic": 0.6069310859397625,
+      "df": 3.0,
+      "df_between": null,
+      "df_within": null,
+      "p_value": 0.8948438426472353,
+      "alpha": 0.05,
+      "two_sided": true,
+      "significant": false,
+      "effect_size_name": "Cramer's V",
+      "effect_size_value": 0.06607882179801725,
+      "effect_size_ci": null,
+      "effect_size_ci_method": "not computed -- no simple closed-form CI for Cramer's V (a bootstrap or noncentral-chi-square CI is out of scope for this v1 route); the point estimate is reported plainly.",
+      "groups": [],
+      "contingency": [
+        {
+          "row": "Trim misalignment",
+          "col": "Day shift",
+          "observed": 38,
+          "expected": 37.597122302158276
+        },
+        {
+          "row": "Trim misalignment",
+          "col": "Evening shift",
+          "observed": 29,
+          "expected": 29.402877697841728
+        },
+        {
+          "row": "Wrong paper stock",
+          "col": "Day shift",
+          "observed": 29,
+          "expected": 28.057553956834532
+        },
+        {
+          "row": "Wrong paper stock",
+          "col": "Evening shift",
+          "observed": 21,
+          "expected": 21.942446043165468
+        },
+        {
+          "row": "Ink smudge / banding",
+          "col": "Day shift",
+          "observed": 6,
+          "expected": 7.294964028776978
+        },
+        {
+          "row": "Ink smudge / banding",
+          "col": "Evening shift",
+          "observed": 7,
+          "expected": 5.705035971223022
+        },
+        {
+          "row": "Wrong quantity",
+          "col": "Day shift",
+          "observed": 5,
+          "expected": 5.0503597122302155
+        },
+        {
+          "row": "Wrong quantity",
+          "col": "Evening shift",
+          "observed": 4,
+          "expected": 3.949640287769784
+        }
+      ],
+      "cramers_v": 0.06607882179801725,
+      "hodges_lehmann_shift": null,
+      "hodges_lehmann_ci": null,
+      "hodges_lehmann_ci_method": null,
+      "rank_biserial_r": null,
+      "risk_difference": null,
+      "risk_difference_ci": null,
+      "risk_difference_ci_method": null,
+      "equal_shape_caveat": null,
+      "assumptions_checked": [
+        "Cochran's rule cleared before this test ran (matrix \u00a74a EXIT-07): >= 80% of cells expected >= 5, no cell expected < 1",
+        "counts are independent observations (one per unit, not repeated measures)"
+      ],
+      "warnings": [],
+      "plain_language": {
+        "comparison_summary": "Tested whether the row categories (Trim misalignment, Wrong paper stock, Ink smudge / banding, Wrong quantity) and column categories (Day shift, Evening shift) are associated -- a 4x2 contingency table, n=139, chi-square test of independence.",
+        "p_value_meaning": "p = 0.8948, at or above the alpha=0.05 threshold: no difference shown at this sample size. That is not proof there is no difference, and it is not the same claim as 'no difference exists' -- a smaller true difference, or the same difference measured with more data, could still turn up significant.",
+        "effect_size_in_words": "Cramer's V = 0.066 -- a negligible association between the row and column categories (0 = no association, 1 = perfect association).",
+        "practical_significance_prompt": "Statistically detectable \u2260 big enough to matter -- compare the effect size above against the goal."
+      },
+      "exit13": null
+    },
+    "provenance": {
+      "input_hash": "565425ed2bdfa3dd23984f101622c90ee3765b844b0cbfb05bca9363af754e3c",
+      "method": "Pearson chi-square test of independence (Pearson 1900; no Yates continuity correction -- standard practice for r x c tables, applied uniformly here) + Cramer's V = sqrt(chi2/(n*(min(r,c)-1)))",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "Cochran's rule cleared (matrix \u00a74a EXIT-07)"
+      ],
+      "warnings": []
+    }
+  },
+  "refused": false
+}

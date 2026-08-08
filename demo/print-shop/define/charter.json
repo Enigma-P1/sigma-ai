@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-charter",
+  "tool_id": "T-03",
+  "created_at": "2026-06-24T15:30:00Z",
+  "updated_at": "2026-06-24T15:30:00Z",
+  "notes": "Attribute-metric charter: the primary metric is a proportion (defective orders / orders presented), stated as a 0-1 proportion in the metric fields so every downstream tool -- p-chart, proportion tests, gap arithmetic -- carries the same unit. The 8.6% magnitude is the Q2 2026 reject-log rate; Measure's job is to put a real baseline window and measurement check under it. Business impact is the COPQ worksheet's engine total x 4, one number, one source.",
+  "problem_statement": {
+    "what": "Finished print orders are failing the customer's first-presentation check -- wrong paper stock, crooked trim, ink smudge or banding, or wrong quantity -- and going back for reprint",
+    "where": "Campus print shop, main production room, both shifts (day and evening)",
+    "when": "Q2 2026 (April-June), still running at the same level in late June",
+    "magnitude": {
+      "number": 8.6,
+      "unit": "% of orders rejected at first presentation",
+      "period": "Q2 2026"
+    }
+  },
+  "goal": {
+    "statement": "Cut the first-presentation defect rate from 0.086 (Q2 2026 reject log) to 0.043 -- half -- by 2026-09-30, measured at the QC desk as the proportion of orders rejected at any of the four named checks, while holding turnaround and press overtime.",
+    "metric_name": "first-presentation defect rate",
+    "baseline_value": 0.086,
+    "target_value": 0.043,
+    "unit": "proportion of orders (0-1)",
+    "target_date": "2026-09-30",
+    "consequential_metrics": [
+      "median turnaround (business days)",
+      "press overtime hours per week"
+    ]
+  },
+  "scope": {
+    "in_scope": "Produced print orders handed off at the QC desk: course packets, flyers and posters, programs and booklets, and counter jobs, both shifts, Monday-Saturday.",
+    "out_scope": "Self-serve copier output, mail-room work, jobs brokered to the off-campus vendor, pricing and billing disputes, and the online ordering portal's usability."
+  },
+  "team": [
+    {
+      "name": "Tessa Nguyen",
+      "role": "Day-shift lead, QC desk -- process owner"
+    },
+    {
+      "name": "Omar Haddad",
+      "role": "Evening-shift lead, press and finishing"
+    },
+    {
+      "name": "Jordan Pike",
+      "role": "Student staff, intake desk and prepress"
+    },
+    {
+      "name": "Elaine Foster",
+      "role": "Campus print services manager -- sponsor"
+    }
+  ],
+  "process_owner": {
+    "name": "Tessa Nguyen",
+    "role": "Day-shift lead, QC desk"
+  },
+  "timeline": [
+    {
+      "name": "Define complete (charter, VoC, COPQ)",
+      "date": "2026-06-27"
+    },
+    {
+      "name": "Measurement check passed, collection plan live",
+      "date": "2026-06-29"
+    },
+    {
+      "name": "Baseline window complete (21 service days)",
+      "date": "2026-07-22"
+    },
+    {
+      "name": "Analyze complete -- vital few named",
+      "date": "2026-08-01"
+    },
+    {
+      "name": "Improvement in effect",
+      "date": "2026-08-03"
+    },
+    {
+      "name": "Post-change proof and recalculated limits",
+      "date": "2026-09-07"
+    },
+    {
+      "name": "Control handoff",
+      "date": "2026-09-14"
+    }
+  ],
+  "business_impact": {
+    "amount": 23720.6,
+    "unit": "dollars per year",
+    "basis": "COPQ worksheet print-copq: Q2 2026 engine total $5,930.15 x 4 quarters"
+  },
+  "risks": [
+    {
+      "risk": "Fall term starts 2026-08-31: order volume and rush share surge in the final weeks of the project window, which could raise the defect rate and mask a real improvement",
+      "likelihood": "high",
+      "impact": "medium",
+      "mitigation": "Record daily order counts and order type all window; state the surge on any before/after claim; compare like-for-like weeks where possible",
+      "owner": "Tessa Nguyen"
+    },
+    {
+      "risk": "Student staff turnover at term start -- new hands at intake and finishing raise error rates",
+      "likelihood": "medium",
+      "impact": "medium",
+      "mitigation": "Keep the four checks and any changed method written at the workstation, step by step, so the standard does not live in one person's head",
+      "owner": "Omar Haddad"
+    },
+    {
+      "risk": "Defect judgments drift between raters -- 'smudge' and 'acceptable ink variation' called differently by different people makes the rate move without the process moving",
+      "likelihood": "medium",
+      "impact": "high",
+      "mitigation": "Two-rater agreement check (T-12) before the baseline window opens; re-run after any definition change",
+      "owner": "Tessa Nguyen"
+    }
+  ]
+}

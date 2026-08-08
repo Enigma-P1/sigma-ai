@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-hyp-beforeafter",
+  "tool_id": "T-17",
+  "created_at": "2026-08-24T16:00:00Z",
+  "updated_at": "2026-08-24T16:00:00Z",
+  "notes": "The project's one pre-declared primary comparison, question written into the huddle notes 2026-08-01 -- before any post-change data existed. 'Successes' is the engine's word for the counted event; here the counted event is a REJECTED order, so both proportions read as defect rates. Groups are pooled window counts (defective orders / orders presented), not daily values, so the floors are the proportion floors: n*phat and n*(1-phat) per sample, both cleared by an order of magnitude (135 and 30 on the small side -- the engine prints the check in the route echo). Routed two_proportion_z; risk difference with Newcombe CI is the effect size. The first two post weeks deliberately EXCLUDE the 2026-08-03 -> 08-08 bedding-in days (the ramp is visible on the monitoring chart) and end before the 08-31 term-start surge, so this comparison is the clean like-for-like one; the proof artifact then covers the full 24-day window with the surge declared as a confounder.",
+  "question": {
+    "question_text": "Two full weeks after the 2026-08-03 change (pre-flight checklist + labeled trays): is the first-presentation defect rate lower than the baseline window's?",
+    "comparison_type": "proportions",
+    "declared_data_type": "nominal_categorical",
+    "groups": [
+      {
+        "label": "baseline (2026-06-29 to 2026-07-22)",
+        "values": null,
+        "successes": 135,
+        "n": 1566
+      },
+      {
+        "label": "post-change weeks 1-2 (2026-08-10 to 2026-08-22)",
+        "values": null,
+        "successes": 30,
+        "n": 884
+      }
+    ],
+    "paired_before": null,
+    "paired_after": null,
+    "paired_before_label": "before",
+    "paired_after_label": "after",
+    "sample": null,
+    "sample_label": "sample",
+    "target": null,
+    "contingency_table": null,
+    "row_labels": null,
+    "col_labels": null,
+    "time_ordered": false,
+    "user_shape_concern": false,
+    "measurements_per_unit": 1,
+    "question_intent": null,
+    "comparisons_declared": 1,
+    "tests_run_including_this_one": 1,
+    "declared_primary": true
+  },
+  "declared_primary": true,
+  "routing": {
+    "question": "Two full weeks after the 2026-08-03 change (pre-flight checklist + labeled trays): is the first-presentation defect rate lower than the baseline window's?",
+    "comparison_type": "proportions",
+    "decision_path": [
+      {
+        "question": "Is exactly one primary comparison declared, and does the test count stay within it?",
+        "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+        "branch": "one pre-declared primary comparison -- continue"
+      },
+      {
+        "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?",
+        "answer": "declared_data_type='nominal_categorical'",
+        "branch": "not count/rate data -- continue"
+      },
+      {
+        "question": "How many related measurements per unit are there?",
+        "answer": "measurements_per_unit=1",
+        "branch": "at most paired (<=2) -- continue"
+      },
+      {
+        "question": "What kind of comparison is this?",
+        "answer": "proportions",
+        "branch": "the proportions path"
+      },
+      {
+        "question": "How many samples for the proportions comparison?",
+        "answer": "2",
+        "branch": "two-proportion"
+      },
+      {
+        "question": "Which test fits this proportions comparison?",
+        "answer": "two_proportion_z",
+        "branch": "route=two_proportion_z"
+      },
+      {
+        "question": "Does each sample clear the EXIT-06 floor (n*phat>=5 and n*(1-phat)>=5)?",
+        "answer": "baseline (2026-06-29 to 2026-07-22): n*phat=135.00, n*(1-phat)=1431.00; post-change weeks 1-2 (2026-08-10 to 2026-08-22): n*phat=30.00, n*(1-phat)=854.00 (each needs >=5)",
+        "branch": "floor cleared -- compute"
+      }
+    ],
+    "route": "two_proportion_z",
+    "exit": null,
+    "switch_reason": null,
+    "recommend_nonparametric": false
+  },
+  "result": {
+    "value": {
+      "test_name": "two_proportion_z",
+      "statistic_name": "z",
+      "statistic": 4.957634606172736,
+      "df": null,
+      "df_between": null,
+      "df_within": null,
+      "p_value": 7.135660278212441e-07,
+      "alpha": 0.05,
+      "two_sided": true,
+      "significant": true,
+      "effect_size_name": "risk difference (p1 - p2)",
+      "effect_size_value": 0.05227024496801374,
+      "effect_size_ci": [
+        0.033156695337502914,
+        0.07027787730619314
+      ],
+      "effect_size_ci_method": "Newcombe (1998) method 10, built from per-sample Wilson score intervals",
+      "groups": [
+        {
+          "label": "baseline (2026-06-29 to 2026-07-22)",
+          "n": 1566,
+          "mean": null,
+          "sd": null,
+          "median": null,
+          "successes": 135,
+          "proportion": 0.08620689655172414
+        },
+        {
+          "label": "post-change weeks 1-2 (2026-08-10 to 2026-08-22)",
+          "n": 884,
+          "mean": null,
+          "sd": null,
+          "median": null,
+          "successes": 30,
+          "proportion": 0.033936651583710405
+        }
+      ],
+      "contingency": null,
+      "cramers_v": null,
+      "hodges_lehmann_shift": null,
+      "hodges_lehmann_ci": null,
+      "hodges_lehmann_ci_method": null,
+      "rank_biserial_r": null,
+      "risk_difference": 0.05227024496801374,
+      "risk_difference_ci": [
+        0.033156695337502914,
+        0.07027787730619314
+      ],
+      "risk_difference_ci_method": "Newcombe (1998) method 10",
+      "equal_shape_caveat": null,
+      "assumptions_checked": [
+        "n*phat >= 5 and n*(1-phat) >= 5 per sample cleared (matrix \u00a74a EXIT-06)"
+      ],
+      "warnings": [],
+      "plain_language": {
+        "comparison_summary": "Compared the proportion for baseline (2026-06-29 to 2026-07-22) (135/1566 = 8.6%) against post-change weeks 1-2 (2026-08-10 to 2026-08-22) (30/884 = 3.4%) using a two-proportion z-test.",
+        "p_value_meaning": "p = 0.0000, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 7.1e-05% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+        "effect_size_in_words": "Risk difference = +5.2% (baseline (2026-06-29 to 2026-07-22) minus post-change weeks 1-2 (2026-08-10 to 2026-08-22)), 95% CI [+3.3%, +7.0%] (Newcombe's method).",
+        "practical_significance_prompt": "Statistically detectable \u2260 big enough to matter -- compare the effect size above against the goal."
+      },
+      "exit13": null
+    },
+    "provenance": {
+      "input_hash": "6d9c57b2a99f5ac89d5addcd8a08c8f3920c384d4b1c759f97eba438c32fe07e",
+      "method": "two-proportion pooled z-test (NIST/SEMATECH \u00a77.3.3, Case 1) + Newcombe (1998) method-10 risk-difference CI",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "n*phat>=5 and n*(1-phat)>=5 per sample"
+      ],
+      "warnings": []
+    }
+  },
+  "refused": false
+}

@@ -1,0 +1,516 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-pchart",
+  "tool_id": "T-21",
+  "created_at": "2026-07-23T17:30:00Z",
+  "updated_at": "2026-09-07T16:00:00Z",
+  "notes": "Recalculated (not re-frozen on a whim): the one legal path to new limits is the logged recalculate_reason below, and the log now carries both entries -- the 2026-07-23 initial freeze and this 2026-09-07 recalculation. New center 0.0379 on 24 variable-n subgroups (58-91 orders/day; the term-start surge week is IN the window and inside the new limits -- load went up, the rate held). Signals against the new limits: none. Armed, cadence unchanged. The customer's halve-it goal (0.043) stays a goal line on the wall chart, never a control limit: the chart says what the process is doing (0.0379 and stable); the goal says what the charter promised (met, remaining -0.006 on the gap block); the two sentences stay different on purpose.",
+  "chart_type": "p",
+  "metric_ref": "first-presentation defect rate (daily proportion of orders rejected, both shifts)",
+  "selector": {
+    "data_shape": "attribute",
+    "defectives_or_defects": "defectives"
+  },
+  "source": {
+    "kind": "dataset",
+    "dataset_id": "3122dfa39994454090c24e7a857d18f6",
+    "dataset_sha256": "b6b0559d9dd3d9b4ade0e345919929e5741461cd21490fb63c85c93028154d9f",
+    "column": "reject_any",
+    "check_sheet_artifact_id": null
+  },
+  "imr_values": null,
+  "p_subgroups": [
+    {
+      "label": "2026-08-10",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-11",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-12",
+      "n": 76,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-13",
+      "n": 74,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-14",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-15",
+      "n": 58,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-17",
+      "n": 85,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-08-18",
+      "n": 82,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-19",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-20",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-21",
+      "n": 87,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-22",
+      "n": 60,
+      "defective_count": 0
+    },
+    {
+      "label": "2026-08-24",
+      "n": 79,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-25",
+      "n": 71,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-26",
+      "n": 73,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-27",
+      "n": 73,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-28",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-29",
+      "n": 58,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-31",
+      "n": 90,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-09-01",
+      "n": 91,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-02",
+      "n": 85,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-03",
+      "n": 89,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-04",
+      "n": 81,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-05",
+      "n": 67,
+      "defective_count": 3
+    }
+  ],
+  "freeze_requested": false,
+  "recalculate_reason": null,
+  "action_at": null,
+  "frozen_at": "2026-09-07T16:00:00Z",
+  "source_dataset_hash": "10c4596bdb13f1b47dd22bfa3954edb350576022112c40c140b6698863e9fa8d",
+  "frozen_window_values": null,
+  "frozen_window_subgroups": [
+    {
+      "label": "2026-08-10",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-11",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-12",
+      "n": 76,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-13",
+      "n": 74,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-14",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-15",
+      "n": 58,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-17",
+      "n": 85,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-08-18",
+      "n": 82,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-19",
+      "n": 69,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-20",
+      "n": 72,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-21",
+      "n": 87,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-22",
+      "n": 60,
+      "defective_count": 0
+    },
+    {
+      "label": "2026-08-24",
+      "n": 79,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-25",
+      "n": 71,
+      "defective_count": 1
+    },
+    {
+      "label": "2026-08-26",
+      "n": 73,
+      "defective_count": 4
+    },
+    {
+      "label": "2026-08-27",
+      "n": 73,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-28",
+      "n": 80,
+      "defective_count": 3
+    },
+    {
+      "label": "2026-08-29",
+      "n": 58,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-08-31",
+      "n": 90,
+      "defective_count": 6
+    },
+    {
+      "label": "2026-09-01",
+      "n": 91,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-02",
+      "n": 85,
+      "defective_count": 2
+    },
+    {
+      "label": "2026-09-03",
+      "n": 89,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-04",
+      "n": 81,
+      "defective_count": 5
+    },
+    {
+      "label": "2026-09-05",
+      "n": 67,
+      "defective_count": 3
+    }
+  ],
+  "imr_baseline": null,
+  "p_baseline": {
+    "value": {
+      "k": 24,
+      "total_defectives": 69,
+      "total_n": 1821,
+      "p_bar": 0.03789126853377265,
+      "points": [
+        {
+          "label": "2026-08-10",
+          "n": 80,
+          "defective_count": 3,
+          "p": 0.0375,
+          "ucl": 0.10193224006021692,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-11",
+          "n": 72,
+          "defective_count": 3,
+          "p": 0.041666666666666664,
+          "ucl": 0.10539637973162397,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-12",
+          "n": 76,
+          "defective_count": 3,
+          "p": 0.039473684210526314,
+          "ucl": 0.10359591896640621,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-13",
+          "n": 74,
+          "defective_count": 1,
+          "p": 0.013513513513513514,
+          "ucl": 0.1044779000469464,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-14",
+          "n": 69,
+          "defective_count": 2,
+          "p": 0.028985507246376812,
+          "ucl": 0.10684826865389241,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-15",
+          "n": 58,
+          "defective_count": 1,
+          "p": 0.017241379310344827,
+          "ucl": 0.1131035752491596,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-17",
+          "n": 85,
+          "defective_count": 6,
+          "p": 0.07058823529411765,
+          "ucl": 0.1000201367621733,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-18",
+          "n": 82,
+          "defective_count": 2,
+          "p": 0.024390243902439025,
+          "ucl": 0.10114643150863528,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-19",
+          "n": 69,
+          "defective_count": 2,
+          "p": 0.028985507246376812,
+          "ucl": 0.10684826865389241,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-20",
+          "n": 72,
+          "defective_count": 3,
+          "p": 0.041666666666666664,
+          "ucl": 0.10539637973162397,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-21",
+          "n": 87,
+          "defective_count": 4,
+          "p": 0.04597701149425287,
+          "ucl": 0.09930185981057355,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-22",
+          "n": 60,
+          "defective_count": 0,
+          "p": 0.0,
+          "ucl": 0.11183941283368817,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-24",
+          "n": 79,
+          "defective_count": 4,
+          "p": 0.05063291139240506,
+          "ucl": 0.10233628805282458,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-25",
+          "n": 71,
+          "defective_count": 1,
+          "p": 0.014084507042253521,
+          "ucl": 0.10587010562215096,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-26",
+          "n": 73,
+          "defective_count": 4,
+          "p": 0.0547945205479452,
+          "ucl": 0.10493242157949195,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-27",
+          "n": 73,
+          "defective_count": 2,
+          "p": 0.0273972602739726,
+          "ucl": 0.10493242157949195,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-28",
+          "n": 80,
+          "defective_count": 3,
+          "p": 0.0375,
+          "ucl": 0.10193224006021692,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-29",
+          "n": 58,
+          "defective_count": 2,
+          "p": 0.034482758620689655,
+          "ucl": 0.1131035752491596,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-08-31",
+          "n": 90,
+          "defective_count": 6,
+          "p": 0.06666666666666667,
+          "ucl": 0.09826967552060378,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-09-01",
+          "n": 91,
+          "defective_count": 2,
+          "p": 0.02197802197802198,
+          "ucl": 0.09793700958961937,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-09-02",
+          "n": 85,
+          "defective_count": 2,
+          "p": 0.023529411764705882,
+          "ucl": 0.1000201367621733,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-09-03",
+          "n": 89,
+          "defective_count": 5,
+          "p": 0.056179775280898875,
+          "ucl": 0.09860793254814737,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-09-04",
+          "n": 81,
+          "defective_count": 5,
+          "p": 0.06172839506172839,
+          "ucl": 0.10153569772410947,
+          "lcl": 0.0
+        },
+        {
+          "label": "2026-09-05",
+          "n": 67,
+          "defective_count": 3,
+          "p": 0.04477611940298507,
+          "ucl": 0.1078699094887916,
+          "lcl": 0.0
+        }
+      ],
+      "signals": [],
+      "meets_freeze_floor": true
+    },
+    "provenance": {
+      "input_hash": "10c4596bdb13f1b47dd22bfa3954edb350576022112c40c140b6698863e9fa8d",
+      "method": "p-chart: CL=pbar (pooled proportion, sum(defectives)/sum(n)); UCL_i/LCL_i = pbar +/- 3*sqrt(pbar(1-pbar)/n_i) per subgroup, LCL floored at 0 / UCL capped at 1 (NIST/SEMATECH \u00a76.3.3.2); WECO rule1 (beyond own per-point limits) + rule4 (8 consecutive same side of pbar) default per matrix \u00a74a",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "n_i > 0 for every subgroup",
+        "defective_count_i <= n_i for every subgroup"
+      ],
+      "warnings": []
+    }
+  },
+  "recalculation_log": [
+    {
+      "reason": "initial freeze",
+      "at": "2026-07-23T17:30:00Z",
+      "triggered_by": "initial_freeze"
+    },
+    {
+      "reason": "Deliberate, verified process change: prepress pre-flight checklist + labeled paper trays in effect 2026-08-03. The rule-4 run below the old center (2026-08-03 -> 09-05) was investigated and attributed to the deployed change (acknowledgment on v2, 2026-08-12); the before/after proportion test (print-hyp-beforeafter, z = 4.96, p = 7.1e-7) and the proof gap block (print-proof, goal met) carry the evidence. Limits recalculated from the 2026-08-10 -> 2026-09-05 post-change window: 24 subgroups, no default-rule signal (engine-checked at this freeze), the bedding-in week 08-03 -> 08-08 excluded so the new limits describe the settled process, not the transition.",
+      "at": "2026-09-07T16:00:00Z",
+      "triggered_by": "recalculate"
+    }
+  ],
+  "armed": {
+    "monitoring_started": true,
+    "cadence_note": "Daily close-out entry continues (shift leads); reviewed at the Monday huddle. The charter's 0.043 goal line is drawn on the wall chart as a reference line only -- it is a goal, not a control limit, and no rule reads against it."
+  },
+  "acknowledgments": {},
+  "signals": {
+    "value": [],
+    "provenance": {
+      "input_hash": "31319d993fd8cb0f2596b05c7788bcfbabae5e175ac33087ddcb4b1c6342ad7d",
+      "method": "signals = WECO rule1 (imr: beyond the frozen +/-3sigma band; p: beyond each point's own frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center), evaluated against the FROZEN baseline over the current data (matrix \u00a74a / VI.A.1)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "baseline limits are frozen -- not recomputed from the current data"
+      ],
+      "warnings": []
+    }
+  }
+}

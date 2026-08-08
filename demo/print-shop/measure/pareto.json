@@ -1,0 +1,44 @@
+{
+  "value": {
+    "total": 139,
+    "categories": [
+      {
+        "category": "Trim misalignment",
+        "count": 67,
+        "share": 0.48201438848920863,
+        "cumulative_share": 0.48201438848920863,
+        "vital_few": true
+      },
+      {
+        "category": "Wrong paper stock",
+        "count": 50,
+        "share": 0.3597122302158273,
+        "cumulative_share": 0.841726618705036,
+        "vital_few": true
+      },
+      {
+        "category": "Ink smudge / banding",
+        "count": 13,
+        "share": 0.09352517985611511,
+        "cumulative_share": 0.935251798561151,
+        "vital_few": false
+      },
+      {
+        "category": "Wrong quantity",
+        "count": 9,
+        "share": 0.06474820143884892,
+        "cumulative_share": 1.0,
+        "vital_few": false
+      }
+    ],
+    "vital_few_count": 2,
+    "flat": false
+  },
+  "provenance": {
+    "input_hash": "3f67f4d5e63dd801f08825b9b367155d591191e3a6a7c6690bbae5562dc3d280",
+    "method": "Pareto: tally per category, sorted count-descending, cumulative share; vital few = the categories up to and including the one that crosses 80% cumulative share (PLAN \u00a74.1 T-14 row); flat = it takes >= 80% of the distinct categories themselves to get there, i.e. no small subset dominates",
+    "engine_version": "0.1.0",
+    "assumptions_checked": [],
+    "warnings": []
+  }
+}
