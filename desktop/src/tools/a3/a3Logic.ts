@@ -12,7 +12,10 @@ export function emptyPanels(): A3Panel[] {
 }
 
 export function emptyRealizedBenefits(): RealizedBenefits {
-  return { copq_rerun_artifact_id: "", window: "", before_amount: 0, after_amount: 0, fix_cost: 0, annualized_projection: null };
+  return {
+    copq_rerun_artifact_id: "", window: "", before_amount: 0, after_amount: 0, fix_cost: 0,
+    annualized_projection: null, annualized_projection_basis: null,
+  };
 }
 
 export function emptyClosure(): ClosureBlock {
@@ -46,8 +49,18 @@ export function panelCompleteness(panels: A3Panel[]): Record<A3PanelKind, boolea
 }
 
 export function missingFields(state: A3State): string[] {
+  const missing: string[] = [];
   const empty = Object.entries(panelCompleteness(state.panels)).filter(([, ok]) => !ok).map(([k]) => k);
-  return empty.length > 0 ? [`narrative or a seed for: ${empty.join(", ")}`] : [];
+  if (empty.length > 0) missing.push(`narrative or a seed for: ${empty.join(", ")}`);
+  // Schema-hard on the engine (artifacts/a3.py's _projection_requires_a_basis,
+  // rubric R-WRAP-02's Needs-work line: "a projection presented without
+  // its basis") -- mirrored here so Save disables before the round trip,
+  // not just after a 422.
+  const rb = state.realizedBenefits;
+  if (rb.annualized_projection != null && !(rb.annualized_projection_basis ?? "").trim()) {
+    missing.push("basis for the annualized projection");
+  }
+  return missing;
 }
 
 export function canSave(state: A3State): boolean {

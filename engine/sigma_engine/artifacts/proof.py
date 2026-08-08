@@ -35,6 +35,18 @@ prevent is here prevented by never having two fields to diverge).
 `not_met` are the only two Literal values `ProofVerdict.threshold_verdict`
 can hold -- there is no free-text verdict field a caller (or a future UI
 change) could soften into ambiguous prose.
+
+**declared_package (M4 addition, rubric R-IMP-02's carve-out) is echoed
+the same "by ref" way as everything above**: when the linked T-19 pilot
+declared a package, the caller copies pilot_plan.py's DeclaredPackage in
+verbatim (never re-validated against the pilot -- the pilot's own
+schema already enforced the carve-out's conditions at save time). Its
+only effect here is compute_verdict's `package_attribution` sentence,
+which names the package and states plainly that proof credit is package-
+level only -- so a reader of the rendered verdict never has to go find
+the pilot plan to learn that this result isn't attributable to a single
+component. None (no package declared) leaves the verdict byte-identical
+to before this field existed.
 """
 
 from __future__ import annotations
@@ -49,7 +61,7 @@ from ..stats.descriptive import weighted_mean
 from ..stats.hypothesis_common import GroupInput, HypothesisQuestion
 from ..stats.hypothesis_runner import HypothesisRunResult, run_hypothesis
 from .base import ArtifactBase
-from .pilot_plan import ConfounderChecklist, Direction, SuccessThreshold
+from .pilot_plan import ConfounderChecklist, DeclaredPackage, Direction, SuccessThreshold
 
 # Engine convention (PLAN §6: every tool's source stated, not implied) --
 # NOT a NIST/published quantity. A guardrail worsening at or beyond this
@@ -265,8 +277,9 @@ CONFOUNDER_FIELDS: tuple[str, ...] = ("staffing", "season", "demand", "measureme
 
 class ProofVerdict(BaseModel):
     """The one rendered verdict object (rubric R-IMP-03): threshold AS
-    DECLARED, confounder echo, stability tempering, guardrail tradeoff --
-    composed into one plain-English headline the desktop renders verbatim."""
+    DECLARED, package attribution, confounder echo, stability tempering,
+    guardrail tradeoff -- composed into one plain-English headline the
+    desktop renders verbatim."""
 
     model_config = ConfigDict(frozen=True)
 
@@ -274,6 +287,7 @@ class ProofVerdict(BaseModel):
     threshold_verdict: Literal["met", "not_met"]
     weakened: bool
     confounder_notes: tuple[str, ...]
+    package_attribution: str | None
     stability_caveat: str | None
     guardrail_tradeoff: str | None
     headline: str
@@ -282,7 +296,7 @@ class ProofVerdict(BaseModel):
 def compute_verdict(
     *, threshold_met: bool, refused: bool, confounders: ConfounderChecklist, after_stable: bool | None,
     guardrail_checks: Sequence[GuardrailCheck], metric_ref: str, threshold_value: float,
-    threshold_direction: str, after_mean: float,
+    threshold_direction: str, after_mean: float, declared_package: DeclaredPackage | None = None,
 ) -> Computed[ProofVerdict]:
     proof_form: Literal["inferential", "descriptive"] = "descriptive" if refused else "inferential"
     threshold_verdict: Literal["met", "not_met"] = "met" if threshold_met else "not_met"
@@ -290,6 +304,22 @@ def compute_verdict(
     changed = [(name, getattr(confounders, name)) for name in CONFOUNDER_FIELDS if getattr(confounders, name).changed]
     weakened = len(changed) > 0
     confounder_notes = tuple(f"{name}: {ans.note}" if ans.note else name for name, ans in changed)
+
+    # Rubric R-IMP-02's carve-out, echoed honestly into the proof (module
+    # docstring: "the proof's verdict/gap language must say 'the package'
+    # not 'the change' when a package was declared"). None whenever the
+    # linked pilot didn't declare one -- every existing caller is
+    # byte-identical (declared_package defaults to None, this sentence
+    # never appears, headline text is unchanged from before this field
+    # existed).
+    package_attribution = None
+    if declared_package is not None:
+        names = ", ".join(declared_package.components)
+        package_attribution = (
+            f"This pilot ran as a declared package ({len(declared_package.components)} components: {names}) -- "
+            "proof credit belongs to the package as a whole, never to a single component (rubric R-IMP-02's "
+            "carve-out)."
+        )
 
     stability_caveat = None
     if threshold_met and after_stable is False:
@@ -335,6 +365,12 @@ def compute_verdict(
             f"Threshold {threshold_verdict.replace('_', ' ')}, as declared: {metric_ref} = {after_mean:g} vs "
             f"{threshold_value:g} ({threshold_direction})."
         )
+    if package_attribution:
+        # Placed right after the threshold clause and before any
+        # improvement language -- attribution scope is established BEFORE
+        # a reader ever sees "improvement shown" (rubric R-IMP-02: "no
+        # component-level claim is ever made").
+        parts.append(package_attribution)
     if weakened:
         if threshold_met:
             parts.append("Improvement shown, but a reported confounder weakens this proof: " + "; ".join(confounder_notes) + ".")
@@ -354,18 +390,20 @@ def compute_verdict(
 
     result = ProofVerdict(
         proof_form=proof_form, threshold_verdict=threshold_verdict, weakened=weakened,
-        confounder_notes=confounder_notes, stability_caveat=stability_caveat,
+        confounder_notes=confounder_notes, package_attribution=package_attribution, stability_caveat=stability_caveat,
         guardrail_tradeoff=guardrail_tradeoff, headline=" ".join(parts),
     )
     return compute(
         result,
         method=(
-            "threshold check AS DECLARED (met|not_met, never reworded) + confounder echo (any changed=true "
-            "weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)"
+            "threshold check AS DECLARED (met|not_met, never reworded) + package attribution (declared-package "
+            "pilots only, rubric R-IMP-02) + confounder echo (any changed=true weakens) + stability tempering "
+            "(met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)"
         ),
         input_data={
             "threshold_met": threshold_met, "refused": refused, "after_stable": after_stable,
             "confounders_changed": [name for name, _ in changed], "material_worsening_metrics": [g.metric_ref for g in material_losses],
+            "declared_package_components": list(declared_package.components) if declared_package is not None else None,
         },
     )
 
@@ -389,6 +427,11 @@ class ProofArtifact(ArtifactBase):
 
     declared_threshold: SuccessThreshold  # echoed verbatim from T-19
     confounders: ConfounderChecklist  # re-answered at proof time (rubric R-IMP-02 #5 / R-IMP-03 #3)
+    # Echoed verbatim from the linked T-19 pilot's own declared_package,
+    # when it declared one (rubric R-IMP-02's carve-out) -- None (the
+    # ordinary single-change pilot) is byte-identical to before this field
+    # existed (compute_verdict's package_attribution stays None too).
+    declared_package: DeclaredPackage | None = None
     guardrails: list[GuardrailInput] = Field(default_factory=list)
 
     charter_ref: str = Field(min_length=1)
@@ -449,5 +492,6 @@ class ProofArtifact(ArtifactBase):
             after_stable=self.after_baseline.stable, guardrail_checks=self.guardrail_report.value,
             metric_ref=self.metric_ref, threshold_value=self.declared_threshold.value,
             threshold_direction=self.declared_threshold.direction, after_mean=after_mean,
+            declared_package=self.declared_package,
         )
         return self

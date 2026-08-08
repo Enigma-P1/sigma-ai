@@ -65,11 +65,35 @@ export function ControlChartForm({ projectId, project, onSaved }: ControlChartFo
       </div>
 
       {chartType === "imr" ? (
-        <ArraySourceInput
-          value={f.state.imrSource} onChange={(v) => f.update({ imrSource: v })}
-          datasets={f.datasets} datasetDetails={f.datasetDetails} onNeedDatasetDetail={f.loadDatasetDetail}
-          testId="controlchart-imr-source" labelText="Control chart data"
-        />
+        <>
+          <ArraySourceInput
+            value={f.state.imrSource} onChange={(v) => f.update({ imrSource: v })}
+            datasets={f.datasets} datasetDetails={f.datasetDetails} onNeedDatasetDetail={f.loadDatasetDetail}
+            testId="controlchart-imr-source" labelText="Control chart data"
+          />
+          <details className="sigma-controlchart-zone-rules">
+            <summary data-testid="controlchart-zone-rules-toggle">Western Electric rules 2/3 (advanced, opt-in)</summary>
+            <p className="sigma-controlchart-zone-rules__cost">
+              Rules 1 (a point beyond 3σ) and 4 (8 in a row one side) are always on. Turning on all four zone rules
+              together cuts in-control ARL from ~370 to ~92 — a ~4x false-alarm increase (matrix VI.A.1) — before
+              you switch either on, decide the false-alarm rate is worth it for this chart.
+            </p>
+            <label className="sigma-controlchart-checkbox">
+              <input
+                type="checkbox" data-testid="controlchart-rule2-toggle" checked={f.state.rule2Enabled}
+                onChange={(e) => f.update({ rule2Enabled: e.target.checked })}
+              />
+              Rule 2 (2 of 3 beyond 2σ) — opt-in, raises the false-alarm rate
+            </label>
+            <label className="sigma-controlchart-checkbox">
+              <input
+                type="checkbox" data-testid="controlchart-rule3-toggle" checked={f.state.rule3Enabled}
+                onChange={(e) => f.update({ rule3Enabled: e.target.checked })}
+              />
+              Rule 3 (4 of 5 beyond 1σ) — opt-in, raises the false-alarm rate
+            </label>
+          </details>
+        </>
       ) : (
         <Field label="Subgroups (one per line: label,n,defective_count)" htmlFor="controlchart-p-subgroups-paste">
           <TextArea

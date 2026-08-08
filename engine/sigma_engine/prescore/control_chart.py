@@ -100,16 +100,35 @@ def _frozen_baseline_matches_window(artifact: ControlChartArtifact) -> PrescoreR
                 "limits against the window that supposedly produced them",
             )
         stored = artifact.imr_baseline.value
-        recomputed = compute_imr_chart(artifact.frozen_window_values).value
+        # Fix (M4 rule2/3 opt-in): replay the STORED rule2_enabled/
+        # rule3_enabled -- what was actually in effect at freeze time --
+        # never artifact.rule2_enabled/rule3_enabled, which can legitimately
+        # differ by now (the toggle applies live to MONITORING reads
+        # without requiring a re-freeze; control_chart.py's module
+        # docstring). Recomputing with the live fields instead would
+        # false-flag an honestly opted-in-after-freeze chart as tampered.
+        recomputed = compute_imr_chart(
+            artifact.frozen_window_values, enable_rule2=stored.rule2_enabled, enable_rule3=stored.rule3_enabled,
+        ).value
+        # Note: comparing recomputed.rule2_enabled/rule3_enabled against
+        # stored's would be vacuous -- they're fed in as the recompute's
+        # own arguments above, so they're equal by construction. The
+        # signals comparison is what actually catches a tampered
+        # rule2_enabled/rule3_enabled (a flipped flag with no matching
+        # change to the stored signal list disagrees with a same-flags
+        # recompute) alongside a tampered center/limits.
         matches = (
             _close_enough(stored.xbar, recomputed.xbar)
             and _close_enough(stored.sigma_within, recomputed.sigma_within)
             and _close_enough(stored.i_ucl, recomputed.i_ucl)
             and _close_enough(stored.i_lcl, recomputed.i_lcl)
+            and stored.signals == recomputed.signals
         )
         detail = (
             f"stored center/limits (xbar={stored.xbar:g}, sigma={stored.sigma_within:g}, UCL={stored.i_ucl:g}, "
-            f"LCL={stored.i_lcl:g}) match a fresh recompute off frozen_window_values" if matches else
+            f"LCL={stored.i_lcl:g}) and its {len(stored.signals)} window signal(s) (rule2_enabled="
+            f"{stored.rule2_enabled}, rule3_enabled={stored.rule3_enabled}) match a fresh recompute off "
+            "frozen_window_values" if matches else
             f"stored xbar/sigma/UCL/LCL ({stored.xbar:g}/{stored.sigma_within:g}/{stored.i_ucl:g}/{stored.i_lcl:g}) "
             f"do NOT match a fresh recompute off the retained freeze window (recomputed "
             f"{recomputed.xbar:g}/{recomputed.sigma_within:g}/{recomputed.i_ucl:g}/{recomputed.i_lcl:g}) -- the "

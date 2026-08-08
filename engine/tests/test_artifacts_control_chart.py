@@ -6,7 +6,7 @@ tracking against the coffee-bar (imr) and print-shop-style (p) fixtures."""
 import pytest
 from pydantic import ValidationError
 
-from factories import TS, make_control_chart_imr, make_control_chart_p, make_control_chart_p_subgroups
+from factories import RULE2_ONLY_DATA, RULE3_ONLY_DATA, TS, make_control_chart_imr, make_control_chart_p, make_control_chart_p_subgroups
 from sigma_engine.artifacts.control_chart import ControlChartArtifact
 
 
@@ -161,3 +161,77 @@ def test_round_trip_via_model_dump():
     a = ControlChartArtifact.model_validate(make_control_chart_imr())
     b = ControlChartArtifact.model_validate(a.model_dump(mode="json"))
     assert b == a
+
+
+# ---------------------------------------------------------------------------
+# M4 addition: Western Electric rules 2/3, opt-in (matrix VI.A.1 / R-CTL-02).
+# Default off, I-MR only, applied to the MONITORING read (_compute_signals)
+# without touching the EXIT-04 freeze floor -- which stays keyed on rules
+# 1+4 regardless of the toggle (docs/traceability-matrix.md §4a).
+# ---------------------------------------------------------------------------
+
+
+def test_rule2_rule3_default_false_and_freezing_a_rule2_shaped_window_produces_no_signal():
+    # RULE2_ONLY_DATA clears the freeze floor (n=20, no rule1/rule4 signal
+    # in the window) and freezes cleanly with the toggle at its default --
+    # the rule2 pattern it carries produces nothing while off.
+    a = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE2_ONLY_DATA))
+    assert a.rule2_enabled is False and a.rule3_enabled is False
+    assert a.imr_baseline is not None  # froze fine -- the floor never looked at rule2/3
+    assert a.signals.value == []
+
+
+def test_rule2_enabled_fires_on_the_monitoring_read():
+    a = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE2_ONLY_DATA, rule2_enabled=True))
+    assert a.imr_baseline is not None
+    rule2_signals = [ts for ts in a.signals.value if ts.signal.rule_id == "rule2"]
+    assert len(rule2_signals) == 1
+    assert rule2_signals[0].signal.end_index == 19
+
+
+def test_rule3_enabled_fires_on_the_monitoring_read():
+    a = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE3_ONLY_DATA, rule3_enabled=True))
+    assert a.imr_baseline is not None
+    rule3_signals = [ts for ts in a.signals.value if ts.signal.rule_id == "rule3"]
+    assert len(rule3_signals) >= 1
+
+
+def test_freeze_floor_is_unaffected_by_the_rule2_rule3_toggle():
+    """The floor itself (>=20 points, no rule1/rule4 signal) doesn't move
+    whether the toggle is on or off -- same fixture, same freeze outcome,
+    only the signal list differs (previous three tests)."""
+    off = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE2_ONLY_DATA, rule2_enabled=False))
+    on = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE2_ONLY_DATA, rule2_enabled=True))
+    assert off.imr_baseline.value.xbar == on.imr_baseline.value.xbar
+    assert off.imr_baseline.value.i_ucl == on.imr_baseline.value.i_ucl
+    assert off.imr_baseline.value.i_lcl == on.imr_baseline.value.i_lcl
+    assert off.frozen_at == on.frozen_at == TS
+
+
+def test_p_chart_rejects_rule2_enabled():
+    body = make_control_chart_p(rule2_enabled=True)
+    with pytest.raises(ValidationError, match="I-MR only"):
+        ControlChartArtifact.model_validate(body)
+
+
+def test_p_chart_rejects_rule3_enabled():
+    body = make_control_chart_p(rule3_enabled=True)
+    with pytest.raises(ValidationError, match="I-MR only"):
+        ControlChartArtifact.model_validate(body)
+
+
+def test_toggling_rule2_after_freeze_changes_monitoring_signals_without_a_refreeze():
+    """rule2_enabled applies live to the monitoring read (module docstring)
+    -- flipping it on a load-modify-save round trip changes what fires on
+    the NEXT save without requiring freeze_requested/recalculate_reason,
+    and the frozen limits themselves stay byte-identical."""
+    a = ControlChartArtifact.model_validate(make_control_chart_imr(imr_values=RULE2_ONLY_DATA))  # frozen with rule2_enabled=False
+    assert a.signals.value == []
+    dumped = a.model_dump(mode="json")
+    dumped["rule2_enabled"] = True
+    dumped["freeze_requested"] = False
+    dumped["action_at"] = None
+    b = ControlChartArtifact.model_validate(dumped)
+    assert b.imr_baseline.value.xbar == a.imr_baseline.value.xbar  # frozen means frozen -- unaffected
+    assert b.frozen_at == a.frozen_at
+    assert any(ts.signal.rule_id == "rule2" for ts in b.signals.value)

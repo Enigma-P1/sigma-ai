@@ -1,9 +1,10 @@
 /** check_id -> plain-English label for T-19's prescore strip
- * (prescore/pilot_plan.py's 3 checks). */
+ * (prescore/pilot_plan.py's 4 checks). */
 export const PILOT_PLAN_CHECK_LABELS: Record<string, string> = {
   threshold_before_data_advisory: "Threshold declared before data (advisory)",
   falsification_substance_heuristic: "Falsification line has real teeth",
   checklist_completeness: "Every confounder note is filled in",
+  package_declaration_quality: "Declared package reads as a real package",
 };
 
 /** A short, real-route picklist for the analysis-plan's "free pick"

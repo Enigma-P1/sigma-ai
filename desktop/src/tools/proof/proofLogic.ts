@@ -39,6 +39,7 @@ export function buildProofBody(
       value: Number(state.thresholdValue) || 0, declared_at: nowIso,
     },
     confounders: state.confounders,
+    declared_package: state.declaredPackage,
     guardrails,
     charter_ref: state.charterRef.trim(),
     charter_baseline_value: Number(state.charterBaselineText) || 0,

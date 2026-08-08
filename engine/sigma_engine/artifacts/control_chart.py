@@ -39,6 +39,34 @@ already-shipped validate-only endpoint) with `freeze_requested=true` on a
 draft body runs this exact validator without persisting anything --
 either the computed baseline+signals come back, or a 422 names precisely
 why the freeze floor isn't cleared yet.
+
+**Western Electric rules 2/3, opt-in (M4 addition, matrix VI.A.1 /
+R-CTL-02):** `rule2_enabled`/`rule3_enabled` default False (the frozen
+default stays rules 1+4, the low-false-alarm pair) and apply to the I-MR
+branch only -- schema-hard rejected on a p-chart (`stats/p_chart.py` has
+no zone-rule implementation; the toggle would silently do nothing there,
+which is exactly the dishonest-form this engine refuses to ship). Two
+separate concerns, kept deliberately apart:
+
+  - The EXIT-04 companion freeze floor (>=20 points, no default-rule
+    signal in the window) stays keyed on rules 1+4 ONLY, unconditionally
+    -- `ImrChartResult.has_default_rule_signal` already filters to
+    `rule_id in ("rule1", "rule4")` regardless of what else was computed
+    alongside it, so passing the live toggle into the freeze-time/freeze-
+    gate `compute_imr_chart` calls below changes nothing about what can
+    freeze; it only makes the FROZEN baseline's own window-signals
+    honestly reflect the rule set in effect at freeze time (stamped
+    provenance, not a functional change to the gate).
+  - `_compute_signals` (the ongoing MONITORING read, evaluated every
+    validate against the frozen limits) uses the CURRENT `rule2_enabled`/
+    `rule3_enabled` -- toggling after freeze changes what fires on the
+    next save without needing a re-freeze, the same way a newly-appended
+    monitoring point already does today. This is why prescore's
+    frozen_baseline_matches_window recompute (prescore/control_chart.py)
+    must replay the STORED imr_baseline's own rule2_enabled/rule3_enabled
+    (what was true AT FREEZE TIME), never the live artifact fields --
+    otherwise a legitimate post-freeze toggle would false-flag as a
+    hand-edited baseline.
 """
 
 from __future__ import annotations
@@ -167,6 +195,13 @@ class ControlChartArtifact(ArtifactBase):
     imr_values: list[float] | None = None
     p_subgroups: list[Subgroup] | None = None
 
+    # Western Electric zone rules 2/3, opt-in (M4 addition, matrix VI.A.1)
+    # -- I-MR branch only; default False (module docstring). Applied in
+    # _compute_signals below (the MONITORING read); the EXIT-04 freeze
+    # floor stays keyed on rules 1+4 regardless (module docstring).
+    rule2_enabled: bool = False
+    rule3_enabled: bool = False
+
     # Transient action triggers -- consumed and cleared by _freeze_or_recalculate below.
     freeze_requested: bool = False
     recalculate_reason: str | None = None
@@ -213,6 +248,19 @@ class ControlChartArtifact(ArtifactBase):
         return self
 
     @model_validator(mode="after")
+    def _rule2_rule3_are_imr_only(self) -> "ControlChartArtifact":
+        """stats/p_chart.py has no zone-rule (rule 2/3) implementation
+        (module docstring) -- honest failure here, not a toggle that
+        silently does nothing on a p-chart."""
+        if self.chart_type == "p" and (self.rule2_enabled or self.rule3_enabled):
+            raise ValueError(
+                "rule2_enabled/rule3_enabled are I-MR only -- the p-chart has no Western Electric zone-rule "
+                "(rule 2/3) implementation (stats/p_chart.py carries rule 1 + rule 4 only, matrix §4a). Leave both "
+                "False for chart_type='p'."
+            )
+        return self
+
+    @model_validator(mode="after")
     def _freeze_or_recalculate(self) -> "ControlChartArtifact":
         """The one place imr_baseline/p_baseline are (re)computed -- see
         module docstring's "frozen means frozen" note. Runs only when the
@@ -237,7 +285,15 @@ class ControlChartArtifact(ArtifactBase):
         if self.chart_type == "imr":
             window = self.imr_values or []
             n_points = len(window)
-            has_signal = imr_mod.compute_imr_chart(window).value.has_default_rule_signal if n_points >= 2 else True
+            # enable_rule2/3 threaded through even at the gate precheck --
+            # ImrChartResult.has_default_rule_signal filters to rule1/rule4
+            # regardless (module docstring), so this changes nothing about
+            # what can freeze; it just avoids computing the gate check with
+            # a silently-different rule set than the freeze itself uses.
+            has_signal = (
+                imr_mod.compute_imr_chart(window, enable_rule2=self.rule2_enabled, enable_rule3=self.rule3_enabled).value.has_default_rule_signal
+                if n_points >= 2 else True
+            )
         else:
             window = self.p_subgroups or []
             n_points = len(window)
@@ -252,7 +308,12 @@ class ControlChartArtifact(ArtifactBase):
             )
 
         if self.chart_type == "imr":
-            self.imr_baseline = compute_imr_chart(window)
+            # Stamps the freeze-time rule2/3 configuration onto the frozen
+            # ImrChartResult itself (its own rule2_enabled/rule3_enabled +
+            # signals fields) -- prescore/control_chart.py's frozen_
+            # baseline_matches_window replays these exact stored flags on
+            # recompute, never the live artifact fields (module docstring).
+            self.imr_baseline = compute_imr_chart(window, enable_rule2=self.rule2_enabled, enable_rule3=self.rule3_enabled)
             self.p_baseline = None
             self.frozen_window_values, self.frozen_window_subgroups = list(window), None
             hash_payload: object = list(window)
@@ -293,7 +354,16 @@ class ControlChartArtifact(ArtifactBase):
             assert self.imr_baseline is not None
             b = self.imr_baseline.value
             current = self.imr_values or []
+            # Rules 1+4 always evaluated (frozen default); rules 2/3 use the
+            # CURRENT rule2_enabled/rule3_enabled -- unlike the frozen
+            # limits themselves, the opt-in zone rules apply to this live
+            # MONITORING read (module docstring): toggling after freeze
+            # changes what fires on the next save, no re-freeze required.
             raw = imr_mod.rule1_beyond_3sigma(current, b.xbar, b.sigma_within) + imr_mod.rule4_run_of_8(current, b.xbar)
+            if self.rule2_enabled:
+                raw += imr_mod.rule2_two_of_three_beyond_2sigma(current, b.xbar, b.sigma_within)
+            if self.rule3_enabled:
+                raw += imr_mod.rule3_four_of_five_beyond_1sigma(current, b.xbar, b.sigma_within)
         else:
             assert self.p_baseline is not None
             b = self.p_baseline.value
@@ -311,10 +381,14 @@ class ControlChartArtifact(ArtifactBase):
             tracked,
             method=(
                 "signals = WECO rule1 (imr: beyond the frozen +/-3sigma band; p: beyond each point's own "
-                "frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center), "
+                "frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center) always, "
+                "+ rule2 (2 of 3 beyond 2 sigma)/rule3 (4 of 5 beyond 1 sigma) when opted in (I-MR only) -- "
                 "evaluated against the FROZEN baseline over the current data (matrix §4a / VI.A.1)"
             ),
-            input_data={"chart_type": self.chart_type, "n_current": len(current), "frozen_at": self.frozen_at},
+            input_data={
+                "chart_type": self.chart_type, "n_current": len(current), "frozen_at": self.frozen_at,
+                "rule2_enabled": self.rule2_enabled, "rule3_enabled": self.rule3_enabled,
+            },
             assumptions_checked=["baseline limits are frozen -- not recomputed from the current data"],
         )
         return self

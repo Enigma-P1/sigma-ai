@@ -12,6 +12,7 @@ from factories import (
     PRINT_SHOP_AFTER_PROPORTIONS,
     PROOF_AFTER_VALUES_NOT_MET,
     TS,
+    make_declared_package,
     make_proof,
     make_pilot_plan_confounder_checklist,
 )
@@ -275,6 +276,53 @@ def test_round_trip_via_model_dump():
     a = ProofArtifact.model_validate(make_proof())
     b = ProofArtifact.model_validate(a.model_dump(mode="json"))
     assert b == a
+
+
+# ---------------------------------------------------------------------------
+# M4 addition: declared_package echoed from the linked T-19 pilot (rubric
+# R-IMP-02's carve-out) -- the verdict headline must say "the package," and
+# never claim single-component attribution, whenever one was declared.
+# ---------------------------------------------------------------------------
+
+
+def test_no_declared_package_leaves_the_verdict_byte_identical():
+    a = ProofArtifact.model_validate(make_proof())
+    assert a.declared_package is None
+    assert a.verdict.value.package_attribution is None
+    assert "package" not in a.verdict.value.headline.lower()
+    # Same exact headline text as the pre-M4 fixed golden (test above).
+    assert "Threshold met, as declared: line-2 scrap rate = 4.03 vs 4.5 (lower_is_better)." in a.verdict.value.headline
+
+
+def test_declared_package_names_the_package_and_never_a_single_change():
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package()))
+    assert a.declared_package is not None
+    pa = a.verdict.value.package_attribution
+    assert pa is not None
+    assert "package" in pa.lower()
+    assert "fixture head" in pa and "drive motor" in pa
+    assert "proof credit belongs to the package" in pa
+    assert pa in a.verdict.value.headline
+    assert "the change" not in a.verdict.value.headline.lower()
+
+
+def test_declared_package_attribution_precedes_the_confounder_and_guardrail_sentences():
+    """Attribution scope is established before any improvement-adjacent
+    language (module docstring) -- package_attribution sits right after
+    the threshold clause in the headline, before the weakened/guardrail
+    sentences."""
+    checklist = make_pilot_plan_confounder_checklist()
+    checklist["staffing"] = {"changed": True, "note": "Two new hires started the same week as rollout."}
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package(), confounders=checklist))
+    headline = a.verdict.value.headline
+    assert headline.index("proof credit belongs to the package") < headline.index("weakens this proof")
+
+
+def test_declared_package_round_trips():
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package()))
+    b = ProofArtifact.model_validate(a.model_dump(mode="json"))
+    assert b == a
+    assert b.declared_package.components == ["fixture head", "drive motor"]
 
 
 # --- find_next_cause: standalone pure function ------------------------------

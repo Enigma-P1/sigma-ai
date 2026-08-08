@@ -1591,6 +1591,15 @@ export interface PilotConfounderChecklist {
   other: PilotConfounderAnswer;
 }
 
+/** Rubric R-IMP-02 #1's "one honest carve-out" (M4 addition,
+ * artifacts/pilot_plan.py) -- a genuinely inseparable package, declared up
+ * front. When present, `changes` must carry exactly one entry per listed
+ * component (1:1) and EXIT-10 does not fire for that declared set. */
+export interface PilotDeclaredPackage {
+  rationale: string;
+  components: string[];
+}
+
 export interface PilotPlanArtifact extends ArtifactBase {
   tool_id: "T-19";
   the_one_change: PilotTheOneChange;
@@ -1601,6 +1610,10 @@ export interface PilotPlanArtifact extends ArtifactBase {
   analysis_plan: PilotAnalysisPlan;
   falsification_line: string;
   confounder_checklist: PilotConfounderChecklist;
+  declared_package?: PilotDeclaredPackage | null;
+  /** Server-stamped whenever declared_package is present -- "package-level
+   * credit only, never a single component" (rubric R-IMP-02's carve-out). */
+  package_attribution_note?: Computed<string> | null;
   status: PilotStatus;
 }
 
@@ -1681,6 +1694,12 @@ export interface ControlChartArtifact extends ArtifactBase {
   source: ControlChartDataSource;
   imr_values?: number[] | null;
   p_subgroups?: PSubgroup[] | null;
+  /** Western Electric zone rules 2/3, opt-in (M4 addition, matrix VI.A.1)
+   * -- I-MR only, default false; the engine rejects either true on a
+   * p-chart (control_chart.py has no zone-rule math for it). Applies to
+   * the live MONITORING read (`signals`), not the frozen limits. */
+  rule2_enabled: boolean;
+  rule3_enabled: boolean;
   freeze_requested: boolean;
   recalculate_reason?: string | null;
   action_at?: string | null;
@@ -1745,6 +1764,11 @@ export interface ProofVerdict {
   threshold_verdict: "met" | "not_met";
   weakened: boolean;
   confounder_notes: string[];
+  /** Non-null only when the linked pilot declared a package (rubric
+   * R-IMP-02's carve-out) -- names the package and states plainly that
+   * proof credit belongs to the package, never a single component. Also
+   * rides inside `headline` verbatim (artifacts/proof.py's compute_verdict). */
+  package_attribution: string | null;
   stability_caveat: string | null;
   guardrail_tradeoff: string | null;
   headline: string;
@@ -1763,6 +1787,9 @@ export interface ProofArtifact extends ArtifactBase {
   after: ProofDataRef;
   declared_threshold: PilotSuccessThreshold;
   confounders: PilotConfounderChecklist;
+  /** Echoed verbatim from the linked T-19 pilot, when it declared one
+   * (rubric R-IMP-02's carve-out) -- see ProofVerdict.package_attribution. */
+  declared_package?: PilotDeclaredPackage | null;
   guardrails: GuardrailInput[];
   charter_ref: string;
   charter_baseline_value: number;
@@ -2035,6 +2062,11 @@ export interface RealizedBenefits {
   after_amount: number;
   fix_cost: number;
   annualized_projection?: number | null;
+  /** Required by the engine whenever annualized_projection is set (rubric
+   * R-WRAP-02's Needs-work line: "a projection presented without its
+   * basis") -- e.g. "Q2 actuals x 4". Null/omitted only when no
+   * projection is entered. */
+  annualized_projection_basis?: string | null;
   result?: Computed<RealizedBenefitsResult> | null;
 }
 

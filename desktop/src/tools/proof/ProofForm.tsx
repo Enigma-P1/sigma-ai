@@ -47,6 +47,12 @@ export function ProofForm({ projectId, project, onSaved }: ProofFormProps) {
           <TextInput id="proof-metric-ref" data-testid="proof-metric-ref" value={f.state.metricRef} onChange={(e) => f.update({ metricRef: e.target.value })} />
         </Field>
       </div>
+      {f.state.declaredPackage && (
+        <p data-testid="proof-declared-package-chip">
+          Declared package ({f.state.declaredPackage.components.length} components: {f.state.declaredPackage.components.join(", ")}) --
+          proof credit is package-level only.
+        </p>
+      )}
       <div className="sigma-proof-row">
         <Field label="Operational definition (same as baseline)" htmlFor="proof-operational-definition-ref">
           <TextInput id="proof-operational-definition-ref" data-testid="proof-operational-definition-ref" value={f.state.operationalDefinitionRef} onChange={(e) => f.update({ operationalDefinitionRef: e.target.value })} />

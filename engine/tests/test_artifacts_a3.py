@@ -61,6 +61,49 @@ def test_realized_benefits_arithmetic_is_engine_computed():
     assert result.net_of_fix_cost == pytest.approx(40000.0 - 15000.0 - 2000.0)
 
 
+# ---------------------------------------------------------------------------
+# M4 addition: annualized_projection_basis, required whenever
+# annualized_projection is set (rubric R-WRAP-02's Needs-work line: "a
+# projection presented without its basis").
+# ---------------------------------------------------------------------------
+
+
+def test_realized_benefits_default_fixture_carries_a_projection_basis():
+    a = A3Artifact.model_validate(make_a3())
+    assert a.realized_benefits.annualized_projection == pytest.approx(100000.0)
+    assert a.realized_benefits.annualized_projection_basis
+    assert "x" in a.realized_benefits.annualized_projection_basis  # a stated multiplier, not a bare number
+
+
+def test_projection_without_basis_is_rejected():
+    body = make_a3()
+    body["realized_benefits"]["annualized_projection_basis"] = None
+    with pytest.raises(ValidationError, match="annualized_projection_basis"):
+        A3Artifact.model_validate(body)
+
+
+def test_projection_with_whitespace_only_basis_is_rejected():
+    body = make_a3()
+    body["realized_benefits"]["annualized_projection_basis"] = "   "
+    with pytest.raises(ValidationError, match="annualized_projection_basis"):
+        A3Artifact.model_validate(body)
+
+
+def test_no_projection_requires_no_basis():
+    body = make_a3()
+    body["realized_benefits"]["annualized_projection"] = None
+    body["realized_benefits"]["annualized_projection_basis"] = None
+    a = A3Artifact.model_validate(body)
+    assert a.realized_benefits.annualized_projection is None
+    assert a.realized_benefits.annualized_projection_basis is None
+
+
+def test_projection_basis_round_trips():
+    a = A3Artifact.model_validate(make_a3())
+    b = A3Artifact.model_validate(a.model_dump(mode="json"))
+    assert b.realized_benefits.annualized_projection_basis == a.realized_benefits.annualized_projection_basis
+
+
 def test_objectives_verdict_reuses_proof_compute_gap_verbatim():
     a = A3Artifact.model_validate(make_a3())
     gap = a.closure.objectives_verdict.value

@@ -2,10 +2,15 @@
 schema-hard one-change rule (EXIT-10, artifacts/pilot_plan.py) -- the
 pre-declaration honesty note on the success threshold (advisory only,
 field-presence for now), a substance heuristic on the falsification line
-(length + not-just-a-negation), and confounder-checklist completeness
+(length + not-just-a-negation), confounder-checklist completeness
 (every note actually filled in, not just every box structurally present --
 the schema already guarantees the five answers exist; this checks they
-say something)."""
+say something), and (M4 addition) package_declaration_quality: when
+declared_package is present, is it a REAL package (>=2 listed
+components, a stated rationale) or a change wearing a costume (schema-
+legal at 1 component -- artifacts/pilot_plan.py's DeclaredPackage
+docstring -- but graded down here, the same soft/hard split every other
+content-quality line in this module draws)."""
 
 from __future__ import annotations
 
@@ -28,11 +33,15 @@ def _is_substantive_falsification(text: str) -> bool:
     return len(t) >= MIN_FALSIFICATION_LENGTH and not _TRIVIAL_FALSIFICATION_PATTERN.match(t)
 
 
+MIN_PACKAGE_COMPONENTS = 2
+
+
 def run_pilot_plan_prescore(artifact: PilotPlanArtifact) -> list[PrescoreResult]:
     return [
         _threshold_before_data_advisory(artifact),
         _falsification_substance_heuristic(artifact),
         _checklist_completeness(artifact),
+        _package_declaration_quality(artifact),
     ]
 
 
@@ -73,4 +82,32 @@ def _checklist_completeness(artifact: PilotPlanArtifact) -> PrescoreResult:
     return PrescoreResult(
         check_id="checklist_completeness", tool_id="T-19", status="pass" if not blank else "flag",
         detail="all five confounder notes are filled in" if not blank else f"confounder note(s) left blank: {blank}",
+    )
+
+
+def _package_declaration_quality(artifact: PilotPlanArtifact) -> PrescoreResult:
+    pkg = artifact.declared_package
+    if pkg is None:
+        return PrescoreResult(
+            check_id="package_declaration_quality", tool_id="T-19", status="pass",
+            detail="no declared package on this pilot -- ordinary single-change discipline applies (not applicable)",
+        )
+    n = len(pkg.components)
+    rationale_ok = bool(pkg.rationale.strip())
+    if n < MIN_PACKAGE_COMPONENTS:
+        return PrescoreResult(
+            check_id="package_declaration_quality", tool_id="T-19", status="flag",
+            detail=(
+                f"declared package lists only {n} component -- that's just a change, not a package (R-IMP-02's "
+                f"carve-out names components, plural; needs >={MIN_PACKAGE_COMPONENTS})"
+            ),
+        )
+    if not rationale_ok:
+        return PrescoreResult(
+            check_id="package_declaration_quality", tool_id="T-19", status="flag",
+            detail="declared package's rationale is blank -- state why the components cannot be deployed apart",
+        )
+    return PrescoreResult(
+        check_id="package_declaration_quality", tool_id="T-19", status="pass",
+        detail=f"declared package lists {n} components with a stated rationale -- a real package, not a change wearing a costume",
     )

@@ -1,11 +1,14 @@
-"""Prescore tests for T-19: each of the 3 checks, driven to both pass and
+"""Prescore tests for T-19: each of the 4 checks, driven to both pass and
 flag at least once."""
 
-from factories import make_pilot_plan, make_pilot_plan_confounder_checklist
+from factories import make_declared_package, make_pilot_plan, make_pilot_plan_confounder_checklist, make_pilot_plan_with_package
 from sigma_engine.artifacts.pilot_plan import PilotPlanArtifact
-from sigma_engine.prescore.pilot_plan import MIN_FALSIFICATION_LENGTH, run_pilot_plan_prescore
+from sigma_engine.prescore.pilot_plan import MIN_FALSIFICATION_LENGTH, MIN_PACKAGE_COMPONENTS, run_pilot_plan_prescore
 
-EXPECTED_CHECK_IDS = {"threshold_before_data_advisory", "falsification_substance_heuristic", "checklist_completeness"}
+EXPECTED_CHECK_IDS = {
+    "threshold_before_data_advisory", "falsification_substance_heuristic", "checklist_completeness",
+    "package_declaration_quality",
+}
 
 
 def _by_id(results):
@@ -62,3 +65,46 @@ def test_checklist_completeness_passes_when_every_note_is_filled_in():
     artifact = PilotPlanArtifact.model_validate(make_pilot_plan())
     results = _by_id(run_pilot_plan_prescore(artifact))
     assert results["checklist_completeness"].status == "pass"
+
+
+# ---------------------------------------------------------------------------
+# M4 addition: package_declaration_quality.
+# ---------------------------------------------------------------------------
+
+
+def test_package_declaration_quality_not_applicable_and_passes_with_no_package():
+    artifact = PilotPlanArtifact.model_validate(make_pilot_plan())
+    results = _by_id(run_pilot_plan_prescore(artifact))
+    assert results["package_declaration_quality"].status == "pass"
+    assert "not applicable" in results["package_declaration_quality"].detail
+
+
+def test_package_declaration_quality_passes_a_real_two_component_package():
+    artifact = PilotPlanArtifact.model_validate(make_pilot_plan_with_package())
+    results = _by_id(run_pilot_plan_prescore(artifact))
+    assert results["package_declaration_quality"].status == "pass"
+    assert "real package" in results["package_declaration_quality"].detail
+
+
+def test_package_declaration_quality_flags_a_one_component_package():
+    package = make_declared_package(components=["fixture head"])
+    body = make_pilot_plan_with_package(declared_package=package, changes=[
+        {"change_id": "ch-1", "text": "Replace the fixture head"},
+    ])
+    artifact = PilotPlanArtifact.model_validate(body)
+    results = _by_id(run_pilot_plan_prescore(artifact))
+    assert results["package_declaration_quality"].status == "flag"
+    assert "just a change" in results["package_declaration_quality"].detail
+    assert str(MIN_PACKAGE_COMPONENTS) in results["package_declaration_quality"].detail
+
+
+def test_package_declaration_quality_flags_a_whitespace_only_rationale():
+    """Field(min_length=1) alone lets a whitespace-only rationale through
+    schema (it counts characters, not stripped content) -- prescore is
+    where the substance bar actually lives, same soft-check idiom as the
+    falsification line."""
+    package = make_declared_package(rationale="   ")
+    artifact = PilotPlanArtifact.model_validate(make_pilot_plan_with_package(declared_package=package))
+    results = _by_id(run_pilot_plan_prescore(artifact))
+    assert results["package_declaration_quality"].status == "flag"
+    assert "rationale" in results["package_declaration_quality"].detail.lower()
