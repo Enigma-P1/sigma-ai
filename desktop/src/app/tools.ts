@@ -51,10 +51,10 @@ export const TOOLS: ToolDef[] = [
   // Improve
   { id: "T-18", name: "Solution Selection Matrix", phase: "Improve", live: true, hasForm: true },
   { id: "T-19", name: "Pilot Plan", phase: "Improve", live: true, hasForm: true },
-  { id: "T-20", name: "Before/After Proof + Remaining-Gap Check", phase: "Improve", live: false, hasForm: false },
+  { id: "T-20", name: "Before/After Proof + Remaining-Gap Check", phase: "Improve", live: true, hasForm: true },
 
   // Control
-  { id: "T-21", name: "Control Charts (I-MR, p)", phase: "Control", live: false, hasForm: false },
+  { id: "T-21", name: "Control Charts (I-MR, p)", phase: "Control", live: true, hasForm: true },
   {
     id: "T-22",
     name: "Control Plan + Response Plan (OCAP) + Scheduled Check-ins",

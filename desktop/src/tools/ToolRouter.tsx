@@ -34,6 +34,8 @@ import { FmeaForm } from "./fmea/FmeaForm";
 import { fmeaHelperContent } from "./fmea/fmeaContent";
 import { SolutionMatrixForm } from "./solutionmatrix/SolutionMatrixForm";
 import { PilotPlanForm } from "./pilotplan/PilotPlanForm";
+import { ProofForm } from "./proof/ProofForm";
+import { ControlChartForm } from "./controlchart/ControlChartForm";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -221,6 +223,24 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
         <PilotPlanForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-20/T-21 (M4): real engine-backed forms, helper content left an
+  // honest PLACEHOLDER this milestone (task brief), same as T-18/T-19 above.
+  if (toolId === "T-20") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <ProofForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-21") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <ControlChartForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

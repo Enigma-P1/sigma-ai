@@ -643,3 +643,85 @@ def make_pilot_plan(**overrides: Any) -> dict[str, Any]:
     }
     base.update(overrides)
     return base
+
+
+# T-21 Control Chart fixtures. IMR: the same 24-point coffee-bar
+# wait_seconds column already asserted stable by the desktop smoke test
+# (tools/fixtures/coffee-bar-wait-times.csv) -- one real demo dataset
+# threaded through both the T-13 baseline and the T-21 control chart.
+COFFEE_BAR_WAIT_SECONDS = [95, 91, 98, 93, 97, 92, 99, 94, 96, 90, 98, 93, 95, 91, 99, 94, 97, 92, 96, 90, 98, 93, 95, 91]
+
+
+def make_control_chart_imr(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "schema_version": 1, "artifact_id": "cc-imr-001", "tool_id": "T-21",
+        "created_at": TS, "updated_at": TS,
+        "chart_type": "imr", "metric_ref": "order-to-handoff wait seconds",
+        "selector": {"data_shape": "continuous"},
+        "source": {"kind": "dataset", "dataset_id": "ds-coffee-bar", "dataset_sha256": "c" * 64, "column": "wait_seconds"},
+        "imr_values": list(COFFEE_BAR_WAIT_SECONDS),
+        "freeze_requested": True, "action_at": TS,
+    }
+    base.update(overrides)
+    return base
+
+
+# p-chart: 20 clean subgroups (n=100, 20 defective each -- p=0.20, well
+# inside its own limits) -- the freeze-floor-clearing, no-signal fixture.
+def make_control_chart_p_subgroups(count: int = 20, n: int = 100, defective: int = 20) -> list[dict[str, Any]]:
+    return [{"label": f"day-{i + 1}", "n": n, "defective_count": defective} for i in range(count)]
+
+
+def make_control_chart_p(**overrides: Any) -> dict[str, Any]:
+    subgroups = overrides.pop("p_subgroups") if "p_subgroups" in overrides else make_control_chart_p_subgroups()
+    base = {
+        "schema_version": 1, "artifact_id": "cc-p-001", "tool_id": "T-21",
+        "created_at": TS, "updated_at": TS,
+        "chart_type": "p", "metric_ref": "print-shop defective-order rate",
+        "selector": {"data_shape": "attribute", "defectives_or_defects": "defectives"},
+        "source": {"kind": "dataset", "dataset_id": "ds-print-shop", "dataset_sha256": "d" * 64, "column": "defective"},
+        "p_subgroups": subgroups,
+        "freeze_requested": True, "action_at": TS,
+    }
+    base.update(overrides)
+    return base
+
+
+# T-20 Before/After Proof fixture, threaded onto the same pilot demo as
+# make_pilot_plan above (metric "line-2 scrap rate", threshold <=4.5,
+# charter baseline 6.2 -> goal 3.0, matching make_charter's own goal
+# block): before mean = 61.8/10 = 6.18; after mean = 40.3/10 = 4.03,
+# clearing the 4.5 threshold (met) but not yet the charter's 3.0 goal --
+# original_gap = 6.2-3.0 = 3.2, recovered = 6.2-4.03 = 2.17 (67.8%),
+# remaining = 1.03 (partial recovery, hand-checkable).
+PROOF_BEFORE_VALUES = [6.0, 6.4, 6.1, 6.3, 5.9, 6.5, 6.2, 6.0, 6.3, 6.1]
+PROOF_AFTER_VALUES_MET = [4.2, 3.9, 4.1, 4.0, 3.8, 4.3, 4.0, 3.9, 4.1, 4.0]
+PROOF_AFTER_VALUES_NOT_MET = [5.0, 4.9, 5.1, 5.0, 4.8, 5.2, 5.0, 4.9, 5.1, 5.0]
+
+
+def make_proof(**overrides: Any) -> dict[str, Any]:
+    """A complete, prescore-clean T-20 Before/After Proof -- threshold
+    met, gap partially recovered, a next-ranked verified cause named."""
+    confounders = overrides.pop("confounders") if "confounders" in overrides else make_pilot_plan_confounder_checklist()
+    after_values = overrides.pop("after_values") if "after_values" in overrides else PROOF_AFTER_VALUES_MET
+    base = {
+        "schema_version": 1, "artifact_id": "proof-001", "tool_id": "T-20",
+        "created_at": TS, "updated_at": TS,
+        "pilot_ref": "pilot-001",
+        "metric_ref": "line-2 scrap rate",
+        "operational_definition_ref": "scrap units / units produced, read from the QC log",
+        "measurement_system_ref": "QC log export, same as baseline",
+        "usl": 10.0, "lsl": 0.0,
+        "before": {"dataset_id": "ds-before", "column": "scrap_pct", "dataset_sha256": "a" * 64, "values": list(PROOF_BEFORE_VALUES)},
+        "after": {"dataset_id": "ds-after", "column": "scrap_pct", "dataset_sha256": "b" * 64, "values": list(after_values)},
+        "declared_threshold": {"metric_ref": "line-2 scrap rate", "direction": "lower_is_better", "value": 4.5, "declared_at": TS},
+        "confounders": confounders,
+        "guardrails": [{"metric_ref": "line-2 throughput", "direction": "higher_is_better", "before_value": 100.0, "after_value": 99.0}],
+        "charter_ref": "charter-001", "charter_baseline_value": 6.2, "charter_goal_value": 3.0, "charter_goal_direction": "lower_is_better",
+        "next_cause_ref": {
+            "cause_id": "c-2", "cause_text": "Injector pressure drifts low over a shift",
+            "via_solution_id": "s-2", "via_solution_name": "Replace the injector", "rank": 2,
+        },
+    }
+    base.update(overrides)
+    return base
