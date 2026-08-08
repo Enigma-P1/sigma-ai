@@ -179,12 +179,12 @@ def pooled_within_item_sd(items: Sequence[ItemRepeats]) -> PooledRepeatabilityRe
     )
 
 
-def repeatability_verdict(ev_percent: float) -> Verdict:
+def repeatability_verdict(repeatability_percent: float) -> Verdict:
     """Exclusive-exhaustive banding (matrix §4a, round-3 lock fix): boundary
     goldens live at exactly 10.0 (acceptable) and exactly 30.0 (marginal)."""
-    if ev_percent <= MSA_REPEATABILITY_ACCEPTABLE_MAX_PERCENT:
+    if repeatability_percent <= MSA_REPEATABILITY_ACCEPTABLE_MAX_PERCENT:
         return "acceptable"
-    if ev_percent <= MSA_REPEATABILITY_MARGINAL_MAX_PERCENT:
+    if repeatability_percent <= MSA_REPEATABILITY_MARGINAL_MAX_PERCENT:
         return "marginal"
     return "fail"
 
@@ -195,7 +195,7 @@ class RepeatabilityResult(BaseModel):
     s_repeat: float
     denominator_value: float
     denominator: Denominator
-    ev_percent: float
+    repeatability_percent: float
     verdict: Verdict
     items_used: int
     items_excluded: tuple[str, ...]
@@ -203,10 +203,14 @@ class RepeatabilityResult(BaseModel):
 
 
 def compute_repeatability(items: Sequence[ItemRepeats], *, usl: float | None, lsl: float | None) -> Computed[RepeatabilityResult]:
-    """%EV = 6*s_repeat / denominator * 100 (matrix §4a): denominator is
-    tolerance width when both spec limits exist, else 6*s_study -- and the
-    output states which one, by name (III.E: "denominator named as which
-    it is," so a flatter number can't get quietly shopped)."""
+    """repeatability% = 6*s_repeat / denominator * 100 (matrix §4a):
+    denominator is tolerance width when both spec limits exist, else
+    6*s_study -- and the output states which one, by name (III.E:
+    "denominator named as which it is," so a flatter number can't get
+    quietly shopped). Named `repeatability_percent`, not "%EV" or "GRR"
+    (module docstring): a single-operator test/retest study has no
+    reproducibility component, so "EV" (a variance-decomposed study's own
+    term) would overclaim what this narrow check actually measured."""
     pooled = pooled_within_item_sd(items)
     denominator: Denominator
     if usl is not None and lsl is not None:
@@ -217,11 +221,11 @@ def compute_repeatability(items: Sequence[ItemRepeats], *, usl: float | None, ls
     if denominator_value <= 0:
         raise ValueError(f"compute_repeatability: denominator ({denominator}) is {denominator_value:g} -- can't be <= 0")
 
-    ev_percent = (MSA_REPEATABILITY_EV_SIGMA_MULTIPLIER * pooled.s_repeat / denominator_value) * 100.0
-    verdict = repeatability_verdict(ev_percent)
+    repeatability_percent = (MSA_REPEATABILITY_EV_SIGMA_MULTIPLIER * pooled.s_repeat / denominator_value) * 100.0
+    verdict = repeatability_verdict(repeatability_percent)
     result = RepeatabilityResult(
         s_repeat=pooled.s_repeat, denominator_value=denominator_value, denominator=denominator,
-        ev_percent=ev_percent, verdict=verdict, items_used=pooled.items_used,
+        repeatability_percent=repeatability_percent, verdict=verdict, items_used=pooled.items_used,
         items_excluded=pooled.items_excluded, exclusion_reasons=pooled.exclusion_reasons,
     )
     warnings = [MSA_REPEATABILITY_ONLY_CAVEAT]
@@ -229,7 +233,7 @@ def compute_repeatability(items: Sequence[ItemRepeats], *, usl: float | None, ls
         warnings.append(f"{len(pooled.items_excluded)} item(s) excluded for missing/invalid repeats: {list(pooled.items_excluded)}")
     return compute(
         result,
-        method=f"%EV = {MSA_REPEATABILITY_EV_SIGMA_MULTIPLIER:g}*s_repeat/denominator*100; "
+        method=f"repeatability_percent = {MSA_REPEATABILITY_EV_SIGMA_MULTIPLIER:g}*s_repeat/denominator*100; "
         f"s_repeat = pooled within-item SD (NIST §7.4.3.1 SSE/MSE construction); denominator={denominator} (matrix §4a EXIT-02 continuous)",
         input_data={"items": [i.model_dump(mode="json") for i in items], "usl": usl, "lsl": lsl},
         assumptions_checked=[f">= {MSA_MIN_REPEATS_PER_ITEM} valid repeats per included item"],

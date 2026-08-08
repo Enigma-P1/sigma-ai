@@ -45,13 +45,26 @@ export function copqRowsToBody(rows: CopqRowValue[]) {
   }));
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- copqCanSave below and the rendered "Missing: ..." hint
+ * both read from this one list, so they can never drift apart (Jordan
+ * usability fix). */
+export function copqMissingFields(rows: CopqRowValue[]): string[] {
+  if (rows.length === 0) return ["at least one cost row"];
+  const missing: string[] = [];
+  rows.forEach((r, i) => {
+    const label = `row ${i + 1}`;
+    if (!(r.quantity >= 0)) missing.push(`${label} quantity`);
+    if (!(r.rate >= 0)) missing.push(`${label} rate`);
+    if (!r.period.trim()) missing.push(`${label} period`);
+    if (!r.basis.trim()) missing.push(`${label} basis`);
+    if (r.category === "custom" && !r.custom_label.trim()) missing.push(`${label} custom label`);
+  });
+  return missing;
+}
+
 export function copqCanSave(rows: CopqRowValue[]): boolean {
-  return (
-    rows.length > 0 &&
-    rows.every(
-      (r) => r.quantity >= 0 && r.rate >= 0 && r.period.trim() && r.basis.trim() && (r.category !== "custom" || r.custom_label.trim()),
-    )
-  );
+  return copqMissingFields(rows).length === 0;
 }
 
 /** A placeholder Computed[float] shape so the request body satisfies the
@@ -72,6 +85,20 @@ export function draftCopqTotal(rows: CopqRowValue[]) {
       warnings: [] as string[],
     },
   };
+}
+
+/** "$4,021 Q2 2026" / "$452 per month" style: unit (always dollars for
+ * this calculator, prefixed as "$") + period, read straight off the
+ * artifact's own rows rather than assumed -- Jordan usability fix: the
+ * total used to render as a bare, unit-less number. All rows share one
+ * period in the honest case (prescore's period_consistency check); when
+ * they don't, that's surfaced rather than silently picking one. */
+export function copqTotalDisplay(artifact: CopqArtifact): string {
+  const amount = `$${artifact.total.value.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+  const periods = new Set(artifact.rows.map((r) => r.period.trim()).filter((p) => p !== ""));
+  if (periods.size === 1) return `${amount} ${[...periods][0]}`;
+  if (periods.size > 1) return `${amount} (mixed periods -- see Period below)`;
+  return amount;
 }
 
 /** Worst-status-first summary of the prescore checks that read on the row

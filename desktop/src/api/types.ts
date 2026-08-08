@@ -303,10 +303,24 @@ export interface DemandBlock {
   demand_units?: number | null;
 }
 
-export interface BottleneckResult {
-  bottleneck_step_id: string;
-  bottleneck_step_name: string;
-  bottleneck_time_minutes: number;
+/** The longest-timed step of ANY step_type, waits included -- needs no
+ * demand block (fidelity fix: a wait can be the longest step without ever
+ * being the constraint -- see ConstraintStepResult below). */
+export interface LongestStepResult {
+  step_id: string;
+  step_name: string;
+  step_type: StepType;
+  time_minutes: number;
+}
+
+/** A-7's constraint readout, restricted to PROCESSING steps (step_type
+ * value_add or enabling) -- a pure-wait non_value_add step can queue up
+ * behind the constraint, but it can never be named here. meets_pace is
+ * judged on this step alone. */
+export interface ConstraintStepResult {
+  step_id: string;
+  step_name: string;
+  time_minutes: number;
   pace_minutes_per_unit: number;
   meets_pace: boolean;
 }
@@ -320,11 +334,14 @@ export interface ProcessMapArtifact extends ArtifactBase {
   /** Keyed by step_id -- opaque display data, round-tripped, never
    * interpreted by the engine (M2 brief). */
   layout: Record<string, StepPosition>;
+  /** Server-computed, never hand-typed -- present once the engine has
+   * echoed the artifact back (validate/save/load). Null means "nothing to
+   * name yet" (no step has a time) -- needs no demand block. */
+  longest_step?: Computed<LongestStepResult> | null;
   /** Server-computed (matrix §5a A-7), never hand-typed -- present once the
-   * engine has echoed the artifact back (validate/save/load). Null means
-   * "nothing to name yet" (demand incomplete, or no step has a time), not
-   * an error. */
-  bottleneck?: Computed<BottleneckResult> | null;
+   * engine has echoed the artifact back. Null means "nothing to name yet"
+   * (demand incomplete, or no PROCESSING step has a time), not an error. */
+  constraint_step?: Computed<ConstraintStepResult> | null;
 }
 
 // ---- T-05 VoC -> CTQ Tree (artifacts/voc_ctq.py) ----
@@ -623,7 +640,7 @@ export interface RepeatabilityResult {
   s_repeat: number;
   denominator_value: number;
   denominator: MsaDenominator;
-  ev_percent: number;
+  repeatability_percent: number;
   verdict: MsaVerdict;
   items_used: number;
   items_excluded: string[];
@@ -846,8 +863,8 @@ export interface SpaghettiArtifact extends ArtifactBase {
   routes: SpaghettiRoute[];
   walk_speed_override_per_minute?: number | null;
   observation_window: ObservationWindow;
-  /** Server-computed (T-06 bottleneck's pattern), never hand-typed. Null
-   * only when there's no calibration yet to scale by. */
+  /** Server-computed (T-06 longest_step/constraint_step's pattern), never
+   * hand-typed. Null only when there's no calibration yet to scale by. */
   metrics?: Computed<SpaghettiMetrics> | null;
 }
 
@@ -892,12 +909,24 @@ export interface StrataFieldDef {
   label: string;
 }
 
+export type EntryMode = "tap" | "transcribed";
+
 export interface CheckSheetEntry {
   entry_id: string;
   category_id: string;
   timestamp: string;
   strata: Record<string, string>;
   note: string;
+  /** "tap" (default): one live tap, one entry. "transcribed": reading a
+   * paper tally after the fact -- `note` doubles as the required source
+   * note and `count` carries how many marks this one entry represents.
+   * The cross-artifact burst-entry check only ever looks at "tap" entries
+   * (engine/sigma_engine/prescore/cross_checks.py), so an honest
+   * transcription session is never mistaken for a suspicious burst. */
+  entry_mode?: EntryMode;
+  /** How many tally marks this entry represents -- always 1 on the tap
+   * path; a transcribed entry carries the paper tally's count. */
+  count?: number;
   deleted?: DeletionInfo | null;
 }
 

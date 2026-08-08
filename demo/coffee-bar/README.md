@@ -21,20 +21,25 @@ matters.
 plan turns C1 into an operational definition (register timestamp to name
 call, tenths of a minute, two-people test confirmed), `wait-times.csv` is the
 plan executed — 120 orders over 10 mornings, mean 8.408 against the charter's
-8.4 — the check sheet's 40 delay tallies Pareto out to register-queue backlog
+8.4 — the check sheet's 40 delay tallies Pareto out to drink-queue backlog
 plus grinder rework at exactly 80% (engine-verified vital few), the time
-study's element medians (0.8 + 4.5 + 2.0 + 0.6 + 0.5 minutes) rebuild the
-8.4-minute total and flag the July 28 rush cycle as the honest outlier, the
-passing test/retest measurement check (repeatability 3.3%, resolution 0.1 min
-on a 5.1-min span) licenses the capability language, and the process map and
-calibrated spaghetti diagram put the pain on the floor: the 4.5-minute cup
-queue is the named bottleneck and the barista walks ~796 m per peak in the
-current layout. What the baseline proves (`measure/baseline-run.md`, run
-through the live engine): the process is **stable but not capable** — zero
-control-chart signals at n=120, yet every sampled order beat the customer's
-5-minute line, Cpk −1.14 — so the wait is what this process is built to
-produce, not a bad day. That hands Analyze its exact question — which common
-causes (the cup queue, the grinder rework) drive the 8.4 minutes — and the
+study's element medians (0.8 + 4.5 + 2.0 + 0.6 + 0.5 minutes — the sum of
+a typical cycle's medians, not the mean total; the eight timed cycles
+average 8.8) rebuild the 8.4-minute total and flag the July 28 rush cycle
+as the honest outlier, the passing genuine repeat-timing measurement check
+(camera-video test/retest, blind to the first pass — repeatability 8.94%,
+acceptable, resolution 0.1 min on a 5.1-min span) licenses the capability
+language, and the process map and calibrated spaghetti diagram put the
+pain on the floor: the espresso
+station is the named constraint and the 4.5-minute drink queue in front of
+it is that constraint's consequence, not the constraint itself, and the
+barista walks ~796 m per peak in the current layout. What the baseline
+proves (`measure/baseline-run.md`, run through the live engine): the
+process is **stable but not capable** — zero control-chart signals at
+n=120, yet every sampled order blew past the customer's 5-minute line,
+Cpk −1.14 — so the wait is what this process is built to produce, not a
+bad day. That hands Analyze its exact question — which common causes (the
+drink queue, the grinder rework) drive the 8.4 minutes — and the
 before/after t-test its frozen baseline; Analyze, Improve, and Control
 artifacts (and the proposed-layout spaghetti overlay) arrive with their
 milestones.

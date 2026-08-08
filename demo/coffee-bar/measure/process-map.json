@@ -4,7 +4,7 @@
   "tool_id": "T-06",
   "created_at": "2026-07-21T14:30:00Z",
   "updated_at": "2026-08-03T16:20:00Z",
-  "notes": "Swimlane walk of the SIPOC's register-to-handoff segment, first drawn July 21, step times filled in August 3 from the time study's element medians (typical cycle, robust to the flagged July 28 rush outlier): 0.8 + 4.5 + 2.0 + 0.6 + 0.5 = 8.4 minutes -- the charter baseline. Demand block: espresso station staffed 6:30-10:30 (240 min) around the peak; 48 espresso orders per peak (July tally, same count the spaghetti observation logged) -- pace 5.0 min per order, the same five minutes the customer named as the walk-away line (VoC S4). The engine names the drink-queue wait as the constraint: the wait is the bottleneck, not the work.",
+  "notes": "Swimlane walk of the SIPOC's register-to-handoff segment, first drawn July 21, step times filled in August 3 from the time study's element medians (typical cycle, robust to the flagged July 28 rush outlier -- the sum of element medians, a typical cycle, not the mean total; the eight timed cycles average 8.8): 0.8 + 4.5 + 2.0 + 0.6 + 0.5 = 8.4 minutes -- the charter baseline. Demand block: weekday 7:00-10:00 peak (180 min, the peak window every other artifact in this demo uses); 48 espresso orders per peak (July tally, same count the spaghetti observation logged) -- pace 3.75 min per order. The engine's constraint readout (processing steps only -- value_add/enabling, matrix A-7 fidelity fix) names s3, Prepare drink at espresso station, 2.0 min, as the constraint -- it meets the 3.75 pace; the espresso-station lane carries 2.6 min of processing work across s3 and s4 (2.0 + 0.6). The engine's longest-step readout (any type, waits included) names s2, Cup waits in drink queue, 4.5 min -- honestly exceeding the 3.75 pace, but a pure wait can never be named the constraint: it sits downstream of the constraint, its consequence, not its cause.",
   "lanes": [
     { "lane_id": "front-counter", "name": "Front counter (register + pickup)", "owner": "Priya Shah" },
     { "lane_id": "espresso-station", "name": "Espresso station", "owner": "Marcus Webb" }
@@ -55,7 +55,7 @@
     { "from_step": "s3", "to_step": "s4", "label": null },
     { "from_step": "s4", "to_step": "s5", "label": "drink to pickup counter" }
   ],
-  "demand": { "available_time_minutes": 240, "demand_units": 48 },
+  "demand": { "available_time_minutes": 180, "demand_units": 48 },
   "layout": {
     "s1": { "x": 60, "y": 40 }, "s2": { "x": 240, "y": 180 }, "s3": { "x": 420, "y": 180 },
     "s4": { "x": 600, "y": 180 }, "s5": { "x": 780, "y": 40 }

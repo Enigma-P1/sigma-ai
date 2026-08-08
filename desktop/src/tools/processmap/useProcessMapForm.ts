@@ -73,7 +73,7 @@ export function useProcessMapForm(projectId: string, project: ProjectMetadata, o
   }, [projectId, existingVersion]);
 
   function dirty() {
-    setServerArtifact(null); // state changed since the last save -- the old server bottleneck no longer describes it
+    setServerArtifact(null); // state changed since the last save -- the old server longest_step/constraint_step no longer describe it
   }
 
   function addLane() {

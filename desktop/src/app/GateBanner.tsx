@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Field, TextArea, VerdictBanner } from "../design/components";
-import { verdictToneForGateStatus } from "./statusTone";
+import { labelForGateStatus, verdictToneForGateStatus } from "./statusTone";
 import { overrideGate } from "../api/client";
 import { ApiError } from "../api/errors";
 import { toolById } from "./tools";
@@ -73,7 +73,7 @@ export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerP
     return (
       <VerdictBanner
         tone={verdictToneForGateStatus(gate.status)}
-        headline={`${phase} is locked — HARD_BLOCK`}
+        headline={`${phase}: ${labelForGateStatus(gate.status)}`}
         detail={gate.reasons.join(" ") || "This phase cannot be entered yet."}
       />
     );
@@ -83,7 +83,7 @@ export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerP
     return (
       <VerdictBanner
         tone={verdictToneForGateStatus(gate.status)}
-        headline={`${phase}'s entry gate isn't built yet — NOT_YET_BUILT`}
+        headline={`${phase}: ${labelForGateStatus(gate.status)}`}
         detail={gate.reasons.join(" ") || "The engine doesn't check this transition yet."}
       />
     );
@@ -93,7 +93,7 @@ export function GateBanner({ phase, projectId, gate, onOverridden }: GateBannerP
   return (
     <VerdictBanner
       tone={verdictToneForGateStatus(gate.status)}
-      headline={`${phase} is missing something — SOFT_BLOCK`}
+      headline={`${phase}: ${labelForGateStatus(gate.status)}`}
       detail={`Missing: ${missingLabel(gate.missing)}. You can still work here, but proceeding needs a logged reason.`}
       actions={
         showOverrideForm ? (

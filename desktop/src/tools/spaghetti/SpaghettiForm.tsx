@@ -1,4 +1,4 @@
-import { Button, Field, Panel, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, TextInput, VerdictBanner } from "../../design/components";
 import { SpaghettiCanvas } from "./SpaghettiCanvas";
 import { FloorPlanUpload } from "./FloorPlanUpload";
 import { CalibrationPanel } from "./CalibrationPanel";
@@ -9,6 +9,7 @@ import { DeltaPanel } from "./DeltaPanel";
 import { PlaybackControls } from "./PlaybackControls";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { SPAGHETTI_CHECK_LABELS } from "./spaghettiChecks";
+import { spaghettiMissingFields } from "./spaghettiLogic";
 import { useSpaghettiForm } from "./useSpaghettiForm";
 import type { LayoutMode, ProjectMetadata } from "../../api/types";
 import "./SpaghettiForm.css";
@@ -121,6 +122,7 @@ export function SpaghettiForm({ projectId, project, onSaved }: SpaghettiFormProp
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="spaghetti-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={spaghettiMissingFields(f.floorPlan)} />}
 
       <PrescoreStrip results={f.prescore} labels={SPAGHETTI_CHECK_LABELS} />
     </Panel>

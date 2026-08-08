@@ -165,7 +165,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
   if (toolId === "T-14") {
     return (
       <ToolScreen {...screenProps} helperContent={chartSetHelperContent}>
-        <ChartSetScreen projectId={projectId} initialDatasetId={presetFor("T-14")} />
+        <ChartSetScreen projectId={projectId} initialDatasetId={presetFor("T-14")} onVisited={onSaved} />
       </ToolScreen>
     );
   }

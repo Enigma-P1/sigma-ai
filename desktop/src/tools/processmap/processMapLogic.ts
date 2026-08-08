@@ -111,8 +111,20 @@ export function wasteTally(steps: ProcessMapStep[]): Record<WasteId, number> {
   return tally;
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- canSaveProcessMap below and the rendered "Missing: ..."
+ * hint both read from this one list (Jordan usability fix). */
+export function processMapMissingFields(lanes: ProcessMapLane[], steps: ProcessMapStep[]): string[] {
+  const missing: string[] = [];
+  if (lanes.length === 0) missing.push("at least one lane");
+  else if (!lanes.every((l) => l.name.trim() !== "")) missing.push("every lane's name");
+  if (steps.length === 0) missing.push("at least one step");
+  else if (!steps.every((s) => s.name.trim() !== "")) missing.push("every step's name");
+  return missing;
+}
+
 export function canSaveProcessMap(lanes: ProcessMapLane[], steps: ProcessMapStep[]): boolean {
-  return lanes.length > 0 && steps.length > 0 && lanes.every((l) => l.name.trim() !== "") && steps.every((s) => s.name.trim() !== "");
+  return processMapMissingFields(lanes, steps).length === 0;
 }
 
 export function buildProcessMapBody(input: {

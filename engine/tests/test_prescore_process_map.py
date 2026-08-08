@@ -116,13 +116,26 @@ def test_bottleneck_fields_consistency_passes_with_and_without_demand():
     assert _by_id(run_process_map_prescore(with_demand))["bottleneck_fields_consistency"].status == "pass"
 
 
-def test_bottleneck_fields_consistency_flags_a_tampered_stored_value():
+def test_bottleneck_fields_consistency_flags_a_tampered_longest_step():
     artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 480, "demand_units": 96}))
     tampered = artifact.model_copy(
-        update={"bottleneck": artifact.bottleneck.model_copy(
-            update={"value": artifact.bottleneck.value.model_copy(update={"bottleneck_time_minutes": 999.0})}
+        update={"longest_step": artifact.longest_step.model_copy(
+            update={"value": artifact.longest_step.value.model_copy(update={"time_minutes": 999.0})}
         )}
     )
     results = _by_id(run_process_map_prescore(tampered))
     assert results["bottleneck_fields_consistency"].status == "flag"
     assert "hand-edited" in results["bottleneck_fields_consistency"].detail
+    assert "longest_step" in results["bottleneck_fields_consistency"].detail
+
+
+def test_bottleneck_fields_consistency_flags_a_tampered_constraint_step():
+    artifact = ProcessMapArtifact.model_validate(make_process_map(demand={"available_time_minutes": 480, "demand_units": 96}))
+    tampered = artifact.model_copy(
+        update={"constraint_step": artifact.constraint_step.model_copy(
+            update={"value": artifact.constraint_step.value.model_copy(update={"meets_pace": not artifact.constraint_step.value.meets_pace})}
+        )}
+    )
+    results = _by_id(run_process_map_prescore(tampered))
+    assert results["bottleneck_fields_consistency"].status == "flag"
+    assert "constraint_step" in results["bottleneck_fields_consistency"].detail

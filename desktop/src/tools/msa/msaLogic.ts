@@ -52,19 +52,34 @@ export function attributeItemsFromArtifact(artifact: MsaArtifact): AttributeItem
   return artifact.attribute_items.map((r) => ({ item_id: r.item_id, rater_a: r.rater_a, rater_b: r.rater_b }));
 }
 
-export function continuousCanSave(items: ContinuousItemValue[], gaugeIncrementText: string, operator: string): boolean {
+/** The exact fields the Run/Save button's disabled state depends on, named
+ * in plain English -- continuousCanSave below and the rendered
+ * "Missing: ..." hint both read from this one list (Jordan usability fix). */
+export function continuousMissingFields(items: ContinuousItemValue[], gaugeIncrementText: string, operator: string): string[] {
+  const missing: string[] = [];
+  if (operator.trim() === "") missing.push("operator");
   const increment = Number(gaugeIncrementText);
-  return (
-    items.length > 0 &&
-    operator.trim() !== "" &&
-    Number.isFinite(increment) &&
-    increment > 0 &&
-    items.every((it) => it.item_id.trim() !== "" && it.readings.some((r) => parseReading(r) != null))
-  );
+  if (!(Number.isFinite(increment) && increment > 0)) missing.push("gauge increment (> 0)");
+  if (items.length === 0) missing.push("at least one item");
+  else if (!items.every((it) => it.item_id.trim() !== "")) missing.push("every item's id");
+  else if (!items.every((it) => it.readings.some((r) => parseReading(r) != null))) missing.push("at least one reading per item");
+  return missing;
+}
+
+export function continuousCanSave(items: ContinuousItemValue[], gaugeIncrementText: string, operator: string): boolean {
+  return continuousMissingFields(items, gaugeIncrementText, operator).length === 0;
+}
+
+export function attributeMissingFields(items: AttributeItemValue[], operator: string): string[] {
+  const missing: string[] = [];
+  if (operator.trim() === "") missing.push("operator");
+  if (items.length === 0) missing.push("at least one item");
+  else if (!items.every((it) => it.item_id.trim() !== "")) missing.push("every item's id");
+  return missing;
 }
 
 export function attributeCanSave(items: AttributeItemValue[], operator: string): boolean {
-  return items.length > 0 && operator.trim() !== "" && items.every((it) => it.item_id.trim() !== "");
+  return attributeMissingFields(items, operator).length === 0;
 }
 
 export function toneForVerdict(verdict: MsaVerdict): VerdictTone {

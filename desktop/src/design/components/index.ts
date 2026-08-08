@@ -19,3 +19,6 @@ export { YesNoToggle } from "./YesNoToggle";
 
 export { Modal } from "./Modal";
 export type { ModalProps } from "./Modal";
+
+export { MissingHint } from "./MissingHint";
+export type { MissingHintProps } from "./MissingHint";

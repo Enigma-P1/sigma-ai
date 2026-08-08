@@ -1,9 +1,10 @@
-import { Button, Field, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
 import { OperationalDefinitionFields } from "./OperationalDefinitionFields";
 import { StratificationFactorsFields } from "./StratificationFactorsFields";
 import { LogisticsFields } from "./LogisticsFields";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { COLLECTION_PLAN_CHECK_LABELS } from "./collectionPlanChecks";
+import { collectionPlanMissingFields } from "./collectionPlanLogic";
 import { useCollectionPlanForm } from "./useCollectionPlanForm";
 import { DATA_COLLECTION_DATA_TYPES } from "../../api/types";
 import type { DataCollectionDataType, ProjectMetadata } from "../../api/types";
@@ -59,6 +60,7 @@ export function CollectionPlanForm({ projectId, project, onSaved }: CollectionPl
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="dcp-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={collectionPlanMissingFields(f.stratificationFactors)} />}
 
       <PrescoreStrip results={f.prescore} labels={COLLECTION_PLAN_CHECK_LABELS} />
     </Panel>

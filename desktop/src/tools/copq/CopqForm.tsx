@@ -1,9 +1,9 @@
-import { Button, Field, Panel, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import { DynamicList } from "../charter/DynamicList";
 import { CopqRowFields } from "./CopqRowFields";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { COPQ_CHECK_LABELS } from "./copqChecks";
-import { copqRowsFlag, emptyCopqRow } from "./copqLogic";
+import { copqMissingFields, copqRowsFlag, copqTotalDisplay, emptyCopqRow } from "./copqLogic";
 import { useCopqForm } from "./useCopqForm";
 import type { ProjectMetadata } from "../../api/types";
 
@@ -58,10 +58,10 @@ export function CopqForm({ projectId, project, onSaved }: CopqFormProps) {
           tone={f.serverArtifact ? "pass" : "neutral"}
           headline={
             f.serverArtifact
-              ? `Total: ${f.serverArtifact.total.value.toLocaleString()}`
+              ? `Total: ${copqTotalDisplay(f.serverArtifact)}`
               : "Total not yet computed — save to get the engine's number"
           }
-          detail={f.serverArtifact ? "Computed by the engine, never typed in on this screen (rubric R-DEF-05)." : undefined}
+          detail={f.serverArtifact ? <span title="R-DEF-05">Computed by the engine, never typed in on this screen.</span> : undefined}
         />
       </div>
 
@@ -70,6 +70,7 @@ export function CopqForm({ projectId, project, onSaved }: CopqFormProps) {
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="copq-save">
         {f.saving ? "Saving…" : f.version != null ? "Save new version" : "Save"}
       </Button>
+      {!f.saving && <MissingHint fields={copqMissingFields(f.rows)} />}
 
       <PrescoreStrip results={f.prescore} labels={COPQ_CHECK_LABELS} />
     </Panel>

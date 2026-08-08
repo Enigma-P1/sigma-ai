@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Field, Panel, TextArea, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, TextArea, VerdictBanner } from "../../design/components";
 import type { FieldFlag } from "../../design/components";
 import { ProblemStatementSection } from "./ProblemStatementSection";
 import { GoalSection } from "./GoalSection";
@@ -56,6 +56,30 @@ export interface CharterFormProps {
   onSaved: () => void;
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- the single source both `canSave` and the rendered
+ * "Missing: ..." hint read from, so the two can never drift apart
+ * (Jordan usability fix). */
+function missingCharterFields(state: CharterState): string[] {
+  const missing: string[] = [];
+  if (!state.problem_statement.what.trim()) missing.push("problem statement: what");
+  if (!state.problem_statement.where.trim()) missing.push("problem statement: where");
+  if (!state.problem_statement.when.trim()) missing.push("problem statement: when");
+  if (!state.goal.statement.trim()) missing.push("goal statement");
+  if (!state.goal.metric_name.trim()) missing.push("goal metric name");
+  if (!state.goal.unit.trim()) missing.push("goal unit");
+  if (!state.goal.target_date.trim()) missing.push("goal target date");
+  if (!state.scope.in_scope.trim()) missing.push("scope: in-scope");
+  if (!state.scope.out_scope.trim()) missing.push("scope: out-of-scope");
+  if (!state.process_owner.name.trim()) missing.push("process owner name");
+  if (!state.process_owner.role.trim()) missing.push("process owner role");
+  if (state.team.length === 0) missing.push("at least one team member");
+  if (state.timeline.length === 0) missing.push("at least one timeline milestone");
+  if (!state.business_impact.unit.trim()) missing.push("business impact unit");
+  if (!state.business_impact.basis.trim()) missing.push("business impact basis");
+  return missing;
+}
+
 /** T-03 Project Charter form -- the second of the two proof screens (M1
  * brief). Composed from the section components in this directory; this
  * file owns the state, load/save wiring, and field-flag resolution. */
@@ -109,23 +133,8 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
     return undefined;
   }
 
-  const canSave =
-    !saving &&
-    state.problem_statement.what.trim() &&
-    state.problem_statement.where.trim() &&
-    state.problem_statement.when.trim() &&
-    state.goal.statement.trim() &&
-    state.goal.metric_name.trim() &&
-    state.goal.unit.trim() &&
-    state.goal.target_date.trim() &&
-    state.scope.in_scope.trim() &&
-    state.scope.out_scope.trim() &&
-    state.process_owner.name.trim() &&
-    state.process_owner.role.trim() &&
-    state.team.length > 0 &&
-    state.timeline.length > 0 &&
-    state.business_impact.unit.trim() &&
-    state.business_impact.basis.trim();
+  const missingFields = missingCharterFields(state);
+  const canSave = !saving && missingFields.length === 0;
 
   async function handleSave() {
     setSaving(true);
@@ -276,6 +285,7 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
         <Button variant="primary" disabled={!canSave} onClick={() => void handleSave()} data-testid="charter-save">
           {saving ? "Saving…" : version != null ? "Save new version" : "Save"}
         </Button>
+        {!saving && <MissingHint fields={missingFields} />}
 
         <PrescoreStrip results={prescore} labels={CHARTER_CHECK_LABELS} />
       </Panel>

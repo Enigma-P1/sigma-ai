@@ -37,15 +37,22 @@ export function processStepsToBody(steps: { description: string }[]): ProcessSte
   return steps.map((s, i) => ({ step_number: i + 1, description: s.description.trim() }));
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- sipocCanSave below and the rendered "Missing: ..."
+ * hint both read from this one list (Jordan usability fix). */
+export function sipocMissingFields(state: SipocState): string[] {
+  const missing: string[] = [];
+  if (state.supplier_input_pairs.length === 0) missing.push("at least one supplier/input pair");
+  else if (!state.supplier_input_pairs.every((p) => p.supplier.trim() && p.input.trim())) missing.push("every supplier/input pair filled in");
+  if (state.process_steps.length === 0) missing.push("at least one process step");
+  else if (!state.process_steps.every((s) => s.description.trim())) missing.push("every process step described");
+  if (state.output_customer_pairs.length === 0) missing.push("at least one output/customer pair");
+  else if (!state.output_customer_pairs.every((p) => p.output.trim() && p.customer.trim())) missing.push("every output/customer pair filled in");
+  if (state.scope_start.trim() === "") missing.push("scope start");
+  if (state.scope_end.trim() === "") missing.push("scope end");
+  return missing;
+}
+
 export function sipocCanSave(state: SipocState): boolean {
-  return (
-    state.supplier_input_pairs.length > 0 &&
-    state.supplier_input_pairs.every((p) => p.supplier.trim() && p.input.trim()) &&
-    state.process_steps.length > 0 &&
-    state.process_steps.every((s) => s.description.trim()) &&
-    state.output_customer_pairs.length > 0 &&
-    state.output_customer_pairs.every((p) => p.output.trim() && p.customer.trim()) &&
-    state.scope_start.trim() !== "" &&
-    state.scope_end.trim() !== ""
-  );
+  return sipocMissingFields(state).length === 0;
 }

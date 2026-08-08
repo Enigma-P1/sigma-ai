@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Field, Panel, TextArea, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, TextArea, VerdictBanner } from "../../design/components";
 import { CriterionField } from "./CriterionField";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { PICKER_CHECK_LABELS } from "./pickerChecks";
@@ -98,9 +98,19 @@ export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
   }, [projectId, existingVersion]);
 
   const answeredBooleans = PICKER_CRITERIA_KEYS.map((k) => criteria[k].answer);
-  const allAnswered = answeredBooleans.every((a) => a !== null) && PICKER_CRITERIA_KEYS.every((k) => criteria[k].detail.trim());
-  const routeValid = route !== null && routeIsConsistent(answeredBooleans.map(Boolean), route);
-  const canSave = allAnswered && routeValid && !saving;
+
+  // The exact fields the Save button's disabled state depends on, named in
+  // plain English -- canSave below and the rendered "Missing: ..." hint
+  // both read from this one list (Jordan usability fix).
+  const missingFields: string[] = [];
+  for (const meta of CRITERIA_META) {
+    if (criteria[meta.key].answer === null) missingFields.push(`${meta.label} (answer)`);
+    else if (!criteria[meta.key].detail.trim()) missingFields.push(`${meta.label} (detail)`);
+  }
+  if (route === null) missingFields.push("a route");
+  else if (!routeIsConsistent(answeredBooleans.map(Boolean), route)) missingFields.push("a route consistent with the criteria answers");
+
+  const canSave = missingFields.length === 0 && !saving;
 
   function updateCriterion(key: PickerCriterionKey, patch: Partial<{ answer: boolean; detail: string }>) {
     setCriteria((prev) => ({ ...prev, [key]: { ...prev[key], ...patch } }));
@@ -205,6 +215,7 @@ export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
       <Button variant="primary" disabled={!canSave} onClick={() => void handleSave()} data-testid="picker-save">
         {saving ? "Saving…" : version != null ? "Save new version" : "Save"}
       </Button>
+      {!saving && <MissingHint fields={missingFields} />}
 
       <PrescoreStrip results={prescore} labels={PICKER_CHECK_LABELS} />
     </Panel>

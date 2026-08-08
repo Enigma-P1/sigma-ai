@@ -18,9 +18,15 @@ export const emptyObservationWindow: ObservationWindow = { when: "", duration: "
 /** floor_plan is SpaghettiArtifact's one schema-required field (every
  * other coordinate on the canvas is meaningless without it) -- everything
  * else can legitimately be empty on an early save (mirrors T-06's
- * lanes/steps-required, demand-optional split). */
+ * lanes/steps-required, demand-optional split). canSaveSpaghetti below and
+ * the rendered "Missing: ..." hint both read from this one list (Jordan
+ * usability fix). */
+export function spaghettiMissingFields(floorPlan: FloorPlanRef | null): string[] {
+  return floorPlan == null ? ["a floor plan image"] : [];
+}
+
 export function canSaveSpaghetti(floorPlan: FloorPlanRef | null): boolean {
-  return floorPlan != null;
+  return spaghettiMissingFields(floorPlan).length === 0;
 }
 
 export function buildSpaghettiBody(input: {

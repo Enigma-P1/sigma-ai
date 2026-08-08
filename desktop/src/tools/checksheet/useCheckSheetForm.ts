@@ -5,7 +5,8 @@ import { useSaveState } from "../../app/SaveStateContext";
 import type { CheckSheetArtifact, CheckSheetCategory, CheckSheetEntry, DatasetMeta, PrescoreResult, ProjectMetadata, StrataFieldDef } from "../../api/types";
 import {
   buildCheckSheetBody, canSaveCheckSheet, checkSheetStateFromArtifact, deriveStrataOptions,
-  emptyCategory, emptyStrataField, makeTallyEntry, markEntryDeleted, removeCategoryCascade, removeStrataFieldCascade,
+  emptyCategory, emptyStrataField, makeTallyEntry, makeTranscribedEntries, markEntryDeleted,
+  removeCategoryCascade, removeStrataFieldCascade,
 } from "./checkSheetLogic";
 
 const ARTIFACT_ID = "checksheet";
@@ -111,6 +112,12 @@ export function useCheckSheetForm(projectId: string, project: ProjectMetadata, o
     setEntries((p) => [...p, makeTallyEntry(categoryId, activeStrata)]);
     dirty();
   }
+  /** "Transcribe a paper tally" mode's log action -- one entry per
+   * category with count > 0, entry_mode="transcribed" (checkSheetLogic.ts). */
+  function logTranscribed(counts: Record<string, number>, asOf: string, sourceNote: string) {
+    setEntries((p) => [...p, ...makeTranscribedEntries(counts, asOf, sourceNote)]);
+    dirty();
+  }
   function updateEntryNote(entryId: string, note: string) {
     setEntries((p) => p.map((e) => (e.entry_id === entryId ? { ...e, note } : e)));
     dirty();
@@ -165,7 +172,7 @@ export function useCheckSheetForm(projectId: string, project: ProjectMetadata, o
     categories, addCategory, updateCategory, removeCategory,
     strataFields, addStrataField, updateStrataField, removeStrataField,
     activeStrata, strataOptions, setActiveStratumValue, addStrataOption,
-    entries, tap, updateEntryNote, deleteEntry, tallyByCategory: entries,
+    entries, tap, logTranscribed, updateEntryNote, deleteEntry, tallyByCategory: entries,
     version, saving, canSave: canSaveCheckSheet(categories) && !saving,
     generalError, prescore, serverArtifact, handleSave,
     dataset, sendingToPareto, sendError, handleSendToPareto,

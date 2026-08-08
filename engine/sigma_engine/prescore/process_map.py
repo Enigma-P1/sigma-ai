@@ -23,7 +23,7 @@ in the M2 schema brief's field list.
 
 from __future__ import annotations
 
-from ..artifacts.process_map import ProcessMapArtifact, compute_bottleneck
+from ..artifacts.process_map import ProcessMapArtifact, compute_constraint_step, compute_longest_step
 from .common import PrescoreResult
 
 MIN_LANES = 2
@@ -126,19 +126,24 @@ def _waste_notes_present(artifact: ProcessMapArtifact) -> PrescoreResult:
 
 def _bottleneck_fields_consistency(artifact: ProcessMapArtifact) -> PrescoreResult:
     """Mirrors prescore/copq.py's total_matches_rows: the live validator
-    always recomputes `bottleneck`, so this only catches a saved artifact
-    file that was hand-edited on disk after the fact (routes/artifacts.py's
-    GET path returns the stored dict verbatim, unvalidated)."""
-    recomputed = compute_bottleneck(artifact.steps, artifact.demand)
-    stored, fresh = artifact.bottleneck, recomputed
-    if stored is None and fresh is None:
-        matches, detail = True, "no bottleneck expected yet (demand incomplete or no step has a time)"
-    elif stored is None or fresh is None:
-        matches, detail = False, "stored bottleneck presence doesn't match what the current steps/demand recompute to"
-    else:
-        matches = stored.value == fresh.value
-        detail = (
-            "stored bottleneck matches recomputed" if matches
-            else f"stored {stored.value!r} != recomputed {fresh.value!r} -- the file may have been hand-edited"
-        )
+    always recomputes `longest_step` and `constraint_step`, so this only
+    catches a saved artifact file that was hand-edited on disk after the
+    fact (routes/artifacts.py's GET path returns the stored dict verbatim,
+    unvalidated). Checks both fields; either one mismatching is a flag."""
+    fresh_longest = compute_longest_step(artifact.steps)
+    fresh_constraint = compute_constraint_step(artifact.steps, artifact.demand)
+    mismatched: list[str] = []
+    for name, stored, fresh in (
+        ("longest_step", artifact.longest_step, fresh_longest),
+        ("constraint_step", artifact.constraint_step, fresh_constraint),
+    ):
+        if stored is None and fresh is None:
+            continue
+        if stored is None or fresh is None or stored.value != fresh.value:
+            mismatched.append(name)
+    matches = not mismatched
+    detail = (
+        "stored longest_step and constraint_step both match recomputed" if matches
+        else f"stored {', '.join(mismatched)} != recomputed -- the file may have been hand-edited"
+    )
     return PrescoreResult(check_id="bottleneck_fields_consistency", tool_id="T-06", status="pass" if matches else "flag", detail=detail)

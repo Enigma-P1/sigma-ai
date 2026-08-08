@@ -1,10 +1,11 @@
-import { Button, Field, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
 import { AttributeStudyFields } from "./AttributeStudyFields";
 import { ContinuousStudyFields } from "./ContinuousStudyFields";
 import { Exit03Panel } from "./Exit03Panel";
 import { MsaResultView } from "./MsaResultView";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { MSA_CHECK_LABELS } from "./msaChecks";
+import { attributeMissingFields, continuousMissingFields } from "./msaLogic";
 import { useMsaForm } from "./useMsaForm";
 import type { MsaDataType, ProjectMetadata } from "../../api/types";
 import "./MsaForm.css";
@@ -22,6 +23,10 @@ export interface MsaFormProps {
  * response, same contract as BaselineResultView (T-13). */
 export function MsaForm({ projectId, project, onSaved }: MsaFormProps) {
   const f = useMsaForm(projectId, project, onSaved);
+  const missingFields =
+    f.dataType === "continuous"
+      ? continuousMissingFields(f.continuousItems, f.gaugeIncrementText, f.operator)
+      : attributeMissingFields(f.attributeItems, f.operator);
 
   return (
     <Panel title="Measurement Check (MSA)" right={f.version != null && <span data-testid="msa-version-badge">v{f.version} saved</span>}>
@@ -63,6 +68,7 @@ export function MsaForm({ projectId, project, onSaved }: MsaFormProps) {
       <Button variant="primary" disabled={!f.canSave} onClick={() => void f.handleSave()} data-testid="msa-run">
         {f.saving ? "Running…" : f.version != null ? "Re-run measurement check" : "Run measurement check"}
       </Button>
+      {!f.saving && <MissingHint fields={missingFields} />}
 
       {f.serverArtifact?.result && <MsaResultView result={f.serverArtifact.result} />}
 

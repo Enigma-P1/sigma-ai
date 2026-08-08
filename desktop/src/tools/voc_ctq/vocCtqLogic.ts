@@ -59,19 +59,26 @@ export function vocCtqStateFromArtifact(artifact: VocCtqArtifact): VocCtqState {
   };
 }
 
+/** The exact fields the Save button's disabled state depends on, named in
+ * plain English -- vocCtqCanSave below and the rendered "Missing: ..."
+ * hint both read from this one list (Jordan usability fix). */
+export function vocCtqMissingFields(state: VocCtqState): string[] {
+  const missing: string[] = [];
+  if (state.customers.length === 0) missing.push("at least one customer");
+  else if (!state.customers.every((c) => c.role.trim())) missing.push("every customer's role");
+  if (state.statements.length === 0) missing.push("at least one VoC statement");
+  else if (!state.statements.every((s) => s.customer_role.trim() && s.text.trim())) missing.push("every statement's customer + text");
+  if (state.needs.length === 0) missing.push("at least one need");
+  else if (!state.needs.every((n) => n.text.trim() && n.statement_ids.length > 0)) missing.push("every need's text + linked statement(s)");
+  if (state.ctqs.length === 0) missing.push("at least one CTQ");
+  else if (!state.ctqs.every((c) => c.need_id.trim() && c.measure.trim() && c.critical_vs_easy_check.trim())) missing.push("every CTQ's need + measure + critical-vs-easy check");
+  if (state.primary_ctq_id.trim() === "") missing.push("primary CTQ");
+  if (state.charter_metric_link.trim() === "") missing.push("charter metric link");
+  return missing;
+}
+
 export function vocCtqCanSave(state: VocCtqState): boolean {
-  return (
-    state.customers.length > 0 &&
-    state.customers.every((c) => c.role.trim()) &&
-    state.statements.length > 0 &&
-    state.statements.every((s) => s.customer_role.trim() && s.text.trim()) &&
-    state.needs.length > 0 &&
-    state.needs.every((n) => n.text.trim() && n.statement_ids.length > 0) &&
-    state.ctqs.length > 0 &&
-    state.ctqs.every((c) => c.need_id.trim() && c.measure.trim() && c.critical_vs_easy_check.trim()) &&
-    state.primary_ctq_id.trim() !== "" &&
-    state.charter_metric_link.trim() !== ""
-  );
+  return vocCtqMissingFields(state).length === 0;
 }
 
 export const CTQ_DIRECTION_LABELS: Record<CtqDirection, string> = {
