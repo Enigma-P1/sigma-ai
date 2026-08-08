@@ -13,6 +13,7 @@ from .charter import (
     TimelineMilestone,
 )
 from .copq import CopqArtifact, CopqRow, compute_copq_total
+from .msa import AttributeJudgmentRow, ContinuousItemRow, MsaArtifact
 from .picker import IntakeCriterion, PickerArtifact, Route, route_is_consistent
 from .sipoc import OutputCustomerPair, ProcessStep, SipocArtifact, SupplierInputPair
 from .voc_ctq import Ctq, Customer, CustomerNeed, VocCtqArtifact, VocStatement
@@ -31,6 +32,9 @@ __all__ = [
     "CopqArtifact",
     "CopqRow",
     "compute_copq_total",
+    "AttributeJudgmentRow",
+    "ContinuousItemRow",
+    "MsaArtifact",
     "IntakeCriterion",
     "PickerArtifact",
     "Route",

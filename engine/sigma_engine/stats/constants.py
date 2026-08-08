@@ -112,3 +112,62 @@ EXIT05_MIN_N_FOR_PERCENTILE_CAPABILITY = 100
 PERCENTILE_UPPER = 99.865
 PERCENTILE_LOWER = 0.135
 PERCENTILE_MEDIAN = 50.0
+
+# --- T-12 Measurement Check / MSA (msa.py) ----------------------------------
+# Every number below is frozen in docs/traceability-matrix.md §4a, EXIT-02
+# rows (continuous + attribute) -- not this milestone's to choose.
+
+# Resolution pre-check (continuous, run before any repeatability math):
+# gauge increment must be <= 1/10 of the span it must resolve, AND the
+# readings must show >=5 distinct values -- either failure is automatic
+# fail ("the gauge can't see the process").
+MSA_RESOLUTION_MAX_INCREMENT_FRACTION_OF_SPAN = 0.10
+MSA_RESOLUTION_MIN_DISTINCT_VALUES = 5
+
+# Sample guidance (matrix §4a: "≥10 items spanning the observed range,
+# near-limit items when specs exist"; ">=2 repeat readings per item") --
+# advisory/prescore-flagged (PLAN §4.2 soft/hard split), not a hard gate:
+# a study can run smaller, it just says so honestly.
+MSA_MIN_ITEMS_GUIDANCE = 10
+MSA_MIN_REPEATS_PER_ITEM = 2
+
+# Repeatability% (a.k.a. "%EV," renamed "repeatability%" at Belt-panel
+# round 2 -- matrix III.E): %EV = 6*s_repeat / denominator * 100.
+MSA_REPEATABILITY_EV_SIGMA_MULTIPLIER = 6.0
+# Bands are exclusive-exhaustive (matrix §4a, round-3 lock fix): <=10
+# acceptable; >10 and <=30 marginal; >30 fail. Golden-pinned at exactly
+# 10.0 (acceptable) and exactly 30.0 (marginal).
+MSA_REPEATABILITY_ACCEPTABLE_MAX_PERCENT = 10.0
+MSA_REPEATABILITY_MARGINAL_MAX_PERCENT = 30.0
+
+# Two-rater Cohen's kappa bands (matrix §4a, round-3 lock fix, also
+# exclusive-exhaustive): >=0.75 acceptable; >=0.40 and <0.75 marginal;
+# <0.40 fail. Golden-pinned at exactly kappa=0.75 (acceptable).
+MSA_KAPPA_ACCEPTABLE_MIN = 0.75
+MSA_KAPPA_MARGINAL_MIN = 0.40
+
+# Belt-panel note, printed on every continuous verdict (matrix §4a / rubric
+# R-MEA-07 Pass #1): the 10%/30% bands are borrowed from full-gauge-study
+# convention, so passing them on repeatability alone is the lenient side.
+MSA_REPEATABILITY_ONLY_CAVEAT = (
+    "Repeatability-only: a full multi-operator gauge study was not done here. "
+    "The 10% / 30% bands above are borrowed from full-gauge-study convention, "
+    "so passing them on repeatability alone is the lenient side -- a full "
+    "study could only read worse, not better."
+)
+
+# --- T-11 sample-size guidance (sample_size.py) -----------------------------
+# I-MR baseline rule of thumb: convention, not a derived law (task brief) --
+# loosely anchored above this engine's own EXIT-04 floor for freezing
+# control limits (matrix §4a: >=20 points, imported from baseline's
+# constants below by the module, not re-declared) with headroom for a few
+# points to be excludable as special causes and still clear that floor.
+IMR_BASELINE_MIN_N_CONVENTION = 25
+IMR_BASELINE_RECOMMENDED_N_CONVENTION = 30
+
+# Margin-of-error calculators (means, proportions): NIST/SEMATECH §7.2.1
+# (CI for a mean) and §7.2.4/§7.2.4.2 (CI for a proportion), each solved
+# for n. Default confidence level when the caller doesn't state one.
+#   https://www.itl.nist.gov/div898/handbook/prc/section2/prc221.htm
+#   https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm
+SAMPLE_SIZE_DEFAULT_CONFIDENCE_LEVEL = 0.95

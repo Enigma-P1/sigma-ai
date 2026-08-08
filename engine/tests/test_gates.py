@@ -172,3 +172,47 @@ def test_hard_block_never_carries_an_override_note(tmp_path):
     result = gates.check("intake_picker_not_exit01", snapshot, [])
     assert result.status == "HARD_BLOCK"
     assert result.overridden is False
+
+
+# --- measure_capability_language_requires_msa_pass (T-12 hard gate) --------
+
+def test_msa_gate_clears_when_no_msa_has_ever_run():
+    snapshot = gates.ProjectSnapshot(msa_verdict=None)
+    result = gates.check("measure_capability_language_requires_msa_pass", snapshot)
+    assert result.status == "CLEAR"
+
+
+@pytest.mark.parametrize("verdict", ["acceptable", "marginal"])
+def test_msa_gate_clears_on_a_non_failing_verdict(verdict):
+    snapshot = gates.ProjectSnapshot(msa_verdict=verdict)
+    result = gates.check("measure_capability_language_requires_msa_pass", snapshot)
+    assert result.status == "CLEAR"
+
+
+def test_msa_gate_hard_blocks_on_a_failed_verdict_and_names_exit02():
+    snapshot = gates.ProjectSnapshot(msa_verdict="fail")
+    result = gates.check("measure_capability_language_requires_msa_pass", snapshot)
+    assert result.status == "HARD_BLOCK"
+    assert "EXIT-02" in result.reason
+
+
+def test_msa_gate_cannot_be_overridden(tmp_path):
+    store = ProjectStore(tmp_path / "projects")
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    snapshot = gates.ProjectSnapshot(msa_verdict="fail")
+    with pytest.raises(PermissionError):
+        gates.override(
+            "measure_capability_language_requires_msa_pass", "proj-1", "let me past anyway",
+            "2026-08-07T05:00:00", store, snapshot,
+        )
+
+
+def test_msa_gate_clears_once_a_re_run_reads_acceptable():
+    """The fail -> re-run -> clear loop at the gates.py layer: the same
+    check_id, re-evaluated against an updated snapshot (a fresh T-12
+    version with a passing verdict), flips HARD_BLOCK -> CLEAR."""
+    failing = gates.ProjectSnapshot(msa_verdict="fail")
+    assert gates.check("measure_capability_language_requires_msa_pass", failing).status == "HARD_BLOCK"
+
+    passing = gates.ProjectSnapshot(msa_verdict="acceptable")
+    assert gates.check("measure_capability_language_requires_msa_pass", passing).status == "CLEAR"

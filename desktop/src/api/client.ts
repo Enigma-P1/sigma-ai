@@ -21,6 +21,7 @@ import type {
   ParetoResult,
   PrescoreResult,
   ProjectMetadata,
+  SampleSizeResponse,
   SmokeResponse,
 } from "./types";
 
@@ -238,6 +239,27 @@ export function runDescriptive(data: number[]): Promise<Computed<DescriptiveStat
  * (T-14's Pareto chart never decides its own headline client-side). */
 export function runPareto(categories: string[]): Promise<Computed<ParetoResult>> {
   return request<Computed<ParetoResult>>("/stats/pareto", postJson({ categories }));
+}
+
+// ---- Stats: sample-size guidance (routes/stats.py) — T-11 -----------------
+
+export interface SampleSizeRequestBody {
+  calculator?: "mean" | "proportion";
+  planning_sd?: number;
+  planning_p?: number;
+  margin_of_error?: number;
+  confidence_level?: number;
+  is_convenience_sample?: boolean;
+  single_shift_only?: boolean;
+  single_operator_only?: boolean;
+  short_collection_window?: boolean;
+}
+
+/** Always returns the I-MR rule of thumb + applicable bias warnings;
+ * `calculator` in the body additionally runs the requested margin-of-
+ * error formula (T-11's sample-size panel, PLAN §4.1). */
+export function runSampleSize(body: SampleSizeRequestBody): Promise<SampleSizeResponse> {
+  return request<SampleSizeResponse>("/stats/sample-size", postJson(body));
 }
 
 // ---- diagnostics (main.py) ----

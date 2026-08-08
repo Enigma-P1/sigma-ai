@@ -456,6 +456,11 @@ export interface BaselineResult {
   gate_ok: boolean;
   gate_message: string | null;
   n: number | null;
+  /** "failed" whenever the project's latest T-12 (Measurement Check)
+   * verdict reads "fail" (matrix §4a EXIT-02) -- capability/percentile_
+   * capability/observed_yield/sigma are all null whenever this is set
+   * (stats/baseline.py suppresses them server-side, not just a label). */
+  measurement_check: "failed" | null;
   descriptive: Computed<DescriptiveStats> | null;
   stability: Computed<ImrChartResult> | null;
   stable: boolean | null;
@@ -498,4 +503,130 @@ export interface ParetoResult {
   /** No small subset of categories dominates — the honest "flat-bars"
    * case (research §F), not a forced vital-few claim. */
   flat: boolean;
+}
+
+// ---- Stats: MSA (engine/sigma_engine/stats/msa.py) — T-12 -----------------
+
+export type MsaVerdict = "acceptable" | "marginal" | "fail";
+export type MsaDataType = "continuous" | "attribute";
+export type MsaSpanBasis = "tolerance" | "observed_spread";
+export type MsaDenominator = "tolerance" | "study_variation";
+
+export interface ResolutionCheckResult {
+  gauge_increment: number;
+  span: number;
+  span_basis: MsaSpanBasis;
+  increment_to_span_ratio: number | null;
+  distinct_value_count: number;
+  passed: boolean;
+  reasons: string[];
+}
+
+export interface RepeatabilityResult {
+  s_repeat: number;
+  denominator_value: number;
+  denominator: MsaDenominator;
+  ev_percent: number;
+  verdict: MsaVerdict;
+  items_used: number;
+  items_excluded: string[];
+  exclusion_reasons: string[];
+}
+
+export interface AttributeAgreementResult {
+  n: number;
+  percent_agreement: number;
+  kappa: number;
+  p_observed: number;
+  p_expected: number;
+  verdict: MsaVerdict;
+}
+
+export interface Exit02Payload {
+  exit_id: "EXIT-02";
+  message: string;
+  routes_to: string;
+}
+
+export interface Exit03Payload {
+  exit_id: "EXIT-03";
+  message: string;
+  out_of_scope_examples: string[];
+  routes_to: string;
+}
+
+export interface MsaResult {
+  data_type: MsaDataType;
+  verdict: MsaVerdict;
+  resolution_check: ResolutionCheckResult | null;
+  repeatability: Computed<RepeatabilityResult> | null;
+  attribute_agreement: Computed<AttributeAgreementResult> | null;
+  caveat: string | null;
+  exit02: Exit02Payload | null;
+}
+
+// ---- T-12 Measurement Check artifact (artifacts/msa.py) -------------------
+
+export interface ContinuousItemRow {
+  item_id: string;
+  /** A `null` slot is a missing/invalid repeat -- excluded from s_repeat
+   * server-side and logged, never treated as zero. */
+  readings: (number | null)[];
+}
+
+export interface AttributeJudgmentRow {
+  item_id: string;
+  rater_a: boolean;
+  rater_b: boolean;
+}
+
+export interface MsaArtifact extends ArtifactBase {
+  tool_id: "T-12";
+  data_type: MsaDataType;
+  operator: string;
+  gauge_name?: string | null;
+  gauge_increment?: number | null;
+  usl?: number | null;
+  lsl?: number | null;
+  continuous_items: ContinuousItemRow[];
+  attribute_items: AttributeJudgmentRow[];
+  /** Server-computed, never hand-typed -- present once the engine has
+   * echoed the artifact back (validate/save/load), absent on a fresh
+   * client-side draft that hasn't round-tripped yet. */
+  result?: MsaResult | null;
+}
+
+// ---- Stats: sample-size guidance (stats/sample_size.py) — T-11 ------------
+
+export interface RuleOfThumbResult {
+  context: "imr_baseline";
+  minimum_n: number;
+  recommended_n: number;
+  rationale: string;
+}
+
+export interface MeanSampleSizeResult {
+  n: number;
+  n_exact: number;
+  z: number;
+  confidence_level: number;
+  planning_sd: number;
+  margin_of_error: number;
+  plain_english: string;
+}
+
+export interface ProportionSampleSizeResult {
+  n: number;
+  n_exact: number;
+  z: number;
+  confidence_level: number;
+  planning_p: number;
+  margin_of_error: number;
+  plain_english: string;
+}
+
+export interface SampleSizeResponse {
+  rule_of_thumb: RuleOfThumbResult;
+  calculator: Computed<MeanSampleSizeResult> | Computed<ProportionSampleSizeResult> | null;
+  warnings: string[];
 }

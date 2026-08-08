@@ -6,11 +6,12 @@ from __future__ import annotations
 
 from typing import Callable
 
-from .artifacts import ArtifactBase, CharterArtifact, CopqArtifact, PickerArtifact, SipocArtifact, VocCtqArtifact
+from .artifacts import ArtifactBase, CharterArtifact, CopqArtifact, MsaArtifact, PickerArtifact, SipocArtifact, VocCtqArtifact
 from .prescore import (
     PrescoreResult,
     run_charter_prescore,
     run_copq_prescore,
+    run_msa_prescore,
     run_picker_prescore,
     run_sipoc_prescore,
     run_voc_ctq_prescore,
@@ -22,6 +23,7 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-03": CharterArtifact,
     "T-04": SipocArtifact,
     "T-05": VocCtqArtifact,
+    "T-12": MsaArtifact,
 }
 
 PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
@@ -30,4 +32,5 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-03": run_charter_prescore,
     "T-04": run_sipoc_prescore,
     "T-05": run_voc_ctq_prescore,
+    "T-12": run_msa_prescore,
 }

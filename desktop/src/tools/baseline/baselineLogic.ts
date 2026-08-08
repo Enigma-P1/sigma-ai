@@ -29,6 +29,8 @@ export const PP_ONE_SIDED_CELL_TEXT = "not available (needs both spec limits)";
 
 export function exitExplanation(exitId: string): string {
   switch (exitId) {
+    case "EXIT-02":
+      return "EXIT-02: the project's latest measurement check (T-12) failed — capability language is blocked until a passing re-run.";
     case "EXIT-04":
       return "EXIT-04: the I-MR chart signaled instability (or too few points to freeze limits) — this is a performance read, not a capability claim.";
     case "EXIT-05":
@@ -37,6 +39,16 @@ export function exitExplanation(exitId: string): string {
       return exitId;
   }
 }
+
+// The banner BaselineResultView renders whenever result.measurement_check
+// === "failed" (matrix §4a EXIT-02) -- capability/percentile_capability/
+// observed_yield/sigma are all null on that same response (stats/
+// baseline.py suppresses them server-side), so this banner is the only
+// place those numbers would have rendered.
+export const MEASUREMENT_CHECK_FAILED_HEADLINE = "Unreliable — measurement system failed";
+export const MEASUREMENT_CHECK_FAILED_DETAIL =
+  "The project's latest measurement check (T-12) reads fail. Capability language is blocked until a passing " +
+  "re-run — fix the measurement system, re-run T-12, then come back and re-run this baseline.";
 
 export function normalityText(n: NormalityResult): string {
   switch (n.advisory) {
