@@ -189,3 +189,74 @@ TIME_STUDY_IQR_FENCE_MULTIPLIER = 1.5
 # names the shortfall, matching rubric R-MEA-04's own worked example: "6
 # cycles; tool recommends 10 -- treat spread as rough").
 TIME_STUDY_MIN_CYCLES_GUIDANCE = 10
+
+# --- T-17 Hypothesis Testing selector (hypothesis_*.py) ---------------------
+# Every frozen number below is docs/traceability-matrix.md §4a's Named-exit
+# registry (EXIT-06..15) -- nothing in hypothesis_*.py chooses its own
+# thresholds, same discipline as the MSA_* block above.
+#
+# DOC CONFLICT FLAGGED (see this milestone's final report): this build
+# brief's own prose paraphrased EXIT-06 as "Welch/1-sample t n>=5 per
+# sample; paired t >=6 pairs" and EXIT-09 as "|r1| ... AND >=0.5". Both are
+# the PRE-Belt-panel-round-2 numbers. §4a states plainly that both were
+# revised -- "(both raised from 5/6 at Belt-panel round 2 -- n=5 invites
+# garbage-as-proof)" for EXIT-06, "(lowered from 0.5 at Belt-panel round 2:
+# moderate dependence already distorts I-MR limits and test error rates)"
+# for EXIT-09 -- and the matrix is marked LOCKED, dated the same day as
+# this brief. Per this brief's own "Read first (binding)" instruction, the
+# matrix is the frozen, most-recently-corrected source, so the CURRENT
+# §4a values ship below (n>=8, pairs>=8, |r1|>=0.3) -- not the brief's
+# paraphrase of the pre-correction numbers.
+
+# EXIT-06: refuse-to-compute floors, per route (§4a EXIT-06 row) -- gates
+# only, explicitly NOT a powered-study guarantee (§4a's own parenthetical:
+# power/adequacy are R-MEA-05's sample-size guidance and R-ANA-05's
+# effect-size/CI discipline, not this floor).
+HYP_MIN_N_WELCH_T = 8               # Welch two-sample t, per sample
+HYP_MIN_N_ONE_SAMPLE_T = 8          # one-sample t vs target
+HYP_MIN_PAIRS_PAIRED_T = 8          # paired t, pairs
+HYP_MIN_GROUPS_ANOVA = 3
+HYP_MIN_N_PER_GROUP_ANOVA = 4
+HYP_PROPORTION_MIN_N_PHAT = 5.0     # n*phat >= 5 AND n*(1-phat) >= 5, per sample
+HYP_MIN_N_PER_GROUP_MANN_WHITNEY = 4
+HYP_MIN_NONZERO_DIFFS_WILCOXON = 6  # both the paired route and the one-sample-vs-target route
+
+# EXIT-07: chi-square sparse-cell rule (Cochran's rule).
+CHI_SQUARE_COCHRAN_MIN_EXPECTED = 5.0
+CHI_SQUARE_COCHRAN_MIN_CELL_FRACTION = 0.80   # >=80% of cells must clear the floor above
+CHI_SQUARE_COCHRAN_ABSOLUTE_FLOOR = 1.0        # AND no cell below this, at all
+
+# EXIT-09: lag-1 autocorrelation, both significant AND material (§4a).
+# NIST/SEMATECH §1.3.3.1 "Autocorrelation Plot" gives both the r_h formula
+# and the +/-2/sqrt(N) large-lag confidence band this significance test
+# reuses: https://www.itl.nist.gov/div898/handbook/eda/section3/eda331.htm
+HYP_AUTOCORR_SIGNIFICANCE_NUMERATOR = 2.0      # |r1| > this / sqrt(n)
+HYP_AUTOCORR_MATERIAL_MIN_ABS_R1 = 0.3          # AND |r1| >= this (lowered from 0.5, Belt-panel round 2)
+
+# EXIT-12: multiplicity -- one pre-declared primary comparison.
+HYP_MAX_PRIMARY_COMPARISONS = 1
+
+# EXIT-13 / EXIT-14 / significance level, frozen throughout (§4a preamble:
+# "Default significance level throughout: alpha = 0.05, two-sided").
+HYP_ALPHA_TWO_SIDED = 0.05
+HYP_CI_CONFIDENCE_LEVEL = 1.0 - HYP_ALPHA_TWO_SIDED  # 0.95 -- ties every CI in this module to the same alpha
+HYP_SWITCH_MAX_GROUP_N = 15                     # per-group n < this considers the rank-route switch (PLAN §4.1)
+HYP_EXIT14_MAX_GROUP_N_FOR_NORMALITY_CONCERN = 20  # matrix §4a EXIT-14 row; deliberately != HYP_SWITCH_MAX_GROUP_N
+# and deliberately != normality.py's own MIN_N_FOR_NORMALITY_JUDGMENT (15)
+# -- see hypothesis_common.py's advisory_normality_concern() docstring for
+# why T-17 runs its own AD-based check instead of reusing assess_normality.
+
+# --- Effect-size interpretation bands (hypothesis_common.py) ---------------
+# Magnitude-in-words only -- never a gate, never a computed threshold.
+# Cohen, J. (1988). Statistical Power Analysis for the Behavioral Sciences
+# (2nd ed.). Lawrence Erlbaum -- conventional small/medium/large benchmarks
+# for d, eta-squared, and r (Cohen's own guidance: "there is a certain risk
+# in offering conventional operational definitions for these terms," used
+# here only to put an approximate word on a number, never to gate output).
+COHEN_D_SMALL, COHEN_D_MEDIUM, COHEN_D_LARGE = 0.2, 0.5, 0.8
+COHEN_ETA2_SMALL, COHEN_ETA2_MEDIUM, COHEN_ETA2_LARGE = 0.01, 0.06, 0.14
+COHEN_R_SMALL, COHEN_R_MEDIUM, COHEN_R_LARGE = 0.1, 0.3, 0.5
+# Cramer's V generic bands (1-df-style rule of thumb, distinct table from
+# Cohen's r above): Rea, L.M., & Parker, R.A. (1992). Designing and
+# Conducting Survey Research. Jossey-Bass.
+CRAMERS_V_WEAK, CRAMERS_V_MODERATE, CRAMERS_V_STRONG = 0.1, 0.3, 0.5
