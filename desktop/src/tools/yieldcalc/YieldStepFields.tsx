@@ -1,12 +1,12 @@
 import { Field, TextInput } from "../../design/components";
 import type { YieldStep } from "../../api/types";
-import { draftDefects, draftDpu, draftFpy, flagFor, fmt, percent } from "./yieldCalcLogic";
+import { draftDefectiveUnits, draftFpy, flagFor, fmt, percent } from "./yieldCalcLogic";
 import type { YieldStepValue } from "./yieldCalcLogic";
 
 export interface YieldStepFieldsProps {
   index: number;
   step: YieldStepValue;
-  /** The engine's own computed step (YieldStep.defects_at_step/dpu_at_step/
+  /** The engine's own computed step (YieldStep.defective_units_at_step/
    * fpy_at_step, artifacts/yield_calc.py) once a save has round-tripped it
    * back -- undefined until then, same "not yet computed" honesty as
    * CopqRowFields' serverAmount. */
@@ -16,13 +16,13 @@ export interface YieldStepFieldsProps {
 }
 
 /** One process step's fields: name, units entering, first-pass-correct
- * units -- the one input convention this tool uses (defects, DPU, and FPY
- * are always engine-derived, read-only here). Rendered inside DynamicList's
- * row wrapper, same split-out-for-length rationale as CopqRowFields. */
+ * units -- the one input convention this tool uses (defective units and
+ * FPY are always engine-derived, read-only here). Rendered inside
+ * DynamicList's row wrapper, same split-out-for-length rationale as
+ * CopqRowFields. */
 export function YieldStepFields({ index, step, serverStep, onChange, errors }: YieldStepFieldsProps) {
   const id = (suffix: string) => `yieldcalc-step-${index}-${suffix}`;
-  const defects = serverStep?.defects_at_step ?? draftDefects(step) ?? undefined;
-  const dpu = serverStep?.dpu_at_step ?? draftDpu(step) ?? undefined;
+  const defectiveUnits = serverStep?.defective_units_at_step ?? draftDefectiveUnits(step) ?? undefined;
   const fpy = serverStep?.fpy_at_step ?? draftFpy(step) ?? undefined;
 
   return (
@@ -43,13 +43,10 @@ export function YieldStepFields({ index, step, serverStep, onChange, errors }: Y
         >
           <TextInput id={id("fpc")} type="number" data-testid={id("fpc")} value={step.first_pass_correct} onChange={(e) => onChange({ first_pass_correct: Number(e.target.value) })} />
         </Field>
-        <Field label="Defects" helper="Computed: units entering − first-pass-correct.">
-          <TextInput data-testid={id("defects")} value={defects != null ? fmt(defects, 2) : "not yet computed"} disabled />
+        <Field label="Defective units" helper="Computed: units entering − first-pass-correct.">
+          <TextInput data-testid={id("defective-units")} value={defectiveUnits != null ? fmt(defectiveUnits, 2) : "not yet computed"} disabled />
         </Field>
-        <Field label="DPU" helper="Computed by the engine.">
-          <TextInput data-testid={id("dpu")} value={dpu != null ? fmt(dpu, 4) : "not yet computed"} disabled />
-        </Field>
-        <Field label="FPY" helper="e^-DPU, computed by the engine.">
+        <Field label="FPY" helper="First-pass-correct ÷ units entering (direct observed ratio), computed by the engine.">
           <TextInput data-testid={id("fpy")} value={fpy != null ? percent(fpy, 2) : "not yet computed"} disabled />
         </Field>
       </div>

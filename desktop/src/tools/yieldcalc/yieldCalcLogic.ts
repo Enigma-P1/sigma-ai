@@ -27,9 +27,10 @@ export function emptyDpmoBlock(): DpmoBlockValue {
 }
 
 /** Rebuild step-row state from a loaded/saved artifact (CopqForm's
- * copqRowsFromArtifact precedent) -- the raw inputs only; defects_at_step/
- * dpu_at_step/fpy_at_step are read straight off the server-echoed steps
- * (YieldStepFields' serverStep prop), never re-derived here. */
+ * copqRowsFromArtifact precedent) -- the raw inputs only;
+ * defective_units_at_step/fpy_at_step are read straight off the
+ * server-echoed steps (YieldStepFields' serverStep prop), never re-derived
+ * here. */
 export function yieldStepsFromArtifact(artifact: YieldCalcArtifact): YieldStepValue[] {
   return artifact.steps.map((s) => ({ name: s.name, units_in: s.units_in, first_pass_correct: s.first_pass_correct }));
 }
@@ -130,24 +131,20 @@ export function sigmaLevelText(sigmaLevel: number | null, digits = 2): string {
   return sigmaLevel == null ? "not finite at this scale (process is far more capable than these DPMO figures require)" : fmt(sigmaLevel, digits);
 }
 
-/** Per-step draft FPY/DPU before the first save -- an honest client-side
- * preview, never presented as the engine's own number (CopqRowFields'
- * serverAmount precedent: once a save round-trips, the server-echoed
- * fpy_at_step/dpu_at_step is what actually renders). */
+/** Per-step draft defective-units/FPY before the first save -- an honest
+ * client-side preview, never presented as the engine's own number
+ * (CopqRowFields' serverAmount precedent: once a save round-trips, the
+ * server-echoed defective_units_at_step/fpy_at_step is what actually
+ * renders). FPY is the direct observed ratio (first_pass_correct /
+ * units_in) -- no modeled estimate, matching the engine's own convention. */
 function draftStepIsSane(step: YieldStepValue): boolean {
   return step.units_in > 0 && step.first_pass_correct >= 0 && step.first_pass_correct <= step.units_in;
 }
 
-export function draftDefects(step: YieldStepValue): number | null {
+export function draftDefectiveUnits(step: YieldStepValue): number | null {
   return draftStepIsSane(step) ? step.units_in - step.first_pass_correct : null;
 }
 
-export function draftDpu(step: YieldStepValue): number | null {
-  if (!draftStepIsSane(step)) return null;
-  return (step.units_in - step.first_pass_correct) / step.units_in;
-}
-
 export function draftFpy(step: YieldStepValue): number | null {
-  const d = draftDpu(step);
-  return d == null ? null : Math.exp(-d);
+  return draftStepIsSane(step) ? step.first_pass_correct / step.units_in : null;
 }

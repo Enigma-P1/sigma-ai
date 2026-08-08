@@ -28,7 +28,7 @@ def test_validate_yield_calc(client):
     assert ok.status_code == 200, ok.text
     body = ok.json()
     assert body["valid"] is True
-    assert body["artifact"]["rty_result"]["value"] == pytest.approx(0.8826259320313404)
+    assert body["artifact"]["rty_result"]["value"] == pytest.approx(0.88)
     assert body["artifact"]["dpmo_result"]["value"]["dpmo"] == pytest.approx(6210.0)
     assert body["artifact"]["dpmo_result"]["value"]["convention"] == "with 1.5σ shift"
 
@@ -41,7 +41,7 @@ def test_save_and_load_yield_calc(client):
 
     loaded = client.get("/project/proj-1/artifacts/yieldcalc-001")
     assert loaded.status_code == 200, loaded.text
-    assert loaded.json()["rty_result"]["value"] == pytest.approx(0.8826259320313404)
+    assert loaded.json()["rty_result"]["value"] == pytest.approx(0.88)
 
 
 def test_prescore_yield_calc_via_registry(client):

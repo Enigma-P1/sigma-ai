@@ -45,7 +45,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..provenance import Computed, compute
 from ..stats.baseline import BaselineResult, run_baseline
-from ..stats.descriptive import compute_descriptive_stats
+from ..stats.descriptive import weighted_mean
 from ..stats.hypothesis_common import GroupInput, HypothesisQuestion
 from ..stats.hypothesis_runner import HypothesisRunResult, run_hypothesis
 from .base import ArtifactBase
@@ -65,12 +65,36 @@ class DataRef(BaseModel):
     """Before/after data: a dataset-column provenance record with the raw
     values inlined (module docstring's "stays free of file I/O" contract
     -- the caller resolves a dataset ref into `values` before this
-    artifact ever validates, exactly HypothesisQuestion's own contract)."""
+    artifact ever validates, exactly HypothesisQuestion's own contract).
+
+    `weights`, when given, is one positive weight per value -- semantically
+    the subgroup size each value was itself already averaged/proportioned
+    over (e.g. a daily defective-rate value paired with that day's order
+    count). Optional and independent on before vs after (rubric R-IMP-03
+    #1 same-yardstick, R-IMP-04 anchor): a same-yardstick metric can still
+    need pooling on one side and not the other (a fixed-size daily sample
+    before the pilot, a variable-size one after). None means every value
+    counts equally -- the plain, unweighted mean this engine has always
+    computed (stats/descriptive.py's weighted_mean(values, None) ==
+    mean(values), byte-identical)."""
 
     dataset_id: str | None = None
     dataset_sha256: str | None = None
     column: str | None = None
     values: list[float] = Field(min_length=2)
+    weights: list[float] | None = None
+
+    @model_validator(mode="after")
+    def _weights_match_values(self) -> "DataRef":
+        if self.weights is None:
+            return self
+        if len(self.weights) != len(self.values):
+            raise ValueError(
+                f"weights ({len(self.weights)}) must be the same length as values ({len(self.values)}) when given"
+            )
+        if any(w <= 0 for w in self.weights):
+            raise ValueError("weights must all be positive -- a zero or negative subgroup size isn't a real weight")
+        return self
 
 
 class GuardrailInput(BaseModel):
@@ -283,12 +307,28 @@ def compute_verdict(
             "for the process owner to accept, never plain 'proven' (rubric R-IMP-03 #5)."
         )
 
+    # Headline is fully determined by computed state (module docstring's
+    # "renders AS DECLARED, never reworded" contract) -- every "improvement"
+    # phrase below is gated on threshold_met; nothing here narrates
+    # improvement past an unmet threshold (rubric R-IMP-03 Fail line,
+    # R-WRAP-01 "claim upgraded in transit" -- critic-confirmed defect).
     parts = []
     if proof_form == "descriptive":
+        # The descriptive branch always states met/not-met (it never did
+        # before -- the critic-confirmed gap) and only uses "observed
+        # improvement" language when the threshold was actually cleared;
+        # a descriptive read against an unmet threshold is just as capable
+        # of over-claiming as the inferential branch, so it gets the same
+        # gate, not a free pass because there's no p-value attached.
+        improvement_clause = (
+            " -- observed improvement is shown, not statistically tested (this design can't carry an inferential "
+            "test)." if threshold_met else
+            " -- no improvement is claimed against the unmet threshold; this design can't carry an inferential "
+            "test either way."
+        )
         parts.append(
-            f"Descriptive proof: {metric_ref} moved to {after_mean:g} against a declared threshold of "
-            f"{threshold_value:g} ({threshold_direction}) -- observed improvement is shown, not statistically "
-            "tested (this design can't carry an inferential test)."
+            f"Threshold {threshold_verdict.replace('_', ' ')}, as declared: {metric_ref} moved to {after_mean:g} "
+            f"against a declared threshold of {threshold_value:g} ({threshold_direction})" + improvement_clause
         )
     else:
         parts.append(
@@ -296,7 +336,17 @@ def compute_verdict(
             f"{threshold_value:g} ({threshold_direction})."
         )
     if weakened:
-        parts.append("Improvement shown, but a reported confounder weakens this proof: " + "; ".join(confounder_notes) + ".")
+        if threshold_met:
+            parts.append("Improvement shown, but a reported confounder weakens this proof: " + "; ".join(confounder_notes) + ".")
+        else:
+            # Threshold not met -- there is no improvement claim to weaken.
+            # The honest sentence weakens attribution on a FAILURE reading
+            # instead (critic finding: this branch previously said
+            # "Improvement shown" unconditionally, even here).
+            parts.append(
+                "Threshold not met, and a reported confounder additionally muddies attribution: "
+                + "; ".join(confounder_notes) + "."
+            )
     if stability_caveat:
         parts.append(stability_caveat)
     if guardrail_tradeoff:
@@ -374,7 +424,16 @@ class ProofArtifact(ArtifactBase):
         )
         self.test_result = run_hypothesis(question)
 
-        after_mean = compute_descriptive_stats(self.after.values).value.mean
+        # Weighted mean when after.weights is given (Fix: R-IMP-03 #1
+        # same-yardstick / R-IMP-04 anchor) -- the pooled estimate for a
+        # set of values that were each already an average/proportion over
+        # a different-sized group (e.g. variable daily order counts), not
+        # an unweighted mean-of-means that treats a light day and a heavy
+        # day as equally informative. None (the continuous, no-weights
+        # path) is byte-identical to the old plain mean(). Everything
+        # downstream -- the threshold check, the gap block, the headline --
+        # uses this one value.
+        after_mean = weighted_mean(self.after.values, self.after.weights)
         threshold_met = (
             after_mean <= self.declared_threshold.value if self.declared_threshold.direction == "lower_is_better"
             else after_mean >= self.declared_threshold.value

@@ -6,25 +6,37 @@ dataset needed. Two independent blocks:
    field" convention as artifacts/copq.py's CopqRow list). Each step
    states units_in and first_pass_correct -- the ONE input convention
    this tool uses (task brief: "pick ONE input convention, make the
-   other derived"). defects_at_step is ALWAYS derived, never a second raw
-   input, so the two numbers can never drift out of sync with each other.
+   other derived"). defective_units_at_step is ALWAYS derived, never a
+   second raw input, so the two numbers can never drift out of sync with
+   each other. Named defective_units_at_step, not "defects_at_step": the
+   raw input this tool counts is defect-free UNITS (first_pass_correct),
+   so the derived count is defective UNITS too -- a unit that failed is
+   one defective, no matter how many things were wrong with it. "Defects"
+   (a count that can exceed 1 per unit) is a different, EXIT-11-named
+   quantity this tool never asks for (matrix VI.A.3's defectives-vs-
+   defects split, the same one control_chart.py's p-chart selector
+   enforces) -- critic-confirmed defect: the old field name conflated them.
 
    Why first_pass_correct and not defects as the raw input: it is the
    quantity a Green Belt actually tallies on a shop floor (good units vs
    not, the same counting habit T-08's check sheet already teaches), and
    it is the one named first in the matrix/brief's own phrasing.
 
-   dpu_at_step / fpy_at_step reuse stats/sigma_level.py's dpu() and
-   fpy_from_dpu() verbatim -- no reimplemented math anywhere in this
-   file. fpy_at_step is the Poisson-yield-model first-pass yield
-   (FPY = e^-DPU); this is not a simplification invented for this tool --
-   it is stats/sigma_level.py's own documented convention ("the DPU-driven
-   estimate used when rolling several steps' yields together"), and it
-   matches the standard DMAIC.io-/Qualica-style definition of a step's
-   throughput yield used in RTY rollups (matrix II.E.1: "standard
-   FPY/RTY/DPU/DPMO definitions cross-checked vs DMAIC.io + Qualica
-   templates" -- independently confirmed live against both DMAIC.io and
-   Qualica-adjacent published references while designing this module).
+   fpy_at_step is the DIRECT observed ratio, first_pass_correct / units_in
+   -- exactly the counted quantity rubric R-MEA-09 #2 asks for ("computed
+   from good/rework/scrap counts"), not a modeled estimate on top of it.
+   This tool used to run fpy_at_step through the Poisson-yield model
+   (FPY = e^-DPU, stats/sigma_level.py's fpy_from_dpu/dpu) -- a model
+   layered on top of a directly-counted quantity, and one that always
+   flatters the direct ratio (e^-DPU > first_pass_correct/units_in for any
+   DPU > 0 up to the point both round to 1). Critic-confirmed defect,
+   fixed here: the DPU-driven estimate is a legitimate SEPARATE convention
+   (stats/sigma_level.py's own documented use, "the estimate used when
+   rolling several steps' yields together" from a DEFECT-count input) but
+   it is not this tool's convention, because this tool's raw input was
+   never a defect count -- it is a directly observed pass/fail tally, and
+   direct counts get a direct ratio, matching the standard DMAIC.io-/
+   Qualica-style definition of a step's throughput yield (matrix II.E.1).
 
    RTY exists only under the explicit serial assumption: `steps_in_series`
    is a required field with no default (the same "no silent default on a
@@ -37,11 +49,11 @@ dataset needed. Two independent blocks:
    Sanity constraints enforced, and one deliberately NOT enforced: units_in
    > 0 and 0 <= first_pass_correct <= units_in are schema-hard. A later
    step's units_in is NOT constrained against the prior step's
-   first_pass_correct/defects_at_step -- real lines rework and scrap units
-   between steps, so a step can legitimately receive more units than the
-   previous step "passed" (rework replenishing the line) or fewer (units
-   scrapped outright before reaching this step). Each step's FPY is
-   computed from its own entering units only, independent of its
+   first_pass_correct/defective_units_at_step -- real lines rework and
+   scrap units between steps, so a step can legitimately receive more
+   units than the previous step "passed" (rework replenishing the line) or
+   fewer (units scrapped outright before reaching this step). Each step's
+   FPY is computed from its own entering units only, independent of its
    neighbors, and RTY is the product of those independently-computed
    per-step FPYs -- exactly the standard definition the matrix cites, not
    a stricter one invented for this tool.
@@ -65,11 +77,11 @@ dataset needed. Two independent blocks:
 Every artifact-level computed number (rty_result, dpmo_result) is a
 Computed[...] provenance object, unconditionally recomputed on every
 validation -- artifacts/copq.py's CopqArtifact.total pattern, applied here
-to two independent results instead of one. Per-step defects_at_step/
-dpu_at_step/fpy_at_step are lightweight computed_field properties
-(CopqRow.amount's pattern): pure functions of sibling fields on that same
-step, no separate provenance object needed per row, same as every other
-per-row computed number in this engine (CopqRow.amount, FmeaRow.rpn).
+to two independent results instead of one. Per-step defective_units_at_step/
+fpy_at_step are lightweight computed_field properties (CopqRow.amount's
+pattern): pure functions of sibling fields on that same step, no separate
+provenance object needed per row, same as every other per-row computed
+number in this engine (CopqRow.amount, FmeaRow.rpn).
 """
 
 from __future__ import annotations
@@ -83,8 +95,6 @@ from ..stats.sigma_level import (
     SigmaLevelResult,
     compute_sigma_level,
     dpmo_from_defects,
-    dpu,
-    fpy_from_dpu,
     rty,
 )
 from .base import ArtifactBase
@@ -92,11 +102,10 @@ from .base import ArtifactBase
 
 class YieldStep(BaseModel):
     """One process step. units_in and first_pass_correct are the raw
-    inputs (the one input convention this tool uses); defects_at_step,
-    dpu_at_step, and fpy_at_step are always derived, never independently
-    settable -- a client posting e.g. a `fpy_at_step` value in a step dict
-    has nothing to overwrite (computed_field), the same contract as
-    CopqRow.amount."""
+    inputs (the one input convention this tool uses); defective_units_at_step
+    and fpy_at_step are always derived, never independently settable -- a
+    client posting e.g. a `fpy_at_step` value in a step dict has nothing to
+    overwrite (computed_field), the same contract as CopqRow.amount."""
 
     name: str = Field(min_length=1)
     units_in: float = Field(gt=0)
@@ -113,22 +122,24 @@ class YieldStep(BaseModel):
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def defects_at_step(self) -> float:
+    def defective_units_at_step(self) -> float:
+        """Units that were NOT first-pass-correct -- a count of defective
+        UNITS (pass/fail), not "defects" (a count that can exceed 1 per
+        unit, matrix VI.A.3's EXIT-11 distinction). Named accordingly:
+        the old name (defects_at_step) conflated the two."""
         return self.units_in - self.first_pass_correct
 
     @computed_field  # type: ignore[prop-decorator]
     @property
-    def dpu_at_step(self) -> float:
-        return dpu(self.defects_at_step, self.units_in)
-
-    @computed_field  # type: ignore[prop-decorator]
-    @property
     def fpy_at_step(self) -> float:
-        """Poisson-yield-model first-pass yield, e^-DPU (stats/
-        sigma_level.py's fpy_from_dpu, reused verbatim) -- the same
-        formula a DMAIC.io-/Qualica-style RTY rollup uses for a single
-        step's own throughput yield (matrix II.E.1)."""
-        return fpy_from_dpu(self.dpu_at_step)
+        """Direct observed first-pass yield: first_pass_correct / units_in
+        -- the good/rework/scrap COUNT ratio rubric R-MEA-09 #2 asks for,
+        computed straight from this step's own raw inputs, no model layered
+        on top (this tool no longer runs its per-step FPY through the
+        Poisson-yield e^-DPU estimate -- that convention needs a defect
+        COUNT input, which this tool's raw input, a pass/fail unit tally,
+        never was; critic-confirmed defect, fixed here)."""
+        return self.first_pass_correct / self.units_in
 
 
 class DpmoBlock(BaseModel):
@@ -170,9 +181,10 @@ def compute_rty_result(steps: list[YieldStep]) -> Computed[float]:
     return compute(
         value,
         method=(
-            "RTY = product(FPY_i for i in steps), FPY_i = e^-DPU_i, DPU_i = defects_at_step_i / units_in_i "
-            "(stats/sigma_level.py's rty()/fpy_from_dpu()/dpu(), reused verbatim) -- computed only under the "
-            "artifact's explicit steps_in_series=true"
+            "RTY = product(FPY_i for i in steps), FPY_i = first_pass_correct_i / units_in_i (direct observed "
+            "ratio, not a modeled estimate -- rubric R-MEA-09 #2 'computed from good/rework/scrap counts'; "
+            "rty() reused verbatim from stats/sigma_level.py) -- computed only under the artifact's explicit "
+            "steps_in_series=true"
         ),
         input_data=[s.model_dump(mode="json") for s in steps],
         assumptions_checked=[

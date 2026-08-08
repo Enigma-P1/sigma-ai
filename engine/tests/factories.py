@@ -700,6 +700,21 @@ PROOF_BEFORE_VALUES = [6.0, 6.4, 6.1, 6.3, 5.9, 6.5, 6.2, 6.0, 6.3, 6.1]
 PROOF_AFTER_VALUES_MET = [4.2, 3.9, 4.1, 4.0, 3.8, 4.3, 4.0, 3.9, 4.1, 4.0]
 PROOF_AFTER_VALUES_NOT_MET = [5.0, 4.9, 5.1, 5.0, 4.8, 5.2, 5.0, 4.9, 5.1, 5.0]
 
+# Fix 3 (weighted DataRef): the "Print Shop shape" fixture -- 24 daily
+# subgroups, variable n. Same raw (n, defective_count) pairs as the real
+# demo/print-shop/control/control-chart.json p-chart freeze window (k=24,
+# total_defectives=69, total_n=1821, p_bar=0.03789126853377265),
+# reproduced here as a hand-checkable engine-test fixture rather than a
+# file dependency on demo/ (which the director reconciles separately).
+# Each day's own proportion (defective_count/n) is a DataRef `value`; that
+# day's `n` is the matching `weight`. Pooled (weighted) mean = 69/1821 =
+# 0.03789126853377265; unweighted mean-of-daily-proportions = 0.03682244848264809
+# -- both real numbers off the same 24 days' counts, materially different
+# (the exact divergence rubric R-IMP-03 #1 / R-IMP-04 exists to prevent).
+PRINT_SHOP_AFTER_N = [80, 72, 76, 74, 69, 58, 85, 82, 69, 72, 87, 60, 79, 71, 73, 73, 80, 58, 90, 91, 85, 89, 81, 67]
+PRINT_SHOP_AFTER_DEFECTIVE = [3, 3, 3, 1, 2, 1, 6, 2, 2, 3, 4, 0, 4, 1, 4, 2, 3, 2, 6, 2, 2, 5, 5, 3]
+PRINT_SHOP_AFTER_PROPORTIONS = [d / n for d, n in zip(PRINT_SHOP_AFTER_DEFECTIVE, PRINT_SHOP_AFTER_N)]
+
 
 def make_proof(**overrides: Any) -> dict[str, Any]:
     """A complete, prescore-clean T-20 Before/After Proof -- threshold

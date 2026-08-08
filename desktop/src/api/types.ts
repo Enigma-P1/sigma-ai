@@ -1016,16 +1016,22 @@ export interface TimeStudyArtifact extends ArtifactBase {
 export interface YieldStep {
   name: string;
   units_in: number;
-  /** The one input convention this tool uses -- defects_at_step is always
-   * derived server-side (units_in - first_pass_correct), never a second
-   * raw input. */
+  /** The one input convention this tool uses -- defective_units_at_step is
+   * always derived server-side (units_in - first_pass_correct), never a
+   * second raw input. */
   first_pass_correct: number;
   /** computed_field on the engine -- present once a save/validate has
    * echoed the step back, absent on a step the user is still filling in
    * that hasn't round-tripped yet (CopqRow.amount's same "engine-sourced,
-   * never a client stand-in presented as authoritative" precedent). */
-  defects_at_step?: number;
-  dpu_at_step?: number;
+   * never a client stand-in presented as authoritative" precedent).
+   * Named defective_units_at_step, not "defects_at_step": this tool's raw
+   * input is defect-free UNITS, so the derived count is defective UNITS
+   * too (never a defect count, which can exceed 1 per unit -- matrix
+   * VI.A.3's EXIT-11 distinction). */
+  defective_units_at_step?: number;
+  /** Direct observed ratio (first_pass_correct / units_in), not a modeled
+   * estimate -- rubric R-MEA-09 #2 "computed from good/rework/scrap
+   * counts." */
   fpy_at_step?: number;
 }
 

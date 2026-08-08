@@ -81,21 +81,19 @@ def _load_dataset_column(store: ProjectStore, project_id: str, dataset_id: str, 
 
 def _latest_msa_verdict(store: ProjectStore, project_id: str) -> str | None:
     """The project's latest T-12 (Measurement Check) verdict, if any T-12
-    artifact has been saved -- routes/gates.py's _build_snapshot does the
-    identical lookup for the gates.py hard block; duplicated here (rather
-    than imported from routes/gates.py) so routes/stats.py's only
-    dependency stays project_store, not another route module. None means
+    artifact has been saved -- via ProjectStore.latest_artifact_for_tool,
+    the SAME shared lookup routes/gates.py's _build_snapshot now calls for
+    the gates.py hard block (previously each iterated meta.artifact_index
+    on its own and picked a different, wrong "latest" -- see that method's
+    docstring for the critic-confirmed defect this fixes). None means
     either no T-12 has run yet, or the project itself doesn't exist --
     both are honest "nothing to consult" states, not errors."""
     try:
         meta = store.load_project(project_id)
     except FileNotFoundError:
         return None
-    for artifact_id, entry in meta.artifact_index.items():
-        if entry.tool_id == "T-12":
-            data = store.load_artifact(project_id, artifact_id, entry.latest_version)
-            return (data.get("result") or {}).get("verdict")
-    return None
+    data = store.latest_artifact_for_tool(project_id, meta, "T-12")
+    return (data.get("result") or {}).get("verdict") if data is not None else None
 
 
 @router.post("/baseline")

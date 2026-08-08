@@ -135,7 +135,13 @@ export function ProofForm({ projectId, project, onSaved }: ProofFormProps) {
           <VerdictBanner
             tone={a.test_result.refused ? "exit" : "neutral"}
             headline={a.test_result.refused ? `Refused: ${a.test_result.routing.exit?.exit_id ?? "no test"}` : a.test_result.result?.value.plain_language.comparison_summary ?? ""}
-            detail={a.verdict?.value.proof_form === "descriptive" ? "Descriptive proof — observed improvement is shown, not statistically tested." : a.test_result.result?.value.plain_language.p_value_meaning}
+            detail={
+              a.verdict?.value.proof_form === "descriptive"
+                ? (a.verdict.value.threshold_verdict === "met"
+                    ? "Descriptive proof — observed improvement is shown, not statistically tested."
+                    : "Descriptive proof — threshold not met, so no improvement is claimed; not statistically tested either way.")
+                : a.test_result.result?.value.plain_language.p_value_meaning
+            }
           />
         </div>
       )}

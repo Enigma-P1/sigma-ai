@@ -129,3 +129,64 @@ def test_baseline_without_project_id_never_consults_msa(client):
     )
     assert resp.status_code == 200, resp.text
     assert resp.json()["measurement_check"] is None
+
+
+# ---------------------------------------------------------------------------
+# Fix 5 (critic-confirmed): gates.py and stats.py used to pick a DIFFERENT
+# "latest" T-12 when a project carries two -- stats.py's _latest_msa_verdict
+# returned the first match (alphabetical, since project.json is written
+# sort_keys=True), gates.py's _build_snapshot kept overwriting with no
+# break (alphabetically-last). Two T-12 artifact_ids, deliberately ordered
+# so alphabetically-first is chronologically OLDER: both call paths must
+# now agree, and both must land on the NEWER one (ProjectStore.
+# latest_artifact_for_tool's shared "updated_at wins" contract), not
+# whichever their own old bug happened to prefer.
+# ---------------------------------------------------------------------------
+
+
+def test_gates_and_stats_agree_on_the_latest_of_two_msa_artifacts(client):
+    _create_project(client, "proj-two-msa")
+
+    # "msa-a" sorts alphabetically FIRST but is chronologically OLDER and
+    # fails (same shape as this file's own FAILING_MSA). "msa-b" sorts
+    # alphabetically LAST and is chronologically NEWER and passes (same
+    # shape as PASSING_MSA). The old stats.py bug (first match) would have
+    # read msa-a's "fail"; the old gates.py bug (last match, no break)
+    # would have read whichever artifact_id happened to sort last -- here
+    # that's also msa-b, but only by the same alphabetical accident the
+    # critic named, not because either old implementation ever compared
+    # updated_at. Both routes must now agree, deliberately, on msa-b (the
+    # actually-newer one).
+    older_failing = make_continuous_msa(
+        artifact_id="msa-a", updated_at="2026-08-01T00:00:00",
+        gauge_increment=5.0, usl=20.0, lsl=0.0,
+        continuous_items=[{"item_id": "only-item", "readings": [10.0, 10.0]}],
+    )
+    newer_passing = make_continuous_msa(artifact_id="msa-b", updated_at="2026-08-05T00:00:00")
+
+    save_a = client.post("/project/proj-two-msa/artifacts/T-12", json=older_failing)
+    assert save_a.status_code == 200, save_a.text
+    save_b = client.post("/project/proj-two-msa/artifacts/T-12", json=newer_passing)
+    assert save_b.status_code == 200, save_b.text
+
+    older_verdict = client.get("/project/proj-two-msa/artifacts/msa-a").json()["result"]["verdict"]
+    newer_verdict = client.get("/project/proj-two-msa/artifacts/msa-b").json()["result"]["verdict"]
+    assert older_verdict == "fail"
+    assert newer_verdict != "fail"  # the fixture only proves anything if the two genuinely disagree
+
+    # stats.py's path: /stats/baseline only reports measurement_check=="failed"
+    # (and refuses capability language) when the CONSULTED verdict is "fail".
+    baseline_resp = client.post(
+        "/stats/baseline",
+        json={"data": BASELINE_DATA, "project_id": "proj-two-msa", "usl": 100, "lsl": 0, "operational_definition_ok": True},
+    )
+    assert baseline_resp.status_code == 200, baseline_resp.text
+    assert baseline_resp.json()["measurement_check"] is None  # NOT "failed" -- picked msa-b, not msa-a
+    assert baseline_resp.json()["capability"] is not None
+
+    # gates.py's path: the same hard gate, same project.
+    gate_resp = client.post(
+        "/gates/check", json={"gate_id": "measure_capability_language_requires_msa_pass", "project_id": "proj-two-msa"}
+    )
+    assert gate_resp.status_code == 200, gate_resp.text
+    assert gate_resp.json()["status"] == "CLEAR"  # NOT HARD_BLOCK -- picked msa-b too, agreeing with stats.py

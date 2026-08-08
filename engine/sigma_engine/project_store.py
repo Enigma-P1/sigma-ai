@@ -122,6 +122,53 @@ class ProjectStore:
             raise FileNotFoundError(f"artifact {artifact_id!r} version {version} not found")
         return json.loads(path.read_text(encoding="utf-8"))
 
+    def latest_artifact_for_tool(
+        self, project_id: str, meta: ProjectMetadata, tool_id: str, *, oldest: bool = False,
+    ) -> dict[str, Any] | None:
+        """Among this project's saved artifacts matching `tool_id`, the one
+        picked by the ARTIFACT's own `updated_at` (a field inside the
+        stored JSON, caller-supplied like every other timestamp in this
+        schema layer -- not this store's project.json `updated_at`).
+        Newest wins by default, tie-broken deterministically by
+        artifact_id so two artifacts saved in the same instant never
+        depend on dict iteration order.
+
+        This is the one shared lookup for "a project's latest artifact of
+        tool_id X" -- routes/gates.py's _build_snapshot, routes/stats.py's
+        _latest_msa_verdict, and prescore/cross_checks.py's cross-tool
+        checks all now call this instead of each iterating
+        meta.artifact_index.items() on their own (critic-confirmed defect:
+        the three had silently diverged -- meta.artifact_index iterates in
+        the on-disk order, which is ALPHABETICAL BY ARTIFACT_ID because
+        project.json is written sort_keys=True, not chronological.
+        _latest_msa_verdict and the old _latest_artifact returned the
+        FIRST match -- alphabetically-first, not latest. _build_snapshot's
+        plain for-loop with no break kept overwriting on every match --
+        alphabetically-LAST, also not actually "latest" by any timestamp,
+        just a different accident. stats.py's own docstring claimed this
+        was "the identical lookup" to gates.py's; it never was).
+
+        Pass oldest=True to invert the comparison -- e.g.
+        prescore/cross_checks.py's charter-vs-COPQ check wants the
+        Define-phase COPQ the charter's business-impact figure actually
+        quoted, not a later Wrap re-run (a project can legitimately have
+        two T-02 artifacts, one per phase; "newest" would silently swap in
+        the wrong one the moment a Wrap COPQ exists).
+
+        None when no artifact of this tool_id has ever been saved."""
+        candidates = [
+            (artifact_id, self.load_artifact(project_id, artifact_id, entry.latest_version))
+            for artifact_id, entry in meta.artifact_index.items()
+            if entry.tool_id == tool_id
+        ]
+        if not candidates:
+            return None
+        pick = min if oldest else max
+        # Tie-break key intentionally reuses the same (updated_at, artifact_id)
+        # pair for both min and max -- deterministic either way, and never
+        # dependent on the dict's own iteration order.
+        return pick(candidates, key=lambda pair: (pair[1].get("updated_at") or "", pair[0]))[1]
+
     def list_versions(self, project_id: str, artifact_id: str) -> list[int]:
         directory = self._project_dir(project_id) / "artifacts" / artifact_id
         if not directory.exists():

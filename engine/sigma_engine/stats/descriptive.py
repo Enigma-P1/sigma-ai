@@ -39,6 +39,29 @@ def mean(data: Sequence[float]) -> float:
     return float(np.mean(data))
 
 
+def weighted_mean(data: Sequence[float], weights: Sequence[float] | None) -> float:
+    """Plain mean when weights is None (byte-identical to mean() -- the
+    unweighted/continuous path this engine has always run); otherwise the
+    weighted mean sum(v_i*w_i)/sum(w_i). This is the correct way to pool a
+    set of values that were each already an average over a different-sized
+    group -- e.g. daily defective proportions with a different order count
+    each day (weights = subgroup sizes) -- instead of averaging the
+    per-group averages themselves, which silently treats a light day and a
+    heavy day as equally informative. Same pooling arithmetic as
+    stats/p_chart.py's p_bar(sum(defectives)/sum(n)), generalized here from
+    Subgroup counts to a plain (value, weight) pair (artifacts/proof.py's
+    before/after DataRef -- rubric R-IMP-03 #1 same-yardstick, R-IMP-04
+    anchor)."""
+    if weights is None:
+        return mean(data)
+    if len(data) != len(weights):
+        raise ValueError(f"weighted_mean: data ({len(data)}) and weights ({len(weights)}) must be the same length")
+    total_weight = float(sum(weights))
+    if total_weight <= 0:
+        raise ValueError("weighted_mean requires a positive total weight")
+    return sum(v * w for v, w in zip(data, weights)) / total_weight
+
+
 def sample_sd(data: Sequence[float]) -> float:
     """Sample standard deviation, denominator n-1 (NIST §1.3.5.6)."""
     if len(data) < 2:

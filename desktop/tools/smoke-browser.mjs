@@ -905,8 +905,10 @@ async function main() {
     // ---- T-10 Yield Calculator (FPY/RTY + DPMO) -- the 25th Tier-A tool,
     // built after the traceability-matrix audit caught it missing. A
     // 3-step line, same hand-checkable fixture as engine/tests/factories.py's
-    // make_yield_calc_steps (100->95, 95->90, 90->88; RTY ~= 88.26%), then
-    // an independent DPMO block (1242 defects / 100000 units -> DPMO 6210,
+    // make_yield_calc_steps (100->95, 95->90, 90->88; per-step FPY is the
+    // DIRECT observed ratio, not a modeled e^-DPU estimate: 0.95 * (90/95)
+    // * (88/90) = 0.88 exactly), then an independent DPMO block (1242
+    // defects / 100000 units -> DPMO 6210,
     // ~4 sigma with the 1.5-shift convention -- the same published-table
     // value test_stats_sigma_level.py reference-checks). The opportunity-
     // inflation honesty guard's prescore teeth get their own exercise: a
@@ -970,7 +972,7 @@ async function main() {
       await page.waitForFunction(() => document.querySelector('[data-testid="yieldcalc-step-0-fpy"]')?.value !== "not yet computed");
 
       const rtyHeadline = await page.locator('[data-testid="yieldcalc-rty"] .sigma-verdict__headline').textContent();
-      assert(rtyHeadline?.includes("88.26%"), `expected RTY to read 88.26% (hand-checked: e^-(0.05+5/95+2/90)), got ${JSON.stringify(rtyHeadline)}`);
+      assert(rtyHeadline?.includes("88.00%"), `expected RTY to read 88.00% (hand-checked, direct-ratio FPY: 0.95 * (90/95) * (88/90) = 0.88 exactly), got ${JSON.stringify(rtyHeadline)}`);
 
       // 1242 defects / 100000 units / 2 opportunities-per-unit -> DPMO 6210,
       // the published Wikipedia/MoreSteam 4-sigma-with-shift table row
