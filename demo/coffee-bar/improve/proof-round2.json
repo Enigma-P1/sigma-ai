@@ -1,0 +1,754 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-proof-round2",
+  "tool_id": "T-20",
+  "created_at": "2026-09-21T17:00:00Z",
+  "updated_at": "2026-09-21T17:00:00Z",
+  "notes": "Round-2 before/after proof, run live 2026-09-21 against the plan coffee-pilot-round2 declared 2026-09-03. Same yardstick as every prior window, one copy each: handoff_minutes under the T-11 operational definition and the T-12-passed measurement system. Before is the round-1 pilot window (after-round1.csv, n=120, mean 6.198 -- the implemented state since 2026-08-24), so the Welch test isolates what the grinder change itself added; the CUMULATIVE claim is the gap block, which runs final state against the original measured baseline 8.408333 per R-IMP-03 (per-change credits stay descriptive, never summed). After is the full declared pilot window (after-round2.csv, n=120, all 10 mornings, no trimming). The declared season/demand confounders are re-answered YES against actuals and the engine prints the weakened sentence on the verdict -- the direction of the bias (semester demand is ~15% MORE load) means the confound could only have masked improvement, not manufactured it, and the note travels with the number. Guardrails are the charter's two consequential metrics on their charter-baseline before-values, so the guardrail read is cumulative too. Capability of the after-window (Cpk 0.054 against USL 5.0) is the honest close: the mean promise is met, the every-order promise is not -- recorded in improve-run.md with the /stats/baseline run.",
+  "pilot_ref": "coffee-pilot-round2",
+  "metric_ref": "handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)",
+  "operational_definition_ref": "coffee-collection-plan",
+  "measurement_system_ref": "coffee-msa",
+  "usl": 5.0,
+  "lsl": null,
+  "operational_definition_ok": true,
+  "before": {
+    "dataset_id": "7fd6229c7d514253bdb67f950003e68a",
+    "dataset_sha256": "280674e36e87b79991b76e55006d4b8b7f1e33918433025c2d598f5d201c7684",
+    "column": "wait_minutes",
+    "values": [
+      8.4,
+      6.9,
+      6.0,
+      4.8,
+      5.5,
+      6.7,
+      5.6,
+      6.4,
+      7.5,
+      4.3,
+      7.9,
+      6.5,
+      7.6,
+      5.6,
+      6.5,
+      6.0,
+      6.1,
+      7.2,
+      7.0,
+      7.1,
+      6.2,
+      5.6,
+      7.7,
+      7.3,
+      6.3,
+      7.2,
+      6.6,
+      6.7,
+      6.1,
+      6.9,
+      7.2,
+      6.0,
+      5.8,
+      6.2,
+      6.7,
+      7.2,
+      6.4,
+      5.7,
+      4.3,
+      5.8,
+      5.1,
+      6.5,
+      5.5,
+      6.6,
+      7.7,
+      6.1,
+      5.7,
+      7.0,
+      4.6,
+      5.9,
+      5.9,
+      6.0,
+      5.5,
+      6.8,
+      7.4,
+      6.6,
+      5.6,
+      7.4,
+      5.8,
+      7.2,
+      5.7,
+      6.8,
+      7.0,
+      5.9,
+      5.5,
+      6.0,
+      5.5,
+      7.2,
+      5.9,
+      7.5,
+      5.9,
+      5.3,
+      4.4,
+      5.5,
+      7.3,
+      5.9,
+      5.3,
+      6.4,
+      6.1,
+      6.3,
+      4.5,
+      6.1,
+      5.8,
+      5.4,
+      7.6,
+      6.1,
+      6.3,
+      6.4,
+      6.0,
+      6.2,
+      6.9,
+      6.1,
+      5.6,
+      6.9,
+      8.2,
+      6.7,
+      4.9,
+      6.6,
+      4.4,
+      6.3,
+      6.0,
+      6.8,
+      7.1,
+      6.4,
+      6.9,
+      4.4,
+      6.1,
+      5.7,
+      4.9,
+      6.3,
+      5.2,
+      5.7,
+      6.4,
+      5.6,
+      4.3,
+      5.3,
+      5.9,
+      5.9,
+      5.6,
+      6.5
+    ]
+  },
+  "after": {
+    "dataset_id": "314125ca183d4f89a9442a2f2408f485",
+    "dataset_sha256": "96d34e2bce8654cce7fc212caf5417b33a15eee2d8f90c12e0344f6f3b89b66e",
+    "column": "wait_minutes",
+    "values": [
+      3.8,
+      5.2,
+      5.1,
+      4.4,
+      4.8,
+      4.4,
+      6.0,
+      4.4,
+      4.8,
+      6.1,
+      4.9,
+      5.5,
+      5.2,
+      4.6,
+      4.6,
+      5.8,
+      5.2,
+      4.2,
+      5.1,
+      5.0,
+      4.7,
+      5.8,
+      5.6,
+      6.5,
+      5.4,
+      5.2,
+      3.6,
+      3.6,
+      3.9,
+      4.6,
+      5.3,
+      4.9,
+      5.3,
+      4.0,
+      4.3,
+      5.8,
+      4.3,
+      3.4,
+      5.5,
+      5.7,
+      5.8,
+      4.8,
+      4.8,
+      5.3,
+      4.7,
+      5.0,
+      4.2,
+      5.7,
+      3.9,
+      4.8,
+      3.8,
+      5.5,
+      4.8,
+      4.2,
+      4.1,
+      4.1,
+      6.2,
+      4.5,
+      4.9,
+      4.7,
+      4.5,
+      3.6,
+      4.1,
+      3.8,
+      5.0,
+      5.6,
+      5.2,
+      5.0,
+      4.2,
+      5.0,
+      5.6,
+      4.8,
+      5.6,
+      4.4,
+      4.9,
+      5.0,
+      4.0,
+      6.5,
+      4.7,
+      5.9,
+      5.7,
+      4.8,
+      5.5,
+      6.6,
+      5.5,
+      4.7,
+      4.7,
+      5.5,
+      5.0,
+      3.5,
+      5.1,
+      4.5,
+      4.6,
+      4.7,
+      4.7,
+      4.5,
+      5.5,
+      4.9,
+      5.0,
+      6.0,
+      4.9,
+      4.8,
+      5.2,
+      4.7,
+      4.8,
+      4.4,
+      4.4,
+      5.1,
+      5.2,
+      5.2,
+      4.0,
+      5.1,
+      4.4,
+      4.9,
+      4.8,
+      4.8,
+      5.3,
+      5.2,
+      5.3,
+      4.7
+    ]
+  },
+  "declared_threshold": {
+    "metric_ref": "handoff_minutes (charter C1) -- pilot-window mean",
+    "direction": "lower_is_better",
+    "value": 5.5,
+    "declared_at": "2026-09-03T15:00:00Z"
+  },
+  "confounders": {
+    "staffing": {
+      "changed": false,
+      "note": "Held: same crew all 10 mornings, no absences or substitutions in the shift log; the charter's turnover risk still has not landed."
+    },
+    "season": {
+      "changed": true,
+      "note": "As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict."
+    },
+    "demand": {
+      "changed": true,
+      "note": "Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it."
+    },
+    "measurement": {
+      "changed": false,
+      "note": "Operational definition, POS clock, tally sheet, and measurement system unchanged; stopwatch drift checks stayed within a tenth all window."
+    },
+    "other": {
+      "changed": false,
+      "note": "Round-1 method ran unchanged as the before-state; no menu, price, or layout changes; machine service stayed booked for 2026-09-26, outside the window."
+    }
+  },
+  "guardrails": [
+    {
+      "metric_ref": "drink remake rate (remakes per 100 orders, barista waste sheet -- charter consequential metric)",
+      "direction": "lower_is_better",
+      "before_value": 3.6,
+      "after_value": 2.3
+    },
+    {
+      "metric_ref": "barista labor hours per morning shift (scheduled 8.0 + peak-end overtime, time clock -- charter consequential metric)",
+      "direction": "lower_is_better",
+      "before_value": 8.65,
+      "after_value": 8.1
+    }
+  ],
+  "charter_ref": "coffee-charter",
+  "charter_baseline_value": 8.408333333333333,
+  "charter_goal_value": 5.0,
+  "charter_goal_direction": "lower_is_better",
+  "next_cause_ref": null,
+  "before_baseline": {
+    "gate_ok": true,
+    "gate_message": null,
+    "n": 120,
+    "measurement_check": null,
+    "descriptive": {
+      "value": {
+        "n": 120,
+        "mean": 6.198333333333333,
+        "sd": 0.8659752682762403,
+        "median": 6.1,
+        "q1": 5.675,
+        "q3": 6.8,
+        "iqr": 1.125,
+        "min": 4.3,
+        "max": 8.4
+      },
+      "provenance": {
+        "input_hash": "22d91e16823e9eb55bd6e69907da0f1e6c7f3900922915a09647f00b1c12ed5d",
+        "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH \u00a71.3.5.1/\u00a71.3.5.6",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 2"
+        ],
+        "warnings": []
+      }
+    },
+    "stability": {
+      "value": {
+        "n": 120,
+        "xbar": 6.1983333333333315,
+        "mr_bar": 0.9924369747899158,
+        "sigma_within": 0.8798200131116275,
+        "i_ucl": 8.837793372668214,
+        "i_cl": 6.1983333333333315,
+        "i_lcl": 3.558873293998449,
+        "mr_ucl": 3.2422915966386547,
+        "mr_cl": 0.9924369747899158,
+        "mr_lcl": 0.0,
+        "signals": [],
+        "rule2_enabled": false,
+        "rule3_enabled": false
+      },
+      "provenance": {
+        "input_hash": "273ed032d4bb7a6b5314f6b1492d14e72a36b65a8a71eb1b0fbf6e8cfaf02c79",
+        "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST \u00a76.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST \u00a76.3.2 WECO)",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 2",
+          "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+        ],
+        "warnings": []
+      }
+    },
+    "stable": true,
+    "stability_note": "stable: 120 points, no default-rule signal",
+    "capability": {
+      "value": {
+        "n": 120,
+        "mean": 6.198333333333333,
+        "sigma_within": 0.8798200131116275,
+        "sigma_overall": 0.8659752682762403,
+        "usl": 5.0,
+        "lsl": null,
+        "one_sided": true,
+        "cp_index": null,
+        "cpk_index": -0.4540069997177533,
+        "pp_index": null,
+        "ppk_index": -0.46126541839879,
+        "performance_not_capability": false
+      },
+      "provenance": {
+        "input_hash": "4c1f5d492b289365919ce3474115317b1cef3f94bb7324fe0bbbe8ec046618c9",
+        "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST \u00a76.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "at least one spec limit present",
+          "process assumed normal (NIST \u00a76.1.6)"
+        ],
+        "warnings": []
+      }
+    },
+    "normality": {
+      "value": {
+        "n": 120,
+        "statistic": 0.4442976132879721,
+        "approx_pvalue": 0.15,
+        "p_band": "p >= 0.15",
+        "advisory": "no_concern"
+      },
+      "provenance": {
+        "input_hash": "22d91e16823e9eb55bd6e69907da0f1e6c7f3900922915a09647f00b1c12ed5d",
+        "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST \u00a71.3.5.14); concern iff p<0.05 and n>=15",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 3 for a computable statistic"
+        ],
+        "warnings": []
+      }
+    },
+    "percentile_capability": null,
+    "observed_yield": null,
+    "sigma": {
+      "value": {
+        "dpmo": 916789.5749827,
+        "sigma_level": 0.1162037448036295,
+        "convention": "with 1.5\u03c3 shift"
+      },
+      "provenance": {
+        "input_hash": "82e3666b4f1344d2db002ddc3478e5e5cfcd6d8a0d8e15e36bceb245f894b1ae",
+        "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+        ],
+        "warnings": []
+      }
+    },
+    "exits": []
+  },
+  "after_baseline": {
+    "gate_ok": true,
+    "gate_message": null,
+    "n": 120,
+    "measurement_check": null,
+    "descriptive": {
+      "value": {
+        "n": 120,
+        "mean": 4.899166666666667,
+        "sd": 0.6581736678345711,
+        "median": 4.9,
+        "q1": 4.5,
+        "q3": 5.3,
+        "iqr": 0.7999999999999998,
+        "min": 3.4,
+        "max": 6.6
+      },
+      "provenance": {
+        "input_hash": "ff28c412804eed3b101d234b625e95c453f8b0eeda00e231a32b589bbac782da",
+        "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH \u00a71.3.5.1/\u00a71.3.5.6",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 2"
+        ],
+        "warnings": []
+      }
+    },
+    "stability": {
+      "value": {
+        "n": 120,
+        "xbar": 4.899166666666667,
+        "mr_bar": 0.7033613445378144,
+        "sigma_within": 0.6235472912569278,
+        "i_ucl": 6.769808540437451,
+        "i_cl": 4.899166666666667,
+        "i_lcl": 3.0285247928958836,
+        "mr_ucl": 2.2978815126050396,
+        "mr_cl": 0.7033613445378144,
+        "mr_lcl": 0.0,
+        "signals": [],
+        "rule2_enabled": false,
+        "rule3_enabled": false
+      },
+      "provenance": {
+        "input_hash": "cb80fbd58e7a17ea2c38f497dd07af77214cf5db90e6756ac2569d5eae531d4f",
+        "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST \u00a76.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST \u00a76.3.2 WECO)",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 2",
+          "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+        ],
+        "warnings": []
+      }
+    },
+    "stable": true,
+    "stability_note": "stable: 120 points, no default-rule signal",
+    "capability": {
+      "value": {
+        "n": 120,
+        "mean": 4.899166666666667,
+        "sigma_within": 0.6235472912569278,
+        "sigma_overall": 0.6581736678345711,
+        "usl": 5.0,
+        "lsl": null,
+        "one_sided": true,
+        "cp_index": null,
+        "cpk_index": 0.05390306650736751,
+        "pp_index": null,
+        "ppk_index": 0.05106723765126233,
+        "performance_not_capability": false
+      },
+      "provenance": {
+        "input_hash": "815008dfdb11e1c1a868aba19c2599ec87140e98753422a7d8e933d6d9f58821",
+        "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST \u00a76.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "at least one spec limit present",
+          "process assumed normal (NIST \u00a76.1.6)"
+        ],
+        "warnings": []
+      }
+    },
+    "normality": {
+      "value": {
+        "n": 120,
+        "statistic": 0.3591470942158139,
+        "approx_pvalue": 0.15,
+        "p_band": "p >= 0.15",
+        "advisory": "no_concern"
+      },
+      "provenance": {
+        "input_hash": "ff28c412804eed3b101d234b625e95c453f8b0eeda00e231a32b589bbac782da",
+        "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST \u00a71.3.5.14); concern iff p<0.05 and n>=15",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 3 for a computable statistic"
+        ],
+        "warnings": []
+      }
+    },
+    "percentile_capability": null,
+    "observed_yield": null,
+    "sigma": {
+      "value": {
+        "dpmo": 439119.60343906796,
+        "sigma_level": 1.653201712953787,
+        "convention": "with 1.5\u03c3 shift"
+      },
+      "provenance": {
+        "input_hash": "aa977005b5f164f3eb5d977902f01dbb14c77c4dbc11d7bf360417429b09184d",
+        "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+        ],
+        "warnings": []
+      }
+    },
+    "exits": []
+  },
+  "test_result": {
+    "question_text": "Did the pilot change 'handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)' between the before and after periods?",
+    "routing": {
+      "question": "Did the pilot change 'handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)' between the before and after periods?",
+      "comparison_type": "two_independent",
+      "decision_path": [
+        {
+          "question": "Is exactly one primary comparison declared, and does the test count stay within it?",
+          "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+          "branch": "one pre-declared primary comparison -- continue"
+        },
+        {
+          "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?",
+          "answer": "declared_data_type='continuous'",
+          "branch": "not count/rate data -- continue"
+        },
+        {
+          "question": "How many related measurements per unit are there?",
+          "answer": "measurements_per_unit=1",
+          "branch": "at most paired (<=2) -- continue"
+        },
+        {
+          "question": "What kind of comparison is this?",
+          "answer": "two_independent",
+          "branch": "the two_independent path"
+        },
+        {
+          "question": "Is this data time-ordered?",
+          "answer": "no (time_ordered=False)",
+          "branch": "EXIT-09 not applicable -- continue"
+        },
+        {
+          "question": "Does either group have n<15 with a declared-ordinal, shape-concern, or advisory-normality flag?",
+          "answer": "before: n=120 >= 15; after: n=120 >= 15",
+          "branch": "use the parametric default (Welch t)"
+        },
+        {
+          "question": "Which test fits two independent continuous/ordinal samples?",
+          "answer": "welch_two_sample_t",
+          "branch": "route=welch_two_sample_t"
+        },
+        {
+          "question": "Does each sample clear the EXIT-06 floor (n>=8 per sample)?",
+          "answer": "before n=120, after n=120 (need >=8 per sample)",
+          "branch": "floor cleared -- compute"
+        }
+      ],
+      "route": "welch_two_sample_t",
+      "exit": null,
+      "switch_reason": null,
+      "recommend_nonparametric": false
+    },
+    "result": {
+      "value": {
+        "test_name": "welch_two_sample_t",
+        "statistic_name": "t",
+        "statistic": 13.084095671376229,
+        "df": 222.0843827734964,
+        "df_between": null,
+        "df_within": null,
+        "p_value": 2.226864227325567e-29,
+        "alpha": 0.05,
+        "two_sided": true,
+        "significant": true,
+        "effect_size_name": "Cohen's d (Welch/unequal-variance form)",
+        "effect_size_value": 1.6891494878474893,
+        "effect_size_ci": [
+          1.394431328975428,
+          1.9838676467195506
+        ],
+        "effect_size_ci_method": "Hedges & Olkin (1985) large-sample approximate SE -- not an exact noncentral-t CI",
+        "groups": [
+          {
+            "label": "before",
+            "n": 120,
+            "mean": 6.198333333333333,
+            "sd": 0.8659752682762403,
+            "median": null,
+            "successes": null,
+            "proportion": null
+          },
+          {
+            "label": "after",
+            "n": 120,
+            "mean": 4.899166666666667,
+            "sd": 0.6581736678345711,
+            "median": null,
+            "successes": null,
+            "proportion": null
+          }
+        ],
+        "contingency": null,
+        "cramers_v": null,
+        "hodges_lehmann_shift": null,
+        "hodges_lehmann_ci": null,
+        "hodges_lehmann_ci_method": null,
+        "rank_biserial_r": null,
+        "risk_difference": null,
+        "risk_difference_ci": null,
+        "risk_difference_ci_method": null,
+        "equal_shape_caveat": null,
+        "assumptions_checked": [
+          "n >= 8 per sample cleared (matrix \u00a74a EXIT-06); groups independent"
+        ],
+        "warnings": [],
+        "plain_language": {
+          "comparison_summary": "Compared before (n=120, mean=6.198) against after (n=120, mean=4.899) using Welch's two-sample t-test (unequal variances assumed by default -- no equal-variance check to trip on).",
+          "p_value_meaning": "p = 0.0000, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 2.2e-27% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+          "effect_size_in_words": "Cohen's d = 1.69 -- a large difference (Cohen 1988 conventional bands: negligible<0.2, small<0.5, medium<0.8, large>=0.8).",
+          "practical_significance_prompt": "Statistically detectable \u2260 big enough to matter -- compare the effect size above against the goal."
+        },
+        "exit13": null
+      },
+      "provenance": {
+        "input_hash": "9b2389d02ebd1377c8bf7416a513c74cdcf1447cce28e1199007bddd2898c543",
+        "method": "Welch's two-sample t-test (scipy.stats.ttest_ind, equal_var=False; NIST/SEMATECH \u00a77.3.1 unequal-variance form + Welch-Satterthwaite df) + Cohen's d on the unweighted-average SD (Delacre, Lakens & Leys 2017)",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "n >= 8 per sample",
+          "independent groups"
+        ],
+        "warnings": []
+      }
+    },
+    "refused": false
+  },
+  "guardrail_report": {
+    "value": [
+      {
+        "metric_ref": "drink remake rate (remakes per 100 orders, barista waste sheet -- charter consequential metric)",
+        "direction": "lower_is_better",
+        "before_value": 3.6,
+        "after_value": 2.3,
+        "pct_change": -0.36111111111111116,
+        "moved": "improved",
+        "material_worsening": false
+      },
+      {
+        "metric_ref": "barista labor hours per morning shift (scheduled 8.0 + peak-end overtime, time clock -- charter consequential metric)",
+        "direction": "lower_is_better",
+        "before_value": 8.65,
+        "after_value": 8.1,
+        "pct_change": -0.06358381502890181,
+        "moved": "improved",
+        "material_worsening": false
+      }
+    ],
+    "provenance": {
+      "input_hash": "f3ea71c974e335f55c9a71b35b002ae6c891bedebb9b63540509ba17ca46d8ce",
+      "method": "direction-aware before/after compare per guardrail; material_worsening = worse AND |pct_change| >= 5% of the before value (engine convention, not a published quantity -- rubric R-IMP-03 #5)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [],
+      "warnings": []
+    }
+  },
+  "gap": {
+    "value": {
+      "charter_baseline_value": 8.408333333333333,
+      "charter_goal_value": 5.0,
+      "after_value": 4.899166666666667,
+      "direction": "lower_is_better",
+      "original_gap": 3.408333333333333,
+      "recovered": 3.5091666666666663,
+      "recovered_pct": 102.95843520782395,
+      "remaining": -0.10083333333333311,
+      "goal_met": true,
+      "next_cause_ref": null,
+      "loop_verdict": "Goal met -- route to Control."
+    },
+    "provenance": {
+      "input_hash": "3f516ff8bbda794aed9e37baadf91a3288f89ebf8a59b4240985fdebafe711f7",
+      "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN \u00a74.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [],
+      "warnings": []
+    }
+  },
+  "verdict": {
+    "value": {
+      "proof_form": "inferential",
+      "threshold_verdict": "met",
+      "weakened": true,
+      "confounder_notes": [
+        "season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.",
+        "demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it."
+      ],
+      "stability_caveat": null,
+      "guardrail_tradeoff": null,
+      "headline": "Threshold met, as declared: handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak) = 4.89917 vs 5.5 (lower_is_better). Improvement shown, but a reported confounder weakens this proof: season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.; demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it.."
+    },
+    "provenance": {
+      "input_hash": "e0b9d9bdce21fce2be18a8e99533ad1fe5a8429b7f3bc052cc7f922881411bfb",
+      "method": "threshold check AS DECLARED (met|not_met, never reworded) + confounder echo (any changed=true weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [],
+      "warnings": []
+    }
+  }
+}
