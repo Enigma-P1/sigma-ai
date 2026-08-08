@@ -1,6 +1,7 @@
 # Coffee Bar demo — the primary threaded example
 
-This is the Define and Measure thread of the suite's primary worked example
+This is the Define, Measure, and Analyze thread of the suite's primary
+worked example
 (PLAN §4.4): a
 campus coffee bar where espresso orders averaged 8.4 minutes from register to
 handoff during the weekday 7:00-10:00 peak — continuous data, headed for an
@@ -40,6 +41,35 @@ n=120, yet every sampled order blew past the customer's 5-minute line,
 Cpk −1.14 — so the wait is what this process is built to produce, not a
 bad day. That hands Analyze its exact question — which common causes (the
 drink queue, the grinder rework) drive the 8.4 minutes — and the
-before/after t-test its frozen baseline; Analyze, Improve, and Control
-artifacts (and the proposed-layout spaghetti overlay) arrive with their
-milestones.
+before/after t-test its frozen baseline.
+
+`analyze/` answers that question with evidence, not agreement. The fishbone
+(all six branches, eleven causes, engine prescore clean) carries five
+**verified** causes, each with its evidence pointer intact: the drink-queue
+pileup ahead of the single espresso station (check sheet: 22 of 40 delay
+tallies, 55% — the Pareto's biggest vital-few bar) and grinder rework
+re-pulls (10 of 40, 25%), plus the 5-Why chain that digs the pileup three
+levels down — serial station (the map's engine-named constraint readout as
+dated observation), single brew group, and the Improve-ready root: **one
+machine head, batch sizes locked to one drink at a time**. Staffing shape
+stays honestly *investigating*, music tempo and cup placement stay
+*candidates* wearing the no-evidence chip, and register hardware and
+measurement clock skew are *ruled out* with their evidence kept on the
+board (the register step medians 0.8 min; the T-12 check passed at 8.94%).
+The FMEA adds what the fishbone can't rank — discrete failure risk on the
+mapped steps: the highest RPN (288) is the drink-queue handoff mix-up,
+while the severity-first view leads with a severity-8 steam-scald row at
+RPN 48 — the stated RPN limitation on display — and both carry actions
+with owners, so no safety row sits unaddressed and no blocking flag fires.
+The hypothesis run (`analyze/hypothesis-run.json`, live through
+`/stats/hypothesis/run`, declared-primary, Welch t) rules the daypart
+question in as real but minor and out as a driver: late mornings run 0.45
+min slower than early (p = 0.0165, d = −0.44, CI −0.81 to −0.08), while
+even the early window averages 8.18 against the 5.0 promise — the causes
+operate all morning, which is the espresso-capacity story again. The
+hand-off to Improve is the ranked verified-cause list: (1) drink-queue
+pileup / one-head batching root, 55% of tallied delays and 4.5 of the 8.4
+minutes; (2) grinder rework, 25% of tallies and ~2 minutes per re-pull —
+together the engine-verified 80% vital few, with daypart shuffling
+explicitly not on the list. Improve and Control artifacts (and the
+proposed-layout spaghetti overlay) arrive with their milestones.

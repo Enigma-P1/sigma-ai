@@ -27,8 +27,11 @@ import { baselineHelperContent } from "./baseline/baselineContent";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { chartSetHelperContent } from "./chartset/chartSetContent";
 import { HypothesisForm } from "./hypothesis/HypothesisForm";
+import { hypothesisHelperContent } from "./hypothesis/hypothesisContent";
 import { FishboneForm } from "./fishbone/FishboneForm";
+import { fishboneHelperContent } from "./fishbone/fishboneContent";
 import { FmeaForm } from "./fmea/FmeaForm";
+import { fmeaHelperContent } from "./fmea/fmeaContent";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -173,12 +176,12 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
-  // T-15/T-16/T-17 (M3): the Analyze-phase screens. Helper content stays
-  // the honest placeholder -- the Analyze five-part content unit (PLAN
-  // §4.3) ships with a later milestone; the forms themselves are real.
+  // T-15/T-16/T-17 (M3): the Analyze-phase screens with the real Analyze
+  // five-part content unit (PLAN §4.3) -- each panel's checklist restates
+  // its rubric items, per tier-a-done-means §2.
   if (toolId === "T-15") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={fishboneHelperContent}>
         <FishboneForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -186,7 +189,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-16") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={fmeaHelperContent}>
         <FmeaForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -194,7 +197,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-17") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={hypothesisHelperContent}>
         <HypothesisForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
