@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-fishbone",
+  "tool_id": "T-15",
+  "created_at": "2026-07-28T16:00:00Z",
+  "updated_at": "2026-07-28T16:00:00Z",
+  "notes": "Cause board for the baselined 8.6%, built at the 2026-07-28 huddle -- the corrected version of the consensus draft the engine refused that morning (fishbone-flawed.json; the refusal and the why are in teaching-note.md). Statuses now carry their evidence: the two vital-few causes hold the pointers the huddle already had -- trim misalignment's mechanism (unsigned imposition) carries the check sheet whose 139 transcribed marks put 67 (48.2%) on trim, wrong paper's mechanism (unlabeled tray loads) carries the tally export the engine Pareto ranked (50 marks, cumulative 84.2% -- the verified vital few) -- and the verification work the draft's statuses were only claiming got done the same day: the prepress walk and the traveler audit behind the 5-Why chain that runs proof-approval -> imposition-from-memory -> unwritten pre-flight, the Improve-ready root the 2026-08-01 rollout memo's checklist targets (with labeled trays as its materials half). Ink cure and lift-counting stay honest candidates in the Pareto's tail (13 and 9 marks); the shift question is ruled out by the chi-square screen (hypothesis-shift, p 0.895 -- the mix is process-shaped, not people-shaped) and rater drift by the kappa re-run, both kept on the board with their evidence rather than deleted (R-ANA-02).",
+  "effect": {
+    "text": "8.6% of orders fail the customer's first look at the QC desk (135 of 1,566 in the 21-day baseline census, p-bar 0.086207 frozen and stable) -- the charter's baselined problem, tracked as the daily rejected proportion",
+    "charter_ref": "print-charter"
+  },
+  "causes": [
+    {
+      "cause_id": "c-imposition",
+      "branch": "method",
+      "text": "Jobs reach the cutter without a signed-off imposition -- fold and bleed get set per operator habit at prepress, so trim registration drifts from job to job",
+      "parent_cause_id": null,
+      "status": "verified",
+      "evidence": {
+        "kind": "check_sheet",
+        "ref": "print-check-sheet"
+      },
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-approval-memory",
+      "branch": "method",
+      "text": "Proof approval closes the ticket in the operator's mind -- imposition gets set after approval, from memory, between other jobs",
+      "parent_cause_id": "c-imposition",
+      "status": "verified",
+      "evidence": {
+        "kind": "observation_note",
+        "ref": "Prepress walk with Jordan Pike (2026-07-27, six release-ready jobs): five of the six had imposition set after the customer proof was approved, from memory, with the traveler's imposition sign-off line blank -- the sign-off got circled only when someone remembered at the cutter."
+      },
+      "why_chain_position": 1
+    },
+    {
+      "cause_id": "c-unwritten-preflight",
+      "branch": "method",
+      "text": "Prepress release has never had a written pre-flight step -- imposition, bleed, and stock checks live in individual habit, and a rushed morning skips them silently",
+      "parent_cause_id": "c-approval-memory",
+      "status": "verified",
+      "evidence": {
+        "kind": "observation_note",
+        "ref": "Traveler audit (2026-07-28, the COPQ's 40-traveler reprint sample re-pulled): 31 of the 40 rework loops started at prepress or trim with the imposition line unsigned, and each operator interviewed runs a different mental checklist -- nothing written exists for the release step. The chain's Improve-ready root: give release a written pre-flight (imposition, bleed, stock SKU against the ticket)."
+      },
+      "why_chain_position": 2
+    },
+    {
+      "cause_id": "c-trays",
+      "branch": "material",
+      "text": "Paper trays get reloaded between jobs with unlabeled stock, so the press pulls whatever sheet is in the tray when the SKU changes mid-shift",
+      "parent_cause_id": null,
+      "status": "verified",
+      "evidence": {
+        "kind": "dataset",
+        "ref": "c33da44e761b4bf39eecf65a232f8cb7"
+      },
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-ink-cure",
+      "branch": "machine",
+      "text": "Smudge and banding marks cluster on rush jobs racked before full ink cure",
+      "parent_cause_id": null,
+      "status": "candidate",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-lift-count",
+      "branch": "method",
+      "text": "Wrong-quantity orders trace to counting by lift thickness at the cutter instead of running the sheet counter on mixed-stock jobs",
+      "parent_cause_id": null,
+      "status": "candidate",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-stock-humidity",
+      "branch": "environment",
+      "text": "Humidity swings in the stock room curl the lighter paper stocks ahead of trim",
+      "parent_cause_id": null,
+      "status": "candidate",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-shift-mix",
+      "branch": "people",
+      "text": "Evening crew turns out a different defect mix than day crew -- if true, the causes would be people-shaped and the fix would split by shift",
+      "parent_cause_id": null,
+      "status": "ruled_out",
+      "evidence": {
+        "kind": "hypothesis_run",
+        "ref": "print-hyp-shift"
+      },
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-rater-drift",
+      "branch": "measurement",
+      "text": "Reject calls drift between raters at the QC desk, moving the measured rate rather than the true one",
+      "parent_cause_id": null,
+      "status": "ruled_out",
+      "evidence": {
+        "kind": "observation_note",
+        "ref": "Two-rater kappa, re-run after the operational-definition fix (print-msa v2, 2026-06-27): kappa 0.8645, 96% agreement over the 50-order pre-study set -- Tessa's and Omar's calls are consistent, so drifting judgment does not explain the 8.6% level."
+      },
+      "why_chain_position": null
+    }
+  ],
+  "layout": {},
+  "verified_causes": {
+    "value": {
+      "count": 4,
+      "causes": [
+        {
+          "cause_id": "c-imposition",
+          "branch": "method",
+          "text": "Jobs reach the cutter without a signed-off imposition -- fold and bleed get set per operator habit at prepress, so trim registration drifts from job to job",
+          "evidence": {
+            "kind": "check_sheet",
+            "ref": "print-check-sheet"
+          },
+          "parent_cause_id": null,
+          "why_chain_position": null
+        },
+        {
+          "cause_id": "c-approval-memory",
+          "branch": "method",
+          "text": "Proof approval closes the ticket in the operator's mind -- imposition gets set after approval, from memory, between other jobs",
+          "evidence": {
+            "kind": "observation_note",
+            "ref": "Prepress walk with Jordan Pike (2026-07-27, six release-ready jobs): five of the six had imposition set after the customer proof was approved, from memory, with the traveler's imposition sign-off line blank -- the sign-off got circled only when someone remembered at the cutter."
+          },
+          "parent_cause_id": "c-imposition",
+          "why_chain_position": 1
+        },
+        {
+          "cause_id": "c-unwritten-preflight",
+          "branch": "method",
+          "text": "Prepress release has never had a written pre-flight step -- imposition, bleed, and stock checks live in individual habit, and a rushed morning skips them silently",
+          "evidence": {
+            "kind": "observation_note",
+            "ref": "Traveler audit (2026-07-28, the COPQ's 40-traveler reprint sample re-pulled): 31 of the 40 rework loops started at prepress or trim with the imposition line unsigned, and each operator interviewed runs a different mental checklist -- nothing written exists for the release step. The chain's Improve-ready root: give release a written pre-flight (imposition, bleed, stock SKU against the ticket)."
+          },
+          "parent_cause_id": "c-approval-memory",
+          "why_chain_position": 2
+        },
+        {
+          "cause_id": "c-trays",
+          "branch": "material",
+          "text": "Paper trays get reloaded between jobs with unlabeled stock, so the press pulls whatever sheet is in the tray when the SKU changes mid-shift",
+          "evidence": {
+            "kind": "dataset",
+            "ref": "c33da44e761b4bf39eecf65a232f8cb7"
+          },
+          "parent_cause_id": null,
+          "why_chain_position": null
+        }
+      ]
+    },
+    "provenance": {
+      "input_hash": "75f309d421975ee3be87b3d6daf1a54b0ce994f234d9258f22998365914b28c0",
+      "method": "verified_causes = every cause with status == 'verified', in causes-list order, each carrying its evidence pointer (rubric R-ANA-02/R-ANA-06 feed) -- an empty list is an honest zero, not 'nothing to compute yet': a fishbone with no verified causes is a valid, common in-progress state.",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "schema guarantees every status='verified' cause already carries non-empty evidence"
+      ],
+      "warnings": []
+    }
+  }
+}

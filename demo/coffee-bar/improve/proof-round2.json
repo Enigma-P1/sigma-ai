@@ -4,7 +4,7 @@
   "tool_id": "T-20",
   "created_at": "2026-09-21T17:00:00Z",
   "updated_at": "2026-09-21T17:00:00Z",
-  "notes": "Round-2 before/after proof, run live 2026-09-21 against the plan coffee-pilot-round2 declared 2026-09-03. Same yardstick as every prior window, one copy each: handoff_minutes under the T-11 operational definition and the T-12-passed measurement system. Before is the round-1 pilot window (after-round1.csv, n=120, mean 6.198 -- the implemented state since 2026-08-24), so the Welch test isolates what the grinder change itself added; the CUMULATIVE claim is the gap block, which runs final state against the original measured baseline 8.408333 per R-IMP-03 (per-change credits stay descriptive, never summed). After is the full declared pilot window (after-round2.csv, n=120, all 10 mornings, no trimming). The declared season/demand confounders are re-answered YES against actuals and the engine prints the weakened sentence on the verdict -- the direction of the bias (semester demand is ~15% MORE load) means the confound could only have masked improvement, not manufactured it, and the note travels with the number. Guardrails are the charter's two consequential metrics on their charter-baseline before-values, so the guardrail read is cumulative too. Capability of the after-window (Cpk 0.054 against USL 5.0) is the honest close: the mean promise is met, the every-order promise is not -- recorded in improve-run.md with the /stats/baseline run.",
+  "notes": "Round-2 before/after proof, run live 2026-09-21 against the plan coffee-pilot-round2 declared 2026-09-03. Same yardstick as every prior window, one copy each: handoff_minutes under the T-11 operational definition and the T-12-passed measurement system. Before is the round-1 pilot window (after-round1.csv, n=120, mean 6.198 -- the implemented state since 2026-08-24), so the Welch test isolates what the grinder change itself added; the CUMULATIVE claim is the gap block, which runs final state against the original measured baseline 8.408333 per R-IMP-03 (per-change credits stay descriptive, never summed). After is the full declared pilot window (after-round2.csv, n=120, all 10 mornings, no trimming). The declared season/demand confounders are re-answered YES against actuals and the engine prints the weakened sentence on the verdict -- the direction of the bias (semester demand is ~15% MORE load) means the confound could only have masked improvement, not manufactured it, and the note travels with the number. Guardrails are the charter's two consequential metrics on their charter-baseline before-values, so the guardrail read is cumulative too. Capability of the after-window (Cpk 0.054 against USL 5.0) is the honest close: the mean promise is met, the every-order promise is not -- recorded in improve-run.md with the /stats/baseline run. The pilot's declared_package is echoed verbatim (R-IMP-02's carve-out), so the verdict itself carries package-level attribution: the win belongs to the dosing-method package as a whole -- the dial-in routine plus the standby grinder -- never to either component alone.",
   "pilot_ref": "coffee-pilot-round2",
   "metric_ref": "handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)",
   "operational_definition_ref": "coffee-collection-plan",
@@ -137,7 +137,8 @@
       5.9,
       5.6,
       6.5
-    ]
+    ],
+    "weights": null
   },
   "after": {
     "dataset_id": "314125ca183d4f89a9442a2f2408f485",
@@ -264,7 +265,8 @@
       5.2,
       5.3,
       4.7
-    ]
+    ],
+    "weights": null
   },
   "declared_threshold": {
     "metric_ref": "handoff_minutes (charter C1) -- pilot-window mean",
@@ -293,6 +295,13 @@
       "changed": false,
       "note": "Round-1 method ran unchanged as the before-state; no menu, price, or layout changes; machine service stayed booked for 2026-09-26, outside the window."
     }
+  },
+  "declared_package": {
+    "rationale": "The dial-in routine and the standby grinder are one inseparable dosing-method change: a mid-peak swap is impossible without a second dialed-in grinder standing by, and a second grinder is pointless without the routine that keeps both units dialed in. Separate them and neither is testable alone -- a routine with a single grinder still stalls the line on every drift, and an un-dialed standby just moves the re-dial wait to a different machine -- so the pilot deploys the package whole and attribution stays package-level.",
+    "components": [
+      "Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card",
+      "Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait"
+    ]
   },
   "guardrails": [
     {
@@ -739,13 +748,14 @@
         "season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.",
         "demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it."
       ],
+      "package_attribution": "This pilot ran as a declared package (2 components: Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card, Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait) -- proof credit belongs to the package as a whole, never to a single component (rubric R-IMP-02's carve-out).",
       "stability_caveat": null,
       "guardrail_tradeoff": null,
-      "headline": "Threshold met, as declared: handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak) = 4.89917 vs 5.5 (lower_is_better). Improvement shown, but a reported confounder weakens this proof: season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.; demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it.."
+      "headline": "Threshold met, as declared: handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak) = 4.89917 vs 5.5 (lower_is_better). This pilot ran as a declared package (2 components: Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card, Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait) -- proof credit belongs to the package as a whole, never to a single component (rubric R-IMP-02's carve-out). Improvement shown, but a reported confounder weakens this proof: season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.; demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it.."
     },
     "provenance": {
-      "input_hash": "e0b9d9bdce21fce2be18a8e99533ad1fe5a8429b7f3bc052cc7f922881411bfb",
-      "method": "threshold check AS DECLARED (met|not_met, never reworded) + confounder echo (any changed=true weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)",
+      "input_hash": "b9064dcc7d65639790514615e7cfb3946b815cebb465e5854c1601384ea85d37",
+      "method": "threshold check AS DECLARED (met|not_met, never reworded) + package attribution (declared-package pilots only, rubric R-IMP-02) + confounder echo (any changed=true weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)",
       "engine_version": "0.1.0",
       "assumptions_checked": [],
       "warnings": []

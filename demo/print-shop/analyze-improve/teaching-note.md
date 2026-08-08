@@ -1,11 +1,15 @@
-# The refused chart, and what the refusal teaches
+# The refused drafts, and what the refusals teach
 
-`chart-flawed.json` is the draft the engine refused, kept on purpose —
-seeing the mistake is half the teaching (PLAN §4.4), and this demo's
-flawed-then-fixed pair lives here, on the chart selector, the way the
-coffee bar's lives on the charter. At the 2026-09-06 wrap-up, with the
-recalculation of the monitoring chart on the table, the proposal was to
-make the new chart richer: plot each day's **total failed-check marks**
+Two drafts in this folder were refused by the engine, kept on purpose —
+seeing the mistake is half the teaching (PLAN §4.4). This demo carries two
+flawed-then-fixed pairs: the defect-marks chart on the chart selector
+(`chart-flawed.json`, below) and the consensus fishbone on Analyze's
+evidence discipline (`fishbone-flawed.json`, the pair the locked matrix's
+flawed-example registry assigns to T-15 and this demo — last section),
+the way the coffee bar's pair lives on the charter. First the chart. At
+the 2026-09-06 wrap-up, with the recalculation of the monitoring chart on
+the table, the proposal was to make the new chart richer: plot each
+day's **total failed-check marks**
 across the four checks — "the chart should show how many things went
 wrong, not just how many orders" — through the same p-chart route. The
 draft answers the selector's printed question honestly
@@ -75,3 +79,46 @@ the check sheet keeps tallying marks by type for the Pareto re-runs, and
 T-10's DPMO stays the descriptive summary for counts. The teaching in one
 sentence: when a tool refuses your data by name, the fix is to bring the
 right data, not to rename the data until the tool goes quiet.
+
+## The refused fishbone — the same discipline at Analyze's door
+
+The suite's flawed-example registry assigns T-15's pair to this demo, and
+it ran live 2026-07-28, five weeks before the chart's. The draft
+(`fishbone-flawed.json`) is the huddle board from the morning the Pareto
+ranking landed: the unsigned-imposition mechanism and the unlabeled trays
+marked **verified** with their evidence fields empty — the room was
+unanimous, and the ranking was right there on the table. The engine's
+answer, verbatim (HTTP 422 from `POST /artifacts/T-15/validate`, one
+value error per consensus-verified cause, before any prescore ran):
+
+> Value error, cause 'c-imposition': evidence is required (non-empty)
+> when status='verified'
+>
+> Value error, cause 'c-trays': evidence is required (non-empty) when
+> status='verified'
+
+Where EXIT-11 is a routing guard, this bar is the schema itself: a cause
+with `status: "verified"` and nothing in `evidence` cannot be constructed
+at all (rubric R-ANA-02's anchor line — team consensus is not evidence).
+That shape is worth staring at: the engine makes the classic flawed
+fishbone — verified causes with zero evidence sitting on a saved board —
+literally impossible to ship, so the honest nearby failure is this draft,
+statuses claimed on confidence and refused at the door. The fix was one
+afternoon of actual verification, not a softer word: the corrected board
+(`fishbone-corrected.json`, saved as `print-fishbone`) attaches the
+pointers the huddle already had — the check sheet's 67-of-139 trim tally,
+the Pareto's own dataset export for wrong paper — and then does the work
+the draft's statuses were only claiming: the prepress walk and the
+40-traveler audit that turn "everyone agrees" into a 5-Why chain (proof
+approval → imposition set from memory → an unwritten pre-flight step),
+ending at the root the 2026-08-01 rollout memo's checklist targets, with
+the labeled trays as its materials half. Ink and quantity stay candidates
+in the tail; the shift split and rater drift leave as ruled-out with
+their evidence retained on the board. One more honesty note the pair
+makes visible: the Pareto share verifies that trim and wrong paper are
+where the marks concentrate — the *categories* — while verifying the
+*mechanisms* took the walk and the audit; the corrected board carries
+both layers, each with its own pointer. The teaching in one sentence:
+verified is a claim about evidence, not about agreement — when the
+schema refuses the status, go get the evidence instead of softening
+the word.

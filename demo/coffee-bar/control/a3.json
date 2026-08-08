@@ -122,6 +122,7 @@
     "after_amount": 252.95,
     "fix_cost": 360.0,
     "annualized_projection": 12795.64,
+    "annualized_projection_basis": "4-week realized recovery x 13: (1,237.23 - 252.95) = 984.28 per four-week window, x 13 windows/yr = 12,795.64 -- proportional COPQ recovery carried forward, equivalently the quarter's proportional recovery (984.28 x 13/4 = 3,198.91) x 4 quarters. Assumes semester demand and the window's improved rates hold year-round; the before side of the delta is itself the Q2 baseline pro-rated to the same 4 weeks (4,021 x 4/13 = 1,237.23), so this projects the measured recovery, never the charter's original 16,084.",
     "result": {
       "value": {
         "realized_to_date": 984.28,

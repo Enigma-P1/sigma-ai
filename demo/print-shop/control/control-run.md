@@ -2,13 +2,13 @@
 
 Not an artifact: the recorded engine runs of the monitoring story, project
 `print-shop-demo`, continuing `../print-shop-run.md`. One chart artifact
-(`print-pchart`) carries the whole arc across three saved versions — v1 the
-frozen baseline (`../measure/baseline-pchart.json`), v2 the monitoring
-close-out with the improvement signal acknowledged (quoted below, echo in
-the project store), v3 the recalculated post-change chart
-(`control-chart.json`). That shape is the point: control limits lived one
-freeze and one *logged* recalculation, and every intermediate state is a
-version, not an overwrite.
+(`print-pchart`) carries the whole arc as saved versions — the frozen
+baseline (`../measure/baseline-pchart.json`), the monitoring close-out
+with the improvement signal acknowledged (quoted below, echo in the
+project store), the recalculated post-change chart (shipped as
+`control-chart.json`, its latest re-validated echo). That shape is the
+point: control limits lived one freeze and one *logged* recalculation,
+and every intermediate state is a version, not an overwrite.
 
 ## Monitoring against the frozen baseline (v2 of `print-pchart`)
 
@@ -69,20 +69,26 @@ baseline, pasted:
 - the charter's 0.043 stays a **goal line on the wall chart, never a
   control limit** — the cadence note says so in as many words, and no rule
   reads against it. The chart says what the process is doing (0.0379,
-  stable); the goal says what the charter promised (met, remaining −0.006);
+  stable); the goal says what the charter promised (met, remaining −0.005);
   the two sentences stay different on purpose.
 - Prescore: all five checks pass.
 
 ## The proof beside it (`../analyze-improve/proof.json`)
 
-`POST /artifacts/T-20/validate`, saved v1 the same afternoon (16:30, after
+`POST /artifacts/T-20/validate`, saved the same afternoon (16:30, after
 the recalculation proved the after-window stable). Before = the 21 baseline
-daily proportions, after = the 24 post-change dailies. The engine's
-verdict, pasted:
+daily proportions, after = the 24 post-change dailies **with weights** —
+each day's order count beside its proportion, so the proof's after-mean is
+the pooled rate 69/1821, not an unweighted mean of daily proportions that
+would let a 58-order Saturday count exactly as much as a 90-order Monday.
+The engine's verdict, pasted:
 
-- **Threshold met, as declared**: after-mean 0.036823 vs the 0.05 declared
-  2026-08-01 in the rollout memo — `met`/`not_met` are the only values the
-  field can hold, and it renders as declared.
+- **Threshold met, as declared**: after-mean **0.037891** vs the 0.05
+  declared 2026-08-01 in the rollout memo — `met`/`not_met` are the only
+  values the field can hold, and it renders as declared. That 0.037891 is
+  the same pooled number the recalculated chart above froze as its center
+  p̄ — chart and proof now quote one post-window rate, which is exactly
+  what pooling by subgroup size is for.
 - **`weakened: true`, on purpose**: season (fall term began 08-31) and
   demand (final six days averaged 84 orders/day against 73 for the first
   eighteen, ~15% more load) are answered `changed`, with the direction
@@ -94,7 +100,7 @@ verdict, pasted:
 - Guardrails: median turnaround 1.9 → 1.8 days (`improved`, −5.3%); press
   overtime 6.5 → 5.9 h/wk (`improved`, −9.2%). No tradeoff sentence.
 - **The gap block**: measured baseline 0.086207, goal 0.043, original gap
-  0.043207; recovered **0.049384 (114.3%)**, remaining **−0.006177**,
+  0.043207; recovered **0.048316 (111.8%)**, remaining **−0.005109**,
   `goal_met: true`. Loop verdict, verbatim: *"Goal met — route to
   Control."*
 - The continuous-baseline blocks inside the proof report their gate

@@ -10,33 +10,29 @@
       "name": "order entry",
       "units_in": 1566.0,
       "first_pass_correct": 1517.0,
-      "defects_at_step": 49.0,
-      "dpu_at_step": 0.031289910600255426,
-      "fpy_at_step": 0.9691945525680828
+      "defective_units_at_step": 49.0,
+      "fpy_at_step": 0.9687100893997446
     },
     {
       "name": "prepress",
       "units_in": 1566.0,
       "first_pass_correct": 1492.0,
-      "defects_at_step": 74.0,
-      "dpu_at_step": 0.04725415070242656,
-      "fpy_at_step": 0.95384494641897
+      "defective_units_at_step": 74.0,
+      "fpy_at_step": 0.9527458492975734
     },
     {
       "name": "print",
       "units_in": 1566.0,
       "first_pass_correct": 1484.0,
-      "defects_at_step": 82.0,
-      "dpu_at_step": 0.05236270753512133,
-      "fpy_at_step": 0.9489846005473415
+      "defective_units_at_step": 82.0,
+      "fpy_at_step": 0.9476372924648787
     },
     {
       "name": "trim/finish",
       "units_in": 1566.0,
       "first_pass_correct": 1503.0,
-      "defects_at_step": 63.0,
-      "dpu_at_step": 0.040229885057471264,
-      "fpy_at_step": 0.9605685934024274
+      "defective_units_at_step": 63.0,
+      "fpy_at_step": 0.9597701149425287
     }
   ],
   "steps_in_series": true,
@@ -48,10 +44,10 @@
     "apply_sigma_shift": true
   },
   "rty_result": {
-    "value": 0.8427064064897711,
+    "value": 0.8394218208829786,
     "provenance": {
-      "input_hash": "f7d8a9a3a843ecfd415a36e045a01e21c389e9af5a6d03c63bc94f732892c94b",
-      "method": "RTY = product(FPY_i for i in steps), FPY_i = e^-DPU_i, DPU_i = defects_at_step_i / units_in_i (stats/sigma_level.py's rty()/fpy_from_dpu()/dpu(), reused verbatim) -- computed only under the artifact's explicit steps_in_series=true",
+      "input_hash": "6fea1fdaa4cf1a830487354cda570d3f6ee39542fc8eca3010f0b831d488d6cf",
+      "method": "RTY = product(FPY_i for i in steps), FPY_i = first_pass_correct_i / units_in_i (direct observed ratio, not a modeled estimate -- rubric R-MEA-09 #2 'computed from good/rework/scrap counts'; rty() reused verbatim from stats/sigma_level.py) -- computed only under the artifact's explicit steps_in_series=true",
       "engine_version": "0.1.0",
       "assumptions_checked": [
         "steps_in_series is true on this artifact -- RTY is a serial-line rollup and is never computed or claimed otherwise (matrix II.E.1)",
