@@ -1,0 +1,65 @@
+.sigma-fmea-sort-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.sigma-fmea-anchor-helper {
+  background: var(--color-accent-soft);
+  border: var(--border-width) solid var(--color-accent-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+.sigma-fmea-table-scroll {
+  overflow-x: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.sigma-fmea-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 1200px;
+  font-size: var(--text-sm);
+}
+.sigma-fmea-table th {
+  text-align: left;
+  padding: var(--space-2);
+  background: var(--color-surface-sunken);
+  border-bottom: var(--border-width) solid var(--color-border);
+  white-space: nowrap;
+}
+.sigma-fmea-table td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border);
+  vertical-align: top;
+}
+.sigma-fmea-table select,
+.sigma-fmea-table input {
+  min-width: 90px;
+}
+
+.sigma-fmea-rpn-cell {
+  font-weight: var(--weight-semibold);
+  white-space: nowrap;
+  text-align: center;
+}
+
+.sigma-fmea-row-remove {
+  background: none;
+  border: none;
+  color: var(--color-text-faint);
+  cursor: pointer;
+  font-size: var(--text-md);
+  line-height: 1;
+}
+
+.sigma-fmea-save-row {
+  margin-top: var(--space-4);
+}

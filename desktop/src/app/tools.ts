@@ -44,8 +44,8 @@ export const TOOLS: ToolDef[] = [
   { id: "T-14", name: "Pareto / Histogram / Run Chart", phase: "Measure", live: true, hasForm: true },
 
   // Analyze
-  { id: "T-15", name: "Fishbone (6M) + 5 Whys", phase: "Analyze", live: false, hasForm: false },
-  { id: "T-16", name: "FMEA (process)", phase: "Analyze", live: false, hasForm: false },
+  { id: "T-15", name: "Fishbone (6M) + 5 Whys", phase: "Analyze", live: true, hasForm: true },
+  { id: "T-16", name: "FMEA (process)", phase: "Analyze", live: true, hasForm: true },
   { id: "T-17", name: "Hypothesis Testing (guided selector)", phase: "Analyze", live: true, hasForm: true },
 
   // Improve

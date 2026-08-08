@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from factories import make_charter, make_picker, make_process_map, make_sipoc, make_voc_ctq
+from factories import make_charter, make_fishbone, make_fmea, make_picker, make_process_map, make_sipoc, make_voc_ctq
 from sigma_engine.main import app
 
 
@@ -196,6 +196,67 @@ def test_process_map_crud_and_prescore_via_registry(client):
     statuses = {r["check_id"]: r["status"] for r in prescore.json()}
     assert statuses["lane_owner_present"] == "pass"
     assert statuses["bottleneck_fields_consistency"] == "pass"
+
+
+def test_fishbone_crud_and_prescore_via_registry(client):
+    """T-15 end-to-end through the generic registry-driven routes: verified-
+    without-evidence rejected at validate, a valid save computes
+    verified_causes server-side, and prescore runs on the saved shape."""
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    body = make_fishbone()
+    bad = make_fishbone(causes=[{
+        "cause_id": "c-x", "branch": "method", "text": "Fixture never checked", "parent_cause_id": None,
+        "status": "verified", "evidence": None, "why_chain_position": None,
+    }])
+    rejected = client.post("/artifacts/T-15/validate", json=bad)
+    assert rejected.status_code == 422
+
+    validated = client.post("/artifacts/T-15/validate", json=body)
+    assert validated.status_code == 200, validated.text
+    assert validated.json()["artifact"]["verified_causes"]["value"]["count"] == 1
+
+    saved = client.post("/project/proj-1/artifacts/T-15", json=body)
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {"artifact_id": "fishbone-001", "tool_id": "T-15", "version": 1}
+
+    loaded = client.get("/project/proj-1/artifacts/fishbone-001")
+    assert loaded.json()["verified_causes"]["value"]["causes"][0]["cause_id"] == "c-1"
+
+    prescore = client.post("/prescore/T-15", json=body)
+    assert prescore.status_code == 200, prescore.text
+    statuses = {r["check_id"]: r["status"] for r in prescore.json()}
+    assert statuses["verified_causes_have_evidence"] == "pass"
+    assert statuses["cause_count_minimum"] == "flag"  # default fixture has 4 causes, floor is 6
+
+
+def test_fmea_crud_and_prescore_via_registry(client):
+    """T-16 end-to-end through the generic registry-driven routes: RPN and
+    the severity-first sorted_view are computed server-side on save, and
+    the safety-worded/no-action row surfaces as a blocking flag."""
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    body = make_fmea()
+    validated = client.post("/artifacts/T-16/validate", json=body)
+    assert validated.status_code == 200, validated.text
+    artifact = validated.json()["artifact"]
+    assert artifact["sorted_view"]["value"] == ["row-a", "row-c", "row-b"]
+    assert [f["row_id"] for f in artifact["blocking_flags"]["value"]] == ["row-a"]
+    rows_by_id = {r["row_id"]: r for r in artifact["rows"]}
+    assert rows_by_id["row-b"]["rpn"] == 448
+
+    saved = client.post("/project/proj-1/artifacts/T-16", json=body)
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {"artifact_id": "fmea-001", "tool_id": "T-16", "version": 1}
+
+    loaded = client.get("/project/proj-1/artifacts/fmea-001")
+    assert loaded.json()["anchors"]["severity"]["10"]  # JSON keys are always strings on the wire
+
+    prescore = client.post("/prescore/T-16", json=body)
+    assert prescore.status_code == 200, prescore.text
+    statuses = {r["check_id"]: r["status"] for r in prescore.json()}
+    assert statuses["high_severity_without_action"] == "hard_flag"
+    assert statuses["ratings_in_range"] == "pass"
 
 
 def test_gates_hard_block_and_override_refused(client):

@@ -1,0 +1,113 @@
+.sigma-fishbone-effect-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-3);
+  align-items: start;
+  margin-bottom: var(--space-3);
+}
+
+.sigma-fishbone-panels-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-4);
+}
+
+.sigma-fishbone-branch {
+  margin-bottom: var(--space-3);
+}
+.sigma-fishbone-branch__name {
+  font-weight: var(--weight-semibold);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-1);
+}
+.sigma-fishbone-cause-list {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.sigma-fishbone-cause-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  text-align: left;
+  background: var(--color-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  cursor: pointer;
+}
+.sigma-fishbone-cause-row--selected {
+  border-color: var(--color-accent-border);
+  background: var(--color-accent-soft);
+}
+
+.sigma-fishbone-unproven-chip {
+  font-size: var(--text-xs);
+  color: var(--color-flag);
+  background: var(--color-flag-soft);
+  border: var(--border-width) solid var(--color-flag-border);
+  border-radius: var(--radius-pill);
+  padding: 1px var(--space-2);
+  white-space: nowrap;
+}
+
+.sigma-fishbone-inspector-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.sigma-fishbone-why-context {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
+
+.sigma-fishbone-evidence-summary {
+  font-size: var(--text-sm);
+  margin: var(--space-1) 0;
+}
+.sigma-fishbone-evidence-summary--empty {
+  color: var(--color-text-muted);
+}
+.sigma-fishbone-evidence-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.sigma-fishbone-verified-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sigma-fishbone-verified-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-bottom: var(--space-2);
+  font-size: var(--text-sm);
+}
+.sigma-fishbone-verified-branch {
+  font-weight: var(--weight-semibold);
+  background: var(--color-pass-soft);
+  color: var(--color-pass);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-2);
+}
+.sigma-fishbone-verified-evidence {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}

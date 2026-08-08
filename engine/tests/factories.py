@@ -445,6 +445,92 @@ def make_hypothesis(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_fishbone_causes() -> list[dict[str, Any]]:
+    return [
+        {
+            "cause_id": "c-1", "branch": "method", "text": "Fixture alignment not checked before shift start",
+            "parent_cause_id": None, "status": "verified", "why_chain_position": None,
+            "evidence": {"kind": "check_sheet", "ref": "checksheet-001"},
+        },
+        {
+            "cause_id": "c-1-why2", "branch": "method", "text": "Checklist never posted at the fixture station",
+            "parent_cause_id": "c-1", "status": "investigating", "why_chain_position": 2, "evidence": None,
+        },
+        {
+            "cause_id": "c-2", "branch": "machine", "text": "Injector pressure drifts low over a shift",
+            "parent_cause_id": None, "status": "candidate", "why_chain_position": None, "evidence": None,
+        },
+        {
+            "cause_id": "c-3", "branch": "machine", "text": "Preventive maintenance skipped on several scheduled intervals",
+            "parent_cause_id": None, "status": "ruled_out", "why_chain_position": None,
+            "evidence": {"kind": "observation_note", "ref": "PM log shows maintenance done on schedule for all of Q2."},
+        },
+    ]
+
+
+def make_fishbone(**overrides: Any) -> dict[str, Any]:
+    causes = overrides.pop("causes") if "causes" in overrides else make_fishbone_causes()
+    base = {
+        "schema_version": 1,
+        "artifact_id": "fishbone-001",
+        "tool_id": "T-15",
+        "created_at": TS,
+        "updated_at": TS,
+        "effect": {"text": "Line 2 scrap rate averaged 6.2% in Q2", "charter_ref": "charter-001"},
+        "causes": causes,
+        "layout": {},
+    }
+    base.update(overrides)
+    return base
+
+
+# Hand-checkable RPN + severity-first-then-RPN ordering fixture (task
+# brief): row-a (sev 9, occ 3, det 2 -> rpn 54) and row-c (sev 9, occ 2,
+# det 2 -> rpn 36) both outrank row-b (sev 7, occ 8, det 8 -> rpn 448)
+# despite row-b's RPN being the largest of the three -- severity-first
+# means a lower-severity row can never outrank a higher-severity one on
+# RPN alone (rubric R-ANA-03's stated RPN limitation). row-a's effect is
+# deliberately safety-worded and left without an action, so it is also the
+# fixture for blocking_flags.
+def make_fmea_rows() -> list[dict[str, Any]]:
+    return [
+        {
+            "row_id": "row-a", "process_step_ref": None, "step_name": "Mold part",
+            "failure_mode": "Short pour incomplete fill", "effect": "Part fails safety inspection, unsafe to ship",
+            "cause": "Injector pressure drifts low", "severity": 9, "occurrence": 3, "detection": 2,
+            "action": "", "action_owner": "", "action_due": None, "action_status": "open", "anchors_consulted": True,
+        },
+        {
+            "row_id": "row-b", "process_step_ref": None, "step_name": "Package",
+            "failure_mode": "Wrong label applied", "effect": "Customer receives wrong item, reorder needed",
+            "cause": "Label roll swapped by mistake", "severity": 7, "occurrence": 8, "detection": 8,
+            "action": "Add barcode scan check before sealing", "action_owner": "Sam Lee", "action_due": "2026-09-01",
+            "action_status": "open", "anchors_consulted": True,
+        },
+        {
+            "row_id": "row-c", "process_step_ref": "step-3", "step_name": "Mold part",
+            "failure_mode": "Flash on edge", "effect": "Sharp edge injury risk to assembler",
+            "cause": "Mold halves misaligned", "severity": 9, "occurrence": 2, "detection": 2,
+            "action": "Daily alignment check before first shift", "action_owner": "Maria Ortiz",
+            "action_due": "2026-08-15", "action_status": "open", "anchors_consulted": True,
+        },
+    ]
+
+
+def make_fmea(**overrides: Any) -> dict[str, Any]:
+    rows = overrides.pop("rows") if "rows" in overrides else make_fmea_rows()
+    base = {
+        "schema_version": 1,
+        "artifact_id": "fmea-001",
+        "tool_id": "T-16",
+        "created_at": TS,
+        "updated_at": TS,
+        "rows": rows,
+    }
+    base.update(overrides)
+    return base
+
+
 def make_time_study(**overrides: Any) -> dict[str, Any]:
     elements = overrides.pop("elements") if "elements" in overrides else make_time_study_elements()
     cycles = overrides.pop("cycles") if "cycles" in overrides else make_time_study_cycles()
