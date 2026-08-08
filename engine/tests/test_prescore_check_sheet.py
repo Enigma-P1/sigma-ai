@@ -50,3 +50,24 @@ def test_full_category_coverage_passes():
     results = run_check_sheet_prescore(artifact)
     by_id = {r.check_id: r for r in results}
     assert by_id["category_coverage"].status == "pass"
+
+
+def test_a_deleted_entry_does_not_count_toward_category_coverage():
+    # cat-crack's only tally (e3) gets soft-deleted -- coverage must go
+    # back to flagging cat-crack as untouched, the same as if it had never
+    # been tapped (rubric R-MEA-04 generalized to T-08: a deleted row
+    # shouldn't be able to satisfy a "this category was tallied" check).
+    entries = make_check_sheet_entries()
+    entries[2] = {**entries[2], "deleted": {"reason": "wrong category tapped", "at": "2026-08-07T13:01:00"}}
+    artifact = CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))
+    by_id = {r.check_id: r for r in run_check_sheet_prescore(artifact)}
+    assert by_id["category_coverage"].status == "flag"
+    assert "Crack" in by_id["category_coverage"].detail
+
+
+def test_all_entries_deleted_reads_as_no_entries_present():
+    entries = [{**e, "deleted": {"reason": "re-collected", "at": "2026-08-07T13:01:00"}} for e in make_check_sheet_entries()]
+    artifact = CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))
+    by_id = {r.check_id: r for r in run_check_sheet_prescore(artifact)}
+    assert by_id["entries_present"].status == "flag"
+    assert "category_coverage" not in by_id

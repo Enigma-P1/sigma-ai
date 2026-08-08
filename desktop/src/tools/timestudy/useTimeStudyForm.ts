@@ -4,7 +4,7 @@ import { ApiError } from "../../api/errors";
 import { useSaveState } from "../../app/SaveStateContext";
 import type { DatasetMeta, ElementTime, PrescoreResult, ProjectMetadata, TimeStudyArtifact, TimeStudyCycle, WorkElement } from "../../api/types";
 import {
-  buildTimeStudyBody, canSaveTimeStudy, emptyElement, manualCycle, nextCycleNumber,
+  buildTimeStudyBody, canSaveTimeStudy, emptyElement, manualCycle, markCycleDeleted, nextCycleNumber,
   removeElementCascade, setCycleElementSeconds, setCycleNote, timeStudyStateFromArtifact,
 } from "./timeStudyLogic";
 import { useStopwatch } from "./useStopwatch";
@@ -95,8 +95,8 @@ export function useTimeStudyForm(projectId: string, project: ProjectMetadata, on
     setCycles((p) => setCycleNote(p, cycleNumber, note));
     dirty();
   }
-  function removeCycle(cycleNumber: number) {
-    setCycles((p) => p.filter((c) => c.cycle_number !== cycleNumber));
+  function deleteCycle(cycleNumber: number, reason: string) {
+    setCycles((p) => markCycleDeleted(p, cycleNumber, reason, new Date().toISOString()));
     dirty();
   }
 
@@ -171,7 +171,7 @@ export function useTimeStudyForm(projectId: string, project: ProjectMetadata, on
 
   return {
     elements, addElement, updateElement, removeElement,
-    cycles, addManualCycle, updateCycleSeconds, updateCycleNote, removeCycle,
+    cycles, addManualCycle, updateCycleSeconds, updateCycleNote, deleteCycle,
     stopwatch, currentCycleTimes, currentNote, setCurrentNote,
     handleStopwatchStart, handleStopwatchSplit, handleFinishCycle, handleCancelCycle,
     workSampling,

@@ -46,6 +46,14 @@ export function setCycleNote(cycles: TimeStudyCycle[], cycleNumber: number, note
   return cycles.map((c) => (c.cycle_number === cycleNumber ? { ...c, observer_note: note } : c));
 }
 
+/** Soft delete (rubric R-MEA-04: "deletions carry a logged reason") -- the
+ * cycle stays in the array, struck through in CyclesTable, and only the
+ * engine's element_stats stop counting it (artifacts/time_study.py's
+ * `deleted is None` filter). Never a hard .filter() removal. */
+export function markCycleDeleted(cycles: TimeStudyCycle[], cycleNumber: number, reason: string, at: string): TimeStudyCycle[] {
+  return cycles.map((c) => (c.cycle_number === cycleNumber ? { ...c, deleted: { reason, at } } : c));
+}
+
 /** mm:ss.t display for the stopwatch (StopwatchPanel) -- capture-only
  * formatting, never what a stats panel renders (those come verbatim from
  * the engine's computed element_stats). */

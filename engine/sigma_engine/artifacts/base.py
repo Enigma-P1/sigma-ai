@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def validate_iso8601(value: str) -> str:
@@ -47,4 +47,25 @@ class ArtifactBase(BaseModel):
     @field_validator("created_at", "updated_at")
     @classmethod
     def _timestamps_are_iso8601(cls, v: str) -> str:
+        return validate_iso8601(v)
+
+
+class DeletionInfo(BaseModel):
+    """Soft-delete marker shared by every artifact that lets one row be
+    excluded from computed stats without erasing it (rubric R-MEA-04:
+    "deletions carry a logged reason", generalized here to T-08's entries
+    too). `reason` is schema-required non-empty -- a deletion with no
+    reason is a validation error, not a prescore flag (PLAN §4.2: a
+    data-integrity guard, not a content-quality judgment call). `at` is
+    caller-supplied like every other timestamp in this schema layer
+    (never generated server-side)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    reason: str = Field(min_length=1)
+    at: str
+
+    @field_validator("at")
+    @classmethod
+    def _at_is_iso8601(cls, v: str) -> str:
         return validate_iso8601(v)

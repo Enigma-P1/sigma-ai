@@ -33,6 +33,10 @@
   font-size: var(--text-sm);
 }
 
+.sigma-baseline-collection-plan-link {
+  margin-top: var(--space-2);
+}
+
 .sigma-baseline-results {
   display: flex;
   flex-direction: column;

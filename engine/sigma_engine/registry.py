@@ -11,6 +11,7 @@ from .artifacts import (
     CharterArtifact,
     CheckSheetArtifact,
     CopqArtifact,
+    DataCollectionPlanArtifact,
     MsaArtifact,
     PickerArtifact,
     ProcessMapArtifact,
@@ -24,6 +25,7 @@ from .prescore import (
     run_charter_prescore,
     run_check_sheet_prescore,
     run_copq_prescore,
+    run_data_collection_plan_prescore,
     run_msa_prescore,
     run_picker_prescore,
     run_process_map_prescore,
@@ -43,6 +45,7 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-07": SpaghettiArtifact,
     "T-08": CheckSheetArtifact,
     "T-09": TimeStudyArtifact,
+    "T-11": DataCollectionPlanArtifact,
     "T-12": MsaArtifact,
 }
 
@@ -56,5 +59,6 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-07": run_spaghetti_prescore,
     "T-08": run_check_sheet_prescore,
     "T-09": run_time_study_prescore,
+    "T-11": run_data_collection_plan_prescore,
     "T-12": run_msa_prescore,
 }

@@ -1,0 +1,17 @@
+.sigma-dcp-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.sigma-dcp-row > * {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.sigma-dcp-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}

@@ -40,7 +40,7 @@ export function TimeStudyForm({ projectId, project, onSaved, onNavigateToDataset
 
       <CyclesTable
         elements={f.elements} cycles={f.cycles} onAddCycle={f.addManualCycle}
-        onUpdateSeconds={f.updateCycleSeconds} onUpdateNote={f.updateCycleNote} onRemove={f.removeCycle}
+        onUpdateSeconds={f.updateCycleSeconds} onUpdateNote={f.updateCycleNote} onDeleteCycle={f.deleteCycle}
       />
 
       {f.generalError && <VerdictBanner tone="fail" headline={f.generalError} />}

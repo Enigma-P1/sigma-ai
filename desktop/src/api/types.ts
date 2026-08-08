@@ -870,6 +870,16 @@ export interface FloorPlanDetail {
   content_base64: string;
 }
 
+// ---- Soft delete (artifacts/base.py DeletionInfo) -- shared by T-08's
+// entries and T-09's cycles: rubric R-MEA-04's "deletions carry a logged
+// reason," generalized to T-08 too. The row stays in the array; `deleted`
+// is what marks it excluded from computed stats/exports. ----
+
+export interface DeletionInfo {
+  reason: string;
+  at: string;
+}
+
 // ---- T-08 Check Sheet / Tally (artifacts/check_sheet.py) ----
 
 export interface CheckSheetCategory {
@@ -888,6 +898,7 @@ export interface CheckSheetEntry {
   timestamp: string;
   strata: Record<string, string>;
   note: string;
+  deleted?: DeletionInfo | null;
 }
 
 export interface CheckSheetArtifact extends ArtifactBase {
@@ -914,6 +925,7 @@ export interface TimeStudyCycle {
   cycle_number: number;
   element_times: ElementTime[];
   observer_note: string;
+  deleted?: DeletionInfo | null;
 }
 
 export type WorkSamplingCategory = "working" | "waiting" | "moving" | "other";
@@ -968,4 +980,51 @@ export interface TimeStudyArtifact extends ArtifactBase {
   element_stats?: Computed<ElementStats[]> | null;
   /** null when there are no interval observations yet. */
   work_sampling_summary?: Computed<WorkSamplingSummary> | null;
+}
+
+// ---- T-11 Data Collection Plan (artifacts/data_collection_plan.py) -------
+// The PLAN half of T-11 -- the import half is DatasetMeta/DatasetPreview
+// above, the sample-size half is SampleSizeResponse. No computed fields:
+// a plan is written down, not derived (rubric R-MEA-05).
+
+export type DataCollectionDataType = "continuous" | "attribute_defective" | "attribute_count";
+
+export const DATA_COLLECTION_DATA_TYPES: { value: DataCollectionDataType; label: string }[] = [
+  { value: "continuous", label: "Continuous -- a measured amount (time, weight, length...)" },
+  { value: "attribute_defective", label: "Attribute -- defective (pass/fail per unit)" },
+  { value: "attribute_count", label: "Attribute -- defect count (defects per unit or area)" },
+];
+
+export interface OperationalDefinition {
+  what_measured: string;
+  how_instrument: string;
+  precision_unit: string;
+  starts_when: string;
+  stops_when: string;
+  two_people_confirmed: boolean;
+}
+
+export interface StratificationFactor {
+  name: string;
+  values_expected: string[];
+}
+
+export interface CollectionLogistics {
+  who_collects: string;
+  where_collected: string;
+  when_how_often: string;
+  planned_n: number | null;
+  sample_size_rationale: string;
+}
+
+export interface DataCollectionPlanArtifact extends ArtifactBase {
+  tool_id: "T-11";
+  metric_name: string;
+  charter_metric_id?: string | null;
+  operational_definition: OperationalDefinition;
+  data_type: DataCollectionDataType | null;
+  stratification_factors: StratificationFactor[];
+  no_stratification_reason: string;
+  logistics: CollectionLogistics;
+  bias_note: string;
 }

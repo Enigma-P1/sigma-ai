@@ -10,9 +10,8 @@ import { SipocForm } from "./sipoc/SipocForm";
 import { sipocHelperContent } from "./sipoc/sipocContent";
 import { VocCtqForm } from "./voc_ctq/VocCtqForm";
 import { vocCtqHelperContent } from "./voc_ctq/vocCtqContent";
-import { DataImportForm } from "./dataimport/DataImportForm";
 import { dataImportHelperContent } from "./dataimport/dataImportContent";
-import { SampleSizePanel } from "./samplesize/SampleSizePanel";
+import { T11Screen } from "./T11Screen";
 import { MsaForm } from "./msa/MsaForm";
 import { msaHelperContent } from "./msa/msaContent";
 import { ProcessMapForm } from "./processmap/ProcessMapForm";
@@ -142,8 +141,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
   if (toolId === "T-11") {
     return (
       <ToolScreen {...screenProps} helperContent={dataImportHelperContent}>
-        <DataImportForm projectId={projectId} onSaved={onSaved} />
-        <SampleSizePanel />
+        <T11Screen projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }
@@ -159,7 +157,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
   if (toolId === "T-13") {
     return (
       <ToolScreen {...screenProps} helperContent={baselineHelperContent}>
-        <BaselineForm projectId={projectId} initialDatasetId={presetFor("T-13")} />
+        <BaselineForm projectId={projectId} project={project} initialDatasetId={presetFor("T-13")} />
       </ToolScreen>
     );
   }

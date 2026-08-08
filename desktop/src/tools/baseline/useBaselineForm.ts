@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import { getDataset, listDatasets, runBaseline } from "../../api/client";
 import { ApiError } from "../../api/errors";
-import type { BaselineResponse, DatasetMeta } from "../../api/types";
+import type { ArtifactIndexEntry, BaselineResponse, DatasetMeta, ProjectMetadata } from "../../api/types";
 import { parseSpecLimit } from "./baselineLogic";
+
+// Same artifact_id constant useCollectionPlanForm.ts saves T-11's plan
+// under -- read-only here, display only (M2 brief: "a link chip ... when
+// one exists"), never fetched/loaded, just presence + version off the
+// project's own artifact index.
+const COLLECTION_PLAN_ARTIFACT_ID = "collection-plan";
 
 /** T-13's state + engine wiring. The enforced order (spec limits +
  * operational definition before anything runs) is a UI-layout concern
@@ -11,7 +17,7 @@ import { parseSpecLimit } from "./baselineLogic";
  * `initialDatasetId` is the T-08/T-09 deep-link preset (ToolRouter's
  * DatasetPreset): applied once, the first time it appears in the fetched
  * dataset list, so a manual re-selection afterward isn't fought. */
-export function useBaselineForm(projectId: string, initialDatasetId?: string) {
+export function useBaselineForm(projectId: string, project: ProjectMetadata, initialDatasetId?: string) {
   const [datasets, setDatasets] = useState<DatasetMeta[]>([]);
   const [datasetId, setDatasetIdRaw] = useState<string>("");
   const [presetApplied, setPresetApplied] = useState(false);
@@ -59,6 +65,11 @@ export function useBaselineForm(projectId: string, initialDatasetId?: string) {
   const usl = parseSpecLimit(uslText);
   const lsl = parseSpecLimit(lslText);
 
+  // Display-only link chip (M2 brief): does the project already have a
+  // T-11 Data Collection Plan? Read straight off the project's own
+  // artifact index -- no fetch, no navigation wired up here.
+  const collectionPlanEntry: ArtifactIndexEntry | undefined = project.artifact_index[COLLECTION_PLAN_ARTIFACT_ID];
+
   const specsReady = usl != null || lsl != null;
   const dataReady = datasetId !== "" && column !== "";
   const canRun = dataReady && specsReady && operationalDefinitionOk && !running;
@@ -93,5 +104,6 @@ export function useBaselineForm(projectId: string, initialDatasetId?: string) {
     enableRule2, setEnableRule2, enableRule3, setEnableRule3, applySigmaShift, setApplySigmaShift,
     running, error, result, chartValues,
     dataReady, specsReady, canRun, handleRun,
+    collectionPlanEntry,
   };
 }

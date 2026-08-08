@@ -379,6 +379,46 @@ def make_time_study_cycles() -> list[dict[str, Any]]:
     ]
 
 
+def make_data_collection_plan(**overrides: Any) -> dict[str, Any]:
+    """A complete, prescore-clean T-11 Data Collection Plan -- every field
+    a real plan would carry, so tests mutate one field off this base to
+    exercise a single flag/rejection at a time (this module's own
+    convention, e.g. make_check_sheet above)."""
+    base = {
+        "schema_version": 1,
+        "artifact_id": "dcp-001",
+        "tool_id": "T-11",
+        "created_at": TS,
+        "updated_at": TS,
+        "metric_name": "order-to-handoff minutes",
+        "charter_metric_id": "line-2 scrap rate",
+        "operational_definition": {
+            "what_measured": "Minutes from order placed to order handed to customer",
+            "how_instrument": "POS timestamp minus order timestamp, read from the register log",
+            "precision_unit": "minutes, to the nearest 0.1",
+            "starts_when": "Order is placed at the register",
+            "stops_when": "Drink is handed across the counter",
+            "two_people_confirmed": True,
+        },
+        "data_type": "continuous",
+        "stratification_factors": [
+            {"name": "shift", "values_expected": ["morning", "afternoon"]},
+            {"name": "order_type", "values_expected": ["register", "mobile"]},
+        ],
+        "no_stratification_reason": "",
+        "logistics": {
+            "who_collects": "Shift lead, via the POS export",
+            "where_collected": "Front counter register",
+            "when_how_often": "Continuously; exported weekly",
+            "planned_n": 30,
+            "sample_size_rationale": "I-MR baseline rule of thumb: 25-30 points (T-11 sample-size panel)",
+        },
+        "bias_note": "POS log captures every order -- not a convenience sample.",
+    }
+    base.update(overrides)
+    return base
+
+
 def make_time_study(**overrides: Any) -> dict[str, Any]:
     elements = overrides.pop("elements") if "elements" in overrides else make_time_study_elements()
     cycles = overrides.pop("cycles") if "cycles" in overrides else make_time_study_cycles()

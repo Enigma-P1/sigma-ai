@@ -87,10 +87,16 @@
   padding: var(--space-1) var(--space-2);
 }
 
-.sigma-timestudy-cycles__delete--confirm {
-  background: var(--color-fail-soft);
-  border-color: var(--color-fail-border);
+.sigma-timestudy-cycles__row--deleted {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.sigma-timestudy-cycles__deleted-badge {
+  font-size: var(--text-xs);
   color: var(--color-fail);
+  text-decoration: none;
+  text-align: center;
 }
 
 .sigma-timestudy-stats {
