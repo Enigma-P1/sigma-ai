@@ -15,6 +15,18 @@ from .charter import (
 from .copq import CopqArtifact, CopqRow, compute_copq_total
 from .msa import AttributeJudgmentRow, ContinuousItemRow, MsaArtifact
 from .picker import IntakeCriterion, PickerArtifact, Route, route_is_consistent
+from .process_map import (
+    WASTE_IDS,
+    BottleneckResult,
+    Connector,
+    DemandBlock,
+    Lane,
+    ProcessMapArtifact,
+    ProcessStepModel,
+    StepPosition,
+    WasteEntry,
+    compute_bottleneck,
+)
 from .sipoc import OutputCustomerPair, ProcessStep, SipocArtifact, SupplierInputPair
 from .voc_ctq import Ctq, Customer, CustomerNeed, VocCtqArtifact, VocStatement
 
@@ -39,6 +51,16 @@ __all__ = [
     "PickerArtifact",
     "Route",
     "route_is_consistent",
+    "WASTE_IDS",
+    "BottleneckResult",
+    "Connector",
+    "DemandBlock",
+    "Lane",
+    "ProcessMapArtifact",
+    "ProcessStepModel",
+    "StepPosition",
+    "WasteEntry",
+    "compute_bottleneck",
     "OutputCustomerPair",
     "ProcessStep",
     "SipocArtifact",

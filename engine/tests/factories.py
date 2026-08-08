@@ -159,6 +159,57 @@ def make_attribute_msa(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_process_map_lanes() -> list[dict[str, Any]]:
+    return [
+        {"lane_id": "lane-1", "name": "Customer", "owner": "Front counter lead"},
+        {"lane_id": "lane-2", "name": "Barista", "owner": "Shift lead"},
+    ]
+
+
+def make_process_map_steps() -> list[dict[str, Any]]:
+    return [
+        {
+            "step_id": "step-1", "lane_id": "lane-1", "name": "Place order", "order": 1,
+            "step_type": "value_add", "reason": "Customer directly asks for what they want.",
+            "time_minutes": 1.0, "defect_point": False, "strata": ["morning"], "wastes": [],
+        },
+        {
+            "step_id": "step-2", "lane_id": "lane-2", "name": "Wait for register", "order": 1,
+            "step_type": "non_value_add", "reason": "Customer gets nothing while waiting.",
+            "time_minutes": 4.0, "defect_point": False, "strata": [],
+            "wastes": [{"waste_id": "waiting", "note": "Line backs up ~4 min at the morning peak."}],
+        },
+        {
+            "step_id": "step-3", "lane_id": "lane-2", "name": "Make drink", "order": 2,
+            "step_type": "value_add", "reason": "Directly produces what the customer is paying for.",
+            "time_minutes": 3.0, "defect_point": True, "strata": [], "wastes": [],
+        },
+    ]
+
+
+def make_process_map(**overrides: Any) -> dict[str, Any]:
+    lanes = overrides.pop("lanes") if "lanes" in overrides else make_process_map_lanes()
+    steps = overrides.pop("steps") if "steps" in overrides else make_process_map_steps()
+    connectors = (
+        overrides.pop("connectors") if "connectors" in overrides
+        else [{"from_step": "step-1", "to_step": "step-2", "label": None}, {"from_step": "step-2", "to_step": "step-3", "label": None}]
+    )
+    base = {
+        "schema_version": 1,
+        "artifact_id": "process-map-001",
+        "tool_id": "T-06",
+        "created_at": TS,
+        "updated_at": TS,
+        "lanes": lanes,
+        "steps": steps,
+        "connectors": connectors,
+        "demand": None,
+        "layout": {},
+    }
+    base.update(overrides)
+    return base
+
+
 def make_charter(**overrides: Any) -> dict[str, Any]:
     base = {
         "schema_version": 1,

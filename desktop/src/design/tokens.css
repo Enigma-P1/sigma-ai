@@ -92,4 +92,21 @@
   --color-neutral-border: #d3d8de;
 
   --focus-ring: 0 0 0 3px var(--color-accent-border);
+
+  /* ---- VA / NVA / enabling (T-06 process map, PLAN §4.1) -- aliased onto
+     the existing pass/fail/accent semantics rather than new hex values, so
+     the map's tags read with the same meaning as everywhere else: value-add
+     is "good" (pass-green), non-value-add is waste (fail-red), enabling is
+     necessary-but-neutral (the one accent color). ---- */
+  --color-va: var(--color-pass);
+  --color-va-soft: var(--color-pass-soft);
+  --color-va-border: var(--color-pass-border);
+
+  --color-nva: var(--color-fail);
+  --color-nva-soft: var(--color-fail-soft);
+  --color-nva-border: var(--color-fail-border);
+
+  --color-enabling: var(--color-accent);
+  --color-enabling-soft: var(--color-accent-soft);
+  --color-enabling-border: var(--color-accent-border);
 }

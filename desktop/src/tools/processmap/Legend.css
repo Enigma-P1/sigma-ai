@@ -1,0 +1,32 @@
+.sigma-processmap-legend {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-3);
+}
+.sigma-processmap-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.sigma-processmap-legend__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+.sigma-processmap-legend__swatch--va {
+  background: var(--color-va-soft);
+  border-color: var(--color-va-border);
+}
+.sigma-processmap-legend__swatch--nva {
+  background: var(--color-nva-soft);
+  border-color: var(--color-nva-border);
+}
+.sigma-processmap-legend__swatch--enabling {
+  background: var(--color-enabling-soft);
+  border-color: var(--color-enabling-border);
+}

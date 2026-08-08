@@ -426,6 +426,99 @@ async function main() {
         `expected the Pareto verdict headline to name the vital few including "register", got ${JSON.stringify(text)}`,
       );
     });
+    // ---- M2 addition: T-06 Process Map (swimlane) + Waste Walk -- the
+    // Konva canvas tool. Konva nodes are canvas-drawn (no DOM test ids), so
+    // this drives the map through the inspector panel + add-lane/add-step
+    // buttons rather than pixel drags -- lanes/steps are real Konva-
+    // rendered cards on screen, just built via the reliable HTML control
+    // surface next to the canvas. ----
+
+    await step("open T-06 and build 2 lanes", async () => {
+      await page.locator('[data-testid="nav-tool-T-06"]').click();
+      await page.locator('[data-testid="processmap-save"]').waitFor();
+      await page.locator('[data-testid="processmap-add-lane"]').click();
+      await page.locator('[data-testid="processmap-add-lane"]').click();
+      await page.locator('[data-testid="processmap-lane-0-name"]').fill("Customer");
+      await page.locator('[data-testid="processmap-lane-0-owner"]').fill("Front counter lead");
+      await page.locator('[data-testid="processmap-lane-1-name"]').fill("Barista");
+      await page.locator('[data-testid="processmap-lane-1-owner"]').fill("Shift lead");
+    });
+
+    await step("add 4 steps across the 2 lanes (2 per lane), assert they render", async () => {
+      await page.locator('[data-testid="processmap-add-step-0"]').click();
+      await page.locator('[data-testid="processmap-step-name"]').fill("Place order");
+      await page.locator('[data-testid="processmap-step-reason"]').fill("Customer directly asks for what they want.");
+      await page.locator('[data-testid="processmap-step-time"]').fill("2");
+
+      await page.locator('[data-testid="processmap-add-step-1"]').click();
+      await page.locator('[data-testid="processmap-step-name"]').fill("Wait for register");
+      await page.locator('[data-testid="processmap-step-type"]').selectOption("non_value_add");
+      await page.locator('[data-testid="processmap-step-reason"]').fill("Customer gets nothing while waiting.");
+      await page.locator('[data-testid="processmap-step-time"]').fill("9");
+
+      await page.locator('[data-testid="processmap-add-step-0"]').click();
+      await page.locator('[data-testid="processmap-step-name"]').fill("Make drink");
+      await page.locator('[data-testid="processmap-step-reason"]').fill("Directly produces what the customer is paying for.");
+      await page.locator('[data-testid="processmap-step-time"]').fill("3");
+
+      await page.locator('[data-testid="processmap-add-step-1"]').click();
+      await page.locator('[data-testid="processmap-step-name"]').fill("Hand off");
+      await page.locator('[data-testid="processmap-step-type"]').selectOption("enabling");
+      await page.locator('[data-testid="processmap-step-time"]').fill("1");
+
+      const rows = page.locator('[data-testid^="processmap-step-row-"]');
+      await rows.first().waitFor();
+      assert((await rows.count()) === 4, `expected 4 step rows to render, got ${await rows.count()}`);
+      await page.locator('[data-testid="processmap-canvas"] canvas').first().waitFor();
+    });
+
+    await step("confirm the NVA tag + reason and the checked waste + note took hold", async () => {
+      // "Hand off" is still the selected step from the block above; re-open
+      // "Wait for register" via its StepsList row (label text is stable,
+      // its generated step_id is not) to read back what was typed on it.
+      await page.locator('[data-testid^="processmap-step-row-"]', { hasText: "Wait for register" }).click();
+      assert(
+        (await page.locator('[data-testid="processmap-step-type"]').inputValue()) === "non_value_add",
+        "expected the Wait for register step to still read non_value_add",
+      );
+      const reason = await page.locator('[data-testid="processmap-step-reason"]').inputValue();
+      assert(reason.length > 0, "expected the NVA step to carry a non-empty reason");
+
+      await page.locator('[data-testid="processmap-waste-waiting"]').check();
+      await page.locator('[data-testid="processmap-waste-note-waiting"]').fill("Line backs up during the morning rush.");
+      assert(await page.locator('[data-testid="processmap-waste-waiting"]').isChecked(), "expected the waiting waste checkbox to be checked");
+    });
+
+    await step("connect two steps", async () => {
+      await page.locator('[data-testid="processmap-connector-from"]').selectOption({ label: "Place order" });
+      await page.locator('[data-testid="processmap-connector-to"]').selectOption({ label: "Wait for register" });
+      await page.locator('[data-testid="processmap-connector-add"]').click();
+      const list = page.locator(".sigma-processmap-connector-list", { hasText: "Place order" });
+      await list.waitFor();
+      const text = await list.textContent();
+      assert(text?.includes("Wait for register"), `expected the connector list to show Place order -> Wait for register, got ${JSON.stringify(text)}`);
+    });
+
+    await step("enter demand fields and save", async () => {
+      // available=240, demand=48 -> pace=5.00 min/unit; the 9-minute "Wait
+      // for register" step is the hand-checkable bottleneck and exceeds it.
+      await page.locator('[data-testid="processmap-demand-time"]').fill("240");
+      await page.locator('[data-testid="processmap-demand-units"]').fill("48");
+      await page.locator('[data-testid="processmap-save"]').click();
+      await page.locator('[data-testid="processmap-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="processmap-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
+    });
+
+    await step("assert the engine's bottleneck banner names the right step from the fixture times", async () => {
+      const headline = page.locator('[data-testid="processmap-bottleneck-banner"] .sigma-verdict__headline');
+      await headline.waitFor();
+      const text = await headline.textContent();
+      assert(
+        text?.includes("Wait for register") && text?.includes("9") && text?.includes("5.00"),
+        `expected the bottleneck banner to name "Wait for register" at 9 min vs a 5.00 pace, got ${JSON.stringify(text)}`,
+      );
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;
