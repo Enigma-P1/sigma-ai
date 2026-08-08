@@ -7,6 +7,7 @@ from .msa import run_msa_prescore
 from .picker import run_picker_prescore
 from .process_map import run_process_map_prescore
 from .sipoc import run_sipoc_prescore
+from .spaghetti import run_spaghetti_prescore
 from .voc_ctq import run_voc_ctq_prescore
 
 __all__ = [
@@ -17,5 +18,6 @@ __all__ = [
     "run_picker_prescore",
     "run_process_map_prescore",
     "run_sipoc_prescore",
+    "run_spaghetti_prescore",
     "run_voc_ctq_prescore",
 ]

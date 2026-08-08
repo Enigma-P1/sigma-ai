@@ -722,3 +722,145 @@ export interface SampleSizeResponse {
   calculator: Computed<MeanSampleSizeResult> | Computed<ProportionSampleSizeResult> | null;
   warnings: string[];
 }
+
+// ---- T-07 Spaghetti Diagram (artifacts/spaghetti.py) ----
+
+export type SpaghettiUnit = "meters" | "feet";
+export type LayoutMode = "current" | "proposed";
+export const LAYOUT_MODES: LayoutMode[] = ["current", "proposed"];
+
+export interface FloorPlanRef {
+  image_id: string;
+  source_filename: string;
+  sha256: string;
+  width_px: number;
+  height_px: number;
+}
+
+export interface CalibrationPoint {
+  x: number;
+  y: number;
+}
+
+export interface Calibration {
+  point_a: CalibrationPoint;
+  point_b: CalibrationPoint;
+  real_length: number;
+  unit: SpaghettiUnit;
+}
+
+export interface Operator {
+  operator_id: string;
+  name: string;
+  color_index: number;
+}
+
+export interface RoutePoint {
+  x: number;
+  y: number;
+}
+
+export interface SpaghettiRoute {
+  route_id: string;
+  operator_id: string;
+  trip_label: string;
+  frequency_per_day: number;
+  points: RoutePoint[];
+  layout_mode: LayoutMode;
+}
+
+export interface ObservationWindow {
+  when: string;
+  duration: string;
+  shift: string;
+}
+
+export interface RouteMetrics {
+  route_id: string;
+  operator_id: string;
+  trip_label: string;
+  layout_mode: LayoutMode;
+  unit: SpaghettiUnit;
+  distance_per_trip: number;
+  walk_time_minutes_per_trip: number;
+  frequency_per_day: number;
+  daily_distance: number;
+  daily_walk_time_minutes: number;
+}
+
+export interface OperatorTotal {
+  operator_id: string;
+  operator_name: string;
+  layout_mode: LayoutMode;
+  daily_trip_count: number;
+  total_daily_distance: number;
+  total_daily_walk_time_minutes: number;
+}
+
+export interface PathCrossing {
+  route_id_a: string;
+  route_id_b: string;
+  crossing_count: number;
+}
+
+/** One row of the current-vs-proposed table: either one operator (`scope`
+ * = that operator's operator_id) or the "overall" rollup. */
+export interface DeltaRow {
+  scope: string;
+  scope_label: string;
+  current_daily_distance: number | null;
+  proposed_daily_distance: number | null;
+  distance_delta: number | null;
+  distance_delta_pct: number | null;
+  current_daily_walk_time_minutes: number | null;
+  proposed_daily_walk_time_minutes: number | null;
+  walk_time_delta_minutes: number | null;
+  walk_time_delta_pct: number | null;
+}
+
+export interface SpaghettiMetrics {
+  unit: SpaghettiUnit;
+  pixels_per_unit: number;
+  walk_speed_units_per_minute: number;
+  routes: RouteMetrics[];
+  operator_totals: OperatorTotal[];
+  total_daily_distance_all: number;
+  total_daily_walk_time_minutes_all: number;
+  crossings: PathCrossing[];
+  total_crossing_count: number;
+  /** Null until both layout modes have >=1 route -- an honest "nothing to
+   * compare yet," not a table of zeros. */
+  delta: DeltaRow[] | null;
+}
+
+export interface SpaghettiArtifact extends ArtifactBase {
+  tool_id: "T-07";
+  floor_plan: FloorPlanRef;
+  calibration?: Calibration | null;
+  operators: Operator[];
+  routes: SpaghettiRoute[];
+  walk_speed_override_per_minute?: number | null;
+  observation_window: ObservationWindow;
+  /** Server-computed (T-06 bottleneck's pattern), never hand-typed. Null
+   * only when there's no calibration yet to scale by. */
+  metrics?: Computed<SpaghettiMetrics> | null;
+}
+
+// ---- Floor-plan image storage (floorplan_images.py) — T-07 upload ----
+
+export interface FloorPlanImageMeta {
+  schema_version: number;
+  image_id: string;
+  project_id: string;
+  source_filename: string;
+  created_at: string;
+  sha256: string;
+  content_type: "image/png" | "image/jpeg";
+  width_px: number;
+  height_px: number;
+}
+
+export interface FloorPlanDetail {
+  meta: FloorPlanImageMeta;
+  content_base64: string;
+}
