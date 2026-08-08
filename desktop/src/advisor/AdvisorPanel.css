@@ -1,0 +1,35 @@
+.sigma-advisor-panel {
+  margin-bottom: var(--space-4);
+}
+
+.sigma-advisor-panel__muted {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-2);
+}
+
+.sigma-advisor-panel__unconfigured,
+.sigma-advisor-panel__configured {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sigma-advisor-panel__unconfigured p,
+.sigma-advisor-panel__configured p {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  line-height: var(--leading-normal);
+  margin: 0;
+}
+
+.sigma-advisor-panel__answer {
+  font-size: var(--text-sm);
+  color: var(--color-text);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  background: var(--color-surface-sunken);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}

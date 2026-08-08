@@ -75,17 +75,24 @@ export interface ToolRouterProps {
   onSaved: () => void;
   presetDataset?: DatasetPreset | null;
   onNavigateToDataset?: (toolId: string, datasetId: string) => void;
+  onOpenAdvisorSettings: () => void;
 }
 
 /** Dispatches the active tool id to its real form (T-01..T-05, the whole
  * Intake+Define set this milestone completes) or an honest placeholder
  * (everything else), always inside the generic ToolScreen scaffold. */
-export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOverridden, onSaved, presetDataset, onNavigateToDataset }: ToolRouterProps) {
+export function ToolRouter({
+  toolId, phase, projectId, project, gate, onGateOverridden, onSaved, presetDataset, onNavigateToDataset, onOpenAdvisorSettings,
+}: ToolRouterProps) {
   const tool = toolById(toolId);
   if (!tool) return null;
   const presetFor = (id: string) => (presetDataset?.toolId === id ? presetDataset.datasetId : undefined);
 
-  const screenProps = { toolId, toolName: tool.name, phase, projectId, gate, onGateOverridden };
+  // Spread into every ToolScreen call below -- the Advisor panel lives
+  // inside ToolScreen itself (M5 brief), so adding onOpenAdvisorSettings
+  // here is the one edit that reaches all 25 tools + the placeholder,
+  // instead of touching every `if (toolId === "T-XX")` block.
+  const screenProps = { toolId, toolName: tool.name, phase, projectId, gate, onGateOverridden, onOpenAdvisorSettings };
 
   if (toolId === "T-01") {
     return (

@@ -12,7 +12,11 @@
 // import the coffee-bar wait-times fixture via T-11, confirm the quality
 // scan renders, save it -> run T-13 Baseline against it and assert the
 // stability verdict + sigma-convention-label render -> open T-14 and
-// assert a Pareto verdict headline renders. Fails on any uncaught page error.
+// assert a Pareto verdict headline renders. ... -> M5 unit 1: the Advisor
+// panel's unconfigured state (no ANTHROPIC_API_KEY anywhere in this test's
+// environment, and this script never sets one) and the advisor settings
+// screen's enabled=false save round trip -- no live Anthropic API call
+// anywhere in this script. Fails on any uncaught page error.
 //
 // Usage: node tools/smoke-browser.mjs
 // Env:   APP_URL (default http://localhost:1420)
@@ -1840,6 +1844,57 @@ async function main() {
       await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v2"));
       const noErr = await page.locator('[data-testid="a3-close-blocked-error"]').count();
       assert(noErr === 0, "expected no close-blocked error once the FMEA block cleared");
+    });
+
+    // ---- M5 unit 1 (Layer 2 advisor plumbing): no ANTHROPIC_API_KEY is set
+    // anywhere in this test's environment, and this script never sets one
+    // via the settings screen -- every advisor call the app could make
+    // stays unreachable end to end. These steps only prove the honest
+    // unconfigured surface and the settings screen's plain enabled=false
+    // save round trip; they never depend on, or wait on, a live API call. ----
+
+    await step("advisor panel on the tool screen renders the unconfigured state honestly", async () => {
+      await page.locator('[data-testid="advisor-panel-toggle"]').click();
+      const unconfigured = page.locator('[data-testid="advisor-unconfigured"]');
+      await unconfigured.waitFor();
+      const text = await unconfigured.textContent();
+      assert(
+        text?.includes("Layer 1") && text?.includes("sends nothing anywhere"),
+        `expected the honest unconfigured explanation, got ${JSON.stringify(text)}`,
+      );
+      assert(
+        (await page.locator('[data-testid="advisor-configured"]').count()) === 0,
+        "must not show the configured ask box with no key in the test env",
+      );
+    });
+
+    await step("the panel's link opens advisor settings, showing the exact privacy statement", async () => {
+      await page.locator('[data-testid="advisor-open-settings"]').click();
+      const privacy = page.locator('[data-testid="advisor-privacy-statement"]');
+      await privacy.waitFor();
+      const text = await privacy.textContent();
+      assert(
+        text?.includes("Layer 1 (all tools, math, charts) runs entirely on your machine and sends nothing anywhere.") &&
+          text?.includes("the current artifact and its computed results are sent to the Anthropic API") &&
+          text?.includes("Don't put customer names or sensitive identifiers in artifact text."),
+        `expected the exact privacy statement, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    await step("advisor settings: enabled=false saves and round-trips through a fresh reload", async () => {
+      await page.locator('[data-testid="advisor-enabled-no"]').click();
+      await page.locator('[data-testid="advisor-settings-save"]').click();
+      await page.locator('[data-testid="advisor-settings-saved"]').waitFor();
+
+      // A full reload re-mounts the settings screen from scratch and
+      // re-fetches GET /advisor/settings -- this proves the false value
+      // round-tripped through the engine's settings.json, not just React state.
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.locator('[data-testid="advisor-enabled-no"]').waitFor();
+      const noSelected = await page.locator('[data-testid="advisor-enabled-no"]').getAttribute("aria-checked");
+      assert(noSelected === "true", `expected enabled=false to round-trip after reload, got aria-checked=${JSON.stringify(noSelected)}`);
+      const yesSelected = await page.locator('[data-testid="advisor-enabled-yes"]').getAttribute("aria-checked");
+      assert(yesSelected === "false", `expected the "Yes" option to read unselected, got aria-checked=${JSON.stringify(yesSelected)}`);
     });
   } catch (err) {
     await finish(browser, false, err);

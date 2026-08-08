@@ -7,6 +7,11 @@ import { resolveEngineBaseUrl } from "./runtime";
 import { ApiError } from "./errors";
 import type { PydanticErrorItem } from "./errors";
 import type {
+  AdvisorAskRequest,
+  AdvisorAskResponse,
+  AdvisorSettingsResponse,
+  AdvisorSettingsUpdateRequest,
+  AdvisorStatusResponse,
   ArtifactIndexEntry,
   BaselineResponse,
   Computed,
@@ -66,6 +71,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 function postJson(body: unknown): RequestInit {
   return { method: "POST", body: JSON.stringify(body) };
+}
+
+function putJson(body: unknown): RequestInit {
+  return { method: "PUT", body: JSON.stringify(body) };
 }
 
 // ---- /project (routes/projects.py) ----
@@ -350,6 +359,37 @@ export function timeStudyToDataset(projectId: string, artifactId: string, body: 
     `/project/${encodeURIComponent(projectId)}/time-study/${encodeURIComponent(artifactId)}/to-dataset`,
     postJson(body),
   );
+}
+
+// ---- Advisor (routes/advisor.py) — Layer 2, strictly optional ----
+
+/** Assembles project context, calls the configured model, and returns the
+ * answer + how the call was budgeted. A 409 (ApiError.status === 409)
+ * means the advisor isn't configured or is turned off — always render
+ * that as the plain-language unconfigured state, never as a generic
+ * failure (M5 brief: Layer 2 is optional end to end). */
+export function askAdvisor(body: AdvisorAskRequest): Promise<AdvisorAskResponse> {
+  return request<AdvisorAskResponse>("/advisor/ask", postJson(body));
+}
+
+/** api_key_masked is last-4-only (or null) — never the real key. */
+export function getAdvisorSettings(): Promise<AdvisorSettingsResponse> {
+  return request<AdvisorSettingsResponse>("/advisor/settings");
+}
+
+/** Full-replace PUT: base_url/enabled are always taken as given.
+ * api_key is the one write-only field — omit it (or send "") to leave the
+ * stored key unchanged, since the GET response never hands the real key
+ * back for a form to round-trip. */
+export function putAdvisorSettings(body: AdvisorSettingsUpdateRequest): Promise<AdvisorSettingsResponse> {
+  return request<AdvisorSettingsResponse>("/advisor/settings", putJson(body));
+}
+
+/** Cheap "is the advisor usable right now" check — no project context, no
+ * API call to Anthropic. Safe to call on every tool screen mount. The
+ * route takes no request body, unlike every other POST in this file. */
+export function getAdvisorStatus(): Promise<AdvisorStatusResponse> {
+  return request<AdvisorStatusResponse>("/advisor/status", { method: "POST" });
 }
 
 // ---- diagnostics (main.py) ----

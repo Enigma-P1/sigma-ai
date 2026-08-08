@@ -7,6 +7,10 @@ desktop shell spawns as a Tauri sidecar.
 M1 adds the Define/Intake engine core (artifacts, prescore, project
 storage, gates) as routers included below; /health and /smoke are
 untouched per the M1 brief.
+
+M5 unit 1 adds the Layer 2 advisor router (routes/advisor.py): strictly
+optional, degrades to a clean typed response with no API key configured,
+and otherwise unrelated to every router above it.
 """
 
 from __future__ import annotations
@@ -17,6 +21,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from . import __version__
+from .routes import advisor as advisor_routes
 from .routes import artifacts as artifacts_routes
 from .routes import check_sheet as check_sheet_routes
 from .routes import datasets as datasets_routes
@@ -33,6 +38,7 @@ from .smoke import compute_smoke_result
 app = FastAPI(title="Sigma AI Engine", version=__version__)
 
 app.include_router(projects_routes.router)
+app.include_router(advisor_routes.router)
 app.include_router(artifacts_routes.router)
 app.include_router(prescore_routes.router)
 app.include_router(gates_routes.router)

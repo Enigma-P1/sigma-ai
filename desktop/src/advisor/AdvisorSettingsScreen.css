@@ -1,0 +1,51 @@
+.sigma-advisor-settings {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5);
+}
+
+.sigma-advisor-settings__back {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  padding: 0;
+  margin-bottom: var(--space-4);
+}
+
+.sigma-advisor-settings h1 {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  margin-bottom: var(--space-1);
+}
+
+.sigma-advisor-settings__subtitle {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-5);
+  font-size: var(--text-sm);
+}
+
+.sigma-advisor-settings__panel {
+  margin-bottom: var(--space-4);
+}
+
+.sigma-advisor-settings__panel p {
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.sigma-advisor-settings__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sigma-advisor-settings__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}

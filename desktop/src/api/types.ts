@@ -2147,3 +2147,68 @@ export interface A3Artifact extends ArtifactBase {
   tollgates: TollgateChecklist[];
   closure: ClosureBlock;
 }
+
+// ---- Advisor (Layer 2, PLAN §5, engine/sigma_engine/advisor + routes/advisor.py) ----
+// Mirrored field-for-field from context.py's BudgetReport/BudgetDroppedEntry
+// and routes/advisor.py's request/response models. The advisor is strictly
+// optional -- every one of these calls degrades to a clean, typed
+// "unconfigured" response (never a 500) when no API key is set.
+
+export type AdvisorMode = "generic"; // more modes land in a later unit
+
+export interface AdvisorBudgetDroppedEntry {
+  tier: string;
+  id: string;
+  estimated_tokens: number;
+}
+
+export interface AdvisorBudgetReport {
+  input_budget_tokens: number;
+  output_budget_tokens: number;
+  estimated_input_tokens: number;
+  token_estimate_method: string;
+  included: string[];
+  dropped: AdvisorBudgetDroppedEntry[];
+}
+
+export interface AdvisorAskRequest {
+  project_id: string;
+  mode: AdvisorMode;
+  artifact_id?: string;
+  question?: string;
+  /** An id the advisor asked for by name on a prior turn (a
+   * REQUEST_ARTIFACT: line in its answer) -- sent back so the next call's
+   * assembled context includes that artifact in full, not just a summary. */
+  follow_up_artifact_request?: string;
+}
+
+export interface AdvisorAskResponse {
+  answer: string;
+  budget_report: AdvisorBudgetReport;
+  /** Artifact ids the model asked for by name on this turn, parsed from
+   * its answer -- the UI's cue to offer a follow-up call with
+   * follow_up_artifact_request set to one of these. */
+  requested_artifact_ids: string[];
+}
+
+export interface AdvisorSettingsResponse {
+  /** Masked (last-4-only) or null if nothing is stored -- never the real
+   * key (routes/advisor.py: "write-only, masked on read"). */
+  api_key_masked: string | null;
+  base_url: string | null;
+  enabled: boolean;
+}
+
+export interface AdvisorSettingsUpdateRequest {
+  /** Omit or send "" to leave the stored key unchanged -- the GET response
+   * never echoes the real key back, so a settings form can't round-trip it
+   * into this field. A non-empty string sets/overwrites it. */
+  api_key?: string | null;
+  base_url?: string | null;
+  enabled: boolean;
+}
+
+export interface AdvisorStatusResponse {
+  configured: boolean;
+  model: string;
+}

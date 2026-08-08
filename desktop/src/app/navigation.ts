@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 
 /** Hand-rolled hash router -- no routing library in package.json to pull
- * in, and the app only ever has three top-level places to be. */
-export type Route = { kind: "home" } | { kind: "project"; projectId: string } | { kind: "diagnostics" };
+ * in, and the app only ever has four top-level places to be. */
+export type Route =
+  | { kind: "home" }
+  | { kind: "project"; projectId: string }
+  | { kind: "diagnostics" }
+  | { kind: "advisor-settings" };
 
 export function routeToHash(route: Route): string {
   switch (route.kind) {
@@ -10,6 +14,8 @@ export function routeToHash(route: Route): string {
       return "#/";
     case "diagnostics":
       return "#/diagnostics";
+    case "advisor-settings":
+      return "#/advisor-settings";
     case "project":
       return `#/project/${encodeURIComponent(route.projectId)}`;
   }
@@ -18,6 +24,7 @@ export function routeToHash(route: Route): string {
 export function hashToRoute(hash: string): Route {
   const path = hash.replace(/^#/, "") || "/";
   if (path === "/diagnostics") return { kind: "diagnostics" };
+  if (path === "/advisor-settings") return { kind: "advisor-settings" };
   const projectMatch = /^\/project\/([^/]+)/.exec(path);
   if (projectMatch) return { kind: "project", projectId: decodeURIComponent(projectMatch[1]) };
   return { kind: "home" };
