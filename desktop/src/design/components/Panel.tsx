@@ -11,6 +11,11 @@ export interface PanelProps {
   defaultOpen?: boolean;
   right?: ReactNode;
   className?: string;
+  /** Optional data-testid for the collapsible header button, so a test can
+   * open/close a specific panel (e.g. two collapsible panels on the same
+   * screen) without a generic selector. No effect when collapsible is
+   * false, or when omitted -- every existing caller renders unchanged. */
+  headerTestId?: string;
 }
 
 /** Generic bordered container used for every grouped block in the app —
@@ -23,6 +28,7 @@ export function Panel({
   defaultOpen = true,
   right,
   className,
+  headerTestId,
 }: PanelProps) {
   const [open, setOpen] = useState(defaultOpen);
   const hasHeader = Boolean(title || subtitle || right);
@@ -36,6 +42,7 @@ export function Panel({
             className="sigma-panel__header sigma-panel__header--collapsible"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
+            data-testid={headerTestId}
           >
             <span className="sigma-panel__title-group">
               {title && <span className="sigma-panel__title">{title}</span>}

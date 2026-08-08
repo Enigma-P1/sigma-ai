@@ -16,13 +16,14 @@ export interface ProjectWorkspaceProps {
   projectId: string;
   onGoHome: () => void;
   onOpenDiagnostics: () => void;
+  onOpenAdvisorSettings: () => void;
 }
 
 /** The open-project shell: top bar + DMAIC rail + active tool (M1 brief).
  * Owns the project metadata, the active phase/tool selection, and the
  * refresh key that both the project metadata and the gate-status hook key
  * off of after every artifact save. */
-export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: ProjectWorkspaceProps) {
+export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics, onOpenAdvisorSettings }: ProjectWorkspaceProps) {
   const [project, setProject] = useState<ProjectMetadata | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [activePhase, setActivePhase] = useState<Phase>("Intake");
@@ -93,7 +94,13 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
   return (
     <SaveStateProvider>
       <div className="sigma-workspace">
-        <TopBar projectName={project.name} phase={activePhase} onGoHome={onGoHome} onOpenDiagnostics={onOpenDiagnostics} />
+        <TopBar
+          projectName={project.name}
+          phase={activePhase}
+          onGoHome={onGoHome}
+          onOpenDiagnostics={onOpenDiagnostics}
+          onOpenAdvisorSettings={onOpenAdvisorSettings}
+        />
         <div className="sigma-workspace__body">
           <DmaicRail
             project={project}
@@ -115,6 +122,7 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
                 onSaved={handleSaved}
                 presetDataset={presetDataset}
                 onNavigateToDataset={handleNavigateToDataset}
+                onOpenAdvisorSettings={onOpenAdvisorSettings}
               />
             ) : (
               <p className="sigma-workspace__empty">Pick a tool from the rail to get started.</p>

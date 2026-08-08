@@ -128,6 +128,27 @@ def _covering_override(
     return match
 
 
+def build_project_snapshot(store: ProjectStore, project_id: str) -> ProjectSnapshot:
+    """The one shared way to build a ProjectSnapshot from a live project
+    (promoted from routes/gates.py's formerly-private `_build_snapshot`,
+    M5 unit 2: advisor/modes.py's tollgate context selector needed the
+    identical snapshot gates.check() consumes, and duplicating this logic
+    a second time risked exactly the kind of silent divergence
+    ProjectStore.latest_artifact_for_tool's own docstring warns about --
+    see that docstring for the concrete history of that failure mode).
+    Raises FileNotFoundError for an unknown project, same contract as
+    every other store-backed lookup in this engine."""
+    meta = store.load_project(project_id)  # FileNotFoundError propagates
+    tool_ids = {entry.tool_id for entry in meta.artifact_index.values()}
+
+    picker_data = store.latest_artifact_for_tool(project_id, meta, "T-01")
+    msa_data = store.latest_artifact_for_tool(project_id, meta, "T-12")
+    picker_route = picker_data.get("route") if picker_data is not None else None
+    msa_verdict = (msa_data.get("result") or {}).get("verdict") if msa_data is not None else None
+
+    return ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route, msa_verdict=msa_verdict)
+
+
 def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideLogEntry] = ()) -> GateResult:
     req = _BY_ID.get(gate_id)
     if req is None:

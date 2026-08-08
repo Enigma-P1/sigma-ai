@@ -12,7 +12,18 @@
 // import the coffee-bar wait-times fixture via T-11, confirm the quality
 // scan renders, save it -> run T-13 Baseline against it and assert the
 // stability verdict + sigma-convention-label render -> open T-14 and
-// assert a Pareto verdict headline renders. Fails on any uncaught page error.
+// assert a Pareto verdict headline renders. ... -> M5 unit 1: the Advisor
+// panel's unconfigured state (no ANTHROPIC_API_KEY anywhere in this test's
+// environment, and this script never sets one) and the advisor settings
+// screen's enabled=false save round trip -- no live Anthropic API call
+// anywhere in this script. -> M5 unit 2: the five advisor modes' input
+// UI (mode picker, tollgate's phase picker, remedy's constraints box, and
+// that switching to review still shows the honest unconfigured state) --
+// still no live API call anywhere in this script. -> M5 unit 3: the
+// validator pass's "Check my claims" surface is absent (not nagging) with
+// no key configured, same as every other advisor affordance here -- still
+// no live API call anywhere in this script. Fails on any uncaught page
+// error.
 //
 // Usage: node tools/smoke-browser.mjs
 // Env:   APP_URL (default http://localhost:1420)
@@ -1840,6 +1851,178 @@ async function main() {
       await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v2"));
       const noErr = await page.locator('[data-testid="a3-close-blocked-error"]').count();
       assert(noErr === 0, "expected no close-blocked error once the FMEA block cleared");
+    });
+
+    // ---- M5 unit 1 (Layer 2 advisor plumbing): no ANTHROPIC_API_KEY is set
+    // anywhere in this test's environment, and this script never sets one
+    // via the settings screen -- every advisor call the app could make
+    // stays unreachable end to end. These steps only prove the honest
+    // unconfigured surface and the settings screen's plain enabled=false
+    // save round trip; they never depend on, or wait on, a live API call. ----
+
+    await step("advisor panel on the tool screen renders the unconfigured state honestly", async () => {
+      await page.locator('[data-testid="advisor-panel-toggle"]').click();
+      const unconfigured = page.locator('[data-testid="advisor-unconfigured"]');
+      await unconfigured.waitFor();
+      const text = await unconfigured.textContent();
+      assert(
+        text?.includes("Layer 1") && text?.includes("sends nothing anywhere"),
+        `expected the honest unconfigured explanation, got ${JSON.stringify(text)}`,
+      );
+      assert(
+        (await page.locator('[data-testid="advisor-configured"]').count()) === 0,
+        "must not show the configured ask box with no key in the test env",
+      );
+    });
+
+    // ---- M5 unit 3 (the validator pass, PLAN §5.3.6): "Check my claims"
+    // only renders inside the configured block (AdvisorPanel.tsx) -- with
+    // no key configured anywhere in this test's environment, it must not
+    // render at all, no nagging, same as the ask-submit button above. ----
+
+    await step("no key: the validator's \"Check my claims\" surface is absent, not nagging", async () => {
+      assert(
+        (await page.locator('[data-testid="advisor-check-claims-button"]').count()) === 0,
+        "must not show a Check my claims button while unconfigured",
+      );
+      assert(
+        (await page.locator('[data-testid="advisor-validator-section"]').count()) === 0,
+        "must not show any validator section at all while unconfigured",
+      );
+    });
+
+    // ---- M5 unit 2 (the five advisor modes): the mode picker and every
+    // mode's input affordances render regardless of configured state (M5
+    // unit 2 brief) -- still no ANTHROPIC_API_KEY anywhere, still no live
+    // API call, this only proves the input UI itself. ----
+
+    await step("advisor mode picker renders all six modes", async () => {
+      const options = await page.locator('[data-testid="advisor-mode-select"] option').allTextContents();
+      assert(options.length === 6, `expected 6 modes, got ${options.length}: ${JSON.stringify(options)}`);
+      const values = await page.locator('[data-testid="advisor-mode-select"] option').evaluateAll((els) => els.map((el) => el.value));
+      for (const expected of ["generic", "review", "help_me_think", "explain", "tollgate", "remedy"]) {
+        assert(values.includes(expected), `expected mode "${expected}" in the picker, got ${JSON.stringify(values)}`);
+      }
+    });
+
+    await step("tollgate mode shows a phase picker with all six DMAIC phases", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("tollgate");
+      const phaseSelect = page.locator('[data-testid="advisor-tollgate-phase-select"]');
+      await phaseSelect.waitFor();
+      const values = await phaseSelect.locator("option").evaluateAll((els) => els.map((el) => el.value));
+      assert(
+        JSON.stringify(values) === JSON.stringify(["Define", "Measure", "Analyze", "Improve", "Control", "Wrap"]),
+        `expected the six tollgate phases in order, got ${JSON.stringify(values)}`,
+      );
+    });
+
+    await step("remedy mode shows the constraints textarea", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("remedy");
+      const constraints = page.locator('[data-testid="advisor-remedy-constraints"]');
+      await constraints.waitFor();
+      assert((await constraints.getAttribute("placeholder"))?.length > 0, "expected the constraints box to have placeholder guidance");
+    });
+
+    await step("review mode still shows the unavailable state cleanly with no key configured", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("review");
+      const unconfigured = page.locator('[data-testid="advisor-unconfigured"]');
+      await unconfigured.waitFor();
+      assert((await page.locator('[data-testid="advisor-ask-submit"]').count()) === 0, "must not show a submit button while unconfigured");
+      // Switch back to generic so the settings-navigation step below isn't
+      // depending on which mode happened to be selected last.
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("generic");
+    });
+
+    // ---- M5 unit 4 (the portable prompt pack + export screen, PLAN §5.2):
+    // "Export for chatbot" works with NO key configured -- no model call
+    // behind it, just GET /advisor/export. The current screen here is T-25
+    // (A3), whose artifact "a3" was saved above, so the tool export must
+    // carry that artifact's JSON plus the pack's fixed footer text. ----
+
+    await step("export for chatbot: tool export produces the paste block (prompt + artifact + footer)", async () => {
+      await page.locator('[data-testid="advisor-export-tool-button"]').click();
+      const preview = page.locator('[data-testid="advisor-export-preview"]');
+      await preview.waitFor();
+      const text = await preview.inputValue();
+      assert(text.length > 0, "expected a non-empty combined export block");
+      assert(text.includes("MY ARTIFACT:"), "expected the MY ARTIFACT: heading in the combined block");
+      assert(
+        text.includes('"artifact_id": "a3"'),
+        "expected the saved a3 artifact's JSON (its artifact_id field) in the combined block",
+      );
+      assert(
+        text.includes("COMPUTED RESULTS (authoritative, from the app):"),
+        "expected the authoritative computed-results heading in the combined block",
+      );
+      assert(
+        text.includes("the app's computed results are the record"),
+        "expected the pack's fixed footer (the numbers-are-not-authoritative rule) in the combined block",
+      );
+      // Copy confirms -- Playwright's Chromium grants clipboard access on
+      // localhost, so the button should flip to its "Copied" confirmation.
+      await page.locator('[data-testid="advisor-export-copy"]').click();
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="advisor-export-copy"]')?.textContent === "Copied",
+      );
+    });
+
+    await step("export for chatbot: tollgate variant renders the phase's Champion prompt", async () => {
+      await page.locator('[data-testid="advisor-export-phase-select"]').selectOption("Improve");
+      await page.locator('[data-testid="advisor-export-tollgate-button"]').click();
+      await page.waitForFunction(() =>
+        document
+          .querySelector('[data-testid="advisor-export-preview"]')
+          ?.value.includes("Improve tollgate -- Champion review prompt"),
+      );
+      const text = await page.locator('[data-testid="advisor-export-preview"]').inputValue();
+      assert(
+        text.includes("Was exactly one change piloted at a time, with a success threshold set before the data came in?"),
+        "expected the improve-1 tollgate question verbatim in the export",
+      );
+      assert(
+        text.includes("MY PHASE ARTIFACTS (summaries from the app):"),
+        "expected the phase-summaries heading in the tollgate export",
+      );
+      assert(
+        text.includes("the app's computed results are the record"),
+        "expected the pack's fixed footer in the tollgate export too",
+      );
+    });
+
+    await step("the panel's link opens advisor settings, showing the shared privacy statement", async () => {
+      // M5 exit critic, Fix 2: the settings screen and the panel's own
+      // unconfigured-state banner now share ONE privacy statement constant
+      // (desktop/src/advisor/privacyStatement.ts) instead of each pinning
+      // its own (stale, understated) copy -- this assertion checks the
+      // NEW honest content, not the old frozen sentence.
+      await page.locator('[data-testid="advisor-open-settings"]').click();
+      const privacy = page.locator('[data-testid="advisor-privacy-statement"]');
+      await privacy.waitFor();
+      const text = await privacy.textContent();
+      assert(
+        text?.includes("The advisor (Layer 2) sends nothing until you actually use it.") &&
+          text?.includes("code-generated summaries of your project's other saved artifacts") &&
+          text?.includes("Check my claims") &&
+          text?.includes("up to 3 sample values per column") &&
+          text?.includes("Your API key is stored in plain text in settings.json on this machine"),
+        `expected the shared privacy statement's honest content, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    await step("advisor settings: enabled=false saves and round-trips through a fresh reload", async () => {
+      await page.locator('[data-testid="advisor-enabled-no"]').click();
+      await page.locator('[data-testid="advisor-settings-save"]').click();
+      await page.locator('[data-testid="advisor-settings-saved"]').waitFor();
+
+      // A full reload re-mounts the settings screen from scratch and
+      // re-fetches GET /advisor/settings -- this proves the false value
+      // round-tripped through the engine's settings.json, not just React state.
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.locator('[data-testid="advisor-enabled-no"]').waitFor();
+      const noSelected = await page.locator('[data-testid="advisor-enabled-no"]').getAttribute("aria-checked");
+      assert(noSelected === "true", `expected enabled=false to round-trip after reload, got aria-checked=${JSON.stringify(noSelected)}`);
+      const yesSelected = await page.locator('[data-testid="advisor-enabled-yes"]').getAttribute("aria-checked");
+      assert(yesSelected === "false", `expected the "Yes" option to read unselected, got aria-checked=${JSON.stringify(yesSelected)}`);
     });
   } catch (err) {
     await finish(browser, false, err);

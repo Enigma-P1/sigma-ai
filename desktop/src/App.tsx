@@ -1,4 +1,5 @@
 import { useCallback } from "react";
+import { AdvisorSettingsScreen } from "./advisor/AdvisorSettingsScreen";
 import { Home } from "./app/Home";
 import { ProjectWorkspace } from "./app/ProjectWorkspace";
 import { DiagnosticsView } from "./diagnostics/DiagnosticsView";
@@ -7,20 +8,32 @@ import "./design/global.css";
 
 /** Top-level router: home (create/open project) / an open project's
  * workspace / diagnostics (M1 brief: "keep the NIST smoke view working,
- * move to a /diagnostics route or menu item"). Hand-rolled hash routing --
- * no router library in package.json. */
+ * move to a /diagnostics route or menu item") / advisor settings (M5
+ * brief, same App-level-route idiom as diagnostics). Hand-rolled hash
+ * routing -- no router library in package.json. */
 function App() {
   const [route, navigate] = useHashRoute();
 
   const goHome = useCallback(() => navigate({ kind: "home" }), [navigate]);
   const openDiagnostics = useCallback(() => navigate({ kind: "diagnostics" }), [navigate]);
+  const openAdvisorSettings = useCallback(() => navigate({ kind: "advisor-settings" }), [navigate]);
   const openProject = useCallback((projectId: string) => navigate({ kind: "project", projectId }), [navigate]);
 
   if (route.kind === "diagnostics") {
     return <DiagnosticsView onBack={goHome} />;
   }
+  if (route.kind === "advisor-settings") {
+    return <AdvisorSettingsScreen onBack={goHome} />;
+  }
   if (route.kind === "project") {
-    return <ProjectWorkspace projectId={route.projectId} onGoHome={goHome} onOpenDiagnostics={openDiagnostics} />;
+    return (
+      <ProjectWorkspace
+        projectId={route.projectId}
+        onGoHome={goHome}
+        onOpenDiagnostics={openDiagnostics}
+        onOpenAdvisorSettings={openAdvisorSettings}
+      />
+    );
   }
   return <Home onProjectReady={openProject} />;
 }

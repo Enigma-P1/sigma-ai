@@ -7,6 +7,13 @@ import { resolveEngineBaseUrl } from "./runtime";
 import { ApiError } from "./errors";
 import type { PydanticErrorItem } from "./errors";
 import type {
+  AdvisorAskRequest,
+  AdvisorAskResponse,
+  AdvisorExportResponse,
+  AdvisorSettingsResponse,
+  AdvisorSettingsUpdateRequest,
+  AdvisorStatusResponse,
+  AdvisorValidateRequest,
   ArtifactIndexEntry,
   BaselineResponse,
   Computed,
@@ -28,6 +35,8 @@ import type {
   ProjectMetadata,
   SampleSizeResponse,
   SmokeResponse,
+  TollgatePhase,
+  ValidatorReport,
 } from "./types";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -66,6 +75,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 function postJson(body: unknown): RequestInit {
   return { method: "POST", body: JSON.stringify(body) };
+}
+
+function putJson(body: unknown): RequestInit {
+  return { method: "PUT", body: JSON.stringify(body) };
 }
 
 // ---- /project (routes/projects.py) ----
@@ -349,6 +362,68 @@ export function timeStudyToDataset(projectId: string, artifactId: string, body: 
   return request<DatasetMeta>(
     `/project/${encodeURIComponent(projectId)}/time-study/${encodeURIComponent(artifactId)}/to-dataset`,
     postJson(body),
+  );
+}
+
+// ---- Advisor (routes/advisor.py) — Layer 2, strictly optional ----
+
+/** Assembles project context, calls the configured model, and returns the
+ * answer + how the call was budgeted. A 409 (ApiError.status === 409)
+ * means the advisor isn't configured or is turned off — always render
+ * that as the plain-language unconfigured state, never as a generic
+ * failure (M5 brief: Layer 2 is optional end to end). */
+export function askAdvisor(body: AdvisorAskRequest): Promise<AdvisorAskResponse> {
+  return request<AdvisorAskResponse>("/advisor/ask", postJson(body));
+}
+
+/** api_key_masked is last-4-only (or null) — never the real key. */
+export function getAdvisorSettings(): Promise<AdvisorSettingsResponse> {
+  return request<AdvisorSettingsResponse>("/advisor/settings");
+}
+
+/** Full-replace PUT: base_url/enabled are always taken as given.
+ * api_key is the one write-only field — omit it (or send "") to leave the
+ * stored key unchanged, since the GET response never hands the real key
+ * back for a form to round-trip. */
+export function putAdvisorSettings(body: AdvisorSettingsUpdateRequest): Promise<AdvisorSettingsResponse> {
+  return request<AdvisorSettingsResponse>("/advisor/settings", putJson(body));
+}
+
+/** Cheap "is the advisor usable right now" check — no project context, no
+ * API call to Anthropic. Safe to call on every tool screen mount. The
+ * route takes no request body, unlike every other POST in this file. */
+export function getAdvisorStatus(): Promise<AdvisorStatusResponse> {
+  return request<AdvisorStatusResponse>("/advisor/status", { method: "POST" });
+}
+
+/** The validator pass (PLAN §5.3.6, anti-hallucination layer 6): a second,
+ * cheaper-model call that reads `body` against the project's own data and
+ * flags free-text claims it can't trace. Same 409-when-unconfigured
+ * contract as askAdvisor. Never blocks a save — this never saves anything
+ * itself; it's a separate, opt-in check the caller runs before its own
+ * save call. */
+export function validateAdvisor(body: AdvisorValidateRequest): Promise<ValidatorReport> {
+  return request<ValidatorReport>("/advisor/validate", postJson(body));
+}
+
+/** The paste-ready chatbot export (M5 unit 4, PLAN §5.2): the tool's
+ * portable prompt + the artifact's JSON + the engine-computed facts as one
+ * copyable block. Works with NO key configured — no model call happens
+ * anywhere behind this. Pass `{ mode: "tollgate", phase }` for the phase
+ * variant (tool prompt swapped for the Champion prompt, artifact JSON
+ * swapped for the phase's artifact summaries). */
+export function getAdvisorExport(
+  projectId: string,
+  toolId: string,
+  opts: { artifactId?: string; mode?: "tool" | "tollgate"; phase?: TollgatePhase } = {},
+): Promise<AdvisorExportResponse> {
+  const params = new URLSearchParams();
+  if (opts.artifactId) params.set("artifact_id", opts.artifactId);
+  if (opts.mode) params.set("mode", opts.mode);
+  if (opts.phase) params.set("phase", opts.phase);
+  const query = params.toString();
+  return request<AdvisorExportResponse>(
+    `/advisor/export/${encodeURIComponent(projectId)}/${encodeURIComponent(toolId)}${query ? `?${query}` : ""}`,
   );
 }
 

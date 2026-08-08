@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AdvisorPanel } from "../advisor/AdvisorPanel";
 import { HelperFrame } from "./HelperFrame";
 import type { HelperFrameContent } from "./helperFrameTypes";
 import { GateBanner } from "../app/GateBanner";
@@ -14,14 +15,27 @@ export interface ToolScreenProps {
   gate: CombinedGate | undefined;
   onGateOverridden: () => void;
   helperContent: HelperFrameContent;
+  onOpenAdvisorSettings: () => void;
+  /** This tool's fixed saved-artifact id (app/tools.ts's ToolDef.artifactId),
+   * undefined for the two tools with no saved artifact (T-13, T-14) -- see
+   * that field's own docstring. Passed straight through to AdvisorPanel so
+   * "review"/"help_me_think"/"explain" modes know which artifact is
+   * "current" without re-deriving it (M5 unit 2). */
+  artifactId?: string;
   children: ReactNode;
 }
 
 /** The generic tool screen scaffold every tool renders inside (M1 brief):
  * this phase's gate banner, the artifact form area (children), and the
  * five-part helper frame alongside it. Tool-specific forms never render
- * their own gate banner or helper frame -- they just supply `children`. */
-export function ToolScreen({ toolId, toolName, phase, projectId, gate, onGateOverridden, helperContent, children }: ToolScreenProps) {
+ * their own gate banner or helper frame -- they just supply `children`.
+ *
+ * M5 unit 1 adds the Advisor panel to the sidebar, above the helper frame
+ * -- one shared, collapsible, Layer-2-optional panel every tool screen
+ * gets for free, rather than 25 individual call sites each wiring one in. */
+export function ToolScreen({
+  toolId, toolName, phase, projectId, gate, onGateOverridden, helperContent, onOpenAdvisorSettings, artifactId, children,
+}: ToolScreenProps) {
   return (
     <div className="sigma-tool-screen" data-testid="tool-screen" data-tool-id={toolId}>
       <div className="sigma-tool-screen__header">
@@ -34,6 +48,7 @@ export function ToolScreen({ toolId, toolName, phase, projectId, gate, onGateOve
       <div className="sigma-tool-screen__body">
         <div className="sigma-tool-screen__main">{children}</div>
         <div className="sigma-tool-screen__sidebar">
+          <AdvisorPanel projectId={projectId} toolId={toolId} artifactId={artifactId} onOpenSettings={onOpenAdvisorSettings} />
           <HelperFrame content={helperContent} />
         </div>
       </div>

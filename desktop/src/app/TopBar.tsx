@@ -7,6 +7,7 @@ export interface TopBarProps {
   phase: Phase;
   onGoHome: () => void;
   onOpenDiagnostics: () => void;
+  onOpenAdvisorSettings: () => void;
 }
 
 const SAVE_LABEL: Record<string, string> = {
@@ -19,7 +20,7 @@ const SAVE_LABEL: Record<string, string> = {
 /** Top bar: project name + phase + save state (M1 brief). Save state comes
  * from SaveStateContext so any tool screen can update it without prop
  * drilling through the whole shell. */
-export function TopBar({ projectName, phase, onGoHome, onOpenDiagnostics }: TopBarProps) {
+export function TopBar({ projectName, phase, onGoHome, onOpenDiagnostics, onOpenAdvisorSettings }: TopBarProps) {
   const { saveState } = useSaveState();
 
   return (
@@ -39,6 +40,14 @@ export function TopBar({ projectName, phase, onGoHome, onOpenDiagnostics }: TopB
         <span className={`sigma-topbar__save-state sigma-topbar__save-state--${saveState}`} data-testid="topbar-save-state">
           {SAVE_LABEL[saveState]}
         </span>
+        <button
+          type="button"
+          className="sigma-topbar__link"
+          onClick={onOpenAdvisorSettings}
+          data-testid="topbar-advisor-settings"
+        >
+          Advisor settings
+        </button>
         <button type="button" className="sigma-topbar__link" onClick={onOpenDiagnostics} data-testid="topbar-diagnostics">
           Diagnostics
         </button>

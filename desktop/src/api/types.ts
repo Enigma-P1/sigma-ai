@@ -2147,3 +2147,244 @@ export interface A3Artifact extends ArtifactBase {
   tollgates: TollgateChecklist[];
   closure: ClosureBlock;
 }
+
+// ---- Advisor (Layer 2, PLAN §5, engine/sigma_engine/advisor + routes/advisor.py) ----
+// Mirrored field-for-field from context.py's BudgetReport/BudgetDroppedEntry
+// and routes/advisor.py's request/response models. The advisor is strictly
+// optional -- every one of these calls degrades to a clean, typed
+// "unconfigured" response (never a 500) when no API key is set.
+
+// The five PLAN §5.1 modes + "generic" (M5 unit 2) -- mirrors
+// routes/advisor.py's AdvisorMode Literal exactly.
+export type AdvisorMode = "generic" | "review" | "help_me_think" | "explain" | "tollgate" | "remedy";
+
+/** explain mode's optional focus (PLAN §5.1 mode 3): either a computed
+ * result the user clicked (kind/ref read off the tool's own result state)
+ * or free text when nothing clickable applies. Untrusted like any other
+ * user/UI-sourced text -- the engine wraps it the same way as `question`
+ * (advisor/modes.py's AdvisorFocusRef docstring). */
+export interface AdvisorFocusRef {
+  kind: string;
+  ref: string;
+}
+
+export interface AdvisorBudgetDroppedEntry {
+  tier: string;
+  id: string;
+  estimated_tokens: number;
+}
+
+export interface AdvisorBudgetReport {
+  input_budget_tokens: number;
+  output_budget_tokens: number;
+  estimated_input_tokens: number;
+  token_estimate_method: string;
+  included: string[];
+  dropped: AdvisorBudgetDroppedEntry[];
+}
+
+export interface AdvisorAskRequest {
+  project_id: string;
+  mode: AdvisorMode;
+  artifact_id?: string;
+  /** Free-text user input, reused across modes rather than one field per
+   * mode (routes/advisor.py's own scope-call comment): generic/review's
+   * question, help_me_think's optional seed topic, and remedy's optional
+   * constraints (budget, headcount, what can't change) all travel here. */
+  question?: string;
+  /** An id the advisor asked for by name on a prior turn (a
+   * REQUEST_ARTIFACT: line in its answer) -- sent back so the next call's
+   * assembled context includes that artifact in full, not just a summary. */
+  follow_up_artifact_request?: string;
+  /** tollgate mode's request shape (PLAN §5.1 mode 4) -- required by the
+   * engine whenever mode is "tollgate" (422 otherwise). */
+  phase?: TollgatePhase;
+  /** explain mode's optional focus (PLAN §5.1 mode 3). */
+  focus?: AdvisorFocusRef;
+}
+
+/** review mode's structured payload (advisor/modes.py's ReviewResponse). */
+export interface AdvisorReviewCriterion {
+  criterion_id: string;
+  verdict: "pass" | "needs_work";
+  specific_fix: string;
+}
+export interface AdvisorReviewStructured {
+  criteria: AdvisorReviewCriterion[];
+  overall_note: string;
+}
+
+/** help_me_think mode's structured payload (HelpMeThinkResponse). */
+export interface AdvisorProposal {
+  text: string;
+  /** Required (non-null) when the current artifact is a T-15 fishbone;
+   * may be null for every other divergent tool (T-05, T-18). */
+  evidence_question: string | null;
+}
+export interface AdvisorHelpMeThinkStructured {
+  proposals: AdvisorProposal[];
+}
+
+/** tollgate mode's structured payload (TollgateResponse). */
+export interface AdvisorTollgateAction {
+  action: string;
+  tied_to_question_id: string;
+}
+export interface AdvisorTollgateStructured {
+  recommendation: "go" | "go_with_actions" | "no_go";
+  reasons: string[];
+  actions: AdvisorTollgateAction[];
+}
+
+/** remedy mode's structured payload (RemedyResponse) -- the flagship. */
+export interface AdvisorRemedyCandidate {
+  title: string;
+  why_it_fits_the_verified_cause: string;
+  cause_ids: string[];
+  estimated_cost_band: "low" | "medium" | "high";
+  risks: string;
+  pilot_first: string;
+  how_youd_know_it_worked: string;
+  /** M5 exit critic, Fix 5: the subset of cause_ids above that did NOT
+   * match a currently VERIFIED cause_id on the fishbone (invented, or
+   * still candidate/investigating/ruled_out) -- filled deterministically
+   * by the engine AFTER parsing (modes.py's _flag_unverified_remedy_causes),
+   * never by the model. Empty when every cited id matched. The UI renders
+   * this flag on the card and excludes the remedy from the paste-ready
+   * T-18 draft by default. */
+  unverified_cause_refs: string[];
+}
+export interface AdvisorRemedyStructured {
+  remedies: AdvisorRemedyCandidate[];
+  /** Response-level companion to unverified_cause_refs (Fix 5) -- "" unless
+   * at least one remedy was flagged, in which case this is the one
+   * plain-English sentence to show once instead of repeating the
+   * explanation on every flagged card. */
+  unverified_cause_note: string;
+}
+
+export interface AdvisorAskResponse {
+  mode: AdvisorMode;
+  /** Always present: a prose mode's (generic/explain) answer text, or a
+   * structured mode's raw last-attempt text (useful for display even when
+   * `structured` is null, e.g. the unstructured_fallback case). */
+  answer: string;
+  /** The mode-specific parsed payload -- cast to the right
+   * Advisor*Structured interface based on `mode` (review ->
+   * AdvisorReviewStructured, help_me_think -> AdvisorHelpMeThinkStructured,
+   * tollgate -> AdvisorTollgateStructured, remedy -> AdvisorRemedyStructured).
+   * Always null for a prose mode (generic/explain). */
+  structured: AdvisorReviewStructured | AdvisorHelpMeThinkStructured | AdvisorTollgateStructured | AdvisorRemedyStructured | null;
+  /** True exactly when a structured mode's response failed to parse even
+   * after its one retry -- render `answer` as plain text with a "the model
+   * returned unstructured output" note, never as a blank/broken card. */
+  unstructured_fallback: boolean;
+  /** M5 exit critic, Fix 4: true exactly when this answer's stop_reason was
+   * "max_tokens" -- the model's output was cut off by the token budget,
+   * not malformed. Mutually exclusive with unstructured_fallback (a
+   * truncated attempt never reaches the parser). Render as "the answer hit
+   * the output limit," never the unstructured-output message. */
+  truncated: boolean;
+  budget_report: AdvisorBudgetReport;
+  /** Artifact ids the model asked for by name on this turn, parsed from
+   * its answer -- the UI's cue to offer a follow-up call with
+   * follow_up_artifact_request set to one of these. */
+  requested_artifact_ids: string[];
+}
+
+export interface AdvisorSettingsResponse {
+  /** Masked (last-4-only) or null if nothing is stored -- never the real
+   * key (routes/advisor.py: "write-only, masked on read"). */
+  api_key_masked: string | null;
+  base_url: string | null;
+  enabled: boolean;
+}
+
+export interface AdvisorSettingsUpdateRequest {
+  /** Omit or send "" to leave the stored key unchanged -- the GET response
+   * never echoes the real key back, so a settings form can't round-trip it
+   * into this field. A non-empty string sets/overwrites it. */
+  api_key?: string | null;
+  /** M5 exit critic, severity 1: the explicit remove-key path -- before
+   * this existed there was no in-app way to clear a stored key (api_key=""
+   * already means "leave unchanged" above), so the only path was hand-
+   * editing settings.json. Wins over a simultaneously-supplied api_key. */
+  clear_api_key?: boolean;
+  base_url?: string | null;
+  enabled: boolean;
+}
+
+export interface AdvisorStatusResponse {
+  configured: boolean;
+  model: string;
+}
+
+// ---- Chatbot export (M5 unit 4, PLAN §5.2 -- routes/advisor.py's
+// GET /advisor/export/{project_id}/{tool_id}). Works with NO key
+// configured: the portable prompt pack exists for exactly those users. ----
+
+export interface AdvisorExportResponse {
+  /** The tool's (or, in tollgate mode, the phase's) portable prompt --
+   * prompts/tools/*.md / prompts/tollgates/*.md, shipped inside the engine. */
+  prompt_text: string;
+  /** mode=tool: the current artifact's pretty-printed JSON ("" when the tool
+   * has no saved artifact, e.g. T-13/T-14). mode=tollgate: the phase's
+   * artifact summaries block (plain text) in the same "user's work" slot. */
+  artifact_json: string;
+  /** Engine-computed facts (Computed[T] leaves with provenance methods);
+   * "" when nothing is computed. */
+  facts_block: string;
+  /** The one paste-ready block: prompt + "MY ARTIFACT:" (or the phase
+   * summaries heading) + "COMPUTED RESULTS (authoritative, from the app):".
+   * This is what the Copy button puts on the clipboard. */
+  combined: string;
+}
+
+// ---- Validator pass (PLAN §5.3.6, anti-hallucination layer 6,
+// engine/sigma_engine/advisor/validator.py + routes/advisor.py's
+// POST /advisor/validate) -- a second, cheaper-model call that reads one
+// artifact's body against the project's own data and flags free-text
+// claims it can't trace. Never blocks a save: this is a separate, opt-in
+// check the UI calls before a save, not part of the save call itself. ----
+
+export type ValidatorSeverity = "cant_trace" | "contradicts";
+
+export interface ValidatorFlag {
+  field_path: string;
+  claim_text: string;
+  why_flagged: string;
+  severity: ValidatorSeverity;
+}
+
+export interface AdvisorValidateRequest {
+  project_id: string;
+  tool_id: string;
+  /** The artifact body to check -- whatever would otherwise be POSTed to
+   * /project/{project_id}/artifacts/{tool_id}. */
+  body: Record<string, unknown>;
+}
+
+export interface ValidatorReport {
+  flags: ValidatorFlag[];
+  /** The model's own count of how many free-text fields it examined --
+   * self-reported, not engine-computed. */
+  checked_field_count: number;
+  /** True exactly when the model's response failed to parse even after its
+   * one retry -- `flags` is [] in that case, not a reliable "nothing to
+   * flag" reading. */
+  unstructured_fallback: boolean;
+  /** The last attempt's raw answer text, always present. */
+  raw_answer: string;
+  /** Fixed disclaimer text (routes/advisor.py: same string on every call,
+   * flags or not) -- render this, don't write your own copy for it: "a
+   * heuristic reviewer, not a guarantee; zero flags does not mean this
+   * artifact is error-free." */
+  disclaimer: string;
+  /** M5 exit critic, Fix 8: same shape AdvisorAskResponse's own budget
+   * reporting uses (context.py's BudgetReport) -- what actually made it
+   * into the model's context (draft, draft facts, other-artifact and
+   * dataset summaries) and what got trimmed to fit, in validator.py's own
+   * tier order. Always present; `dropped` is [] when nothing needed
+   * trimming. */
+  budget_report: AdvisorBudgetReport;
+}
