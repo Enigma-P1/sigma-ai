@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-msa",
+  "tool_id": "T-12",
+  "created_at": "2026-08-03T15:00:00Z",
+  "updated_at": "2026-08-03T15:00:00Z",
+  "notes": "Test/retest on the measurement itself: Priya re-derived order-to-handoff time for 10 already-collected orders from the POS ticket log plus the pickup tally sheet, twice, two days apart, blind to her first pass (first-pass sheet stayed in the drawer). Items are real order_ids from wait-times.csv, picked to span the observed range (6.0 to 11.1 min); first readings match the recorded dataset values. Gauge increment is the recording resolution, 0.1 min. USL 5.0 is the customer walk-away line (VoC S4); no LSL -- a fast drink has no lower limit, so the engine names its denominator as study variation, not tolerance. Resolution pre-check: 0.1-min increments on the ~5-minute observed span. Single-operator repeatability only -- the caveat the engine prints is part of the record.",
+  "data_type": "continuous",
+  "operator": "Priya Shah",
+  "gauge_name": "POS ticket log + pickup-counter tally sheet (same POS clock), read to 0.1 min",
+  "gauge_increment": 0.1,
+  "usl": 5.0,
+  "lsl": null,
+  "continuous_items": [
+    { "item_id": "POS-0723-02", "readings": [6.0, 6.0] },
+    { "item_id": "POS-0724-06", "readings": [7.2, 7.3] },
+    { "item_id": "POS-0720-08", "readings": [7.6, 7.6] },
+    { "item_id": "POS-0729-10", "readings": [8.0, 7.9] },
+    { "item_id": "POS-0723-06", "readings": [8.3, 8.3] },
+    { "item_id": "POS-0727-08", "readings": [8.5, 8.5] },
+    { "item_id": "POS-0721-05", "readings": [8.9, 9.0] },
+    { "item_id": "POS-0731-11", "readings": [9.1, 9.1] },
+    { "item_id": "POS-0723-04", "readings": [9.7, 9.6] },
+    { "item_id": "POS-0728-12", "readings": [11.1, 11.1] }
+  ],
+  "attribute_items": []
+}

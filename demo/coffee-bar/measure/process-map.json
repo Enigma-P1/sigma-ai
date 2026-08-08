@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-process-map",
+  "tool_id": "T-06",
+  "created_at": "2026-07-21T14:30:00Z",
+  "updated_at": "2026-08-03T16:20:00Z",
+  "notes": "Swimlane walk of the SIPOC's register-to-handoff segment, first drawn July 21, step times filled in August 3 from the time study's element medians (typical cycle, robust to the flagged July 28 rush outlier): 0.8 + 4.5 + 2.0 + 0.6 + 0.5 = 8.4 minutes -- the charter baseline. Demand block: espresso station staffed 6:30-10:30 (240 min) around the peak; 48 espresso orders per peak (July tally, same count the spaghetti observation logged) -- pace 5.0 min per order, the same five minutes the customer named as the walk-away line (VoC S4). The engine names the drink-queue wait as the constraint: the wait is the bottleneck, not the work.",
+  "lanes": [
+    { "lane_id": "front-counter", "name": "Front counter (register + pickup)", "owner": "Priya Shah" },
+    { "lane_id": "espresso-station", "name": "Espresso station", "owner": "Marcus Webb" }
+  ],
+  "steps": [
+    {
+      "step_id": "s1", "lane_id": "front-counter", "name": "Take order and payment at register",
+      "order": 1, "step_type": "enabling", "time_minutes": 0.8, "defect_point": false, "strata": [],
+      "reason": "Order and payment must be captured, but the customer is buying the drink, not the transaction",
+      "wastes": []
+    },
+    {
+      "step_id": "s2", "lane_id": "espresso-station", "name": "Cup waits in drink queue",
+      "order": 2, "step_type": "non_value_add", "time_minutes": 4.5, "defect_point": false, "strata": ["daypart"],
+      "reason": "Pure queue time -- nothing happens to the drink; more than half of the 8.4-minute total",
+      "wastes": [
+        { "waste_id": "waiting", "note": "Cups sit a median 4.5 min untouched (time study el-queue) -- the largest single block of the order-to-handoff total" },
+        { "waste_id": "inventory", "note": "Marked cups are WIP between register and machine -- nine deep during the July 28 8:12 rush" }
+      ]
+    },
+    {
+      "step_id": "s3", "lane_id": "espresso-station", "name": "Prepare drink at espresso station",
+      "order": 3, "step_type": "value_add", "time_minutes": 2.0, "defect_point": true, "strata": ["drink_type", "barista"],
+      "reason": "The transformation the customer pays for: dose, pull, steam, build",
+      "wastes": [
+        { "waste_id": "defects", "note": "Grinder rework: 10 of the 40 tallied delays were re-pulls after sour or channelled shots (check sheet)" },
+        { "waste_id": "motion", "note": "A grinder round trip per drink -- the grinder sits 2.3 m from the machine at the far end of the back counter (spaghetti route R2, 52 trips per peak)" }
+      ]
+    },
+    {
+      "step_id": "s4", "lane_id": "espresso-station", "name": "Finish drink (syrup, lid, sleeve)",
+      "order": 4, "step_type": "value_add", "time_minutes": 0.6, "defect_point": false, "strata": [],
+      "reason": "Completes the sellable drink -- the syrup, lid, and sleeve the customer ordered",
+      "wastes": []
+    },
+    {
+      "step_id": "s5", "lane_id": "front-counter", "name": "Call name and hand off at pickup counter",
+      "order": 5, "step_type": "enabling", "time_minutes": 0.5, "defect_point": false, "strata": [],
+      "reason": "Required delivery moment, no transformation -- SIPOC steps 5-6, timed as one element in the study",
+      "wastes": [
+        { "waste_id": "waiting", "note": "Finished drinks sit while the name call waits for a gap -- VoC S3: 'nobody called my name'" }
+      ]
+    }
+  ],
+  "connectors": [
+    { "from_step": "s1", "to_step": "s2", "label": "ticket printed, cup marked" },
+    { "from_step": "s2", "to_step": "s3", "label": null },
+    { "from_step": "s3", "to_step": "s4", "label": null },
+    { "from_step": "s4", "to_step": "s5", "label": "drink to pickup counter" }
+  ],
+  "demand": { "available_time_minutes": 240, "demand_units": 48 },
+  "layout": {
+    "s1": { "x": 60, "y": 40 }, "s2": { "x": 240, "y": 180 }, "s3": { "x": 420, "y": 180 },
+    "s4": { "x": 600, "y": 180 }, "s5": { "x": 780, "y": 40 }
+  }
+}

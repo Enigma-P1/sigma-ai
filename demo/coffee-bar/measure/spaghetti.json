@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "artifact_id": "coffee-spaghetti",
+  "tool_id": "T-07",
+  "created_at": "2026-07-22T15:10:00Z",
+  "updated_at": "2026-07-22T15:10:00Z",
+  "notes": "Marcus's walking during the July 22 morning peak, traced on the bar floor plan (floorplan.png, 700x500 -- stdlib-rendered like the desktop smoke fixture). Calibrated on the 6 m front-counter face (480 px, 80 px/m). Current layout only -- the proposed layout arrives with Improve. Trip counts are the July 22 tally: 48 orders that peak (same 48 as the process map's demand block), one grinder round trip per drink plus four extra for re-pulls and a hopper refill (52), and ten walks back to cover the register line. The engine computes the distances, the daily walking burden, and the one path crossing -- the delivery path crosses the start-next-drink path in front of the machine, where the July 28 rush pileup also happened.",
+  "floor_plan": {
+    "image_id": "1288cebacc404cb584cc42aa7bd75c24",
+    "source_filename": "floorplan.png",
+    "sha256": "210f1e9ef02be03fd9ab8e580aa653be1fde9297aa8587690399b335e4b29d6f",
+    "width_px": 700,
+    "height_px": 500
+  },
+  "calibration": {
+    "point_a": { "x": 100, "y": 455 },
+    "point_b": { "x": 580, "y": 455 },
+    "real_length": 6.0,
+    "unit": "meters"
+  },
+  "operators": [
+    { "operator_id": "op-marcus", "name": "Marcus Webb", "color_index": 0 }
+  ],
+  "routes": [
+    {
+      "route_id": "R1", "operator_id": "op-marcus", "trip_label": "Register to espresso (start next drink)",
+      "frequency_per_day": 48, "layout_mode": "current",
+      "points": [ { "x": 137, "y": 367 }, { "x": 420, "y": 250 }, { "x": 360, "y": 155 } ]
+    },
+    {
+      "route_id": "R2", "operator_id": "op-marcus", "trip_label": "Espresso to grinder and back (dose)",
+      "frequency_per_day": 52, "layout_mode": "current",
+      "points": [ { "x": 360, "y": 155 }, { "x": 177, "y": 155 }, { "x": 360, "y": 155 } ]
+    },
+    {
+      "route_id": "R3", "operator_id": "op-marcus", "trip_label": "Espresso to pickup counter (deliver and call)",
+      "frequency_per_day": 48, "layout_mode": "current",
+      "points": [ { "x": 360, "y": 155 }, { "x": 300, "y": 250 }, { "x": 580, "y": 367 } ]
+    },
+    {
+      "route_id": "R4", "operator_id": "op-marcus", "trip_label": "Pickup back to register (cover the line)",
+      "frequency_per_day": 10, "layout_mode": "current",
+      "points": [ { "x": 580, "y": 367 }, { "x": 355, "y": 300 }, { "x": 137, "y": 367 } ]
+    }
+  ],
+  "walk_speed_override_per_minute": null,
+  "observation_window": {
+    "when": "Wednesday 2026-07-22, 7:00-10:00 morning peak",
+    "duration": "180 minutes (one full peak)",
+    "shift": "Weekday morning"
+  }
+}
