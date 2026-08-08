@@ -33,13 +33,21 @@ import { fishboneHelperContent } from "./fishbone/fishboneContent";
 import { FmeaForm } from "./fmea/FmeaForm";
 import { fmeaHelperContent } from "./fmea/fmeaContent";
 import { SolutionMatrixForm } from "./solutionmatrix/SolutionMatrixForm";
+import { solutionMatrixHelperContent } from "./solutionmatrix/solutionMatrixContent";
 import { PilotPlanForm } from "./pilotplan/PilotPlanForm";
+import { pilotPlanHelperContent } from "./pilotplan/pilotPlanContent";
 import { ProofForm } from "./proof/ProofForm";
+import { proofHelperContent } from "./proof/proofContent";
 import { ControlChartForm } from "./controlchart/ControlChartForm";
+import { controlChartHelperContent } from "./controlchart/controlChartContent";
 import { ControlPlanForm } from "./controlplan/ControlPlanForm";
+import { controlPlanHelperContent } from "./controlplan/controlPlanContent";
 import { FiveSForm } from "./fives/FiveSForm";
+import { fiveSHelperContent } from "./fives/fiveSContent";
 import { StandardWorkForm } from "./standardwork/StandardWorkForm";
+import { standardWorkHelperContent } from "./standardwork/standardWorkContent";
 import { A3Form } from "./a3/A3Form";
+import { a3HelperContent } from "./a3/a3Content";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -211,13 +219,12 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
-  // T-18/T-19 (M4): real engine-backed forms, helper content left an
-  // honest PLACEHOLDER this milestone (task brief) -- the five-part
-  // content unit ships with a later content pass, same as every other
-  // tool that's engine-live before its helper text is written.
+  // T-18..T-25 (M4): real engine-backed forms with the real
+  // Improve/Control/Wrap five-part content units (PLAN §4.3) -- each
+  // panel's checklist restates its rubric items, per tier-a-done-means §2.
   if (toolId === "T-18") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={solutionMatrixHelperContent}>
         <SolutionMatrixForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -225,17 +232,15 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-19") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={pilotPlanHelperContent}>
         <PilotPlanForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }
 
-  // T-20/T-21 (M4): real engine-backed forms, helper content left an
-  // honest PLACEHOLDER this milestone (task brief), same as T-18/T-19 above.
   if (toolId === "T-20") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={proofHelperContent}>
         <ProofForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -243,17 +248,15 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-21") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={controlChartHelperContent}>
         <ControlChartForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }
 
-  // T-22..T-25 (M4): real engine-backed forms, helper content left an
-  // honest PLACEHOLDER this milestone (task brief), same as T-18..T-21 above.
   if (toolId === "T-22") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={controlPlanHelperContent}>
         <ControlPlanForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -261,7 +264,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-23") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={fiveSHelperContent}>
         <FiveSForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -269,7 +272,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-24") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={standardWorkHelperContent}>
         <StandardWorkForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -277,7 +280,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-25") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={a3HelperContent}>
         <A3Form projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
