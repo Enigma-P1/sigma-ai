@@ -19,6 +19,9 @@ import type {
   FloorPlanImageMeta,
   GateResult,
   HealthResponse,
+  HypothesisQuestion,
+  HypothesisRouteResponse,
+  HypothesisRunResult,
   OverrideLogEntry,
   ParetoResult,
   PrescoreResult,
@@ -262,6 +265,38 @@ export interface SampleSizeRequestBody {
  * error formula (T-11's sample-size panel, PLAN §4.1). */
 export function runSampleSize(body: SampleSizeRequestBody): Promise<SampleSizeResponse> {
   return request<SampleSizeResponse>("/stats/sample-size", postJson(body));
+}
+
+// ---- Stats: Hypothesis Testing (routes/hypothesis.py) — T-17 -------------
+
+export interface HypDatasetColumnRef {
+  dataset_id: string;
+  column: string;
+}
+
+/** `question` is used as-is unless a *_column ref below overrides one of
+ * its array slots with a loaded dataset column -- `project_id` is required
+ * whenever any ref is given (routes/hypothesis.py's _resolve_question). */
+export interface HypothesisRequestBody {
+  question: HypothesisQuestion;
+  project_id?: string;
+  group_columns?: Record<number, HypDatasetColumnRef>;
+  paired_before_column?: HypDatasetColumnRef;
+  paired_after_column?: HypDatasetColumnRef;
+  sample_column?: HypDatasetColumnRef;
+}
+
+/** Routing only -- the printed decision tree, safe to call speculatively
+ * (never computes a test statistic). */
+export function routeHypothesis(body: HypothesisRequestBody): Promise<HypothesisRouteResponse> {
+  return request<HypothesisRouteResponse>("/stats/hypothesis/route", postJson(body));
+}
+
+/** Route + compute in one call. Refuses with the named EXIT when one
+ * fires (`refused: true`, `result: null`) -- every number T-17 renders
+ * comes from this response, nothing computed client-side. */
+export function runHypothesis(body: HypothesisRequestBody): Promise<HypothesisRunResult> {
+  return request<HypothesisRunResult>("/stats/hypothesis/run", postJson(body));
 }
 
 // ---- Floor-plan images (routes/floorplans.py) — T-07 upload ----

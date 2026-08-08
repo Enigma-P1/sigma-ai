@@ -26,6 +26,7 @@ import { BaselineForm } from "./baseline/BaselineForm";
 import { baselineHelperContent } from "./baseline/baselineContent";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { chartSetHelperContent } from "./chartset/chartSetContent";
+import { HypothesisForm } from "./hypothesis/HypothesisForm";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -166,6 +167,17 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={chartSetHelperContent}>
         <ChartSetScreen projectId={projectId} initialDatasetId={presetFor("T-14")} onVisited={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-17 (M3): the guided hypothesis-testing screen. Helper content stays
+  // the honest placeholder -- the Analyze five-part content unit (PLAN
+  // §4.3) ships with a later milestone; the form itself is real.
+  if (toolId === "T-17") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <HypothesisForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

@@ -1,0 +1,108 @@
+.sigma-hyp-tree {
+  margin: var(--space-4) 0;
+}
+.sigma-hyp-tree__list {
+  list-style: none;
+  margin: 0 0 var(--space-3);
+  padding: 0;
+}
+.sigma-hyp-tree__node {
+  position: relative;
+  padding: var(--space-2) 0 var(--space-2) var(--space-4);
+  border-left: 2px solid var(--color-border-strong);
+}
+.sigma-hyp-tree__node::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: var(--space-3);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border-strong);
+}
+.sigma-hyp-tree__node--terminal {
+  border-left-color: var(--color-accent);
+}
+.sigma-hyp-tree__node--terminal::before {
+  background: var(--color-accent);
+}
+.sigma-hyp-tree__node--terminal .sigma-hyp-tree__branch {
+  font-weight: var(--weight-semibold);
+  color: var(--color-accent);
+}
+.sigma-hyp-tree__q {
+  font-weight: var(--weight-medium);
+}
+.sigma-hyp-tree__a {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.sigma-hyp-tree__branch {
+  font-size: var(--text-sm);
+  margin-top: var(--space-1);
+}
+.sigma-hyp-tree__why {
+  margin-bottom: var(--space-3);
+}
+
+.sigma-hyp-exit-detail {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+}
+
+.sigma-hyp-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+.sigma-hyp-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-3);
+}
+.sigma-hyp-dl dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.sigma-hyp-dl dd {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.sigma-hyp-list {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+}
+.sigma-hyp-list--warn {
+  color: var(--color-flag);
+}
+
+.sigma-hyp-groups-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: var(--space-2) 0;
+  font-size: var(--text-sm);
+}
+.sigma-hyp-groups-table th,
+.sigma-hyp-groups-table td {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+  text-align: left;
+}
+
+.sigma-hyp-exit13-largest-smallest {
+  font-style: italic;
+}
+.sigma-hyp-provenance {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  font-family: var(--font-family-mono);
+}
