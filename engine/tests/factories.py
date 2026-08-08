@@ -210,6 +210,64 @@ def make_process_map(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_floor_plan_ref(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "image_id": "floorplan-1", "source_filename": "floor.png",
+        "sha256": "a" * 64, "width_px": 800, "height_px": 600,
+    }
+    base.update(overrides)
+    return base
+
+
+def make_operators() -> list[dict[str, Any]]:
+    return [
+        {"operator_id": "op-1", "name": "Maria Ortiz", "color_index": 0},
+        {"operator_id": "op-2", "name": "Sam Lee", "color_index": 1},
+    ]
+
+
+def make_calibration(**overrides: Any) -> dict[str, Any]:
+    # 100px = 10m -> 10 px/m, chosen so every hand-computable fixture route
+    # below (multiples of 10px) converts to a round number of meters.
+    base = {"point_a": {"x": 0.0, "y": 0.0}, "point_b": {"x": 100.0, "y": 0.0}, "real_length": 10.0, "unit": "meters"}
+    base.update(overrides)
+    return base
+
+
+def make_spaghetti_routes() -> list[dict[str, Any]]:
+    return [
+        {
+            # Two legs of a right angle, 300px + 400px = 700px -> 70m at
+            # 10px/m -- the smoke test's own hand-computable fixture route.
+            "route_id": "route-1", "operator_id": "op-1", "trip_label": "Register to grinder",
+            "frequency_per_day": 6, "layout_mode": "current",
+            "points": [{"x": 0.0, "y": 0.0}, {"x": 300.0, "y": 0.0}, {"x": 300.0, "y": 400.0}],
+        },
+    ]
+
+
+def make_spaghetti(**overrides: Any) -> dict[str, Any]:
+    operators = overrides.pop("operators") if "operators" in overrides else make_operators()
+    routes = overrides.pop("routes") if "routes" in overrides else make_spaghetti_routes()
+    floor_plan = overrides.pop("floor_plan") if "floor_plan" in overrides else make_floor_plan_ref()
+    calibration = overrides.pop("calibration") if "calibration" in overrides else make_calibration()
+    base = {
+        "schema_version": 1,
+        "artifact_id": "spaghetti-001",
+        "tool_id": "T-07",
+        "created_at": TS,
+        "updated_at": TS,
+        "floor_plan": floor_plan,
+        "calibration": calibration,
+        "operators": operators,
+        "routes": routes,
+        "walk_speed_override_per_minute": None,
+        "observation_window": {"when": "Tuesday morning rush", "duration": "45 min", "shift": "AM shift"},
+    }
+    base.update(overrides)
+    return base
+
+
 def make_charter(**overrides: Any) -> dict[str, Any]:
     base = {
         "schema_version": 1,

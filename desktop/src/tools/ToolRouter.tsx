@@ -14,6 +14,7 @@ import { DataImportForm } from "./dataimport/DataImportForm";
 import { SampleSizePanel } from "./samplesize/SampleSizePanel";
 import { MsaForm } from "./msa/MsaForm";
 import { ProcessMapForm } from "./processmap/ProcessMapForm";
+import { SpaghettiForm } from "./spaghetti/SpaghettiForm";
 import { BaselineForm } from "./baseline/BaselineForm";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { placeholderHelperContent } from "./helperFrameTypes";
@@ -87,6 +88,14 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
         <ProcessMapForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-07") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <SpaghettiForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

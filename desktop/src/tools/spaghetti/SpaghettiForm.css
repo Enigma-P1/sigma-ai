@@ -1,0 +1,132 @@
+.sigma-spaghetti-mode-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-5);
+  margin: var(--space-3) 0;
+}
+.sigma-spaghetti-mode-toggle {
+  display: flex;
+  gap: var(--space-1);
+}
+.sigma-spaghetti-heatmap-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-2);
+}
+
+.sigma-spaghetti-inspector-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.sigma-spaghetti-panels-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  align-items: start;
+  margin-top: var(--space-4);
+}
+
+.sigma-spaghetti-calibration {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+.sigma-spaghetti-calibration-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sigma-spaghetti-operators {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sigma-spaghetti-operator-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-2);
+  align-items: end;
+  border-bottom: var(--border-width) solid var(--color-border);
+  padding-bottom: var(--space-2);
+}
+.sigma-spaghetti-operator-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-pill);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-spaghetti-trace {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+.sigma-spaghetti-trace-active {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.sigma-spaghetti-routes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sigma-spaghetti-route-row {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+}
+.sigma-spaghetti-route-row__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sigma-spaghetti-route-row__operator {
+  color: var(--color-text-muted);
+}
+.sigma-spaghetti-route-row__metrics {
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.sigma-spaghetti-delta-table {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+.sigma-spaghetti-delta-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+  font-size: var(--text-sm);
+}
+.sigma-spaghetti-delta-row--head {
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-muted);
+  border-bottom-width: 2px;
+}
+
+.sigma-spaghetti-playback {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}

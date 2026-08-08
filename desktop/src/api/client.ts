@@ -15,6 +15,8 @@ import type {
   DatasetMeta,
   DatasetPreview,
   DescriptiveStats,
+  FloorPlanDetail,
+  FloorPlanImageMeta,
   GateResult,
   HealthResponse,
   OverrideLogEntry,
@@ -260,6 +262,27 @@ export interface SampleSizeRequestBody {
  * error formula (T-11's sample-size panel, PLAN §4.1). */
 export function runSampleSize(body: SampleSizeRequestBody): Promise<SampleSizeResponse> {
   return request<SampleSizeResponse>("/stats/sample-size", postJson(body));
+}
+
+// ---- Floor-plan images (routes/floorplans.py) — T-07 upload ----
+
+export interface FloorPlanUploadBody {
+  source_filename: string;
+  content_base64: string;
+  created_at: string;
+}
+
+/** Upload IS save here -- no preview/confirm step like datasets have
+ * (there's no column-type equivalent for an image). */
+export function uploadFloorPlan(projectId: string, body: FloorPlanUploadBody): Promise<FloorPlanImageMeta> {
+  return request<FloorPlanImageMeta>(`/project/${encodeURIComponent(projectId)}/floorplans`, postJson(body));
+}
+
+/** Fetches the image back (meta + base64 bytes) so a reloaded project can
+ * rebuild the canvas background without the original File still in
+ * memory (T-11's dataset GET is the same "re-fetch on reload" shape). */
+export function getFloorPlan(projectId: string, imageId: string): Promise<FloorPlanDetail> {
+  return request<FloorPlanDetail>(`/project/${encodeURIComponent(projectId)}/floorplans/${encodeURIComponent(imageId)}`);
 }
 
 // ---- diagnostics (main.py) ----

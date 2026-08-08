@@ -1,0 +1,7 @@
+.sigma-spaghetti-canvas-wrap {
+  overflow: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-sunken);
+  max-width: 100%;
+}

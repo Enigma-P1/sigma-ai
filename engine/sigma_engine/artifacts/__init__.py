@@ -28,6 +28,22 @@ from .process_map import (
     compute_bottleneck,
 )
 from .sipoc import OutputCustomerPair, ProcessStep, SipocArtifact, SupplierInputPair
+from .spaghetti import (
+    Calibration,
+    CalibrationPoint,
+    DeltaRow,
+    FloorPlanRef,
+    Operator,
+    ObservationWindow,
+    OperatorTotal,
+    PathCrossing,
+    RouteMetrics,
+    RoutePoint,
+    SpaghettiArtifact,
+    SpaghettiMetrics,
+    SpaghettiRoute,
+    compute_spaghetti_metrics,
+)
 from .voc_ctq import Ctq, Customer, CustomerNeed, VocCtqArtifact, VocStatement
 
 __all__ = [
@@ -65,6 +81,20 @@ __all__ = [
     "ProcessStep",
     "SipocArtifact",
     "SupplierInputPair",
+    "Calibration",
+    "CalibrationPoint",
+    "DeltaRow",
+    "FloorPlanRef",
+    "Operator",
+    "ObservationWindow",
+    "OperatorTotal",
+    "PathCrossing",
+    "RouteMetrics",
+    "RoutePoint",
+    "SpaghettiArtifact",
+    "SpaghettiMetrics",
+    "SpaghettiRoute",
+    "compute_spaghetti_metrics",
     "Ctq",
     "Customer",
     "CustomerNeed",
