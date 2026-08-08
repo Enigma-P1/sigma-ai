@@ -2,24 +2,21 @@ import { useEffect, useState } from "react";
 import { Button, Field, Panel, TextInput, VerdictBanner, YesNoToggle } from "../design/components";
 import { getAdvisorSettings, putAdvisorSettings } from "../api/client";
 import { ApiError } from "../api/errors";
+import { ADVISOR_PRIVACY_STATEMENT } from "./privacyStatement";
 import "./AdvisorSettingsScreen.css";
 
 export interface AdvisorSettingsScreenProps {
   onBack: () => void;
 }
 
-// Verbatim (M5 brief) -- do not paraphrase this string.
-const PRIVACY_STATEMENT =
-  "Layer 1 (all tools, math, charts) runs entirely on your machine and sends nothing anywhere. " +
-  "When you use the advisor, the current artifact and its computed results are sent to the Anthropic API. " +
-  "Don't put customer names or sensitive identifiers in artifact text.";
-
 type LoadState = { phase: "loading" } | { phase: "loaded" } | { phase: "error"; message: string };
 type SaveState = "idle" | "saving" | "saved" | "error";
 
 /** App-level route (same idiom as DiagnosticsView, src/app/navigation.ts) --
  * API key input (never rendered back; masked last-4 from the GET), an
- * enabled toggle, and the exact privacy statement (M5 brief). */
+ * enabled toggle, a "Remove key" affordance (M5 exit critic, Fix 1 -- see
+ * handleRemoveKey), and the shared privacy statement (privacyStatement.ts,
+ * Fix 2). */
 export function AdvisorSettingsScreen({ onBack }: AdvisorSettingsScreenProps) {
   const [loadState, setLoadState] = useState<LoadState>({ phase: "loading" });
   const [apiKeyMasked, setApiKeyMasked] = useState<string | null>(null);
@@ -69,6 +66,31 @@ export function AdvisorSettingsScreen({ onBack }: AdvisorSettingsScreenProps) {
     }
   }
 
+  /** M5 exit critic, severity 1: before this existed there was NO in-app
+   * way to remove a stored key -- api_key="" already means "leave
+   * unchanged" (handleSave's own comment), so the only path was hand-
+   * editing settings.json, which is exactly the road to the truncated/
+   * corrupt-file case load() now has to survive. clear_api_key: true is
+   * the explicit, safe removal path (routes/advisor.py's
+   * AdvisorSettingsUpdateRequest). */
+  async function handleRemoveKey() {
+    setSaveState("saving");
+    setSaveError(null);
+    try {
+      const result = await putAdvisorSettings({
+        clear_api_key: true,
+        base_url: baseUrl.trim() ? baseUrl.trim() : null,
+        enabled,
+      });
+      setApiKeyMasked(result.api_key_masked);
+      setApiKeyInput("");
+      setSaveState("saved");
+    } catch (err) {
+      setSaveError(err instanceof ApiError ? err.message : "Could not remove the stored key.");
+      setSaveState("error");
+    }
+  }
+
   return (
     <div className="sigma-advisor-settings">
       <button
@@ -85,7 +107,7 @@ export function AdvisorSettingsScreen({ onBack }: AdvisorSettingsScreenProps) {
       </p>
 
       <Panel title="Privacy" className="sigma-advisor-settings__panel">
-        <p data-testid="advisor-privacy-statement">{PRIVACY_STATEMENT}</p>
+        <p data-testid="advisor-privacy-statement">{ADVISOR_PRIVACY_STATEMENT}</p>
       </Panel>
 
       <Panel title="Configuration" className="sigma-advisor-settings__panel">
@@ -108,6 +130,17 @@ export function AdvisorSettingsScreen({ onBack }: AdvisorSettingsScreenProps) {
                 onChange={(e) => setApiKeyInput(e.target.value)}
                 data-testid="advisor-api-key-input"
               />
+              {apiKeyMasked && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleRemoveKey}
+                  disabled={saveState === "saving"}
+                  data-testid="advisor-remove-key"
+                >
+                  Remove key
+                </Button>
+              )}
             </Field>
 
             <Field label="Base URL (optional)" htmlFor="advisor-base-url" helper="Leave blank to use the default Anthropic API endpoint.">

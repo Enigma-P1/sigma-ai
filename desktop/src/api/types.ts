@@ -2245,9 +2245,22 @@ export interface AdvisorRemedyCandidate {
   risks: string;
   pilot_first: string;
   how_youd_know_it_worked: string;
+  /** M5 exit critic, Fix 5: the subset of cause_ids above that did NOT
+   * match a currently VERIFIED cause_id on the fishbone (invented, or
+   * still candidate/investigating/ruled_out) -- filled deterministically
+   * by the engine AFTER parsing (modes.py's _flag_unverified_remedy_causes),
+   * never by the model. Empty when every cited id matched. The UI renders
+   * this flag on the card and excludes the remedy from the paste-ready
+   * T-18 draft by default. */
+  unverified_cause_refs: string[];
 }
 export interface AdvisorRemedyStructured {
   remedies: AdvisorRemedyCandidate[];
+  /** Response-level companion to unverified_cause_refs (Fix 5) -- "" unless
+   * at least one remedy was flagged, in which case this is the one
+   * plain-English sentence to show once instead of repeating the
+   * explanation on every flagged card. */
+  unverified_cause_note: string;
 }
 
 export interface AdvisorAskResponse {
@@ -2266,6 +2279,12 @@ export interface AdvisorAskResponse {
    * after its one retry -- render `answer` as plain text with a "the model
    * returned unstructured output" note, never as a blank/broken card. */
   unstructured_fallback: boolean;
+  /** M5 exit critic, Fix 4: true exactly when this answer's stop_reason was
+   * "max_tokens" -- the model's output was cut off by the token budget,
+   * not malformed. Mutually exclusive with unstructured_fallback (a
+   * truncated attempt never reaches the parser). Render as "the answer hit
+   * the output limit," never the unstructured-output message. */
+  truncated: boolean;
   budget_report: AdvisorBudgetReport;
   /** Artifact ids the model asked for by name on this turn, parsed from
    * its answer -- the UI's cue to offer a follow-up call with
@@ -2286,6 +2305,11 @@ export interface AdvisorSettingsUpdateRequest {
    * never echoes the real key back, so a settings form can't round-trip it
    * into this field. A non-empty string sets/overwrites it. */
   api_key?: string | null;
+  /** M5 exit critic, severity 1: the explicit remove-key path -- before
+   * this existed there was no in-app way to clear a stored key (api_key=""
+   * already means "leave unchanged" above), so the only path was hand-
+   * editing settings.json. Wins over a simultaneously-supplied api_key. */
+  clear_api_key?: boolean;
   base_url?: string | null;
   enabled: boolean;
 }
@@ -2356,4 +2380,11 @@ export interface ValidatorReport {
    * heuristic reviewer, not a guarantee; zero flags does not mean this
    * artifact is error-free." */
   disclaimer: string;
+  /** M5 exit critic, Fix 8: same shape AdvisorAskResponse's own budget
+   * reporting uses (context.py's BudgetReport) -- what actually made it
+   * into the model's context (draft, draft facts, other-artifact and
+   * dataset summaries) and what got trimmed to fit, in validator.py's own
+   * tier order. Always present; `dropped` is [] when nothing needed
+   * trimming. */
+  budget_report: AdvisorBudgetReport;
 }

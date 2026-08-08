@@ -1989,16 +1989,23 @@ async function main() {
       );
     });
 
-    await step("the panel's link opens advisor settings, showing the exact privacy statement", async () => {
+    await step("the panel's link opens advisor settings, showing the shared privacy statement", async () => {
+      // M5 exit critic, Fix 2: the settings screen and the panel's own
+      // unconfigured-state banner now share ONE privacy statement constant
+      // (desktop/src/advisor/privacyStatement.ts) instead of each pinning
+      // its own (stale, understated) copy -- this assertion checks the
+      // NEW honest content, not the old frozen sentence.
       await page.locator('[data-testid="advisor-open-settings"]').click();
       const privacy = page.locator('[data-testid="advisor-privacy-statement"]');
       await privacy.waitFor();
       const text = await privacy.textContent();
       assert(
-        text?.includes("Layer 1 (all tools, math, charts) runs entirely on your machine and sends nothing anywhere.") &&
-          text?.includes("the current artifact and its computed results are sent to the Anthropic API") &&
-          text?.includes("Don't put customer names or sensitive identifiers in artifact text."),
-        `expected the exact privacy statement, got ${JSON.stringify(text)}`,
+        text?.includes("The advisor (Layer 2) sends nothing until you actually use it.") &&
+          text?.includes("code-generated summaries of your project's other saved artifacts") &&
+          text?.includes("Check my claims") &&
+          text?.includes("up to 3 sample values per column") &&
+          text?.includes("Your API key is stored in plain text in settings.json on this machine"),
+        `expected the shared privacy statement's honest content, got ${JSON.stringify(text)}`,
       );
     });
 

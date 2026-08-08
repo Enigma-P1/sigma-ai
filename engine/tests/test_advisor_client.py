@@ -212,3 +212,47 @@ def test_anthropic_error_hierarchy_is_what_client_py_assumes():
     # A cheap guard against a future SDK upgrade silently renaming/removing
     # the base error class client.py's except clause depends on.
     assert issubclass(anthropic.AuthenticationError, anthropic.AnthropicError)
+
+
+# ---- M5 exit critic, Fix 4 (severity 5, adjacent code): thinking is now
+# explicitly disabled on every call, and stop_reason is read off the
+# response and carried through AdvisorAnswer -- see client.py's module
+# docstring for why omitting `thinking` on claude-sonnet-5 is not safe. ----
+
+
+def test_ask_disables_thinking_on_every_call():
+    captured = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured["body"] = json.loads(request.content)
+        return _canned_response()
+
+    config = AdvisorConfigured(api_key="sk-ant-test", base_url=None, model="claude-sonnet-5")
+    ask(config, system="s", user_content="u", http_client=_mock_client(handler))
+    assert captured["body"]["thinking"] == {"type": "disabled"}
+
+
+def test_ask_carries_stop_reason_end_turn_through():
+    config = AdvisorConfigured(api_key="sk-ant-test", base_url=None, model="claude-sonnet-5")
+    result = ask(config, system="s", user_content="u", http_client=_mock_client(lambda r: _canned_response("ok")))
+    assert result.stop_reason == "end_turn"
+
+
+def test_ask_carries_stop_reason_max_tokens_through():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(
+            200,
+            json={
+                "id": "msg_trunc", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+                "content": [{"type": "text", "text": '{"cut off mid'}],
+                "stop_reason": "max_tokens", "stop_sequence": None,
+                "usage": {"input_tokens": 1, "output_tokens": 4096},
+            },
+        )
+
+    config = AdvisorConfigured(api_key="sk-ant-test", base_url=None, model="claude-sonnet-5")
+    result = ask(config, system="s", user_content="u", http_client=_mock_client(handler))
+    assert result.stop_reason == "max_tokens"
+    # The (truncated) text is still returned -- routes/advisor.py and
+    # structured.py decide what to do with it, this layer just reports honestly.
+    assert result.text == '{"cut off mid'

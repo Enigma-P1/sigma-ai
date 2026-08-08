@@ -33,6 +33,20 @@ Three rules this module exists to enforce, all load-bearing:
 
 3. NEVER TRIM SILENTLY. Anything dropped to fit the budget is recorded in
    budget_report.dropped, in the order it was dropped.
+
+M5 exit critic, Fix 6: the live user question is now assembled and
+budgeted HERE too. It used to be composed entirely in routes/advisor.py,
+outside this module and outside _apply_budget -- never counted against
+input_budget_tokens and never length-capped, so one long question could
+blow the input budget by itself with no accounting for it anywhere. The
+question is wrapped exactly like any other user-authored text
+(wrap_untrusted, tag id "user_question") and given its own budget tier,
+priority-ordered directly under the never-dropped system frame (see the
+tier comment above _apply_budget below) -- higher priority than prescore,
+since a question with nothing to answer makes the rest of the call
+pointless. AdvisorAskRequest.question / AdvisorFocusRef.ref additionally
+carry a hard MAX_QUESTION_LENGTH cap (422 beyond it) so this tier can
+never legitimately be the thing that blows the budget on its own.
 """
 
 from __future__ import annotations
@@ -55,6 +69,16 @@ from .client import DEFAULT_MAX_OUTPUT_TOKENS
 
 DEFAULT_INPUT_BUDGET_TOKENS = 30_000
 DEFAULT_OUTPUT_BUDGET_TOKENS = DEFAULT_MAX_OUTPUT_TOKENS
+
+# A sane ceiling on one live question/focus-ref (Fix 6, M5 exit critic).
+# routes/advisor.py's AdvisorAskRequest.question and modes.py's
+# AdvisorFocusRef.ref both enforce this at the request-schema layer (a
+# plain 422 beyond it, ordinary FastAPI/Pydantic validation) -- big enough
+# for a genuinely long question or remedy constraints paragraph, small
+# enough that this tier can never come close to consuming a 30k-token
+# budget on its own (20k chars is under 5k tokens at
+# TOKEN_ESTIMATE_METHOD's chars/4 heuristic).
+MAX_QUESTION_LENGTH = 20_000
 
 _CHARS_PER_TOKEN_HEURISTIC = 4
 TOKEN_ESTIMATE_METHOD = (
@@ -379,6 +403,24 @@ class AssembledContext(BaseModel):
     # render_prescore_line wraps individual detail strings inside the
     # overall-trusted prescore_block. Empty string when the mode has none.
     mode_block: str = ""
+    # The live user question, already wrap_untrusted()-wrapped, ready to
+    # drop straight into the user turn (Fix 6, M5 exit critic) -- "" when
+    # no question was given, or in the (extremely unlikely, see
+    # MAX_QUESTION_LENGTH) case that budget trimming had to drop it.
+    # routes/advisor.py's _build_user_turn reads this instead of wrapping
+    # the raw question itself, so wrap_untrusted has exactly the one call
+    # site for this content that context.py's own module docstring
+    # requires for every other untrusted piece.
+    question_block: str = ""
+    # Remedy mode's own post-response validation data (Fix 5, M5 exit
+    # critic): the current fishbone's VERIFIED cause ids, threaded through
+    # so routes/advisor.py can flag any RemedyCandidate.cause_id a model
+    # invents or cites from a non-verified cause AFTER the model responds.
+    # Never sent to the model itself -- it is not part of any prompt block
+    # (the model already sees the full fishbone, evidence included, in its
+    # current-artifact block); this is pure engine-side bookkeeping. Empty
+    # for every mode except remedy.
+    verified_cause_ids: tuple[str, ...] = ()
     budget_report: BudgetReport
 
 
@@ -419,6 +461,8 @@ def assemble_context(
     additional_full_artifact_ids: Sequence[str] | None = None,
     summary_tool_ids: Sequence[str] | None = None,
     extra_block: str = "",
+    question: str | None = None,
+    verified_cause_ids: Sequence[str] = (),
     dataset_ids: Sequence[str] | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
@@ -456,10 +500,27 @@ def assemble_context(
       counted honestly in budget_report.estimated_input_tokens but never
       trimmed, the same treatment system_prompt_frame already gets, since
       unlike an artifact dump it can't grow unboundedly with project size.
+
+    Two more params added at the M5 exit critic pass (both optional/
+    default-preserving, same rule as above):
+
+    - `question` (Fix 6): the live user question/constraints text, ALREADY
+      the caller's job to fold focus/seed-topic/constraints into one
+      string (routes/advisor.py's `_effective_question`) -- this function
+      wraps it (wrap_untrusted, tag id "user_question") and gives it its
+      own budget tier (AssembledContext.question_block; see the tier
+      comment above _apply_budget). None (the default) produces "" exactly
+      like today's behavior for every caller that doesn't pass one.
+    - `verified_cause_ids` (Fix 5): remedy mode's own post-response
+      validation data, carried straight through to
+      AssembledContext.verified_cause_ids with no processing here -- see
+      that field's docstring. Empty tuple (the default) for every mode
+      that doesn't pass it.
     """
     meta = store.load_project(project_id)  # FileNotFoundError propagates -- 404 at the route layer
 
     system_prompt_frame = build_system_prompt_frame(mode)
+    question_block = wrap_untrusted("user_question", question) if question else ""
 
     # De-duplicate while preserving order: a follow-up request for the
     # artifact that's already "current" is a harmless no-op, not a second copy.
@@ -512,13 +573,14 @@ def assemble_context(
         ds_meta = dataset_store.load_meta(project_id, dataset_id)  # FileNotFoundError propagates -- 404
         summary_items.append((dataset_id, wrap_untrusted(dataset_id, summarize_dataset(ds_meta))))
 
-    budget_report, kept_current, kept_prescore, kept_facts, kept_summaries = _apply_budget(
+    budget_report, kept_current, kept_prescore, kept_facts, kept_summaries, kept_question_block = _apply_budget(
         system_prompt_frame=system_prompt_frame,
         prescore_block=prescore_block,
         current_blocks=current_blocks,
         facts_block=facts_block,
         summary_items=summary_items,
         extra_block=extra_block,
+        question_block=question_block,
         input_budget_tokens=input_budget_tokens,
         output_budget_tokens=output_budget_tokens,
     )
@@ -531,21 +593,29 @@ def assemble_context(
         untrusted_blocks=untrusted_blocks,
         prescore_block=kept_prescore,
         mode_block=extra_block,
+        question_block=kept_question_block,
+        verified_cause_ids=tuple(verified_cause_ids),
         budget_report=budget_report,
     )
 
 
-# Priority order, highest kept-priority first (M5 brief, verbatim):
-# "system frame > prescore > current artifact > stats > summaries."
-# Trimming removes tiers in the REVERSE of that order (summaries first),
-# and each tier below the first is dropped ALL-OR-NOTHING except
-# "summaries," which is many independent blocks dropped one at a time
-# (largest first) so a small overage doesn't have to sacrifice every
-# other-artifact summary just to save a few hundred tokens.
+# Priority order, highest kept-priority first: system frame (with
+# mode_block) > question (Fix 6, M5 exit critic) > prescore > current
+# artifact > stats > summaries. Trimming removes tiers in the REVERSE of
+# that order (summaries first), and each tier below the first is dropped
+# ALL-OR-NOTHING except "summaries," which is many independent blocks
+# dropped one at a time (largest first) so a small overage doesn't have to
+# sacrifice every other-artifact summary just to save a few hundred
+# tokens. The question sits directly under the system frame -- higher
+# priority than prescore -- because a call with no question left to answer
+# has nothing left worth making; in practice this tier is essentially
+# never actually dropped, since MAX_QUESTION_LENGTH caps it far below a
+# 30k-token budget on its own.
 _TIER_SUMMARIES = "summaries"
 _TIER_STATS = "stats"
 _TIER_CURRENT_ARTIFACT = "current_artifact"
 _TIER_PRESCORE = "prescore"
+_TIER_QUESTION = "question"
 
 
 def _apply_budget(
@@ -556,9 +626,10 @@ def _apply_budget(
     facts_block: str,
     summary_items: list[tuple[str, str]],
     extra_block: str = "",
+    question_block: str = "",
     input_budget_tokens: int,
     output_budget_tokens: int,
-) -> tuple[BudgetReport, list[tuple[str, str]], str, str, list[tuple[str, str]]]:
+) -> tuple[BudgetReport, list[tuple[str, str]], str, str, list[tuple[str, str]], str]:
     dropped: list[BudgetDroppedEntry] = []
 
     system_cost = estimate_tokens(system_prompt_frame)  # tier 1: never dropped, see module docstring
@@ -567,6 +638,7 @@ def _apply_budget(
     # every mode that populates it keeps it small/bounded, unlike an
     # artifact dump that scales with project size).
     extra_cost = estimate_tokens(extra_block) if extra_block else 0
+    question_cost = estimate_tokens(question_block) if question_block else 0
     prescore_cost = estimate_tokens(prescore_block) if prescore_block else 0
     facts_cost = estimate_tokens(facts_block) if facts_block else 0
     kept_current = [(cid, text, estimate_tokens(text)) for cid, text in current_blocks]
@@ -574,11 +646,13 @@ def _apply_budget(
 
     keep_prescore = bool(prescore_block)
     keep_facts = bool(facts_block)
+    keep_question = bool(question_block)
 
     def total() -> int:
         return (
             system_cost
             + extra_cost
+            + (question_cost if keep_question else 0)
             + (prescore_cost if keep_prescore else 0)
             + sum(c for _, _, c in kept_current)
             + (facts_cost if keep_facts else 0)
@@ -605,10 +679,18 @@ def _apply_budget(
         dropped.append(BudgetDroppedEntry(tier=_TIER_CURRENT_ARTIFACT, id=cid, estimated_tokens=cost))
     kept_current.sort(key=lambda item: item[0])
 
-    # Tier 2: prescore, all-or-nothing, dropped only as a last resort.
+    # Tier 2: prescore, all-or-nothing.
     if total() > input_budget_tokens and keep_prescore:
         keep_prescore = False
         dropped.append(BudgetDroppedEntry(tier=_TIER_PRESCORE, id="prescore_block", estimated_tokens=prescore_cost))
+
+    # Tier 1.5 (Fix 6): the live question, all-or-nothing, dropped only as
+    # the very last resort before the never-dropped system frame itself --
+    # everything else below the system frame has already gone by this
+    # point. See the tier comment above for why this sits above prescore.
+    if total() > input_budget_tokens and keep_question:
+        keep_question = False
+        dropped.append(BudgetDroppedEntry(tier=_TIER_QUESTION, id="question_block", estimated_tokens=question_cost))
 
     # Tier 1 (system_prompt_frame) is never dropped -- an overage past this
     # point is reported honestly via estimated_input_tokens, not hidden.
@@ -616,6 +698,8 @@ def _apply_budget(
     included: list[str] = ["system_prompt_frame"]
     if extra_block:
         included.append("mode_block")
+    if keep_question:
+        included.append("question_block")
     if keep_prescore:
         included.append("prescore_block")
     included.extend(f"current_artifact:{cid}" for cid, _t, _c in kept_current)
@@ -635,5 +719,6 @@ def _apply_budget(
     final_summaries = [(sid, text) for sid, text, _c in kept_summaries]
     final_prescore = prescore_block if keep_prescore else ""
     final_facts = facts_block if keep_facts else ""
+    final_question_block = question_block if keep_question else ""
 
-    return report, final_current, final_prescore, final_facts, final_summaries
+    return report, final_current, final_prescore, final_facts, final_summaries, final_question_block

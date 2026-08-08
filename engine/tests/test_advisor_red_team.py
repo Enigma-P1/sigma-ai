@@ -163,6 +163,87 @@ def test_route_filters_planted_request_artifact_ids(tmp_path, monkeypatch):
     assert filtered == ["fishbone-001"]  # the route-level filter (routes/advisor.py) keeps only real ids
 
 
+def test_structured_retry_wraps_previous_answer_and_parse_error():
+    """Fix 3 (M5 exit critic, severity 3): structured.py's retry turn used
+    to splice the model's own previous (malformed) answer and the Pydantic
+    parse-error text straight into the next user turn, OUTSIDE any
+    untrusted region -- both can carry hostile content that originated in a
+    project artifact: a model echoing injected artifact text back in a
+    malformed answer, or a ValidationError's own message, which quotes the
+    offending value verbatim (Pydantic's "input_value=..." framing).
+
+    Drives run_structured_mode directly against a two-response mock
+    transport -- no ProjectStore/artifact needed, this is purely about the
+    retry-turn assembly. The FIRST response is syntactically-fenced JSON
+    that fails schema validation with MARKER embedded in the bad `verdict`
+    value (ReviewResponse.verdict is a Literal, so this is guaranteed to
+    fail, and Pydantic's own error text echoes the bad value back --
+    confirmed directly against the installed pydantic before writing this
+    test), forcing exactly one retry. The SECOND request's full wire text
+    (system + user) is then audited with the same region-stripping sweep
+    every other surface in this file gets -- proving the marker survived
+    ONLY inside a wrapped region, in the request that actually reaches the
+    wire on a real retry, not just in the unwrapped building blocks."""
+    import json as json_module
+
+    import httpx
+
+    from sigma_engine.advisor.client import AdvisorConfigured
+    from sigma_engine.advisor.modes import ReviewResponse
+    from sigma_engine.advisor.structured import run_structured_mode
+
+    bad_verdict = f"{MARKER}-not-a-real-verdict"
+    first_answer = (
+        "```json\n"
+        '{"criteria": [{"criterion_id": "R-DEF-01", "verdict": "' + bad_verdict + '", "specific_fix": ""}], '
+        '"overall_note": "n/a"}\n'
+        "```"
+    )
+    second_answer = '```json\n{"criteria": [], "overall_note": "retry ok"}\n```'
+
+    calls: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        payload = json_module.loads(request.content)
+        calls.append(payload)
+        text = first_answer if len(calls) == 1 else second_answer
+        body = {
+            "id": f"msg_{len(calls)}", "type": "message", "role": "assistant", "model": "m",
+            "content": [{"type": "text", "text": text}],
+            "stop_reason": "end_turn", "usage": {"input_tokens": 1, "output_tokens": 1},
+        }
+        return httpx.Response(200, json=body)
+
+    config = AdvisorConfigured(api_key="test-key", base_url=None, model="test-model")
+    http_client = httpx.Client(transport=httpx.MockTransport(handler))
+
+    outcome = run_structured_mode(
+        config, system="system frame", user_content="original user turn",
+        response_model=ReviewResponse, max_output_tokens=1024, http_client=http_client,
+    )
+
+    assert outcome.retried is True
+    assert outcome.parsed is not None  # the retry succeeded
+    assert len(calls) == 2, f"expected exactly one retry, got {len(calls)} call(s)"
+
+    second_payload = calls[1]
+    second_system = str(second_payload.get("system", ""))
+    second_user = "".join(
+        part.get("text", "") if isinstance(part, dict) else str(part)
+        for message in second_payload.get("messages", [])
+        for part in (message.get("content") if isinstance(message.get("content"), list) else [message.get("content")])
+    )
+
+    # It really was present on the wire, wrapped -- both the bad model
+    # answer and the Pydantic error text (which echoes the bad value) are
+    # inside the second request's user turn.
+    assert MARKER in second_user, "the marker should survive somewhere in the retry's user turn (inside a region)"
+
+    # ...but never outside a region, in either the system or the user text.
+    assert MARKER not in _strip_untrusted_regions(second_system), "marker leaked outside untrusted regions in the retry system prompt"
+    assert MARKER not in _strip_untrusted_regions(second_user), "marker leaked outside untrusted regions in the retry user turn"
+
+
 def test_export_combined_block_keeps_hostile_text_inside_regions(tmp_path):
     from fastapi.testclient import TestClient
 

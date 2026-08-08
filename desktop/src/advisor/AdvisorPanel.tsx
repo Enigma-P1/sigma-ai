@@ -3,6 +3,7 @@ import type { PillTone } from "../design/components";
 import { Button, Field, Panel, SelectInput, StatusPill, TextArea, TextInput, VerdictBanner } from "../design/components";
 import { askAdvisor, getAdvisorExport, getAdvisorStatus, loadArtifact, validateAdvisor } from "../api/client";
 import { ApiError } from "../api/errors";
+import { ADVISOR_PRIVACY_STATEMENT } from "./privacyStatement";
 import type {
   AdvisorAskRequest,
   AdvisorAskResponse,
@@ -440,9 +441,8 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
                 Layer 1 (all tools, math, charts) runs entirely on your machine and sends nothing anywhere. The suite
                 never needs this to be usable.
               </p>
-              <p>
-                The advisor is Layer 2 -- optional AI advice -- and isn&apos;t set up yet. When you use it, the current
-                artifact and its computed results are sent to the Anthropic API.
+              <p data-testid="advisor-privacy-statement">
+                The advisor is Layer 2 -- optional AI advice -- and isn&apos;t set up yet. {ADVISOR_PRIVACY_STATEMENT}
               </p>
               <Button variant="secondary" size="sm" onClick={onOpenSettings} data-testid="advisor-open-settings">
                 Set up the advisor
@@ -471,18 +471,31 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
 
               {followUpPending.length > 0 && (
                 <div className="sigma-advisor-panel__followup" data-testid="advisor-requested-artifact-banner">
-                  <p>The advisor asked to see {followUpPending[0]} in full -- send it?</p>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => submit(followUpPending[0])}
-                    data-testid="advisor-requested-artifact-confirm"
-                  >
-                    Send {followUpPending[0]}
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => setFollowUpPending([])}>
-                    No thanks
-                  </Button>
+                  {/* M5 exit critic (bullet finding): a model can emit more than one
+                   * REQUEST_ARTIFACT line in a single turn, but this used to only ever
+                   * offer followUpPending[0] -- every other requested id was silently
+                   * unreachable. Each pending id now gets its own row, confirmed or
+                   * declined independently; declining one leaves the rest pending. */}
+                  {followUpPending.map((id) => (
+                    <div key={id} className="sigma-advisor-panel__followup-row" data-testid={`advisor-requested-artifact-row-${id}`}>
+                      <p>The advisor asked to see {id} in full -- send it?</p>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => submit(id)}
+                        data-testid={`advisor-requested-artifact-confirm-${id}`}
+                      >
+                        Send {id}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFollowUpPending((prev) => prev.filter((pendingId) => pendingId !== id))}
+                      >
+                        No thanks
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
 
@@ -525,6 +538,26 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
 }
 
 function AdvisorAnswer({ response, toolId }: { response: AdvisorAskResponse; toolId: string }) {
+  // Fix 4 (M5 exit critic): checked BEFORE unstructured_fallback below --
+  // a truncated attempt (stop_reason == "max_tokens") never reaches the
+  // parser (structured.py's StructuredOutcome contract), so the two are
+  // mutually exclusive, but this ordering states that plainly rather than
+  // relying on it. A cut-off answer is an honest, distinct case from a
+  // malformed one -- "hit the output limit," never the unstructured-output
+  // message, which would misdescribe why.
+  if (response.truncated) {
+    return (
+      <div data-testid="advisor-answer">
+        <VerdictBanner
+          tone="flag"
+          headline="The answer hit the output limit"
+          detail="The model's response was cut off before it finished. Try a narrower question, or ask again."
+        />
+        <div className="sigma-advisor-panel__answer">{response.answer}</div>
+      </div>
+    );
+  }
+
   if (response.unstructured_fallback) {
     return (
       <div data-testid="advisor-answer">
@@ -550,7 +583,13 @@ function AdvisorAnswer({ response, toolId }: { response: AdvisorAskResponse; too
     );
   }
   if (response.mode === "remedy" && response.structured && "remedies" in response.structured) {
-    return <RemedyResult remedies={response.structured.remedies} toolId={toolId} />;
+    return (
+      <RemedyResult
+        remedies={response.structured.remedies}
+        toolId={toolId}
+        unverifiedCauseNote={response.structured.unverified_cause_note}
+      />
+    );
   }
 
   // generic / explain -- plain prose.
@@ -656,18 +695,42 @@ function TollgateResult({ recommendation, reasons, actions }: { recommendation: 
   );
 }
 
-function RemedyResult({ remedies, toolId }: { remedies: AdvisorRemedyCandidate[]; toolId: string }) {
+function RemedyResult({
+  remedies,
+  toolId,
+  unverifiedCauseNote,
+}: {
+  remedies: AdvisorRemedyCandidate[];
+  toolId: string;
+  unverifiedCauseNote: string;
+}) {
   if (remedies.length === 0) {
     return <p className="sigma-advisor-panel__muted">No remedies yet -- verified causes on the fishbone (T-15) are needed first.</p>;
   }
-  const draftText = remedies
+  // Fix 5 (M5 exit critic): a remedy citing a cause_id that isn't a
+  // currently VERIFIED fishbone cause is still shown below -- flagged,
+  // never hidden -- but left out of the paste-ready draft by default,
+  // since T-18 is meant to start from grounded remedies. The bullet
+  // finding's invented "impact ~3, effort ~3" numbers are gone too -- the
+  // advisor was never asked for those, and inventing them for a matrix the
+  // user hasn't scored yet is exactly the kind of number this app doesn't
+  // put in front of a Green Belt student without provenance.
+  const draftRemedies = remedies.filter((r) => r.unverified_cause_refs.length === 0);
+  const draftText = draftRemedies
     .map(
       (r, i) =>
-        `${i + 1}. ${r.title} (linked causes: ${r.cause_ids.join(", ")}; impact ~3, effort ~3 -- adjust in the matrix)\n   ${r.why_it_fits_the_verified_cause}`,
+        `${i + 1}. ${r.title} (linked causes: ${r.cause_ids.join(", ")} -- score these in the matrix)\n   ${r.why_it_fits_the_verified_cause}`,
     )
     .join("\n\n");
   return (
     <div data-testid="advisor-remedy-result">
+      {unverifiedCauseNote && (
+        <VerdictBanner
+          tone="flag"
+          headline="Some remedies cite an unverified cause"
+          detail={unverifiedCauseNote}
+        />
+      )}
       <div className="sigma-advisor-panel__remedy-header">
         <p>Ranked remedies, tied to your verified causes:</p>
         <CopyButton text={draftText} testId="advisor-remedy-draft-copy" />
@@ -675,16 +738,23 @@ function RemedyResult({ remedies, toolId }: { remedies: AdvisorRemedyCandidate[]
       <p className="sigma-advisor-panel__muted">
         "Start solution matrix from these" copies a draft list (title, linked cause ids, one line of reasoning per
         remedy) -- paste it into {toolId === "T-18" ? "this" : "the Solution Selection Matrix (T-18)"} form and edit
-        from there; the advisor never saves anything on its own.
+        from there; the advisor never saves anything on its own. Flagged remedies below are left out of the draft
+        until their causes are verified.
       </p>
       <ol className="sigma-advisor-panel__remedy-cards" data-testid="advisor-remedy-cards">
         {remedies.map((r, i) => (
           <li key={i} className="sigma-advisor-panel__remedy-card">
             <div className="sigma-advisor-panel__remedy-card-title">
               {r.title} <StatusPill label={r.estimated_cost_band} tone={COST_BAND_TONE[r.estimated_cost_band]} />
+              {r.unverified_cause_refs.length > 0 && <StatusPill label="Unverified cause" tone="flag" />}
             </div>
             <p>{r.why_it_fits_the_verified_cause}</p>
             <p className="sigma-advisor-panel__muted">Causes: {r.cause_ids.join(", ")}</p>
+            {r.unverified_cause_refs.length > 0 && (
+              <p className="sigma-advisor-panel__muted" data-testid={`advisor-remedy-unverified-${i}`}>
+                Not currently verified: {r.unverified_cause_refs.join(", ")} -- excluded from the paste-ready draft.
+              </p>
+            )}
             {r.risks && (
               <p>
                 <strong>Risks:</strong> {r.risks}

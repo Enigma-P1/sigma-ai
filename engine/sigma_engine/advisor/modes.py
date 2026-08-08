@@ -26,16 +26,24 @@ that plumbing's conventions exactly rather than forking them:
   re-derives a check by hand.
 
 This module is a registry, not a router: MODE_REGISTRY maps a mode name to
-a ModeSpec{addendum, context_selector, output_parser}; routes/advisor.py
-is the one caller that walks it (resolve spec -> call context_selector ->
-call client.ask or structured.run_structured_mode depending on
-output_parser -- see that file for the dispatch).
+a ModeSpec{addendum, context_selector, output_parser, postprocess_structured};
+routes/advisor.py is the one caller that walks it (resolve spec -> call
+context_selector -> call client.ask or structured.run_structured_mode
+depending on output_parser -> call postprocess_structured on a successful
+structured parse, if the mode registered one -- see that file for the
+dispatch). postprocess_structured (M5 exit critic, Fix 5) is the one
+extension this module adds past M5 unit 2: a deterministic pass over an
+already-parsed structured response, run by routes/advisor.py right after
+structured.py returns -- remedy mode's own cause_ids validation
+(_flag_unverified_remedy_causes below) is the only user of it today, but
+it's registered generically on ModeSpec so routes/advisor.py never
+special-cases remedy by name.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, Sequence
 
 from pydantic import BaseModel, Field
 
@@ -47,6 +55,7 @@ from . import rubric_items
 from .context import (
     DEFAULT_INPUT_BUDGET_TOKENS,
     DEFAULT_OUTPUT_BUDGET_TOKENS,
+    MAX_QUESTION_LENGTH,
     MODE_ADDENDA,
     AssembledContext,
     assemble_context,
@@ -67,10 +76,12 @@ class AdvisorFocusRef(BaseModel):
     and `ref` get folded into the same wrap_untrusted()-wrapped question
     text every other mode-specific input uses (routes/advisor.py), never
     treated as trusted just because `kind` might be a fixed short string
-    on the happy path."""
+    on the happy path. `ref` carries the same MAX_QUESTION_LENGTH cap as
+    AdvisorAskRequest.question (Fix 6, M5 exit critic) -- it ends up folded
+    into that same question text, so it needs the same ceiling."""
 
     kind: str = Field(min_length=1)
-    ref: str = Field(min_length=1)
+    ref: str = Field(min_length=1, max_length=MAX_QUESTION_LENGTH)
 
 
 # ---- Phase -> tool_ids, hand-mirrored from PLAN §4.1's DMAIC table the
@@ -161,10 +172,27 @@ class RemedyCandidate(BaseModel):
     risks: str = ""
     pilot_first: str = ""
     how_youd_know_it_worked: str = ""
+    # Fix 5 (M5 exit critic): cause_ids above is model-authored text --
+    # nothing stops the model from citing a cause_id that was never
+    # verified (still candidate/investigating/ruled_out) or doesn't exist
+    # on the fishbone at all. Filled by _flag_unverified_remedy_causes
+    # AFTER parsing, deterministically -- NEVER by the model itself (the
+    # addendum's JSON shape example never mentions this field, so a
+    # well-behaved model never emits it; if some model output did include
+    # it anyway, the post-parse check below overwrites it regardless, so
+    # nothing here can be gamed). The subset of cause_ids that did NOT
+    # match a currently VERIFIED cause_id on the fishbone -- empty when
+    # every cited id matched.
+    unverified_cause_refs: list[str] = Field(default_factory=list)
 
 
 class RemedyResponse(BaseModel):
     remedies: list[RemedyCandidate] = Field(default_factory=list)
+    # Response-level companion to unverified_cause_refs (Fix 5) -- "" unless
+    # at least one remedy was flagged, in which case this is the one
+    # plain-English sentence the UI shows once instead of repeating the
+    # explanation on every flagged card.
+    unverified_cause_note: str = ""
 
 
 # ================================================================
@@ -275,6 +303,7 @@ def _generic_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
@@ -284,7 +313,7 @@ def _generic_context(
     routes/advisor.py's ask() made directly before this unit existed."""
     return assemble_context(
         store, project_id=project_id, mode="generic", artifact_id=artifact_id,
-        follow_up_artifact_id=follow_up_artifact_id,
+        follow_up_artifact_id=follow_up_artifact_id, question=question,
         input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
 
@@ -297,12 +326,13 @@ def _help_me_think_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
     return assemble_context(
         store, project_id=project_id, mode="help_me_think", artifact_id=artifact_id,
-        follow_up_artifact_id=follow_up_artifact_id,
+        follow_up_artifact_id=follow_up_artifact_id, question=question,
         input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
 
@@ -315,12 +345,13 @@ def _explain_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
     return assemble_context(
         store, project_id=project_id, mode="explain", artifact_id=artifact_id,
-        follow_up_artifact_id=follow_up_artifact_id,
+        follow_up_artifact_id=follow_up_artifact_id, question=question,
         input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
 
@@ -333,6 +364,7 @@ def _review_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
@@ -351,7 +383,7 @@ def _review_context(
         # own lookup below to raise FileNotFoundError -- one error path.
     return assemble_context(
         store, project_id=project_id, mode="review", artifact_id=artifact_id,
-        follow_up_artifact_id=follow_up_artifact_id, extra_block=extra_block,
+        follow_up_artifact_id=follow_up_artifact_id, extra_block=extra_block, question=question,
         input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
 
@@ -387,6 +419,7 @@ def _tollgate_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
@@ -430,7 +463,8 @@ def _tollgate_context(
     return assemble_context(
         store, project_id=project_id, mode="tollgate", artifact_id=None,
         follow_up_artifact_id=follow_up_artifact_id, summary_tool_ids=phase_tool_ids,
-        extra_block=extra_block, input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
+        extra_block=extra_block, question=question,
+        input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
 
 
@@ -484,6 +518,7 @@ def _remedy_context(
     follow_up_artifact_id: str | None = None,
     phase: TollgatePhase | None = None,
     focus: AdvisorFocusRef | None = None,
+    question: str | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
 ) -> AssembledContext:
@@ -500,6 +535,18 @@ def _remedy_context(
 
     fishbone_data = store.latest_artifact_for_tool(project_id, meta, "T-15")
     fishbone_id = fishbone_data["artifact_id"] if fishbone_data else None
+    # Fix 5 (M5 exit critic): the current fishbone's VERIFIED cause ids,
+    # derived directly from the raw causes list (never from the model's
+    # own answer) -- carried through to AssembledContext so routes/
+    # advisor.py can flag any RemedyCandidate.cause_id that doesn't match
+    # one of these AFTER the model responds. See
+    # _flag_unverified_remedy_causes below and AssembledContext.
+    # verified_cause_ids's own docstring.
+    verified_cause_ids = tuple(
+        cause["cause_id"]
+        for cause in (fishbone_data or {}).get("causes", [])
+        if cause.get("status") == "verified" and cause.get("cause_id")
+    )
 
     solution_matrix_data = store.latest_artifact_for_tool(project_id, meta, "T-18")
     solution_matrix_id = solution_matrix_data["artifact_id"] if solution_matrix_data else None
@@ -529,9 +576,52 @@ def _remedy_context(
     return assemble_context(
         store, project_id=project_id, mode="remedy", artifact_id=fishbone_id,
         follow_up_artifact_id=follow_up_artifact_id, additional_full_artifact_ids=additional_full,
-        summary_tool_ids=("T-03", "T-16"), extra_block=extra_block,
+        summary_tool_ids=("T-03", "T-16"), extra_block=extra_block, question=question,
+        verified_cause_ids=verified_cause_ids,
         input_budget_tokens=input_budget_tokens, output_budget_tokens=output_budget_tokens,
     )
+
+
+# ================================================================
+# Post-response validation (Fix 5, M5 exit critic). Runs AFTER
+# structured.py has already parsed the model's answer into RemedyResponse
+# -- a deterministic check, not a prompt instruction, so it can't be
+# talked around by a model that ignores the addendum's "ONLY verified
+# causes" rule.
+# ================================================================
+
+
+def _flag_unverified_remedy_causes(response: RemedyResponse, verified_cause_ids: Sequence[str]) -> RemedyResponse:
+    """The T-15 fishbone is in the SAME request context remedy mode already
+    assembled (assembled.verified_cause_ids, computed by _remedy_context
+    above from the fishbone's own raw causes list -- never from the
+    model's answer). A remedy citing a cause_id that isn't in that set --
+    invented outright, or a real cause_id that's still candidate/
+    investigating/ruled_out -- is KEPT, never silently dropped (the
+    model's reasoning may still be useful to a human reviewing it), but
+    flagged: unverified_cause_refs names exactly which of its cause_ids
+    didn't match, and the response carries one plain-English note whenever
+    ANY remedy was flagged. AdvisorPanel.tsx renders the flag on the card
+    and excludes flagged remedies from the T-18 paste draft by default."""
+    verified = set(verified_cause_ids)
+    any_flagged = False
+    for remedy in response.remedies:
+        unmatched = [cause_id for cause_id in remedy.cause_ids if cause_id not in verified]
+        if unmatched:
+            remedy.unverified_cause_refs = unmatched
+            any_flagged = True
+    if any_flagged:
+        response.unverified_cause_note = (
+            "One or more remedies cite a cause id that is not a currently VERIFIED cause on the fishbone "
+            "(invented, or still candidate/investigating/ruled_out). Flagged remedies are excluded from the "
+            "paste-ready draft by default -- review them before acting on them."
+        )
+    return response
+
+
+def _postprocess_remedy(response: BaseModel, assembled: AssembledContext) -> BaseModel:
+    assert isinstance(response, RemedyResponse)  # guaranteed by ModeSpec pairing this with output_parser=RemedyResponse
+    return _flag_unverified_remedy_causes(response, assembled.verified_cause_ids)
 
 
 # ================================================================
@@ -548,6 +638,14 @@ class ModeSpec:
     addendum: str
     context_selector: ModeContextSelector
     output_parser: type[BaseModel] | None
+    # Optional deterministic pass over an already-parsed structured
+    # response (Fix 5) -- routes/advisor.py calls this right after
+    # structured.py returns a non-None `parsed`, passing the SAME
+    # AssembledContext the context_selector built (so it can reach
+    # mode-specific side-channel data, e.g. verified_cause_ids, with no
+    # second store read) plus the parsed response; returns the (possibly
+    # mutated) response. None for every mode that needs no such check.
+    postprocess_structured: Callable[[BaseModel, AssembledContext], BaseModel] | None = None
 
 
 MODE_REGISTRY: dict[str, ModeSpec] = {}
@@ -570,4 +668,10 @@ _register(
 )
 _register("explain", ModeSpec(addendum=_EXPLAIN_ADDENDUM, context_selector=_explain_context, output_parser=None))
 _register("tollgate", ModeSpec(addendum=_TOLLGATE_ADDENDUM, context_selector=_tollgate_context, output_parser=TollgateResponse))
-_register("remedy", ModeSpec(addendum=_REMEDY_ADDENDUM, context_selector=_remedy_context, output_parser=RemedyResponse))
+_register(
+    "remedy",
+    ModeSpec(
+        addendum=_REMEDY_ADDENDUM, context_selector=_remedy_context, output_parser=RemedyResponse,
+        postprocess_structured=_postprocess_remedy,
+    ),
+)

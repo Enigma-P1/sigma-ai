@@ -37,17 +37,17 @@ from ..advisor.client import AdvisorCallFailed, AdvisorConfigured, AdvisorUnavai
 from ..advisor.client import ask as client_ask
 from ..advisor.client import resolve_config, resolve_model
 from ..advisor.context import (
+    MAX_QUESTION_LENGTH,
     AssembledContext,
     BudgetReport,
     parse_requested_artifact_ids,
     render_facts_block,
     summarize_artifact,
-    wrap_untrusted,
 )
 from ..advisor.modes import PHASE_TOOL_IDS, AdvisorFocusRef, ModeSpec
 from ..advisor.settings_store import AdvisorSettings, AdvisorSettingsStore, mask_api_key
 from ..advisor.structured import run_structured_mode
-from ..advisor.validator import ValidatorReport, run_validator
+from ..advisor.validator import DraftExceedsBudgetError, ValidatorReport, run_validator
 from ..artifacts.a3 import TollgatePhase
 from ..project_store import ProjectStore
 from .deps import get_store
@@ -98,7 +98,11 @@ class AdvisorAskRequest(BaseModel):
     # optional seed topic and remedy's optional constraints both travel here,
     # exactly like generic's question always has; each mode's addendum
     # (advisor/modes.py) tells the model how to read whatever's in it.
-    question: str | None = None
+    # max_length (Fix 6, M5 exit critic): a sane ceiling so one oversized
+    # question can't blow the input budget by itself -- 422 beyond it,
+    # ordinary Pydantic validation. Same constant AdvisorFocusRef.ref uses
+    # (modes.py), since focus text gets folded into this same string.
+    question: str | None = Field(default=None, max_length=MAX_QUESTION_LENGTH)
     # The ask-by-ID follow-up turn (M5 brief): an id the model asked for
     # via a REQUEST_ARTIFACT: line on a prior call, sent back so this call
     # gets that artifact's full JSON instead of just its summary.
@@ -133,6 +137,15 @@ class AdvisorAskResponse(BaseModel):
     # fallback with a 'model returned unstructured output' flag -- never a
     # 500"). `answer` still carries the model's raw text either way.
     unstructured_fallback: bool = False
+    # True exactly when the answer this call returned hit stop_reason ==
+    # "max_tokens" -- the model's output was cut off by the token budget,
+    # not malformed (Fix 4, M5 exit critic). Mutually exclusive with
+    # unstructured_fallback (structured.StructuredOutcome's own docstring):
+    # a truncated attempt is reported as truncated and never reaches the
+    # parser, so it can never also count as an unstructured-fallback parse
+    # failure. Desktop renders this as "the answer hit the output limit,"
+    # never the unstructured-output message, which would misdescribe why.
+    truncated: bool = False
     budget_report: BudgetReport
     requested_artifact_ids: list[str] = []
 
@@ -151,18 +164,26 @@ def _effective_question(question: str | None, focus: AdvisorFocusRef | None) -> 
     return f"{focus_text}\n\n{question}" if question else focus_text
 
 
-def _build_user_turn(assembled: AssembledContext, question: str | None) -> str:
+def _build_user_turn(assembled: AssembledContext) -> str:
     """Compose the single user-role message: facts + pre-score (engine-
     produced, unwrapped), the mode-specific engine-authored block if any
     (M5 unit 2: rubric text / tollgate questions+phase context / remedy's
     charter-baseline note -- assembled.mode_block, itself already
     wrap_untrusted()-safe per-piece where it needed to be, see that
     field's docstring), every untrusted artifact block, then the user's
-    own question -- wrapped exactly like artifact content, since a typed
-    question is user-authored too (context.py assembles the project-derived
-    blocks only; wrapping the live question is this route's job, using the
-    same wrap_untrusted the assembler uses internally, imported from there
-    so there is exactly one delimiter definition in this codebase)."""
+    own question.
+
+    Fix 6 (M5 exit critic): the question is now wrapped and budgeted
+    INSIDE assemble_context (assembled.question_block, already
+    wrap_untrusted()-safe) rather than composed here, outside the budget
+    entirely -- this function just reads it, exactly like every other
+    already-assembled field on `assembled`. It falls back to the same
+    "no question asked" text whether nothing was ever asked or (in the
+    practically-unreachable case MAX_QUESTION_LENGTH is meant to prevent)
+    the question tier had to be trimmed -- consistent with every other
+    tier here, none of which insert a "this was dropped" placeholder into
+    the prompt text itself (the drop is recorded in budget_report, not in
+    the wire text -- see context.py's module docstring, rule 3)."""
     parts = [
         "=== FACTS (computed by the engine; not user-authored) ===",
         assembled.facts_block or "(none)",
@@ -176,10 +197,7 @@ def _build_user_turn(assembled: AssembledContext, question: str | None) -> str:
         parts += ["", "=== PROJECT ARTIFACTS (user-authored content follows, delimited below) ==="]
         parts += assembled.untrusted_blocks
     parts += ["", "=== QUESTION ==="]
-    if question:
-        parts.append(wrap_untrusted("user_question", question))
-    else:
-        parts.append("(no question asked -- give a general read of what's above)")
+    parts.append(assembled.question_block or "(no question asked -- give a general read of what's above)")
     return "\n".join(parts)
 
 
@@ -195,6 +213,16 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
     config = _require_configured(store)
     spec = _mode_spec(body.mode)
 
+    # `focus` is explain mode's field (PLAN §5.1 mode 3); no other mode's
+    # desktop UI ever sends it, so folding it in unconditionally here is
+    # a no-op (returns `question` unchanged) for every other mode. Computed
+    # BEFORE the context selector runs (Fix 6, M5 exit critic) and passed
+    # into it, so assemble_context can wrap and budget the question the
+    # same way it budgets everything else -- this used to compose the user
+    # turn with the question OUTSIDE assemble_context entirely, so the
+    # budget never counted it and nothing capped its length.
+    question = _effective_question(body.question, body.focus)
+
     try:
         assembled = spec.context_selector(
             store,
@@ -203,15 +231,12 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
             follow_up_artifact_id=body.follow_up_artifact_request,
             phase=body.phase,
             focus=body.focus,
+            question=question,
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    # `focus` is explain mode's field (PLAN §5.1 mode 3); no other mode's
-    # desktop UI ever sends it, so folding it in unconditionally here is
-    # a no-op (returns `question` unchanged) for every other mode.
-    question = _effective_question(body.question, body.focus)
-    user_content = _build_user_turn(assembled, question)
+    user_content = _build_user_turn(assembled)
 
     try:
         if spec.output_parser is None:
@@ -220,14 +245,24 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
                 max_output_tokens=assembled.budget_report.output_budget_tokens,
             )
             answer_text, structured, unstructured_fallback = answer.text, None, False
+            truncated = answer.stop_reason == "max_tokens"
         else:
             outcome = run_structured_mode(
                 config, system=assembled.system_prompt_frame, user_content=user_content,
                 response_model=spec.output_parser, max_output_tokens=assembled.budget_report.output_budget_tokens,
             )
             answer_text = outcome.raw_text
-            structured = outcome.parsed.model_dump(mode="json") if outcome.parsed is not None else None
+            parsed = outcome.parsed
+            # Fix 5 (M5 exit critic): remedy mode's deterministic cause_ids
+            # check (and any future mode's own postprocess_structured)
+            # runs here, on a successfully-parsed response only -- never on
+            # a None/unstructured-fallback/truncated result, since there is
+            # nothing typed to check in any of those cases.
+            if parsed is not None and spec.postprocess_structured is not None:
+                parsed = spec.postprocess_structured(parsed, assembled)
+            structured = parsed.model_dump(mode="json") if parsed is not None else None
             unstructured_fallback = outcome.unstructured_fallback
+            truncated = outcome.truncated
     except AdvisorCallFailed as exc:
         raise HTTPException(status_code=_CALL_FAILED_STATUS_CODE, detail=f"The Anthropic API call failed: {exc}") from exc
 
@@ -244,6 +279,7 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
         answer=answer_text,
         structured=structured,
         unstructured_fallback=unstructured_fallback,
+        truncated=truncated,
         budget_report=assembled.budget_report,
         requested_artifact_ids=requested,
     )
@@ -408,12 +444,20 @@ def validate(request: AdvisorValidateRequest, store: ProjectStore = Depends(get_
     FileNotFoundError for both -- see that function's docstring), matching
     routes/artifacts.py's own "unknown tool_id" convention. A malformed
     request body (missing project_id/tool_id) is a plain 422 from
-    AdvisorValidateRequest's own schema, no extra handling needed."""
+    AdvisorValidateRequest's own schema, no extra handling needed. A draft
+    so large that it alone (plus the never-trimmed system prompt) exceeds
+    the input budget is ALSO a 422 (Fix 8, M5 exit critic) -- honest and
+    distinct from the schema-shape 422 above: the request is well-formed,
+    the draft itself is just too big for any amount of context trimming to
+    fix (run_validator raises DraftExceedsBudgetError for exactly this,
+    before ever calling the model)."""
     config = _require_configured(store)
     try:
         return run_validator(request.project_id, request.tool_id, request.body, store, config=config)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except DraftExceedsBudgetError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     except AdvisorCallFailed as exc:
         raise HTTPException(status_code=_CALL_FAILED_STATUS_CODE, detail=f"The Anthropic API call failed: {exc}") from exc
 
@@ -437,6 +481,16 @@ class AdvisorSettingsUpdateRequest(BaseModel):
     # way to round-trip it into this field -- a blank submit must not be
     # read as "clear the key." A non-empty string sets/overwrites it.
     api_key: str | None = None
+    # M5 exit critic, severity 1: before this field existed, there was NO
+    # way to remove a stored key through the app -- api_key="" was already
+    # spoken for as "leave unchanged" above, so a user who wanted the key
+    # gone had exactly one path, hand-editing settings.json, which is the
+    # direct road to the truncated-file 500s that finding's other half
+    # covers. clear_api_key=true is the explicit remove path; it wins over
+    # a simultaneously-supplied api_key (removing while also setting in the
+    # same request is a contradiction we resolve by honoring the clear --
+    # see put_settings below).
+    clear_api_key: bool = False
     base_url: str | None = None
     enabled: bool
 
@@ -458,7 +512,10 @@ def put_settings(
 ) -> AdvisorSettingsResponse:
     settings_store = AdvisorSettingsStore(store.root)
     current = settings_store.load()
-    next_api_key = body.api_key if body.api_key else current.api_key
+    if body.clear_api_key:
+        next_api_key = None
+    else:
+        next_api_key = body.api_key if body.api_key else current.api_key
     updated = AdvisorSettings(api_key=next_api_key, base_url=body.base_url, enabled=body.enabled)
     settings_store.save(updated)
     return _to_response(updated)

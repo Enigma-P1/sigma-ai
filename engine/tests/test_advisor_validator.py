@@ -22,6 +22,7 @@ from sigma_engine.advisor.validator import (
     DRAFT_CONTENT_ID,
     VALIDATOR_DISCLAIMER,
     VALIDATOR_MODEL_ENV_VAR,
+    DraftExceedsBudgetError,
     ValidatorFlag,
     ValidatorReport,
     resolve_validator_model,
@@ -460,3 +461,86 @@ def test_unknown_tool_id_raises_file_not_found(tmp_path):
 
     with pytest.raises(FileNotFoundError, match="unknown tool_id"):
         run_validator("proj-1", "T-99", {}, store, config=_CONFIG, http_client=_mock_client(handler))
+
+
+# ---- Input budget (M5 exit critic, Fix 8): draft > draft facts >
+# other-artifact summaries > dataset summaries. The draft (plus the
+# never-trimmed system prompt) is hard-capped -- too large on its own means
+# DraftExceedsBudgetError, before any model call; everything else trims
+# in the stated tier order, always reported, never silently. ----
+
+
+def test_run_validator_raises_when_the_draft_alone_exceeds_the_budget(tmp_path):
+    store = _new_project(tmp_path)
+    # Comfortably past the 30k-token default budget on its own (chars/4
+    # heuristic: 200k chars is ~50k tokens), regardless of whether this
+    # draft also happens to fail CopqArtifact's own schema (_canonicalize_draft
+    # falls back to the raw dict either way -- see that function's docstring).
+    huge_draft = make_copq(notes="x" * 200_000)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise AssertionError("must never call the model when the draft alone exceeds the budget")
+
+    with pytest.raises(DraftExceedsBudgetError, match="too large to check"):
+        run_validator("proj-1", "T-02", huge_draft, store, config=_CONFIG, http_client=_mock_client(handler))
+
+
+def test_other_artifact_summaries_are_trimmed_before_the_draft_or_its_facts_and_it_is_reported(tmp_path):
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "sipoc-001", "T-04", make_sipoc(), TS)
+    captured: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.append(json.loads(request.content))
+        return _canned_response(_EMPTY_JSON)
+
+    unlimited = run_validator("proj-1", "T-02", make_copq(), store, config=_CONFIG, http_client=_mock_client(handler))
+    assert unlimited.budget_report.dropped == []  # sanity: nothing needed trimming at the default budget
+    tight_budget = unlimited.budget_report.estimated_input_tokens - 1
+
+    trimmed = run_validator(
+        "proj-1", "T-02", make_copq(), store, config=_CONFIG,
+        input_budget_tokens=tight_budget, http_client=_mock_client(handler),
+    )
+    assert trimmed.budget_report.dropped  # never silent
+    assert all(d.tier == "other_artifact_summaries" for d in trimmed.budget_report.dropped)
+    assert trimmed.budget_report.estimated_input_tokens <= tight_budget
+
+    trimmed_content = captured[-1]["messages"][0]["content"]
+    assert "DRAFT (pre-save) content for tool T-02" in trimmed_content  # the draft itself always survives
+    assert "DRAFT FACTS" in trimmed_content
+    assert "9600.0" in trimmed_content  # the draft's own computed total, still present
+    assert "sipoc-001" not in trimmed_content  # the one thing that had to go
+
+
+def test_dataset_summaries_are_trimmed_before_other_artifact_summaries(tmp_path):
+    from sigma_engine.datasets import DatasetStore
+
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "sipoc-001", "T-04", make_sipoc(), TS)
+    ds_store = DatasetStore(store)
+    ds_store.save_dataset("proj-1", "wait-times.csv", b"minutes\n1.0\n2.0\n3.0\n", None, TS)
+    captured: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.append(json.loads(request.content))
+        return _canned_response(_EMPTY_JSON)
+
+    unlimited = run_validator("proj-1", "T-02", make_copq(), store, config=_CONFIG, http_client=_mock_client(handler))
+    assert unlimited.budget_report.dropped == []
+    tight_budget = unlimited.budget_report.estimated_input_tokens - 1
+
+    trimmed = run_validator(
+        "proj-1", "T-02", make_copq(), store, config=_CONFIG,
+        input_budget_tokens=tight_budget, http_client=_mock_client(handler),
+    )
+    # Dataset summaries are tier 4 (dropped first); other-artifact summaries
+    # are tier 3 -- with one of each, a 1-token overage only has to remove
+    # the dataset entry to fit, so the (lower-trim-priority) other-artifact
+    # summary is never touched.
+    assert len(trimmed.budget_report.dropped) == 1
+    assert trimmed.budget_report.dropped[0].tier == "dataset_summaries"
+
+    trimmed_content = captured[-1]["messages"][0]["content"]
+    assert "sipoc-001" in trimmed_content  # the other-artifact summary survives -- lower trim priority
+    assert "wait-times.csv" not in trimmed_content  # the one thing that had to go

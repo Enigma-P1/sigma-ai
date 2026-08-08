@@ -15,7 +15,7 @@ from factories import make_copq, make_fishbone
 from fastapi.testclient import TestClient
 
 from sigma_engine.advisor.client import ANTHROPIC_API_KEY_ENV_VAR
-from sigma_engine.advisor.context import REQUEST_ARTIFACT_PREFIX
+from sigma_engine.advisor.context import MAX_QUESTION_LENGTH, REQUEST_ARTIFACT_PREFIX
 from sigma_engine.main import app
 
 ANTHROPIC_MESSAGES_URL = "https://api.anthropic.com/v1/messages"
@@ -204,6 +204,7 @@ def test_ask_wire_call_carries_the_assembled_blocks_in_the_right_roles(client):
     body = resp.json()
     assert body["answer"] == "here is my answer"
     assert body["budget_report"]["dropped"] == []
+    assert body["truncated"] is False  # an ordinary end_turn completion (Fix 4, M5 exit critic)
 
     assert route.call_count == 1
     wire_body = json.loads(route.calls[0].request.content)
@@ -284,6 +285,103 @@ def test_ask_with_no_question_still_produces_a_sensible_prompt(client):
     assert resp.status_code == 200, resp.text
     wire_body = json.loads(route.calls[0].request.content)
     assert "no question asked" in wire_body["messages"][0]["content"]
+
+
+# ---- Truncation (M5 exit critic, Fix 4): stop_reason == "max_tokens" is
+# its own honest outcome, surfaced as `truncated`, never conflated with the
+# "model returned unstructured output" message -- and, for a structured
+# mode, never spends the one retry on a call that would truncate the same
+# way again. ----
+
+
+@respx.mock
+def test_ask_prose_mode_surfaces_truncated_honestly(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    route = respx.post(ANTHROPIC_MESSAGES_URL).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": "msg_trunc", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+                "content": [{"type": "text", "text": "Cpk is quite low, here's why the process is"}],
+                "stop_reason": "max_tokens", "stop_sequence": None,
+                "usage": {"input_tokens": 5, "output_tokens": 4096},
+            },
+        )
+    )
+    resp = client.post("/advisor/ask", json={"project_id": "proj-1", "mode": "generic", "artifact_id": "copq-001"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["truncated"] is True
+    assert body["unstructured_fallback"] is False  # a distinct, honest outcome -- never conflated
+    assert body["answer"] == "Cpk is quite low, here's why the process is"
+    assert route.call_count == 1
+
+
+@respx.mock
+def test_ask_structured_mode_truncated_on_first_call_makes_no_retry(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    route = respx.post(ANTHROPIC_MESSAGES_URL).mock(
+        return_value=httpx.Response(
+            200,
+            json={
+                "id": "msg_trunc", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+                "content": [{"type": "text", "text": '```json\n{"criteria": [{"criterion_id": "R-DEF-05"'}],
+                "stop_reason": "max_tokens", "stop_sequence": None,
+                "usage": {"input_tokens": 5, "output_tokens": 4096},
+            },
+        )
+    )
+    resp = client.post("/advisor/ask", json={"project_id": "proj-1", "mode": "review", "artifact_id": "copq-001"})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["truncated"] is True
+    assert body["structured"] is None
+    assert body["unstructured_fallback"] is False
+    assert route.call_count == 1  # no retry spent on a call that would truncate the same way again
+
+
+# ---- The live question's length cap and budget accounting (M5 exit
+# critic, Fix 6): it used to be composed OUTSIDE assemble_context, so the
+# budget never counted it and nothing capped its length. ----
+
+
+def test_ask_oversized_question_is_422(client):
+    _fully_configure(client)
+    resp = client.post(
+        "/advisor/ask",
+        json={"project_id": "whatever", "mode": "generic", "question": "x" * (MAX_QUESTION_LENGTH + 1)},
+    )
+    assert resp.status_code == 422
+
+
+def test_ask_oversized_focus_ref_is_422(client):
+    _fully_configure(client)
+    resp = client.post(
+        "/advisor/ask",
+        json={
+            "project_id": "whatever", "mode": "explain",
+            "focus": {"kind": "free_text", "ref": "x" * (MAX_QUESTION_LENGTH + 1)},
+        },
+    )
+    assert resp.status_code == 422
+
+
+@respx.mock
+def test_ask_budget_report_reflects_the_questions_tokens(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    respx.post(ANTHROPIC_MESSAGES_URL).mock(return_value=_canned_message("ok"))
+    resp = client.post(
+        "/advisor/ask",
+        json={"project_id": "proj-1", "mode": "generic", "artifact_id": "copq-001", "question": "How does this look?"},
+    )
+    assert resp.status_code == 200, resp.text
+    assert "question_block" in resp.json()["budget_report"]["included"]
 
 
 # ---- The five modes (M5 unit 2): one structured happy path + one
@@ -416,15 +514,59 @@ def test_ask_remedy_mode_structured_happy_path(client):
         "/advisor/ask", json={"project_id": "proj-1", "mode": "remedy", "question": "Budget is under $500."}
     )
     assert resp.status_code == 200, resp.text
-    remedy = resp.json()["structured"]["remedies"][0]
+    body = resp.json()
+    remedy = body["structured"]["remedies"][0]
     assert remedy["cause_ids"] == ["c-1"]
     assert remedy["estimated_cost_band"] == "low"
+    # Fix 5 (M5 exit critic): c-1 is "verified" in factories.make_fishbone()
+    # -- a remedy citing only a genuinely verified cause passes clean.
+    assert remedy["unverified_cause_refs"] == []
+    assert body["structured"]["unverified_cause_note"] == ""
 
     wire_body = json.loads(route.calls[0].request.content)
     content = wire_body["messages"][0]["content"]
     assert "Budget is under $500." in content
     assert 'id="user_question"' in content  # the constraints text is untrusted-wrapped like any other question
     assert "FULL content of artifact fishbone-001" in content
+
+
+@respx.mock
+def test_ask_remedy_mode_flags_remedies_citing_unverified_or_invented_causes(client):
+    # M5 exit critic, Fix 5: modes.py's cause_ids validation is deterministic
+    # and runs AFTER parsing, never trusting the model's own addendum
+    # compliance. factories.make_fishbone_causes(): c-1 is "verified", c-2
+    # is only "candidate" -- and c-999 does not exist on this fishbone at
+    # all. All three must be kept (never silently dropped) but only the
+    # verified one passes clean.
+    _fully_configure(client)
+    _create_project_and_fishbone(client)
+
+    remedy_json = (
+        '```json\n{"remedies": ['
+        '{"title": "Post the checklist at the fixture station", '
+        '"why_it_fits_the_verified_cause": "Targets verified cause c-1.", '
+        '"cause_ids": ["c-1"], "estimated_cost_band": "low", "risks": "", "pilot_first": "", '
+        '"how_youd_know_it_worked": ""}, '
+        '{"title": "Recalibrate injector pressure sensor", '
+        '"why_it_fits_the_verified_cause": "Targets cause c-2, still only a candidate.", '
+        '"cause_ids": ["c-2"], "estimated_cost_band": "medium", "risks": "", "pilot_first": "", '
+        '"how_youd_know_it_worked": ""}, '
+        '{"title": "A remedy for a cause that does not exist", '
+        '"why_it_fits_the_verified_cause": "Targets cause c-999.", '
+        '"cause_ids": ["c-999"], "estimated_cost_band": "high", "risks": "", "pilot_first": "", '
+        '"how_youd_know_it_worked": ""}'
+        ']}\n```'
+    )
+    respx.post(ANTHROPIC_MESSAGES_URL).mock(return_value=_canned_message(remedy_json))
+    resp = client.post("/advisor/ask", json={"project_id": "proj-1", "mode": "remedy"})
+    assert resp.status_code == 200, resp.text
+    structured = resp.json()["structured"]
+    remedies = structured["remedies"]
+    assert len(remedies) == 3  # nothing dropped -- flagged, not hidden
+    assert remedies[0]["unverified_cause_refs"] == []  # c-1: verified, clean
+    assert remedies[1]["unverified_cause_refs"] == ["c-2"]  # c-2: real cause, still only a candidate
+    assert remedies[2]["unverified_cause_refs"] == ["c-999"]  # invented outright
+    assert structured["unverified_cause_note"] != ""
 
 
 @respx.mock
@@ -487,6 +629,28 @@ def test_validate_unknown_tool_id_is_404_once_configured(client):
 
 
 @respx.mock
+def test_validate_oversized_draft_is_a_distinct_422_with_no_model_call(client):
+    # M5 exit critic, Fix 8: a draft too large to fit alongside the
+    # (never-trimmed) system prompt fails honestly, before ever calling the
+    # model -- distinct from AdvisorValidateRequest's own schema-shape 422s
+    # above (this request is perfectly well-formed; the draft itself just
+    # doesn't fit in any amount of budget).
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    route = respx.post(ANTHROPIC_MESSAGES_URL).mock(return_value=_canned_message("unused"))
+    huge_notes = "x" * 200_000  # ~50k estimated tokens, comfortably past the 30k default budget alone
+    resp = client.post(
+        "/advisor/validate",
+        json={"project_id": "proj-1", "tool_id": "T-02", "body": make_copq(notes=huge_notes)},
+    )
+    assert resp.status_code == 422
+    assert resp.status_code != 500
+    assert "too large to check" in resp.json()["detail"]
+    assert route.call_count == 0  # never even attempted
+
+
+@respx.mock
 def test_validate_wire_call_happy_path_and_response_shape(client):
     _fully_configure(client)
     _create_project_and_copq(client)
@@ -511,6 +675,11 @@ def test_validate_wire_call_happy_path_and_response_shape(client):
     # The fixed disclaimer is a real response field, present on every call.
     assert "not a guarantee" in body["disclaimer"]
     assert "layers 1-5" in body["disclaimer"]
+    # Fix 8 (M5 exit critic): budget_report is always present, same shape
+    # AdvisorAskResponse's own budget reporting uses; nothing needed
+    # trimming for a request this small.
+    assert body["budget_report"]["dropped"] == []
+    assert body["budget_report"]["estimated_input_tokens"] > 0
 
     assert route.call_count == 1
     wire_body = json.loads(route.calls[0].request.content)

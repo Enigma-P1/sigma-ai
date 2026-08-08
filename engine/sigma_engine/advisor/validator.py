@@ -33,12 +33,26 @@ Builds directly on the M5 unit 1/2 plumbing rather than forking it:
   site.
 
 What is deliberately NOT reused from context.py: prescore_block (this is
-claim-tracing, not rubric grading -- PLAN §5.3.6 never mentions pre-score)
-and the input-token BUDGET/trim system (context.py's _apply_budget). The
-brief for this unit does not ask for one, and a single artifact-plus-
-summaries prompt is small enough that the M5 unit 1 budget machinery would
-be scope creep here, not a requirement -- noted plainly as a scope call in
-the build report for this unit.
+claim-tracing, not rubric grading -- PLAN §5.3.6 never mentions pre-score).
+
+M5 exit critic, Fix 8: this module used to send the draft body plus EVERY
+other artifact's summary plus EVERY dataset's summary with no budget at
+all -- unlike every other advisor surface, which has gone through
+context.py's _apply_budget since M5 unit 1. A project with enough saved
+artifacts and datasets could blow well past what the model can usefully
+read, silently. The input-token budget is reused here now (same 30k
+default as context.py's DEFAULT_INPUT_BUDGET_TOKENS, same estimate_tokens
+heuristic, same "never trim silently" contract -- see
+_apply_validator_budget below), in a priority order specific to this
+module's own tiers: draft > draft facts > other-artifact summaries >
+dataset summaries; the system prompt is never trimmed, same as every
+other advisor surface. The draft itself is exempt from ordinary trimming
+-- it's the one thing being checked, so shrinking it would mean grading a
+draft the user didn't actually write -- but IS hard-capped: if the draft
+alone (plus the system prompt) already exceeds the budget, no amount of
+trimming the other tiers can fix that, so run_validator raises
+DraftExceedsBudgetError instead of ever calling the model (routes/
+advisor.py turns that into an honest 422).
 
 The validator NEVER writes anything and NEVER blocks a save (PLAN §5.3.6:
 "user sees flags before saving" -- not "flags prevent saving"). Nothing in
@@ -62,7 +76,11 @@ from ..registry import ARTIFACT_REGISTRY
 from .client import AdvisorConfigured
 from .context import (
     _INJECTION_DEFENSE_INSTRUCTIONS,
+    DEFAULT_INPUT_BUDGET_TOKENS,
+    BudgetDroppedEntry,
+    BudgetReport,
     _extract_computed_facts,
+    estimate_tokens,
     summarize_artifact,
     summarize_dataset,
     wrap_untrusted,
@@ -107,6 +125,19 @@ VALIDATOR_DISCLAIMER = (
 ValidatorSeverity = Literal["cant_trace", "contradicts"]
 
 
+class DraftExceedsBudgetError(Exception):
+    """Raised (Fix 8, M5 exit critic) when the draft artifact alone --
+    together with the system prompt, which is never trimmed -- already
+    exceeds the validator's input budget. No amount of trimming the
+    optional context tiers (draft facts, other-artifact summaries, dataset
+    summaries; see _apply_validator_budget) can fix this: the draft itself
+    is the problem, so run_validator raises this BEFORE ever calling the
+    model, rather than silently truncating the one thing the user actually
+    asked to have checked. routes/advisor.py turns this into an honest 422
+    (distinct from the plain request-shape 422 AdvisorValidateRequest's own
+    schema already produces)."""
+
+
 class ValidatorFlag(BaseModel):
     field_path: str = Field(min_length=1)
     claim_text: str = Field(min_length=1)
@@ -144,6 +175,12 @@ class ValidatorReport(BaseModel):
     # AdvisorAskResponse.answer (routes/advisor.py).
     raw_answer: str = ""
     disclaimer: str = VALIDATOR_DISCLAIMER
+    # Fix 8 (M5 exit critic): same BudgetReport shape context.py's own
+    # AssembledContext.budget_report uses (imported, not a second type) --
+    # what actually made it into the model's context and what got trimmed
+    # to fit, in the priority order _apply_validator_budget documents.
+    # Always present; dropped is [] when nothing needed trimming.
+    budget_report: BudgetReport
 
 
 # ================================================================
@@ -256,6 +293,103 @@ def _build_validator_user_turn(
     return "\n".join(parts)
 
 
+# ================================================================
+# Input budget (Fix 8, M5 exit critic) -- module docstring. Priority,
+# highest kept-priority first: system prompt (never trimmed) > draft
+# (never trimmed here -- see DraftExceedsBudgetError instead) > draft
+# facts > other-artifact summaries > dataset summaries. Trimming removes
+# tiers in the REVERSE of that order (dataset summaries first), and the
+# two summaries tiers are each many independent blocks dropped one at a
+# time (largest first) -- context.py's own "summaries" tier pattern,
+# split into two tiers here because they're conceptually different data
+# (other artifacts vs. imported datasets) even though both trim the same
+# way.
+# ================================================================
+
+_TIER_DATASET_SUMMARIES = "dataset_summaries"
+_TIER_OTHER_ARTIFACT_SUMMARIES = "other_artifact_summaries"
+_TIER_DRAFT_FACTS = "draft_facts"
+
+
+def _apply_validator_budget(
+    *,
+    system_prompt: str,
+    draft_block: str,
+    facts_block: str,
+    other_artifact_items: list[tuple[str, str]],
+    dataset_items: list[tuple[str, str]],
+    input_budget_tokens: int,
+    output_budget_tokens: int,
+) -> tuple[BudgetReport, str, list[tuple[str, str]], list[tuple[str, str]]]:
+    """Trims draft facts / other-artifact summaries / dataset summaries to
+    fit `input_budget_tokens`, in the tier order above. `system_prompt` and
+    `draft_block` are counted honestly but never trimmed by this function
+    -- the caller (run_validator) has already confirmed the two of them
+    fit on their own before this ever runs (DraftExceedsBudgetError
+    otherwise)."""
+    dropped: list[BudgetDroppedEntry] = []
+
+    system_cost = estimate_tokens(system_prompt)
+    draft_cost = estimate_tokens(draft_block)
+    facts_cost = estimate_tokens(facts_block) if facts_block else 0
+    kept_other = [(cid, text, estimate_tokens(text)) for cid, text in other_artifact_items]
+    kept_datasets = [(cid, text, estimate_tokens(text)) for cid, text in dataset_items]
+    keep_facts = bool(facts_block)
+
+    def total() -> int:
+        return (
+            system_cost
+            + draft_cost
+            + (facts_cost if keep_facts else 0)
+            + sum(c for _, _, c in kept_other)
+            + sum(c for _, _, c in kept_datasets)
+        )
+
+    # Tier 4 (dropped first): dataset summaries, largest first.
+    kept_datasets.sort(key=lambda item: (-item[2], item[0]))
+    while total() > input_budget_tokens and kept_datasets:
+        did, _text, cost = kept_datasets.pop(0)
+        dropped.append(BudgetDroppedEntry(tier=_TIER_DATASET_SUMMARIES, id=did, estimated_tokens=cost))
+    kept_datasets.sort(key=lambda item: item[0])  # restore deterministic id order for what's left
+
+    # Tier 3: other-artifact summaries, largest first.
+    kept_other.sort(key=lambda item: (-item[2], item[0]))
+    while total() > input_budget_tokens and kept_other:
+        oid, _text, cost = kept_other.pop(0)
+        dropped.append(BudgetDroppedEntry(tier=_TIER_OTHER_ARTIFACT_SUMMARIES, id=oid, estimated_tokens=cost))
+    kept_other.sort(key=lambda item: item[0])
+
+    # Tier 2: draft facts, all-or-nothing, dropped only as a last resort.
+    if total() > input_budget_tokens and keep_facts:
+        keep_facts = False
+        dropped.append(BudgetDroppedEntry(tier=_TIER_DRAFT_FACTS, id="facts_block", estimated_tokens=facts_cost))
+
+    # Tier 1 (draft_block) and tier 0 (system_prompt) are never dropped
+    # here -- run_validator has already ruled out the case where the two
+    # of them together can't fit; any remaining overage is reported
+    # honestly via estimated_input_tokens, never hidden.
+
+    included: list[str] = ["system_prompt", "draft"]
+    if keep_facts:
+        included.append("facts_block")
+    included.extend(f"other_artifact:{cid}" for cid, _t, _c in kept_other)
+    included.extend(f"dataset:{cid}" for cid, _t, _c in kept_datasets)
+
+    report = BudgetReport(
+        input_budget_tokens=input_budget_tokens,
+        output_budget_tokens=output_budget_tokens,
+        estimated_input_tokens=total(),
+        included=included,
+        dropped=dropped,
+    )
+
+    final_facts = facts_block if keep_facts else ""
+    final_other = [(cid, text) for cid, text, _c in kept_other]
+    final_datasets = [(cid, text) for cid, text, _c in kept_datasets]
+
+    return report, final_facts, final_other, final_datasets
+
+
 def run_validator(
     project_id: str,
     tool_id: str,
@@ -263,6 +397,7 @@ def run_validator(
     store: ProjectStore,
     *,
     config: AdvisorConfigured,
+    input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     http_client: httpx.Client | None = None,
 ) -> ValidatorReport:
     """PLAN §5.3.6's validator pass. `config` is an ALREADY-RESOLVED
@@ -278,9 +413,11 @@ def run_validator(
     maps that to 404, same as every other store-backed advisor call) or an
     unknown tool_id (same 404 convention routes/artifacts.py's _model_for
     already uses for "unknown tool_id"). Never raises on a draft that fails
-    its own schema validation -- see _canonicalize_draft. AdvisorCallFailed
-    (a real API/network failure) propagates uncaught, same as every other
-    advisor call site in this engine."""
+    its own schema validation -- see _canonicalize_draft. Raises
+    DraftExceedsBudgetError (Fix 8) when the draft alone, plus the system
+    prompt, already exceeds `input_budget_tokens` -- before any model call.
+    AdvisorCallFailed (a real API/network failure) propagates uncaught,
+    same as every other advisor call site in this engine."""
     meta = store.load_project(project_id)  # FileNotFoundError -> 404 at the route layer
 
     model_cls = ARTIFACT_REGISTRY.get(tool_id)
@@ -293,20 +430,47 @@ def run_validator(
     # imported rather than forked -- see module docstring.
     facts_block = "\n".join(_extract_computed_facts(draft_data))
 
-    other_blocks: list[str] = []
+    other_items: list[tuple[str, str]] = []
     for other_id, entry in sorted(meta.artifact_index.items()):
         data = store.load_artifact(project_id, other_id)
-        other_blocks.append(wrap_untrusted(other_id, summarize_artifact(other_id, entry.tool_id, data)))
+        other_items.append((other_id, wrap_untrusted(other_id, summarize_artifact(other_id, entry.tool_id, data))))
 
     dataset_store = DatasetStore(store)
-    dataset_blocks = [
-        wrap_untrusted(ds_meta.dataset_id, summarize_dataset(ds_meta))
+    dataset_items: list[tuple[str, str]] = [
+        (ds_meta.dataset_id, wrap_untrusted(ds_meta.dataset_id, summarize_dataset(ds_meta)))
         for ds_meta in dataset_store.list_datasets(project_id)
     ]
 
     system = _build_validator_system_prompt()
+
+    # Fix 8: the draft is never trimmed by _apply_validator_budget (it's
+    # the one thing being checked -- shrinking it would mean grading a
+    # draft the user didn't write), so if it doesn't fit ALONGSIDE the
+    # (also never-trimmed) system prompt, no amount of trimming the
+    # optional tiers below can save this call. Fail honestly, before ever
+    # reaching the model.
+    system_and_draft_cost = estimate_tokens(system) + estimate_tokens(draft_content)
+    if system_and_draft_cost > input_budget_tokens:
+        raise DraftExceedsBudgetError(
+            f"the draft for tool {tool_id!r} is too large to check: it alone (~{system_and_draft_cost} estimated "
+            f"tokens with the system prompt) exceeds the {input_budget_tokens}-token input budget"
+        )
+
+    budget_report, kept_facts_block, kept_other_items, kept_dataset_items = _apply_validator_budget(
+        system_prompt=system,
+        draft_block=draft_content,
+        facts_block=facts_block,
+        other_artifact_items=other_items,
+        dataset_items=dataset_items,
+        input_budget_tokens=input_budget_tokens,
+        output_budget_tokens=VALIDATOR_MAX_OUTPUT_TOKENS,
+    )
+
     user_content = _build_validator_user_turn(
-        draft_block=draft_content, facts_block=facts_block, other_artifact_blocks=other_blocks, dataset_blocks=dataset_blocks,
+        draft_block=draft_content,
+        facts_block=kept_facts_block,
+        other_artifact_blocks=[text for _cid, text in kept_other_items],
+        dataset_blocks=[text for _did, text in kept_dataset_items],
     )
 
     # The one place this module differs from the main advisor call: the
@@ -337,4 +501,5 @@ def run_validator(
         checked_field_count=checked_field_count,
         unstructured_fallback=outcome.unstructured_fallback,
         raw_answer=outcome.raw_text,
+        budget_report=budget_report,
     )

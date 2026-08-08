@@ -189,3 +189,75 @@ def test_run_structured_mode_ignores_prose_around_the_fenced_block():
         http_client=_mock_client(handler),
     )
     assert outcome.parsed == _Widget(name="ok", count=1)
+
+
+# ---- run_structured_mode: truncation (M5 exit critic, Fix 4) -- a
+# stop_reason of "max_tokens" means the JSON was cut off mid-output, not
+# malformed. Its own outcome, never spending the one retry on input that
+# would truncate the same way again, and never folded into
+# unstructured_fallback (a different, honest-but-distinct failure). ----
+
+
+def _response_with_stop_reason(text: str, stop_reason: str) -> httpx.Response:
+    return httpx.Response(
+        200,
+        json={
+            "id": "msg_test", "type": "message", "role": "assistant", "model": "claude-sonnet-5",
+            "content": [{"type": "text", "text": text}],
+            "stop_reason": stop_reason, "stop_sequence": None,
+            "usage": {"input_tokens": 1, "output_tokens": 1},
+        },
+    )
+
+
+def test_run_structured_mode_truncated_first_call_never_retries():
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(json.loads(request.content))
+        return _response_with_stop_reason('```json\n{"name": "cut off mid', "max_tokens")
+
+    outcome = run_structured_mode(
+        _CONFIG, system="s", user_content="u", response_model=_Widget, max_output_tokens=100,
+        http_client=_mock_client(handler),
+    )
+
+    assert len(calls) == 1  # no retry spent on input that would truncate the same way again
+    assert outcome.truncated is True
+    assert outcome.parsed is None
+    assert outcome.retried is False
+    assert outcome.unstructured_fallback is False  # truncated, not malformed -- a distinct outcome
+    assert outcome.raw_text == '```json\n{"name": "cut off mid'
+
+
+def test_run_structured_mode_truncated_on_retry_reports_truncated_not_fallback():
+    responses = ["not json at all", '```json\n{"name": "cut off mid']
+    stop_reasons = ["end_turn", "max_tokens"]
+    calls = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(json.loads(request.content))
+        i = len(calls) - 1
+        return _response_with_stop_reason(responses[i], stop_reasons[i])
+
+    outcome = run_structured_mode(
+        _CONFIG, system="s", user_content="u", response_model=_Widget, max_output_tokens=100,
+        http_client=_mock_client(handler),
+    )
+
+    assert len(calls) == 2  # the retry itself still happens -- only a FIRST-call truncation skips it
+    assert outcome.retried is True
+    assert outcome.truncated is True
+    assert outcome.parsed is None
+    assert outcome.unstructured_fallback is False
+
+
+def test_run_structured_mode_end_turn_keeps_truncated_false():
+    # Unaffected-behavior guard: an ordinary end_turn completion (every
+    # existing test above) must never trip the new field.
+    outcome = run_structured_mode(
+        _CONFIG, system="s", user_content="u", response_model=_Widget, max_output_tokens=100,
+        http_client=_mock_client(lambda r: _canned_response('```json\n{"name": "widget", "count": 3}\n```')),
+    )
+    assert outcome.truncated is False
+    assert outcome.parsed == _Widget(name="widget", count=3)

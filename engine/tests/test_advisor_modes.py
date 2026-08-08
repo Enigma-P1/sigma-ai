@@ -464,6 +464,125 @@ def test_remedy_context_missing_project_raises_file_not_found(tmp_path):
         _remedy_context(store, project_id="no-such-project")
 
 
+# ---- verified_cause_ids (M5 exit critic, Fix 5): derived directly from
+# the raw fishbone causes list, never from a model's answer -- the data
+# _flag_unverified_remedy_causes (below) checks a parsed RemedyResponse
+# against, AFTER the model responds. ----
+
+
+def test_remedy_context_verified_cause_ids_reflects_only_verified_causes(tmp_path):
+    from sigma_engine.advisor.modes import _remedy_context
+
+    store = _new_project(tmp_path)
+    # factories.make_fishbone_causes(): c-1 verified, c-1-why2 investigating,
+    # c-2 candidate, c-3 ruled_out -- only c-1 should come through.
+    store.save_artifact("proj-1", "fishbone-001", "T-15", _validated_dump(FishboneArtifact, make_fishbone()), TS)
+
+    assembled = _remedy_context(store, project_id="proj-1")
+    assert assembled.verified_cause_ids == ("c-1",)
+
+
+def test_remedy_context_verified_cause_ids_empty_when_no_fishbone(tmp_path):
+    from sigma_engine.advisor.modes import _remedy_context
+
+    store = _new_project(tmp_path)
+    assembled = _remedy_context(store, project_id="proj-1")
+    assert assembled.verified_cause_ids == ()
+
+
+def test_non_remedy_modes_never_populate_verified_cause_ids(tmp_path):
+    # Passthrough-only field (AssembledContext's own docstring): every mode
+    # except remedy must leave it at the empty-tuple default.
+    from sigma_engine.advisor.modes import _generic_context
+
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "copq-001", "T-02", make_copq(), TS)
+    assembled = _generic_context(store, project_id="proj-1", artifact_id="copq-001")
+    assert assembled.verified_cause_ids == ()
+
+
+# ---- _flag_unverified_remedy_causes / _postprocess_remedy (M5 exit
+# critic, Fix 5): the deterministic post-parse check itself, direct and
+# fast -- no store, no model call. Route-level round-trip coverage (the
+# model's own JSON in, the flagged response out) lives in
+# test_routes_advisor.py. ----
+
+
+def _make_remedy_candidate(**overrides):
+    from sigma_engine.advisor.modes import RemedyCandidate
+
+    base = dict(
+        title="A remedy", why_it_fits_the_verified_cause="Because reasons.",
+        cause_ids=["c-1"], estimated_cost_band="low", risks="", pilot_first="", how_youd_know_it_worked="",
+    )
+    base.update(overrides)
+    return RemedyCandidate(**base)
+
+
+def test_flag_unverified_remedy_causes_leaves_a_fully_matched_remedy_clean():
+    from sigma_engine.advisor.modes import RemedyResponse, _flag_unverified_remedy_causes
+
+    response = RemedyResponse(remedies=[_make_remedy_candidate(cause_ids=["c-1"])])
+    result = _flag_unverified_remedy_causes(response, verified_cause_ids=("c-1", "c-2"))
+    assert result.remedies[0].unverified_cause_refs == []
+    assert result.unverified_cause_note == ""
+
+
+def test_flag_unverified_remedy_causes_flags_an_invented_id():
+    from sigma_engine.advisor.modes import RemedyResponse, _flag_unverified_remedy_causes
+
+    response = RemedyResponse(remedies=[_make_remedy_candidate(cause_ids=["c-999"])])
+    result = _flag_unverified_remedy_causes(response, verified_cause_ids=("c-1",))
+    assert result.remedies[0].unverified_cause_refs == ["c-999"]
+    assert result.unverified_cause_note != ""
+    # The remedy itself is KEPT, never dropped -- the human reviewing it may
+    # still find the reasoning useful (this function's own docstring).
+    assert len(result.remedies) == 1
+
+
+def test_flag_unverified_remedy_causes_flags_a_real_but_not_yet_verified_id():
+    from sigma_engine.advisor.modes import RemedyResponse, _flag_unverified_remedy_causes
+
+    # c-2 is a real cause_id on the fishbone (candidate/investigating/
+    # ruled_out) -- just not currently in the verified set given here.
+    response = RemedyResponse(remedies=[_make_remedy_candidate(cause_ids=["c-2"])])
+    result = _flag_unverified_remedy_causes(response, verified_cause_ids=("c-1",))
+    assert result.remedies[0].unverified_cause_refs == ["c-2"]
+
+
+def test_flag_unverified_remedy_causes_partial_match_flags_only_the_unmatched_ids():
+    from sigma_engine.advisor.modes import RemedyResponse, _flag_unverified_remedy_causes
+
+    response = RemedyResponse(remedies=[_make_remedy_candidate(cause_ids=["c-1", "c-999"])])
+    result = _flag_unverified_remedy_causes(response, verified_cause_ids=("c-1",))
+    assert result.remedies[0].unverified_cause_refs == ["c-999"]  # only the bad one is named
+
+
+def test_flag_unverified_remedy_causes_note_only_set_when_something_is_flagged():
+    from sigma_engine.advisor.modes import RemedyResponse, _flag_unverified_remedy_causes
+
+    clean = RemedyResponse(remedies=[_make_remedy_candidate(cause_ids=["c-1"]), _make_remedy_candidate(cause_ids=["c-1"])])
+    result = _flag_unverified_remedy_causes(clean, verified_cause_ids=("c-1",))
+    assert result.unverified_cause_note == ""
+    assert all(r.unverified_cause_refs == [] for r in result.remedies)
+
+
+def test_postprocess_remedy_reads_verified_cause_ids_off_the_assembled_context(tmp_path):
+    from sigma_engine.advisor.modes import RemedyResponse, _postprocess_remedy, _remedy_context
+
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "fishbone-001", "T-15", _validated_dump(FishboneArtifact, make_fishbone()), TS)
+    assembled = _remedy_context(store, project_id="proj-1")  # verified_cause_ids == ("c-1",)
+
+    response = RemedyResponse(
+        remedies=[_make_remedy_candidate(cause_ids=["c-1"]), _make_remedy_candidate(cause_ids=["c-2"])]
+    )
+    result = _postprocess_remedy(response, assembled)
+    assert isinstance(result, RemedyResponse)
+    assert result.remedies[0].unverified_cause_refs == []
+    assert result.remedies[1].unverified_cause_refs == ["c-2"]
+
+
 # ---- Budget: mode_block is counted honestly, never trimmed ----
 
 

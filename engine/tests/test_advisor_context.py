@@ -430,3 +430,67 @@ def test_budget_trim_reports_the_dropped_items_with_ids_and_estimated_cost(tmp_p
     assert entry.tier == "summaries"
     assert entry.id == "sipoc-001"
     assert entry.estimated_tokens > 0
+
+
+# ---- The live question's own tier (M5 exit critic, Fix 6): wrapped,
+# budgeted, and length-capped exactly like every other untrusted piece --
+# it used to be composed entirely in routes/advisor.py, outside this
+# module and outside _apply_budget, so it was never counted and had no
+# length cap. ----
+
+
+def test_question_is_wrapped_and_placed_in_its_own_field(tmp_path):
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "copq-001", "T-02", make_copq(), TS)
+
+    assembled = assemble_context(
+        store, project_id="proj-1", mode="generic", artifact_id="copq-001", question="What should I fix first?"
+    )
+    assert assembled.question_block.startswith('<artifact_content id="user_question"')
+    assert "What should I fix first?" in assembled.question_block
+    assert "question_block" in assembled.budget_report.included
+
+
+def test_no_question_leaves_the_question_block_empty_and_out_of_included(tmp_path):
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "copq-001", "T-02", make_copq(), TS)
+
+    assembled = assemble_context(store, project_id="proj-1", mode="generic", artifact_id="copq-001")
+    assert assembled.question_block == ""
+    assert "question_block" not in assembled.budget_report.included
+
+
+def test_budget_report_reflects_the_questions_tokens(tmp_path):
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "copq-001", "T-02", make_copq(), TS)
+
+    without_question = assemble_context(store, project_id="proj-1", mode="generic", artifact_id="copq-001")
+    with_question = assemble_context(
+        store, project_id="proj-1", mode="generic", artifact_id="copq-001", question="What should I fix first?"
+    )
+    question_cost = estimate_tokens(with_question.question_block)
+    assert question_cost > 0
+    # Nothing else about the two calls differs -- the entire difference in
+    # the reported total is exactly the question tier's own cost, counted
+    # honestly (not silently folded into some other tier, not ignored).
+    assert (
+        with_question.budget_report.estimated_input_tokens
+        == without_question.budget_report.estimated_input_tokens + question_cost
+    )
+
+
+def test_question_tier_is_dropped_last_right_before_the_never_dropped_system_frame(tmp_path):
+    store = _new_project(tmp_path)
+    store.save_artifact("proj-1", "copq-001", "T-02", make_copq(), TS)
+
+    trimmed = assemble_context(
+        store, project_id="proj-1", mode="generic", artifact_id="copq-001",
+        question="What should I fix first?", input_budget_tokens=0,
+    )
+    assert trimmed.system_prompt_frame  # tier 1 (system) is never dropped
+    assert trimmed.question_block == ""  # dropped too, at budget=0, same as everything else
+
+    tiers_in_drop_order = [d.tier for d in trimmed.budget_report.dropped]
+    assert tiers_in_drop_order[-1] == "question"  # last tier dropped -- the highest-priority droppable tier
+    assert "prescore" in tiers_in_drop_order
+    assert tiers_in_drop_order.index("prescore") < tiers_in_drop_order.index("question")

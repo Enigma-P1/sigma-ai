@@ -15,6 +15,27 @@ variables (ANTHROPIC_API_KEY / ANTHROPIC_BASE_URL). Both are resolved
 explicitly here rather than left to the SDK's own env-reading, because
 resolve_config() has to decide configured-vs-not *before* any SDK client
 object exists -- the AdvisorUnavailable branch never touches `anthropic`.
+
+Thinking (M5 exit critic, severity 5-in-order/adjacent-code finding):
+claude-sonnet-5 runs ADAPTIVE thinking the moment the `thinking` param is
+omitted -- unlike the Opus-4.x models this codebase was first built
+against, omitting it is not "no thinking." Adaptive thinking is billed
+INSIDE max_tokens (DEFAULT_MAX_OUTPUT_TOKENS, 4096), so a thinking-heavy
+turn could silently truncate the JSON the advisor's structured modes need,
+and the caller would only ever see "the model returned unstructured
+output" -- true in the narrow sense, dishonest about the actual cause.
+ask() now sends `thinking={"type": "disabled"}` on every call: the
+advisor's job here is judgment on top of what the engine already computed
+(context.py's own system-frame text), not multi-step reasoning, so
+disabling thinking costs nothing the product needs and buys back the
+whole 4096-token budget for the answer. (claude-sonnet-5 accepts
+`{"type": "disabled"}` unconditionally -- unlike claude-opus-5, it isn't
+gated to effort <= "high" -- so no effort parameter is needed alongside
+it; reverify against the installed anthropic SDK's thinking-config types
+if the configured model ever changes.) stop_reason is read off every
+response and carried through AdvisorAnswer so callers (structured.py,
+routes/advisor.py) can tell a genuine truncation apart from every other
+outcome instead of only inferring it from a parse failure.
 """
 
 from __future__ import annotations
@@ -103,6 +124,13 @@ def resolve_config(settings: AdvisorSettings) -> AdvisorConfigured | AdvisorUnav
 
 class AdvisorAnswer(BaseModel):
     text: str
+    # The raw Messages API stop_reason ("end_turn", "max_tokens", ...) --
+    # None only in the defensive case the SDK's own typing allows
+    # (Message.stop_reason: Optional[StopReason]); a real completed call
+    # always sets one. Callers check this for "max_tokens" (a genuine
+    # truncation) rather than inferring it from a downstream parse failure
+    # (M5 exit critic finding -- see module docstring).
+    stop_reason: str | None = None
 
 
 class AdvisorCallFailed(Exception):
@@ -147,6 +175,11 @@ def ask(
             max_tokens=max_output_tokens,
             system=system,
             messages=[{"role": "user", "content": user_content}],
+            # Disabled, not omitted -- see module docstring. On
+            # claude-sonnet-5, omitting this parameter runs ADAPTIVE
+            # thinking billed inside max_output_tokens, which can truncate
+            # a structured mode's JSON with no honest signal why.
+            thinking={"type": "disabled"},
         )
     except anthropic.AnthropicError as exc:
         # Never log/echo the key (M5 brief) -- str(exc) is safe here, see
@@ -154,4 +187,4 @@ def ask(
         raise AdvisorCallFailed(str(exc)) from exc
 
     text = "".join(block.text for block in message.content if block.type == "text")
-    return AdvisorAnswer(text=text)
+    return AdvisorAnswer(text=text, stop_reason=message.stop_reason)
