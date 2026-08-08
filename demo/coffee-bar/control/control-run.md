@@ -136,7 +136,7 @@ understates the recovery, not one that inflates it).
 
 ## T-25 — the A3, the tollgates, and the live close check
 
-`POST /artifacts/T-25/validate`, saved v1 (`a3.json` is the echo, with
+`POST /artifacts/T-25/validate`, saved (`a3.json` is the echo, with
 the engine-stamped tollgate questions and all computed closure blocks).
 Eight panels, each seeded from its source artifact and rewritten as
 sponsor prose with the numbers untouched — the results panel keeps both
@@ -148,9 +148,15 @@ blocks, pasted:
   realized_to_date = 1,237.23 − 252.95 = **$984.28**; net of the $360
   fix cost (round-1 pitcher/labels $40 + refurb grinder $300 + cards
   $20) = **$624.28**. The $12,795.64 annualized figure is entered as
-  `annualized_projection` — labeled projection, assumptions named
-  (semester demand and improved rates holding; ×13 four-week windows) —
-  and the charter's original $16,084 is never claimed as realized.
+  `annualized_projection` with its schema-required
+  `annualized_projection_basis` stating the method on the artifact
+  itself: the window's realized recovery ($984.28 per 4 weeks) × 13
+  four-week windows/yr — equivalently the quarter's proportional
+  recovery ($3,198.91) × 4 — assuming semester demand and the improved
+  rates hold, the before side itself the Q2 baseline pro-rated 4/13. A
+  bare projection with no stated basis cannot save (the engine refuses
+  it, rubric R-WRAP-02's "projection presented without its basis"), and
+  the charter's original $16,084 is never claimed as realized.
 - **Objectives vs charter** (proof.compute_gap, reused verbatim):
   original gap 3.4083, recovered 3.5092, remaining **−0.1008**,
   `goal_met: true` — "Goal met — route to Control." Consistent with the

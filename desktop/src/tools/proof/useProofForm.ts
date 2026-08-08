@@ -57,6 +57,10 @@ export function useProofForm(projectId: string, project: ProjectMetadata, onSave
         ...prev, pilotRef: pilotArtifactId, metricRef: prev.metricRef || p.success_threshold.metric_ref,
         thresholdValue: prev.thresholdValue || String(p.success_threshold.value),
         thresholdDirection: p.success_threshold.direction, confounders: p.confounder_checklist,
+        // Echoed the same "by ref" way as everything else here (rubric
+        // R-IMP-02's carve-out) -- see artifacts/proof.py's module
+        // docstring. null when the pilot didn't declare one.
+        declaredPackage: p.declared_package ?? null,
       }));
     }).catch(() => { /* no pilot yet -- the flow still works with manual entry */ });
   }, [projectId, pilotArtifactId, existingVersion]);

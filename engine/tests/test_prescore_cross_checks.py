@@ -66,6 +66,31 @@ def test_charter_vs_copq_advisory_when_period_unknown(store):
     assert "same basis" in r.detail
 
 
+def test_charter_vs_copq_uses_the_oldest_t02_when_two_exist(store):
+    """Fix 5 (critic-confirmed): this check wants the DEFINE-phase COPQ the
+    charter's business_impact figure actually quoted, not a later Wrap
+    re-run (T-02, R-WRAP-02) -- exactly Coffee Bar's own live shape
+    (coffee-copq / coffee-copq-wrap). "copq-a" sorts alphabetically FIRST
+    (the old cross_checks.py bug's pick, first-match) and is
+    chronologically NEWER (a small Wrap re-run total); "copq-z" sorts
+    alphabetically LAST and is chronologically OLDER (the Define-phase
+    original the charter actually quoted, total 9600). Neither the old
+    alphabetical-first bug nor a plain "newest wins" default lands on
+    "copq-z" -- only the deliberate oldest=True selection does."""
+    _make_project(store)
+    _save(store, "proj-1", "T-02", "copq-a", make_copq(
+        updated_at="2026-10-01T00:00:00",  # newer -- the Wrap re-run
+        rows=[{"category": "scrap", "custom_label": None, "quantity": 20, "rate": 1.0, "period": "Q4 2026", "basis": "post-fix Q4 tally", "is_estimate": False}],
+    ))
+    _save(store, "proj-1", "T-02", "copq-z", make_copq(updated_at="2026-01-01T00:00:00"))  # older -- Define-phase, total 9600/Q2
+    _save(store, "proj-1", "T-03", "charter", make_charter(business_impact={"amount": 38400.0, "unit": "dollars per year", "basis": "COPQ Q2 total x 4"}))
+
+    results = _by_id(run_cross_checks(store, "proj-1"))
+    r = results["charter_business_impact_vs_copq_total"]
+    assert "COPQ engine total 9600" in r.detail  # the older (Define-phase) total, not the newer Wrap total (20)
+    assert r.status == "pass"  # 9600 x4 = 38400 reconciles with the charter; 20 would not
+
+
 def test_charter_vs_copq_omitted_when_copq_missing(store):
     _make_project(store)
     _save(store, "proj-1", "T-03", "charter", make_charter())

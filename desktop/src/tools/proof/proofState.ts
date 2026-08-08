@@ -1,7 +1,7 @@
 import { emptyArraySource } from "../hypothesis/hypothesisFormState";
 import type { ArraySourceValue } from "../hypothesis/hypothesisFormState";
 import { emptyConfounderChecklist } from "../pilotplan/pilotPlanLogic";
-import type { NextCauseRef, PilotConfounderChecklist, PilotDirection, ProofArtifact } from "../../api/types";
+import type { NextCauseRef, PilotConfounderChecklist, PilotDeclaredPackage, PilotDirection, ProofArtifact } from "../../api/types";
 
 export const ARTIFACT_ID = "proof";
 export const SCHEMA_VERSION = 1;
@@ -27,6 +27,11 @@ export interface ProofState {
   charterGoalText: string;
   charterGoalDirection: PilotDirection;
   nextCauseRef: NextCauseRef | null;
+  /** Echoed from the linked T-19 pilot's own declared_package, when it
+   * declared one (rubric R-IMP-02's carve-out) -- read-only here, never
+   * hand-edited: usePilotPlanForm.ts's pilot-loading effect is the only
+   * writer, same "echoed by ref" contract as nextCauseRef/confounders. */
+  declaredPackage: PilotDeclaredPackage | null;
 }
 
 export function emptyProofState(): ProofState {
@@ -39,6 +44,7 @@ export function emptyProofState(): ProofState {
     guardrailMetricRef: "", guardrailDirection: "higher_is_better", guardrailBeforeText: "", guardrailAfterText: "",
     charterRef: "", charterBaselineText: "", charterGoalText: "", charterGoalDirection: "lower_is_better",
     nextCauseRef: null,
+    declaredPackage: null,
   };
 }
 
@@ -57,6 +63,7 @@ export function proofStateFromArtifact(a: ProofArtifact): ProofState {
     charterRef: a.charter_ref, charterBaselineText: String(a.charter_baseline_value),
     charterGoalText: String(a.charter_goal_value), charterGoalDirection: a.charter_goal_direction,
     nextCauseRef: a.next_cause_ref ?? null,
+    declaredPackage: a.declared_package ?? null,
   };
 }
 

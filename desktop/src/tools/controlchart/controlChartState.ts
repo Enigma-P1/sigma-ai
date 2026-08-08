@@ -16,6 +16,12 @@ export interface ControlChartState {
   metricRef: string;
   imrSource: ArraySourceValue;
   pSubgroupsPasteText: string; // one "label,n,defective_count" per line -- the p-chart's own paste format
+  /** Western Electric zone rules 2/3, opt-in (M4 addition, matrix VI.A.1)
+   * -- I-MR only; the engine rejects either true on a p-chart. Applies to
+   * the live MONITORING read, not the frozen limits (control_chart.py's
+   * module docstring). */
+  rule2Enabled: boolean;
+  rule3Enabled: boolean;
   freezeRequested: boolean;
   recalculateReason: string;
   monitoringStarted: boolean;
@@ -27,6 +33,7 @@ export function emptyControlChartState(): ControlChartState {
   return {
     dataShape: "continuous", defectivesOrDefects: "", metricRef: "",
     imrSource: emptyArraySource("Control chart data"), pSubgroupsPasteText: "",
+    rule2Enabled: false, rule3Enabled: false,
     freezeRequested: false, recalculateReason: "", monitoringStarted: false, cadenceNote: "",
     acknowledgments: {},
   };
@@ -40,6 +47,7 @@ export function controlChartStateFromArtifact(a: ControlChartArtifact): ControlC
       ? { ...emptyArraySource("Control chart data"), mode: "paste", pasteText: a.imr_values.join(", ") }
       : emptyArraySource("Control chart data"),
     pSubgroupsPasteText: a.chart_type === "p" && a.p_subgroups ? subgroupsToText(a.p_subgroups) : "",
+    rule2Enabled: a.rule2_enabled, rule3Enabled: a.rule3_enabled,
     freezeRequested: false, recalculateReason: "",
     monitoringStarted: a.armed.monitoring_started, cadenceNote: a.armed.cadence_note,
     acknowledgments: Object.fromEntries(Object.entries(a.acknowledgments).map(([k, v]) => [k, { acknowledged: v.acknowledged, response_note: v.response_note }])),

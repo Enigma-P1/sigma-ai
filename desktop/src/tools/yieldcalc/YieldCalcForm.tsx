@@ -18,12 +18,13 @@ export interface YieldCalcFormProps {
 const STEPS_CHECK_IDS = ["rty_only_claimed_in_series", "rty_matches_recomputed"];
 const DPMO_CHECK_IDS = ["dpmo_result_matches_recomputed", "opportunity_inflation_justified"];
 
-/** T-10 Yield Calculator: an ordered process-steps table (FPY/DPU per
- * step, RTY rollup -- only under the explicit steps_in_series claim) plus
- * an independent, optional DPMO/sigma-level block. Every computed number
- * (defects/DPU/FPY per step, RTY, DPMO, sigma level) always renders from
- * the engine's own response, never a client-side number presented as
- * authoritative -- CopqForm's exact contract, extended to two blocks. */
+/** T-10 Yield Calculator: an ordered process-steps table (direct-ratio FPY
+ * per step, RTY rollup -- only under the explicit steps_in_series claim)
+ * plus an independent, optional DPMO/sigma-level block. Every computed
+ * number (defective units/FPY per step, RTY, DPMO, sigma level) always
+ * renders from the engine's own response, never a client-side number
+ * presented as authoritative -- CopqForm's exact contract, extended to two
+ * blocks. */
 export function YieldCalcForm({ projectId, project, onSaved }: YieldCalcFormProps) {
   const f = useYieldCalcForm(projectId, project, onSaved);
 
@@ -64,7 +65,7 @@ export function YieldCalcForm({ projectId, project, onSaved }: YieldCalcFormProp
 
       <Field
         label="Are these steps in series?"
-        helper="RTY (rolled throughput yield) is only computed when the steps run one after another as a serial line. If they don't, mark No -- the steps table still records each step's own FPY/DPU, RTY just won't be claimed."
+        helper="RTY (rolled throughput yield) is only computed when the steps run one after another as a serial line. If they don't, mark No -- the steps table still records each step's own FPY, RTY just won't be claimed."
       >
         <YesNoToggle name="yieldcalc-series" value={f.stepsInSeries} onChange={f.setSeries} />
       </Field>

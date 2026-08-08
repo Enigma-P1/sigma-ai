@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, MissingHint, Panel, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, MissingHint, Panel, TextInput, VerdictBanner } from "../../design/components";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { A3_CHECK_LABELS } from "./a3Checks";
 import { ClosurePanel } from "./ClosurePanel";
@@ -48,6 +48,41 @@ export function A3Form({ projectId, project, onSaved }: A3FormProps) {
               <TextInput type="number" placeholder="fix cost" value={f.state.realizedBenefits.fix_cost} onChange={(e) => f.update({ realizedBenefits: { ...f.state.realizedBenefits, fix_cost: Number(e.target.value) } })} />
               {f.serverArtifact?.realized_benefits?.result && (
                 <div data-testid="a3-realized-to-date">Realized to date: {f.serverArtifact.realized_benefits.result.value.realized_to_date.toFixed(2)}, net of fix cost: {f.serverArtifact.realized_benefits.result.value.net_of_fix_cost.toFixed(2)}</div>
+              )}
+
+              <Field
+                label="Annualized projection (optional)" htmlFor="a3-rb-projection"
+                helper="A forward-looking extrapolation, separate from realized-to-date above -- rubric R-WRAP-02 #1."
+              >
+                <TextInput
+                  id="a3-rb-projection" type="number" placeholder="e.g. 100000" data-testid="a3-rb-projection"
+                  value={f.state.realizedBenefits.annualized_projection ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    f.update({ realizedBenefits: { ...f.state.realizedBenefits, annualized_projection: raw.trim() === "" ? null : Number(raw) } });
+                  }}
+                />
+              </Field>
+              {f.state.realizedBenefits.annualized_projection != null && (
+                <Field
+                  label="Basis for the projection" htmlFor="a3-rb-projection-basis" required
+                  helper={'How was this derived? e.g. "Q2 actuals x 4" -- a projection with no stated basis is R-WRAP-02’s Needs-work line.'}
+                >
+                  <TextInput
+                    id="a3-rb-projection-basis" data-testid="a3-rb-projection-basis"
+                    value={f.state.realizedBenefits.annualized_projection_basis ?? ""}
+                    onChange={(e) => f.update({ realizedBenefits: { ...f.state.realizedBenefits, annualized_projection_basis: e.target.value } })}
+                  />
+                </Field>
+              )}
+              {f.serverArtifact?.realized_benefits?.annualized_projection != null && (
+                <div data-testid="a3-realized-projection">
+                  <VerdictBanner
+                    tone="neutral"
+                    headline={`Projected (annualized): ${f.serverArtifact.realized_benefits.annualized_projection.toFixed(2)} -- not realized-to-date`}
+                    detail={`Basis: ${f.serverArtifact.realized_benefits.annualized_projection_basis}`}
+                  />
+                </div>
               )}
             </Panel>
           )}

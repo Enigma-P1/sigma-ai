@@ -88,8 +88,13 @@ before the window; the pilot lands at 6.198 (n=120, engine-stable), Welch
 t = 17.87, p = 2.2e-45, d = 2.31, and the gap block does the loop's
 arithmetic: 2.21 of the 3.41-minute gap recovered (64.8%), 1.20 remaining
 — decision recorded *loop*, route to the next-ranked cause. Round 2 pilots
-the grinder dial-in + standby swap (declared as one method, threshold 5.5,
-falsification line naming the revert) with the semester confound declared
+the grinder dial-in + standby swap as a **declared package** — R-IMP-02's
+carve-out used structurally: the two components named in
+`declared_package`, changes aligned 1:1, rationale stating why neither
+deploys alone, the engine stamping package-level attribution on both the
+plan and the proof's verdict ("proof credit belongs to the package as a
+whole, never to a single component") — with threshold 5.5, a
+falsification line naming the revert, and the semester confound declared
 *before* the window — fall term started 2026-08-31, demand up ~15% — and
 lands at 4.899 (engine-stable): threshold met, cumulative goal **met**
 (remaining −0.10), verdict honestly *weakened* by the declared confound
@@ -120,8 +125,10 @@ marked changed-from-prior, the severity-8 wand action living in the steam
 standard. The A3 rolls the record up panel by panel with no claim
 upgraded in transit: realized benefits run on the wrap COPQ re-run over a
 stated 4-week window ($984.28 realized, $624.28 net of the $360 the
-fixes cost; $12,795.64/yr labeled projection with its assumptions named
-— never the original $16,084 claimed as realized), objectives reconciled
+fixes cost; $12,795.64/yr labeled projection with its basis stated on
+the artifact — the 4-week recovery × 13, a field the engine now requires
+before any projection can save — never the original $16,084 claimed as
+realized), objectives reconciled
 by the engine's own gap arithmetic (goal met, remaining −0.10), lessons
 that include the two genuine failures (the solution-shaped first charter,
 the daypart dead end), open items with owners for what is honestly

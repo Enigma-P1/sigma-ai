@@ -5,9 +5,18 @@ descriptive-form variants -- plus find_next_cause as a standalone pure
 function."""
 
 import pytest
+from pydantic import ValidationError
 
-from factories import PROOF_AFTER_VALUES_NOT_MET, make_proof, make_pilot_plan_confounder_checklist
-from sigma_engine.artifacts.proof import NextCauseRef, ProofArtifact, RankedSolutionRef, find_next_cause
+from factories import (
+    PRINT_SHOP_AFTER_N,
+    PRINT_SHOP_AFTER_PROPORTIONS,
+    PROOF_AFTER_VALUES_NOT_MET,
+    TS,
+    make_declared_package,
+    make_proof,
+    make_pilot_plan_confounder_checklist,
+)
+from sigma_engine.artifacts.proof import DataRef, NextCauseRef, ProofArtifact, RankedSolutionRef, find_next_cause
 
 
 def test_clean_proof_shows_threshold_met_and_partial_gap_recovery():
@@ -43,6 +52,99 @@ def test_weakened_variant_prints_the_confounder_sentence():
     assert "weakens this proof" in a.verdict.value.headline
 
 
+# ---------------------------------------------------------------------------
+# Fix 1 (critic-confirmed): the verdict headline must be fully determined by
+# computed state -- every "improvement" phrase gated on threshold_verdict.
+# Drives all four inferential quadrants (met/not-met x confounder-changed/
+# clean) plus the descriptive branch both directions, asserting the exact
+# phrase text as a substring (not `==` on the whole headline -- an
+# unrelated, orthogonal stability_caveat sentence can also be appended
+# depending on the fixture's after-process stability, which isn't what
+# these tests are about; pinning the exact CLAUSE this fix touches is the
+# point, and it's still an exact-phrase assertion, not a loose keyword one).
+# ---------------------------------------------------------------------------
+
+
+def test_headline_quadrant_met_clean_states_the_plain_threshold_clause():
+    a = ProofArtifact.model_validate(make_proof())  # met, no confounder changed (factories default)
+    assert a.verdict.value.threshold_verdict == "met"
+    assert a.verdict.value.weakened is False
+    assert "Threshold met, as declared: line-2 scrap rate = 4.03 vs 4.5 (lower_is_better)." in a.verdict.value.headline
+    assert "Improvement shown" not in a.verdict.value.headline
+
+
+def test_headline_quadrant_met_weakened_says_improvement_shown_but_weakened():
+    checklist = make_pilot_plan_confounder_checklist()
+    checklist["staffing"] = {"changed": True, "note": "Two new hires started the same week as rollout."}
+    a = ProofArtifact.model_validate(make_proof(confounders=checklist))
+    assert a.verdict.value.threshold_verdict == "met"
+    assert (
+        "Improvement shown, but a reported confounder weakens this proof: "
+        "staffing: Two new hires started the same week as rollout.."
+    ) in a.verdict.value.headline
+    assert "muddies attribution" not in a.verdict.value.headline
+
+
+def test_headline_quadrant_not_met_clean_states_the_plain_threshold_clause():
+    a = ProofArtifact.model_validate(make_proof(after_values=PROOF_AFTER_VALUES_NOT_MET))
+    assert a.verdict.value.threshold_verdict == "not_met"
+    assert a.verdict.value.weakened is False
+    assert "Threshold not met, as declared: line-2 scrap rate = 5 vs 4.5 (lower_is_better)." in a.verdict.value.headline
+    assert "Improvement shown" not in a.verdict.value.headline
+
+
+def test_headline_quadrant_not_met_weakened_never_claims_improvement():
+    """The critic's exact finding: threshold not met + a confounder changed
+    used to still print "Improvement shown" unconditionally. Now the
+    weakening sentence attaches to a FAILURE reading -- "muddies
+    attribution," never "Improvement shown" -- when the threshold wasn't
+    cleared (rubric R-IMP-03 Fail line, R-WRAP-01 "claim upgraded in
+    transit")."""
+    checklist = make_pilot_plan_confounder_checklist()
+    checklist["staffing"] = {"changed": True, "note": "Two new hires started the same week as rollout."}
+    a = ProofArtifact.model_validate(make_proof(after_values=PROOF_AFTER_VALUES_NOT_MET, confounders=checklist))
+    assert a.verdict.value.threshold_verdict == "not_met"
+    assert a.verdict.value.weakened is True
+    assert (
+        "Threshold not met, and a reported confounder additionally muddies attribution: "
+        "staffing: Two new hires started the same week as rollout.."
+    ) in a.verdict.value.headline
+    assert "Improvement shown" not in a.verdict.value.headline
+    assert "weakens this proof" not in a.verdict.value.headline
+    assert "proven" not in a.verdict.value.headline.lower()
+
+
+def test_headline_descriptive_branch_met_prints_met_clause_and_improvement_phrase():
+    tiny = make_proof(before={"values": [6.0, 6.4, 6.2]}, after={"values": [4.0, 3.9, 4.1]})
+    a = ProofArtifact.model_validate(tiny)
+    assert a.test_result.refused is True
+    assert a.verdict.value.proof_form == "descriptive"
+    assert a.verdict.value.threshold_verdict == "met"
+    assert (
+        "Threshold met, as declared: line-2 scrap rate moved to 4 against a declared threshold of 4.5 "
+        "(lower_is_better) -- observed improvement is shown, not statistically tested (this design can't carry "
+        "an inferential test)."
+    ) in a.verdict.value.headline
+
+
+def test_headline_descriptive_branch_not_met_prints_met_clause_with_no_improvement_claim():
+    """The critic's other finding on this branch: it never printed met/
+    not-met at all, and unconditionally claimed "observed improvement is
+    shown" even past an unmet threshold. Both fixed: the clause is always
+    present, and the improvement phrase only fires when met."""
+    tiny = make_proof(before={"values": [6.0, 6.4, 6.2]}, after={"values": [6.5, 6.6, 6.4]})
+    a = ProofArtifact.model_validate(tiny)
+    assert a.test_result.refused is True
+    assert a.verdict.value.proof_form == "descriptive"
+    assert a.verdict.value.threshold_verdict == "not_met"
+    assert (
+        "Threshold not met, as declared: line-2 scrap rate moved to 6.5 against a declared threshold of 4.5 "
+        "(lower_is_better) -- no improvement is claimed against the unmet threshold; this design can't carry an "
+        "inferential test either way."
+    ) in a.verdict.value.headline
+    assert "observed improvement is shown" not in a.verdict.value.headline
+
+
 def test_goal_fully_met_when_after_mean_reaches_the_charter_goal():
     # Near-constant (not exactly constant) so sigma_overall stays nonzero
     # -- real data is never perfectly flat, and compute_capability's Cpk
@@ -75,6 +177,77 @@ def test_descriptive_proof_form_when_the_design_cant_carry_an_inferential_test()
     assert a.verdict.value.threshold_verdict == "met"  # arithmetic still runs
 
 
+# ---------------------------------------------------------------------------
+# Fix 3 (critic-confirmed, R-IMP-03 #1 same-yardstick / R-IMP-04 anchor):
+# DataRef.weights lets `after` (or `before`) carry a per-value weight
+# (subgroup size); the after_mean everything downstream uses (threshold
+# check, gap block, headline) becomes the weighted pooled mean instead of
+# an unweighted mean-of-daily-proportions. Print Shop shape: 24 dailies,
+# variable n (factories.PRINT_SHOP_AFTER_*).
+# ---------------------------------------------------------------------------
+
+
+def test_weighted_after_mean_is_the_pooled_rate_not_the_unweighted_mean_of_proportions():
+    a = ProofArtifact.model_validate(make_proof(
+        after={"values": list(PRINT_SHOP_AFTER_PROPORTIONS), "weights": list(PRINT_SHOP_AFTER_N)},
+    ))
+    # Everything downstream of after_mean uses the weighted (pooled) value.
+    assert a.gap.value.after_value == pytest.approx(69 / 1821)
+    assert a.gap.value.after_value == pytest.approx(0.03789126853377265)
+    assert f"{0.03789126853377265:g}" in a.verdict.value.headline  # "0.0378913" -- the headline's own :g formatting
+
+
+def test_weighted_vs_unweighted_after_mean_flips_the_threshold_verdict():
+    """The real-world stakes of Fix 3: a threshold of 0.0375 sits BETWEEN
+    the unweighted mean-of-daily-proportions (0.036822, clears it) and the
+    correctly pooled rate (0.037891, misses it) -- same 24 days' counts,
+    same declared threshold, opposite honest verdicts depending on which
+    mean is the right one to use."""
+    threshold = {"metric_ref": "print-shop defect rate", "direction": "lower_is_better", "value": 0.0375, "declared_at": TS}
+
+    weighted = ProofArtifact.model_validate(make_proof(
+        after={"values": list(PRINT_SHOP_AFTER_PROPORTIONS), "weights": list(PRINT_SHOP_AFTER_N)},
+        declared_threshold=threshold,
+    ))
+    assert weighted.gap.value.after_value == pytest.approx(0.03789126853377265)
+    assert weighted.verdict.value.threshold_verdict == "not_met"  # pooled 0.037891 > 0.0375
+
+    unweighted = ProofArtifact.model_validate(make_proof(
+        after={"values": list(PRINT_SHOP_AFTER_PROPORTIONS)},  # no weights -- plain mean, the old behavior
+        declared_threshold=threshold,
+    ))
+    assert unweighted.gap.value.after_value == pytest.approx(0.03682244848264809)
+    assert unweighted.verdict.value.threshold_verdict == "met"  # unweighted 0.036822 <= 0.0375
+
+
+def test_continuous_unweighted_proof_regression_unchanged():
+    """The plain, no-weights path (every pre-existing proof fixture) is
+    byte-identical to before this fix -- the golden gap numbers from the
+    module's own headline test."""
+    a = ProofArtifact.model_validate(make_proof())
+    assert a.before.weights is None and a.after.weights is None
+    assert a.gap.value.after_value == pytest.approx(4.03)
+    assert a.gap.value.recovered == pytest.approx(2.17, abs=1e-9)
+    assert a.gap.value.remaining == pytest.approx(1.03, abs=1e-9)
+
+
+def test_data_ref_weights_reject_length_mismatch():
+    with pytest.raises(ValidationError, match="same length"):
+        DataRef.model_validate({"values": [1.0, 2.0, 3.0], "weights": [1.0, 2.0]})
+
+
+def test_data_ref_weights_reject_nonpositive():
+    with pytest.raises(ValidationError, match="positive"):
+        DataRef.model_validate({"values": [1.0, 2.0], "weights": [1.0, 0.0]})
+    with pytest.raises(ValidationError, match="positive"):
+        DataRef.model_validate({"values": [1.0, 2.0], "weights": [1.0, -3.0]})
+
+
+def test_data_ref_weights_none_is_the_default_and_valid():
+    d = DataRef.model_validate({"values": [1.0, 2.0]})
+    assert d.weights is None
+
+
 def test_material_guardrail_loss_produces_a_tradeoff_sentence_on_a_win():
     a = ProofArtifact.model_validate(make_proof(guardrails=[
         {"metric_ref": "line-2 throughput", "direction": "higher_is_better", "before_value": 100.0, "after_value": 80.0},
@@ -103,6 +276,53 @@ def test_round_trip_via_model_dump():
     a = ProofArtifact.model_validate(make_proof())
     b = ProofArtifact.model_validate(a.model_dump(mode="json"))
     assert b == a
+
+
+# ---------------------------------------------------------------------------
+# M4 addition: declared_package echoed from the linked T-19 pilot (rubric
+# R-IMP-02's carve-out) -- the verdict headline must say "the package," and
+# never claim single-component attribution, whenever one was declared.
+# ---------------------------------------------------------------------------
+
+
+def test_no_declared_package_leaves_the_verdict_byte_identical():
+    a = ProofArtifact.model_validate(make_proof())
+    assert a.declared_package is None
+    assert a.verdict.value.package_attribution is None
+    assert "package" not in a.verdict.value.headline.lower()
+    # Same exact headline text as the pre-M4 fixed golden (test above).
+    assert "Threshold met, as declared: line-2 scrap rate = 4.03 vs 4.5 (lower_is_better)." in a.verdict.value.headline
+
+
+def test_declared_package_names_the_package_and_never_a_single_change():
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package()))
+    assert a.declared_package is not None
+    pa = a.verdict.value.package_attribution
+    assert pa is not None
+    assert "package" in pa.lower()
+    assert "fixture head" in pa and "drive motor" in pa
+    assert "proof credit belongs to the package" in pa
+    assert pa in a.verdict.value.headline
+    assert "the change" not in a.verdict.value.headline.lower()
+
+
+def test_declared_package_attribution_precedes_the_confounder_and_guardrail_sentences():
+    """Attribution scope is established before any improvement-adjacent
+    language (module docstring) -- package_attribution sits right after
+    the threshold clause in the headline, before the weakened/guardrail
+    sentences."""
+    checklist = make_pilot_plan_confounder_checklist()
+    checklist["staffing"] = {"changed": True, "note": "Two new hires started the same week as rollout."}
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package(), confounders=checklist))
+    headline = a.verdict.value.headline
+    assert headline.index("proof credit belongs to the package") < headline.index("weakens this proof")
+
+
+def test_declared_package_round_trips():
+    a = ProofArtifact.model_validate(make_proof(declared_package=make_declared_package()))
+    b = ProofArtifact.model_validate(a.model_dump(mode="json"))
+    assert b == a
+    assert b.declared_package.components == ["fixture head", "drive motor"]
 
 
 # --- find_next_cause: standalone pure function ------------------------------

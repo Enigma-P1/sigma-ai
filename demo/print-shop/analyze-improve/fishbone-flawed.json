@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-fishbone-consensus-draft",
+  "tool_id": "T-15",
+  "created_at": "2026-07-28T11:00:00Z",
+  "updated_at": "2026-07-28T11:00:00Z",
+  "notes": "DRAFT, refused by the engine -- kept as the record of the refusal (teaching-note.md), the matrix's flawed-example row for T-15. At the 2026-07-28 huddle, with the engine Pareto on the table, the two vital-few causes were marked verified on the spot -- 'the Pareto already proved it, the whole room agrees' -- with their evidence fields left empty and the why-chains still unbuilt. The schema itself is the gate (R-ANA-02's anchor line: team consensus is not evidence): status='verified' cannot be constructed without a non-empty evidence object, so POST /artifacts/T-15/validate came back 422 naming each consensus-verified cause, before any prescore ran. The corrected board (fishbone-corrected.json, saved the same afternoon as print-fishbone v1) attaches the pointers the huddle already had -- the check sheet's transcribed tally, the Pareto's own dataset export -- and does the verification work these statuses were only claiming: the prepress walk and the traveler audit that become the 5-Why chain.",
+  "effect": {
+    "text": "8.6% of orders fail the customer's first look at the QC desk (135 of 1,566 in the 21-day baseline census, p-bar 0.086207 frozen and stable) -- the charter's baselined problem, tracked as the daily rejected proportion",
+    "charter_ref": "print-charter"
+  },
+  "causes": [
+    {
+      "cause_id": "c-imposition",
+      "branch": "method",
+      "text": "Jobs reach the cutter without a signed-off imposition -- fold and bleed get set per operator habit at prepress, so trim registration drifts from job to job",
+      "parent_cause_id": null,
+      "status": "verified",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-trays",
+      "branch": "material",
+      "text": "Paper trays get reloaded between jobs with unlabeled stock, so the press pulls whatever sheet is in the tray when the SKU changes mid-shift",
+      "parent_cause_id": null,
+      "status": "verified",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-ink-cure",
+      "branch": "machine",
+      "text": "Smudge and banding marks cluster on rush jobs racked before full ink cure",
+      "parent_cause_id": null,
+      "status": "candidate",
+      "evidence": null,
+      "why_chain_position": null
+    },
+    {
+      "cause_id": "c-lift-count",
+      "branch": "method",
+      "text": "Wrong-quantity orders trace to counting by lift thickness at the cutter instead of running the sheet counter on mixed-stock jobs",
+      "parent_cause_id": null,
+      "status": "candidate",
+      "evidence": null,
+      "why_chain_position": null
+    }
+  ],
+  "layout": {}
+}

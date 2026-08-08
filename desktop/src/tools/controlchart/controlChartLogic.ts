@@ -34,6 +34,11 @@ export function buildControlChartBody(
       : { kind: "manual" },
     imr_values: chartType === "imr" ? resolvedImrValues : null,
     p_subgroups: chartType === "p" ? resolvedSubgroups : null,
+    // I-MR only (control_chart.py rejects either true on a p-chart) --
+    // chartType === "p" forces both false regardless of stale state, the
+    // same defensive move the data payload fields above already make.
+    rule2_enabled: chartType === "imr" && state.rule2Enabled,
+    rule3_enabled: chartType === "imr" && state.rule3Enabled,
     freeze_requested: Boolean(action.freeze),
     recalculate_reason: trimmedReason || null,
     action_at: attempting ? nowIso : null,

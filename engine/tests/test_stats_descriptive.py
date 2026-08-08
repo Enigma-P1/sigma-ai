@@ -10,10 +10,11 @@ hand-computed fixture with the arithmetic shown below.
 
 import pytest
 
+from factories import PRINT_SHOP_AFTER_DEFECTIVE, PRINT_SHOP_AFTER_N, PRINT_SHOP_AFTER_PROPORTIONS
 from sigma_engine.nist_lew import CERTIFIED_MEAN as LEW_MEAN, CERTIFIED_STDEV as LEW_SD, DATA as LEW_DATA
 from sigma_engine.nist_lottery import CERTIFIED_MEAN as LOTTERY_MEAN, CERTIFIED_STDEV as LOTTERY_SD, DATA as LOTTERY_DATA
 from sigma_engine.nist_mavro import CERTIFIED_MEAN as MAVRO_MEAN, CERTIFIED_STDEV as MAVRO_SD, DATA as MAVRO_DATA
-from sigma_engine.stats.descriptive import compute_descriptive_stats, iqr, mean, median, quartiles, sample_sd
+from sigma_engine.stats.descriptive import compute_descriptive_stats, iqr, mean, median, quartiles, sample_sd, weighted_mean
 
 RELATIVE_TOLERANCE = 1e-9  # StRD's own certification precision
 
@@ -92,3 +93,54 @@ def test_compute_descriptive_stats_round_trips_through_json():
     dumped = result.model_dump(mode="json")
     reloaded = Computed[DescriptiveStats].model_validate(dumped)
     assert reloaded == result
+
+
+# ---------------------------------------------------------------------------
+# weighted_mean (Fix 3, R-IMP-03 #1 same-yardstick / R-IMP-04 anchor): the
+# Print Shop shape -- 24 daily subgroups, variable n (factories.py's
+# PRINT_SHOP_AFTER_*, shared with test_artifacts_proof.py's artifact-level
+# exercise of the same fixture) -- same raw (n, defective_count) pairs as
+# the real demo/print-shop/control/control-chart.json p-chart freeze window
+# (k=24, total_defectives=69, total_n=1821, p_bar=0.03789126853377265).
+# Each day's own proportion (defective_count/n) is a DataRef `value`; that
+# day's `n` is the matching `weight`.
+# ---------------------------------------------------------------------------
+
+
+def test_print_shop_shape_pooled_weighted_mean_matches_hand_computed_69_over_1821():
+    assert len(PRINT_SHOP_AFTER_N) == 24 and sum(PRINT_SHOP_AFTER_N) == 1821 and sum(PRINT_SHOP_AFTER_DEFECTIVE) == 69
+    pooled = weighted_mean(PRINT_SHOP_AFTER_PROPORTIONS, PRINT_SHOP_AFTER_N)
+    assert pooled == pytest.approx(69 / 1821)
+    assert pooled == pytest.approx(0.03789126853377265)  # the real p-chart's own p_bar, independently derived here
+
+
+def test_print_shop_shape_unweighted_mean_diverges_from_the_pooled_rate():
+    """The exact divergence this fix exists to correct: an unweighted
+    mean-of-daily-proportions (what the old after_mean computed) reads
+    ~0.036822 (hand-checkable: sum of the 24 raw day-proportions / 24),
+    materially different from the correctly pooled ~0.037891 (sum of
+    defectives / sum of n) -- both real numbers from the same 24 days'
+    counts, not a rounding wobble."""
+    unweighted = mean(PRINT_SHOP_AFTER_PROPORTIONS)
+    pooled = weighted_mean(PRINT_SHOP_AFTER_PROPORTIONS, PRINT_SHOP_AFTER_N)
+    assert unweighted == pytest.approx(0.03682244848264809)
+    assert pooled == pytest.approx(0.03789126853377265)
+    assert unweighted != pytest.approx(pooled, rel=1e-4)  # materially different, not float noise
+
+
+def test_weighted_mean_with_no_weights_is_byte_identical_to_plain_mean():
+    """The continuous, no-weights path (every existing before/after proof
+    that never sets DataRef.weights) is unchanged -- weighted_mean(v, None)
+    is exactly mean(v), not an approximation of it."""
+    assert weighted_mean(HAND_FIXTURE, None) == mean(HAND_FIXTURE)
+    assert weighted_mean(PRINT_SHOP_AFTER_PROPORTIONS, None) == mean(PRINT_SHOP_AFTER_PROPORTIONS)
+
+
+def test_weighted_mean_rejects_length_mismatch():
+    with pytest.raises(ValueError):
+        weighted_mean([1.0, 2.0, 3.0], [1.0, 2.0])
+
+
+def test_weighted_mean_rejects_nonpositive_total_weight():
+    with pytest.raises(ValueError):
+        weighted_mean([1.0, 2.0], [0.0, 0.0])

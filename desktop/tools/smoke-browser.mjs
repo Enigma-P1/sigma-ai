@@ -905,8 +905,10 @@ async function main() {
     // ---- T-10 Yield Calculator (FPY/RTY + DPMO) -- the 25th Tier-A tool,
     // built after the traceability-matrix audit caught it missing. A
     // 3-step line, same hand-checkable fixture as engine/tests/factories.py's
-    // make_yield_calc_steps (100->95, 95->90, 90->88; RTY ~= 88.26%), then
-    // an independent DPMO block (1242 defects / 100000 units -> DPMO 6210,
+    // make_yield_calc_steps (100->95, 95->90, 90->88; per-step FPY is the
+    // DIRECT observed ratio, not a modeled e^-DPU estimate: 0.95 * (90/95)
+    // * (88/90) = 0.88 exactly), then an independent DPMO block (1242
+    // defects / 100000 units -> DPMO 6210,
     // ~4 sigma with the 1.5-shift convention -- the same published-table
     // value test_stats_sigma_level.py reference-checks). The opportunity-
     // inflation honesty guard's prescore teeth get their own exercise: a
@@ -970,7 +972,7 @@ async function main() {
       await page.waitForFunction(() => document.querySelector('[data-testid="yieldcalc-step-0-fpy"]')?.value !== "not yet computed");
 
       const rtyHeadline = await page.locator('[data-testid="yieldcalc-rty"] .sigma-verdict__headline').textContent();
-      assert(rtyHeadline?.includes("88.26%"), `expected RTY to read 88.26% (hand-checked: e^-(0.05+5/95+2/90)), got ${JSON.stringify(rtyHeadline)}`);
+      assert(rtyHeadline?.includes("88.00%"), `expected RTY to read 88.00% (hand-checked, direct-ratio FPY: 0.95 * (90/95) * (88/90) = 0.88 exactly), got ${JSON.stringify(rtyHeadline)}`);
 
       // 1242 defects / 100000 units / 2 opportunities-per-unit -> DPMO 6210,
       // the published Wikipedia/MoreSteam 4-sigma-with-shift table row
@@ -1406,6 +1408,62 @@ async function main() {
       );
     });
 
+    // ---- M4 addition: R-IMP-02's "one honest carve-out" -- a declared
+    // inseparable package may run as one pilot with >1 changes[] entry,
+    // EXIT-10 suppressed for that declared set, aligned 1:1 with the
+    // listed components. Declared right after the EXIT-10 refusal above,
+    // which stays untouched (frozen, regression-proved by the two steps
+    // above) -- this proves the carve-out is a genuinely separate path,
+    // not a relaxation of EXIT-10 itself. ----
+
+    await step("declare a 2-component package and confirm both changes save without an EXIT-10 refusal", async () => {
+      await page.locator('[data-testid="pilot-package-toggle"]').check();
+      await page.locator('[data-testid="pilot-package-rationale"]').fill(
+        "The fixture head and drive motor ship from the vendor as one sealed cartridge -- replacing one without " +
+        "the other voids the seal, and the vendor will not sell them separately.",
+      );
+      await page.locator('[data-testid="pilot-package-component-0"]').fill("fixture head");
+      await page.locator('[data-testid="pilot-package-component-1"]').fill("drive motor");
+      // The "+ add another change" EXIT-10 demo affordance is superseded
+      // by the package's own component list while a package is declared.
+      assert(
+        (await page.locator('[data-testid="pilot-add-another-change"]').count()) === 0,
+        "expected the add-another-change affordance to be hidden while a package is declared",
+      );
+
+      await page.locator('[data-testid="pilot-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="pilot-version-badge"]')?.textContent?.includes("v2"));
+      assert(
+        (await page.locator('[data-testid="pilot-exit10-banner"]').count()) === 0,
+        "expected no EXIT-10 refusal for a declared 2-component package with matching changes",
+      );
+    });
+
+    await step("re-open T-19 and confirm the declared package round-trips with both components", async () => {
+      // Force a fresh load from the server, not just the still-live form
+      // state -- the same navigate-away-and-back round-trip proof the
+      // T-25/FMEA close-check flow already relies on later in this run.
+      await page.locator('[data-testid="nav-tool-T-18"]').click();
+      await page.locator('[data-testid="nav-tool-T-19"]').click();
+      // Waits for the version badge specifically (not just the
+      // always-present Save button) -- it only renders once
+      // usePilotPlanForm's load effect has actually populated state from
+      // the reloaded artifact, so reading the toggle/components right
+      // after can't race the fetch.
+      await page.locator('[data-testid="pilot-version-badge"]').waitFor();
+
+      const badge = await page.locator('[data-testid="pilot-version-badge"]').textContent();
+      assert(badge?.includes("v2"), `expected the reloaded version badge to still read v2, got ${JSON.stringify(badge)}`);
+
+      assert(await page.locator('[data-testid="pilot-package-toggle"]').isChecked(), "expected the declared-package toggle to round-trip as checked");
+      const comp0 = await page.locator('[data-testid="pilot-package-component-0"]').inputValue();
+      const comp1 = await page.locator('[data-testid="pilot-package-component-1"]').inputValue();
+      assert(
+        comp0 === "fixture head" && comp1 === "drive motor",
+        `expected both declared-package components to round-trip, got ${JSON.stringify([comp0, comp1])}`,
+      );
+    });
+
     // ---- Milestone-4 addition: T-21 Control Charts. IMR from the
     // already-imported coffee-bar wait_seconds column (the same fixture
     // T-13's baseline used above and already known stable there), frozen
@@ -1431,6 +1489,39 @@ async function main() {
       await page.locator('[data-testid="controlchart-cadence-note"]').fill("Weekly, every Monday morning");
       await page.locator('[data-testid="controlchart-save-meta"]').click();
       await page.locator('[data-testid="controlchart-armed-quiet-banner"]').waitFor();
+    });
+
+    // ---- M4 addition: Western Electric rules 2/3, opt-in (matrix VI.A.1).
+    // Toggled on the same I-MR chart just frozen/armed above -- before the
+    // data shape switches to attribute below, since the toggle is I-MR
+    // only. ----
+
+    await step("toggle Western Electric rule 2 on and confirm it saves and round-trips", async () => {
+      const badgeBefore = await page.locator('[data-testid="controlchart-version-badge"]').textContent();
+      // The zone-rules checkboxes live inside a collapsed <details> --
+      // expand it first (real users click "advanced" too).
+      await page.locator('[data-testid="controlchart-zone-rules-toggle"]').click();
+      await page.locator('[data-testid="controlchart-rule2-toggle"]').check();
+      await page.locator('[data-testid="controlchart-save-meta"]').click();
+      await page.waitForFunction(
+        (prev) => document.querySelector('[data-testid="controlchart-version-badge"]')?.textContent !== prev,
+        badgeBefore,
+      );
+
+      // Force a fresh load from the server (not just the still-live form
+      // state) to prove a genuine round trip. Waits for the version badge
+      // specifically (not just the always-present freeze button) -- that
+      // badge only renders once useControlChartForm's load effect has
+      // actually populated state from the reloaded artifact, so checking
+      // the toggle immediately after can't race the fetch.
+      await page.locator('[data-testid="nav-tool-T-18"]').click();
+      await page.locator('[data-testid="nav-tool-T-21"]').click();
+      await page.locator('[data-testid="controlchart-version-badge"]').waitFor();
+      // Fresh mount -- the <details> collapses again, same as any real
+      // page load would show.
+      await page.locator('[data-testid="controlchart-zone-rules-toggle"]').click();
+      assert(await page.locator('[data-testid="controlchart-rule2-toggle"]').isChecked(), "expected rule2_enabled to round-trip as checked");
+      assert(!(await page.locator('[data-testid="controlchart-rule3-toggle"]').isChecked()), "expected rule3_enabled to round-trip as unchecked -- it was never toggled");
     });
 
     await step("switch to attribute data, answer defects, and assert the EXIT-11 refusal", async () => {
@@ -1655,14 +1746,43 @@ async function main() {
       );
     });
 
-    await step("fill realized benefits and save the A3 as an open draft", async () => {
+    await step("fill realized benefits + an annualized projection with its basis, save, and confirm the round trip", async () => {
       await page.locator('[data-testid="a3-rail-results"]').click();
       await page.locator('[data-testid="a3-rb-copq-ref"]').fill("copq");
       await page.locator('[data-testid="a3-rb-window"]').fill("6 weeks post-rollout");
+      // M4 addition: the annualized-projection input (rubric R-WRAP-02) --
+      // the basis field only appears once a projection value is entered,
+      // and the engine requires it whenever annualized_projection is set.
+      assert((await page.locator('[data-testid="a3-rb-projection-basis"]').count()) === 0, "expected no basis field before a projection is entered");
+      await page.locator('[data-testid="a3-rb-projection"]').fill("120000");
+      await page.locator('[data-testid="a3-rb-projection-basis"]').waitFor();
+      await page.locator('[data-testid="a3-rb-projection-basis"]').fill("6-week realized-to-date x (52/6 weeks), no seasonality adjustment.");
       await page.locator('[data-testid="a3-save"]').click();
       await page.locator('[data-testid="a3-version-badge"]').waitFor();
       const badge = await page.locator('[data-testid="a3-version-badge"]').textContent();
       assert(badge?.includes("v1"), `expected the first A3 save to land as v1, got ${JSON.stringify(badge)}`);
+
+      // Round trip: useA3Form's handleSave resets state from the reloaded
+      // server artifact, so these input values now reflect what the
+      // engine actually stored, not just what was typed client-side.
+      const projection = await page.locator('[data-testid="a3-rb-projection"]').inputValue();
+      const basis = await page.locator('[data-testid="a3-rb-projection-basis"]').inputValue();
+      assert(projection === "120000", `expected the annualized projection to round-trip, got ${JSON.stringify(projection)}`);
+      assert(
+        basis === "6-week realized-to-date x (52/6 weeks), no seasonality adjustment.",
+        `expected the projection basis to round-trip, got ${JSON.stringify(basis)}`,
+      );
+
+      // The results panel renders it labeled as a projection with its
+      // basis, visually distinct from realized-to-date (separate banner,
+      // separate data-testid).
+      const projectionBanner = await page.locator('[data-testid="a3-realized-projection"]').textContent();
+      assert(
+        projectionBanner?.includes("Projected (annualized)") && projectionBanner?.includes("not realized-to-date") && projectionBanner?.includes("52/6 weeks"),
+        `expected the distinct projection banner with its basis, got ${JSON.stringify(projectionBanner)}`,
+      );
+      const realizedToDate = await page.locator('[data-testid="a3-realized-to-date"]').textContent();
+      assert(!realizedToDate?.includes("Projected"), "expected the realized-to-date line to stay separate from the projection banner");
     });
 
     await step("load the FMEA close-check and confirm the unaddressed sev-9 row blocks closure", async () => {

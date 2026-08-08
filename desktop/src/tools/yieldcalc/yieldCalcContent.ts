@@ -111,7 +111,8 @@ export const yieldCalcHelperContent: HelperFrameContent = {
   source:
     "Method source: standard FPY/RTY/DPU/DPMO definitions, cross-checked against DMAIC.io and Qualica " +
     "worksheet conventions (traceability matrix II.E.1; attribute capability path §3a 2.4.3 with T-13/" +
-    "T-21); per-step FPY from the DPU-driven estimate (e^-DPU, the rolling convention in the engine's " +
-    "sigma-level module); sigma level via the published DPMO table rows the engine's reference tests pin " +
-    "(6210 DPMO = 4.0 with the 1.5σ shift). Golden G-yield-01. Acceptance checklist: rubric R-MEA-09.",
+    "T-21); per-step FPY as the direct observed ratio (first-pass-correct / units entering, computed from " +
+    "counts, not a modeled estimate -- rubric R-MEA-09 #2); sigma level via the published DPMO table rows " +
+    "the engine's reference tests pin (6210 DPMO = 4.0 with the 1.5σ shift). Golden G-yield-01. Acceptance " +
+    "checklist: rubric R-MEA-09.",
 };

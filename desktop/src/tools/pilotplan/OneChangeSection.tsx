@@ -6,6 +6,12 @@ export interface OneChangeSectionProps {
   linkedSolutionId: string | null;
   extraChanges: PilotChange[];
   exitError: string | null;
+  /** True whenever a declared package (DeclaredPackageSection) is active --
+   * `changes` is then derived from the package's own components list
+   * (pilotPlanLogic.ts's changesFromState), so the "+ add another change"
+   * EXIT-10 demo affordance is hidden here rather than offering two ways
+   * to grow the same list. */
+  packageActive: boolean;
   onStatementChange: (v: string) => void;
   onAddExtraChange: () => void;
   onUpdateExtraChange: (index: number, next: PilotChange) => void;
@@ -19,37 +25,43 @@ export interface OneChangeSectionProps {
  * artifacts/pilot_plan.py) rather than silently accept a fix nobody could
  * later attribute -- remove the extra entry and the plan saves clean. */
 export function OneChangeSection({
-  statement, linkedSolutionId, extraChanges, exitError,
+  statement, linkedSolutionId, extraChanges, exitError, packageActive,
   onStatementChange, onAddExtraChange, onUpdateExtraChange, onRemoveExtraChange,
 }: OneChangeSectionProps) {
   return (
     <Panel title="1. The one change" subtitle="One sentence. Not a bundle of fixes.">
       <Field
-        label="What are you changing?" htmlFor="pilot-statement" required
-        helper={linkedSolutionId ? `Pre-filled from the top-ranked fix list entry (${linkedSolutionId}) -- edit freely.` : "Pick the top item from T-18's ranked fix list, or describe your own change."}
+        label={packageActive ? "Describe the package as a whole" : "What are you changing?"} htmlFor="pilot-statement" required
+        helper={
+          packageActive
+            ? "The package's own summary sentence -- the components themselves are listed below, in the declared-package section."
+            : linkedSolutionId ? `Pre-filled from the top-ranked fix list entry (${linkedSolutionId}) -- edit freely.` : "Pick the top item from T-18's ranked fix list, or describe your own change."
+        }
       >
         <TextArea id="pilot-statement" data-testid="pilot-statement" rows={2} value={statement} onChange={(e) => onStatementChange(e.target.value)} placeholder="Add a fixture alignment checklist before each shift" />
       </Field>
 
-      {extraChanges.length === 0 ? (
-        <Button variant="ghost" size="sm" type="button" onClick={onAddExtraChange} data-testid="pilot-add-another-change">
-          + Describe another change (to see why the tool says no)
-        </Button>
-      ) : (
-        <div className="sigma-pilot-extra-changes">
-          {extraChanges.map((c, i) => (
-            <div className="sigma-pilot-extra-change-row" key={c.change_id}>
-              <TextInput
-                data-testid={`pilot-extra-change-${i}`} value={c.text}
-                onChange={(e) => onUpdateExtraChange(i, { ...c, text: e.target.value })}
-                placeholder="A second, different change"
-              />
-              <Button variant="ghost" size="sm" type="button" onClick={() => onRemoveExtraChange(i)} data-testid={`pilot-remove-extra-change-${i}`}>
-                Remove -- keep to one change
-              </Button>
-            </div>
-          ))}
-        </div>
+      {!packageActive && (
+        extraChanges.length === 0 ? (
+          <Button variant="ghost" size="sm" type="button" onClick={onAddExtraChange} data-testid="pilot-add-another-change">
+            + Describe another change (to see why the tool says no)
+          </Button>
+        ) : (
+          <div className="sigma-pilot-extra-changes">
+            {extraChanges.map((c, i) => (
+              <div className="sigma-pilot-extra-change-row" key={c.change_id}>
+                <TextInput
+                  data-testid={`pilot-extra-change-${i}`} value={c.text}
+                  onChange={(e) => onUpdateExtraChange(i, { ...c, text: e.target.value })}
+                  placeholder="A second, different change"
+                />
+                <Button variant="ghost" size="sm" type="button" onClick={() => onRemoveExtraChange(i)} data-testid={`pilot-remove-extra-change-${i}`}>
+                  Remove -- keep to one change
+                </Button>
+              </div>
+            ))}
+          </div>
+        )
       )}
 
       {exitError && (

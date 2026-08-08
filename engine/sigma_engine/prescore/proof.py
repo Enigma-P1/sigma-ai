@@ -25,6 +25,7 @@
 from __future__ import annotations
 
 from ..artifacts.proof import CONFOUNDER_FIELDS, ProofArtifact, compute_gap
+from ..stats.descriptive import weighted_mean
 from .common import PrescoreResult
 
 
@@ -39,13 +40,34 @@ def run_proof_prescore(artifact: ProofArtifact) -> list[PrescoreResult]:
 
 
 def _threshold_as_declared(artifact: ProofArtifact) -> PrescoreResult:
+    """Was vacuous (critic finding 6): `v in ("met", "not_met")` is always
+    true -- threshold_verdict's own type (Literal["met", "not_met"]) already
+    guarantees that, so the check never actually looked at anything. Now
+    recomputes the after value the same weight-aware way ProofArtifact.
+    _recompute does and compares the expected met/not_met read against the
+    STORED verdict -- the matches-recomputed idiom (prescore/yield_calc.py)
+    applied here, so a hand-edited threshold_verdict (met stored while the
+    data says not_met, or vice versa) hard_flags instead of sailing through
+    on a check that could never fail."""
     if artifact.verdict is None:
         return PrescoreResult(check_id="threshold_as_declared", tool_id="T-20", status="flag", detail="no verdict computed")
-    v = artifact.verdict.value.threshold_verdict
-    ok = v in ("met", "not_met")
+    recomputed_after = weighted_mean(artifact.after.values, artifact.after.weights)
+    expected_met = (
+        recomputed_after <= artifact.declared_threshold.value if artifact.declared_threshold.direction == "lower_is_better"
+        else recomputed_after >= artifact.declared_threshold.value
+    )
+    expected_verdict = "met" if expected_met else "not_met"
+    stored = artifact.verdict.value.threshold_verdict
+    matches = stored == expected_verdict
     return PrescoreResult(
-        check_id="threshold_as_declared", tool_id="T-20", status="pass" if ok else "hard_flag",
-        detail=f"threshold_verdict={v!r} against declared value {artifact.declared_threshold.value:g} ({artifact.declared_threshold.direction})",
+        check_id="threshold_as_declared", tool_id="T-20", status="pass" if matches else "hard_flag",
+        detail=(
+            f"threshold_verdict={stored!r} matches a fresh recompute ({recomputed_after:g} vs declared "
+            f"{artifact.declared_threshold.value:g}, {artifact.declared_threshold.direction})" if matches else
+            f"stored threshold_verdict={stored!r} does not match a fresh recompute (after={recomputed_after:g} vs "
+            f"declared {artifact.declared_threshold.value:g}, {artifact.declared_threshold.direction} -> expected "
+            f"{expected_verdict!r}) -- the file may have been hand-edited"
+        ),
     )
 
 
@@ -54,7 +76,16 @@ def _confounder_echo_present(artifact: ProofArtifact) -> PrescoreResult:
     if artifact.verdict is None:
         return PrescoreResult(check_id="confounder_echo_present", tool_id="T-20", status="flag", detail="no verdict computed")
     weakened_matches = artifact.verdict.value.weakened == bool(changed)
-    sentence_present = (not changed) or ("weakens this proof" in artifact.verdict.value.headline)
+    # Two honest phrasings, gated on threshold_met (Fix 1): "weakens this
+    # proof" (an improvement claim, tempered) when the threshold was met,
+    # "muddies attribution" (no improvement claim to temper -- a failure
+    # reading, weakened further) when it wasn't. Either counts as the
+    # confounder having actually printed.
+    sentence_present = (
+        not changed
+        or "weakens this proof" in artifact.verdict.value.headline
+        or "muddies attribution" in artifact.verdict.value.headline
+    )
     ok = weakened_matches and sentence_present
     return PrescoreResult(
         check_id="confounder_echo_present", tool_id="T-20", status="pass" if ok else "hard_flag",

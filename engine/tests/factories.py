@@ -647,11 +647,66 @@ def make_pilot_plan(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_declared_package(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "rationale": (
+            "The fixture head and drive motor ship from the vendor as one sealed cartridge -- replacing one "
+            "without the other voids the seal, and the vendor will not sell them separately."
+        ),
+        "components": ["fixture head", "drive motor"],
+    }
+    base.update(overrides)
+    return base
+
+
+def make_pilot_plan_with_package(**overrides: Any) -> dict[str, Any]:
+    """A pilot plan declaring a 2-component inseparable package (rubric
+    R-IMP-02's carve-out, task brief's own hand-checkable case) --
+    changes[] aligned 1:1 with declared_package.components (task brief:
+    "align them 1:1"), so EXIT-10 does not fire even with two entries."""
+    package = overrides.pop("declared_package") if "declared_package" in overrides else make_declared_package()
+    changes = overrides.pop("changes") if "changes" in overrides else [
+        {"change_id": "ch-1", "text": "Replace the fixture head"},
+        {"change_id": "ch-2", "text": "Replace the drive motor"},
+    ]
+    the_one_change = overrides.pop("the_one_change") if "the_one_change" in overrides else {
+        "statement": "Replace the fixture-head/drive-motor cartridge (declared package -- see declared_package)",
+        "linked_solution_id": "s-1", "linked_cause_ids": ["c-1"],
+    }
+    return make_pilot_plan(changes=changes, declared_package=package, the_one_change=the_one_change, **overrides)
+
+
 # T-21 Control Chart fixtures. IMR: the same 24-point coffee-bar
 # wait_seconds column already asserted stable by the desktop smoke test
 # (tools/fixtures/coffee-bar-wait-times.csv) -- one real demo dataset
 # threaded through both the T-13 baseline and the T-21 control chart.
 COFFEE_BAR_WAIT_SECONDS = [95, 91, 98, 93, 97, 92, 99, 94, 96, 90, 98, 93, 95, 91, 99, 94, 97, 92, 96, 90, 98, 93, 95, 91]
+
+# WECO rules 2/3: opt-in, verified default-off (docs/traceability-matrix.md
+# §4a / §VI.A.1). Shared between test_stats_imr.py (the stats-module-level
+# proof) and test_artifacts_control_chart.py (the T-21 artifact-level proof
+# that the toggle threads through to monitoring signals) -- one canonical
+# fixture, not two copies that could quietly drift apart.
+#
+# n=20 (clears the EXIT-04 companion floor), tightly alternating baseline
+# (MR always 0.4) so sigma_within is small and predictable, then 2 of the
+# last 3 points pushed to 2-3 sigma above center (zone-A territory) --
+# verified by construction to trigger rule 2 alone: xbar=50.11,
+# sigma_within=0.41993, zone-A upper=50.95, and no point ever reaches the
+# 3-sigma UCL (51.37), so rule 1 never fires.
+RULE2_ONLY_DATA = [
+    50, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2,
+    49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8,
+    51.0, 50.2, 51.0,
+]
+
+# Same baseline shape; last 5 points are 4-of-5 beyond 1-sigma (zone-B),
+# never reaching zone-A or the 3-sigma UCL -- rule 3 alone.
+RULE3_ONLY_DATA = [
+    50, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2,
+    49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8,
+    50.5, 50.5, 50.5, 50.5, 49.8,
+]
 
 
 def make_control_chart_imr(**overrides: Any) -> dict[str, Any]:
@@ -699,6 +754,21 @@ def make_control_chart_p(**overrides: Any) -> dict[str, Any]:
 PROOF_BEFORE_VALUES = [6.0, 6.4, 6.1, 6.3, 5.9, 6.5, 6.2, 6.0, 6.3, 6.1]
 PROOF_AFTER_VALUES_MET = [4.2, 3.9, 4.1, 4.0, 3.8, 4.3, 4.0, 3.9, 4.1, 4.0]
 PROOF_AFTER_VALUES_NOT_MET = [5.0, 4.9, 5.1, 5.0, 4.8, 5.2, 5.0, 4.9, 5.1, 5.0]
+
+# Fix 3 (weighted DataRef): the "Print Shop shape" fixture -- 24 daily
+# subgroups, variable n. Same raw (n, defective_count) pairs as the real
+# demo/print-shop/control/control-chart.json p-chart freeze window (k=24,
+# total_defectives=69, total_n=1821, p_bar=0.03789126853377265),
+# reproduced here as a hand-checkable engine-test fixture rather than a
+# file dependency on demo/ (which the director reconciles separately).
+# Each day's own proportion (defective_count/n) is a DataRef `value`; that
+# day's `n` is the matching `weight`. Pooled (weighted) mean = 69/1821 =
+# 0.03789126853377265; unweighted mean-of-daily-proportions = 0.03682244848264809
+# -- both real numbers off the same 24 days' counts, materially different
+# (the exact divergence rubric R-IMP-03 #1 / R-IMP-04 exists to prevent).
+PRINT_SHOP_AFTER_N = [80, 72, 76, 74, 69, 58, 85, 82, 69, 72, 87, 60, 79, 71, 73, 73, 80, 58, 90, 91, 85, 89, 81, 67]
+PRINT_SHOP_AFTER_DEFECTIVE = [3, 3, 3, 1, 2, 1, 6, 2, 2, 3, 4, 0, 4, 1, 4, 2, 3, 2, 6, 2, 2, 5, 5, 3]
+PRINT_SHOP_AFTER_PROPORTIONS = [d / n for d, n in zip(PRINT_SHOP_AFTER_DEFECTIVE, PRINT_SHOP_AFTER_N)]
 
 
 def make_proof(**overrides: Any) -> dict[str, Any]:
@@ -948,6 +1018,11 @@ def make_a3(**overrides: Any) -> dict[str, Any]:
     realized_benefits = overrides.pop("realized_benefits") if "realized_benefits" in overrides else {
         "copq_rerun_artifact_id": "copq-002", "window": "6 weeks post-rollout",
         "before_amount": 40000.0, "after_amount": 15000.0, "fix_cost": 2000.0, "annualized_projection": 100000.0,
+        # R-WRAP-02's Needs-work line ("a projection presented without its
+        # basis") -- schema-hard as of M4 (artifacts/a3.py's
+        # _projection_requires_a_basis); every annualized_projection in
+        # this factory's default fixture needs one.
+        "annualized_projection_basis": "6-week realized-to-date x (52/6 weeks) -- a straight-line annualization, no seasonality adjustment.",
     }
     closure = overrides.pop("closure") if "closure" in overrides else make_a3_closure()
     base = {

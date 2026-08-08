@@ -48,25 +48,30 @@ The T-10 steps table counts what the QC desk cannot see: per-step
 first-pass-correct from the job travelers, same 21-day window, where a
 re-plated file or a re-run press pass counts against first-pass even though
 the shop caught it and the customer never did. The engine's computed steps,
-pasted (`defects_at_step`, `dpu_at_step`, `fpy_at_step` are all derived —
-first_pass_correct is the one raw input):
+pasted (`defective_units_at_step` and `fpy_at_step` are derived — units_in
+and first_pass_correct are the two raw inputs, and each step's FPY is the
+direct observed ratio first_pass_correct/units_in, no model layered on
+top of the count):
 
-- order entry: 1566 in, 1517 first-pass — DPU 0.0313, FPY 0.9692
-- prepress: 1566 in, 1492 first-pass — DPU 0.0473, FPY 0.9538
-- print: 1566 in, 1484 first-pass — DPU 0.0524, FPY 0.9490
-- trim/finish: 1566 in, 1503 first-pass — DPU 0.0402, FPY 0.9606
-- **RTY = 0.8427** (product of the four FPYs, computed only under the
+- order entry: 1566 in, 1517 first-pass — 49 defective units, FPY 0.9687
+- prepress: 1566 in, 1492 first-pass — 74 defective units, FPY 0.9527
+- print: 1566 in, 1484 first-pass — 82 defective units, FPY 0.9476
+- trim/finish: 1566 in, 1503 first-pass — 63 defective units, FPY 0.9598
+- **RTY = 0.8394** (product of the four FPYs, computed only under the
   explicit `steps_in_series: true` declaration)
 
 Three yields, three different sentences, all true at once: final yield —
 did a good order eventually go out? — is ~99.8% (all but three cancelled
 reprints eventually shipped right), and it is the number that kept this
 problem invisible for a year. First-presentation yield is 91.38%
-(1 − 0.0862): what the customer experiences. **RTY is 84.27%**: the odds an
-order clears all four steps untouched — the gap between 84 and 99.8 is the
-hidden factory, roughly one order in six getting quietly re-worked
-somewhere. The narrative quotes RTY, not final yield, because rework exists
-(rubric R-MEA-09 #2).
+(1 − 0.0862): what the customer experiences. **RTY is 83.94%**: the odds an
+order clears all four steps untouched, and the number now says exactly
+that — the product of the four counted pass ratios (1517/1566 × 1492/1566
+× 1484/1566 × 1503/1566), straight from the travelers' good-vs-not tallies
+with nothing modeled in between. The gap between 84 and 99.8 is the hidden
+factory, roughly one order in six getting quietly re-worked somewhere. The
+narrative quotes RTY, not final yield, because rework exists (rubric
+R-MEA-09 #2).
 
 The DPMO block converts the escape counts to capability language: 139
 failed-check marks over 1,566 orders × 4 opportunities — **DPMO 22,190.29,

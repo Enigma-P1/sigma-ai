@@ -7,8 +7,6 @@ table, both fetched live 2026-08-07 per that module's own docstring)."""
 
 from __future__ import annotations
 
-import math
-
 import pytest
 from pydantic import ValidationError
 
@@ -21,7 +19,7 @@ from sigma_engine.artifacts.yield_calc import (
     compute_rty_result,
 )
 from sigma_engine.provenance import compute
-from sigma_engine.stats.sigma_level import dpu, fpy_from_dpu, rty, sigma_level_from_dpmo
+from sigma_engine.stats.sigma_level import rty, sigma_level_from_dpmo
 
 
 def test_accepts_a_complete_yield_calc():
@@ -31,24 +29,21 @@ def test_accepts_a_complete_yield_calc():
 
 
 # ---------------------------------------------------------------------------
-# G-yield-01 golden: a 3-step line, hand-verified by hand-computing DPU
-# (plain division, exact) and then feeding it through the SAME formula this
-# module reuses (e^-DPU) rather than re-deriving an independent number --
-# the same "hand-verify the formula and inputs, lean on math.exp/calculator
-# for the transcendental step" idiom test_stats_sigma_level.py's own
-# test_dpu_fpy_rty_hand_computed already uses in this codebase.
+# G-yield-01 golden: a 3-step line, hand-verified by direct division -- FPY
+# is the DIRECT observed ratio first_pass_correct/units_in (rubric R-MEA-09
+# #2 "computed from good/rework/scrap counts"), not a Poisson e^-DPU model
+# on top of it (the engine's old convention, critic-confirmed a flattering
+# defect: e^-DPU > the direct ratio for any DPU > 0, up to where both round
+# to 1 -- fixed here).
 #
-# Step 1: 100 units in, 95 first-pass-correct -> 5 defects -> DPU = 5/100
-#         = 0.05 exactly (hand-checkable long division).
-# Step 2: 95 units in, 90 first-pass-correct -> 5 defects -> DPU = 5/95
-#         = 0.0526315789... (hand-checkable: 5/95 = 1/19).
-# Step 3: 90 units in, 88 first-pass-correct -> 2 defects -> DPU = 2/90
-#         = 0.0222222... (hand-checkable: 2/90 = 1/45).
-# FPY_i = e^-DPU_i (this module's fpy_at_step, = stats/sigma_level.py's
-# fpy_from_dpu, reused verbatim). RTY = product(FPY_i) = e^-(sum of DPUs)
-# = e^-0.124853801... ~= 0.882626 (both forms asserted equal below, which
-# is itself the DPU<->RTY log identity a hand-check can verify: DPU_total
-# ~= -ln(RTY)).
+# Step 1: 100 units in, 95 first-pass-correct -> FPY = 95/100 = 0.95 exactly.
+# Step 2: 95 units in, 90 first-pass-correct -> FPY = 90/95 (hand-checkable:
+#         90/95 = 18/19 = 0.947368...).
+# Step 3: 90 units in, 88 first-pass-correct -> FPY = 88/90 (hand-checkable:
+#         88/90 = 44/45 = 0.977778...).
+# RTY = product(FPY_i) = 0.95 * (90/95) * (88/90). The 95s and 90s cancel by
+# hand: 0.95 * 90/95 = 85.5/95 = 0.9 exactly; 0.9 * 88/90 = 79.2/90 = 0.88
+# exactly. RTY = 0.88 exactly (verified: 0.95 * (90/95) * (88/90) == 0.88).
 # ---------------------------------------------------------------------------
 
 
@@ -56,13 +51,13 @@ def test_golden_g_yield_01_three_step_line_rty():
     artifact = YieldCalcArtifact.model_validate(make_yield_calc())
     steps = artifact.steps
 
-    expected_dpu = [5 / 100, 5 / 95, 2 / 90]
-    for step, dpu_expected in zip(steps, expected_dpu):
-        assert step.dpu_at_step == pytest.approx(dpu_expected)
-        assert step.fpy_at_step == pytest.approx(math.exp(-dpu_expected))
+    expected_fpy = [95 / 100, 90 / 95, 88 / 90]
+    for step, fpy_expected in zip(steps, expected_fpy):
+        assert step.fpy_at_step == pytest.approx(fpy_expected)
 
-    expected_rty = math.exp(-sum(expected_dpu))
-    assert expected_rty == pytest.approx(0.8826259320313404)
+    expected_rty = expected_fpy[0] * expected_fpy[1] * expected_fpy[2]
+    assert expected_rty == pytest.approx(0.88)
+    assert artifact.rty_result.value == pytest.approx(0.88)
     assert artifact.rty_result.value == pytest.approx(expected_rty)
     # Equivalent form via the reused rty() function directly, over the
     # per-step fpy_at_step values -- proves compute_rty_result isn't doing
@@ -113,8 +108,9 @@ def test_shift_convention_always_labeled_both_ways():
 def test_compute_rty_result_matches_hand_sum():
     steps = [YieldStep.model_validate(s) for s in make_yield_calc_steps()]
     result = compute_rty_result(steps)
-    expected = rty([fpy_from_dpu(dpu(s.units_in - s.first_pass_correct, s.units_in)) for s in steps])
+    expected = rty([s.first_pass_correct / s.units_in for s in steps])
     assert result.value == pytest.approx(expected)
+    assert result.value == pytest.approx(0.88)
     assert result.provenance.method
     assert result.provenance.input_hash
 
@@ -137,7 +133,7 @@ def test_posted_rty_result_is_discarded_and_recomputed():
     art = YieldCalcArtifact.model_validate(
         make_yield_calc(rty_result=compute(0.01, method="tampered", input_data=[]).model_dump(mode="json"))
     )
-    assert art.rty_result.value == pytest.approx(0.8826259320313404)
+    assert art.rty_result.value == pytest.approx(0.88)
     assert art.rty_result.value != pytest.approx(0.01)
     assert "RTY" in art.rty_result.provenance.method
 
@@ -231,16 +227,15 @@ def test_rejects_empty_steps():
 def test_zero_defect_step_is_fpy_one():
     steps = [{"name": "Perfect step", "units_in": 50, "first_pass_correct": 50}]
     artifact = YieldCalcArtifact.model_validate(make_yield_calc(steps=steps, dpmo_block=None))
-    assert artifact.steps[0].defects_at_step == 0
-    assert artifact.steps[0].dpu_at_step == 0
+    assert artifact.steps[0].defective_units_at_step == 0
     assert artifact.steps[0].fpy_at_step == pytest.approx(1.0)
     assert artifact.rty_result.value == pytest.approx(1.0)
 
 
 # ---------------------------------------------------------------------------
 # What is deliberately NOT enforced: a later step's units_in is never
-# checked against the prior step's first_pass_correct/defects_at_step --
-# real lines rework and scrap units between steps.
+# checked against the prior step's first_pass_correct/defective_units_at_step
+# -- real lines rework and scrap units between steps.
 # ---------------------------------------------------------------------------
 
 

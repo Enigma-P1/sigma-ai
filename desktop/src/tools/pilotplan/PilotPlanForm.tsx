@@ -2,6 +2,7 @@ import { Button, Field, MissingHint, Panel, SelectInput, VerdictBanner } from ".
 import { PrescoreStrip } from "../PrescoreStrip";
 import { ComparisonInclusionSection } from "./ComparisonInclusionSection";
 import { ConfounderChecklistSection } from "./ConfounderChecklistSection";
+import { DeclaredPackageSection } from "./DeclaredPackageSection";
 import { FalsificationSection } from "./FalsificationSection";
 import { OneChangeSection } from "./OneChangeSection";
 import { ThresholdAnalysisSection } from "./ThresholdAnalysisSection";
@@ -39,9 +40,11 @@ export function PilotPlanForm({ projectId, project, onSaved }: PilotPlanFormProp
 
       <OneChangeSection
         statement={f.state.primaryChangeText} linkedSolutionId={f.state.linkedSolutionId} extraChanges={f.state.extraChanges}
-        exitError={f.exitError} onStatementChange={(v) => f.update({ primaryChangeText: v })}
+        exitError={f.exitError} packageActive={f.state.declaredPackage !== null} onStatementChange={(v) => f.update({ primaryChangeText: v })}
         onAddExtraChange={f.addExtraChange} onUpdateExtraChange={f.updateExtraChange} onRemoveExtraChange={f.removeExtraChange}
       />
+
+      <DeclaredPackageSection value={f.state.declaredPackage} onChange={(v) => f.update({ declaredPackage: v })} />
 
       <ComparisonInclusionSection
         comparisonDesign={f.state.comparisonDesign} inclusion={f.state.inclusion}

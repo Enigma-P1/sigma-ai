@@ -4,7 +4,7 @@
   "tool_id": "T-21",
   "created_at": "2026-07-23T17:30:00Z",
   "updated_at": "2026-09-07T16:00:00Z",
-  "notes": "Recalculated (not re-frozen on a whim): the one legal path to new limits is the logged recalculate_reason below, and the log now carries both entries -- the 2026-07-23 initial freeze and this 2026-09-07 recalculation. New center 0.0379 on 24 variable-n subgroups (58-91 orders/day; the term-start surge week is IN the window and inside the new limits -- load went up, the rate held). Signals against the new limits: none. Armed, cadence unchanged. The customer's halve-it goal (0.043) stays a goal line on the wall chart, never a control limit: the chart says what the process is doing (0.0379 and stable); the goal says what the charter promised (met, remaining -0.006 on the gap block); the two sentences stay different on purpose.",
+  "notes": "Recalculated (not re-frozen on a whim): the one legal path to new limits is the logged recalculate_reason below, and the log now carries both entries -- the 2026-07-23 initial freeze and this 2026-09-07 recalculation. New center 0.0379 on 24 variable-n subgroups (58-91 orders/day; the term-start surge week is IN the window and inside the new limits -- load went up, the rate held). Signals against the new limits: none. Armed, cadence unchanged. The customer's halve-it goal (0.043) stays a goal line on the wall chart, never a control limit: the chart says what the process is doing (0.0379 and stable); the goal says what the charter promised (met, remaining -0.005 on the gap block); the two sentences stay different on purpose.",
   "chart_type": "p",
   "metric_ref": "first-presentation defect rate (daily proportion of orders rejected, both shifts)",
   "selector": {
@@ -141,6 +141,8 @@
       "defective_count": 3
     }
   ],
+  "rule2_enabled": false,
+  "rule3_enabled": false,
   "freeze_requested": false,
   "recalculate_reason": null,
   "action_at": null,
@@ -504,8 +506,8 @@
   "signals": {
     "value": [],
     "provenance": {
-      "input_hash": "31319d993fd8cb0f2596b05c7788bcfbabae5e175ac33087ddcb4b1c6342ad7d",
-      "method": "signals = WECO rule1 (imr: beyond the frozen +/-3sigma band; p: beyond each point's own frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center), evaluated against the FROZEN baseline over the current data (matrix \u00a74a / VI.A.1)",
+      "input_hash": "d85638fcdd0ce4a8a91eb2c2fe98df1b4627bd28b2e705e51c8fd0602123cfb9",
+      "method": "signals = WECO rule1 (imr: beyond the frozen +/-3sigma band; p: beyond each point's own frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center) always, + rule2 (2 of 3 beyond 2 sigma)/rule3 (4 of 5 beyond 1 sigma) when opted in (I-MR only) -- evaluated against the FROZEN baseline over the current data (matrix \u00a74a / VI.A.1)",
       "engine_version": "0.1.0",
       "assumptions_checked": [
         "baseline limits are frozen -- not recomputed from the current data"

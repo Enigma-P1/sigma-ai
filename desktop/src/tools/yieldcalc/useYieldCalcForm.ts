@@ -106,7 +106,7 @@ export function useYieldCalcForm(projectId: string, project: ProjectMetadata, on
       setSaveState("saved");
       onSaved();
       try {
-        // What the form renders as each step's defects/DPU/FPY and the
+        // What the form renders as each step's defective units/FPY and the
         // artifact-level RTY/DPMO/sigma always comes from this fresh GET,
         // not from `body` above (CopqForm's same reload-after-save contract).
         setServerArtifact((await loadArtifact(projectId, ARTIFACT_ID)) as unknown as YieldCalcArtifact);

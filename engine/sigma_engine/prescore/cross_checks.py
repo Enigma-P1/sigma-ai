@@ -41,7 +41,7 @@ from pydantic import BaseModel
 from ..artifacts.charter import CharterArtifact
 from ..artifacts.check_sheet import CheckSheetArtifact
 from ..artifacts.copq import CopqArtifact
-from ..project_store import ProjectMetadata, ProjectStore
+from ..project_store import ProjectStore
 from ..stats.descriptive import compute_descriptive_stats
 
 CrossCheckStatus = Literal["pass", "flag", "advisory"]
@@ -58,16 +58,6 @@ class CrossCheckResult(BaseModel):
     check_id: str
     status: CrossCheckStatus
     detail: str
-
-
-def _latest_artifact(store: ProjectStore, project_id: str, meta: ProjectMetadata, tool_id: str) -> dict | None:
-    """The project's latest saved artifact of `tool_id`, or None if it has
-    never been saved -- same lookup shape as routes/gates.py's
-    _build_snapshot and routes/stats.py's _latest_msa_verdict."""
-    for artifact_id, entry in meta.artifact_index.items():
-        if entry.tool_id == tool_id:
-            return store.load_artifact(project_id, artifact_id, entry.latest_version)
-    return None
 
 
 _ANNUALIZE_FACTORS: list[tuple[str, float]] = [
@@ -202,9 +192,19 @@ def run_cross_checks(
     from ..datasets import DatasetStore  # local import: avoids a routes/prescore.py <-> datasets.py cycle
 
     meta = store.load_project(project_id)  # FileNotFoundError -> 404 at the route layer
-    charter_data = _latest_artifact(store, project_id, meta, "T-03")
-    copq_data = _latest_artifact(store, project_id, meta, "T-02")
-    check_sheet_data = _latest_artifact(store, project_id, meta, "T-08")
+    charter_data = store.latest_artifact_for_tool(project_id, meta, "T-03")
+    # oldest=True: this check wants the DEFINE-phase COPQ the charter's
+    # business_impact figure actually quoted, not a later Wrap re-run --
+    # "newest wins" (this helper's default, matching gates.py/stats.py)
+    # would silently swap in the Wrap COPQ (a much smaller number, post-
+    # improvement) the moment a project re-runs COPQ at Wrap (T-02, R-WRAP-
+    # 02), which reconciles against a different sentence than this one.
+    # Critic-confirmed: Coffee Bar already carries two T-02 artifacts
+    # (coffee-copq, coffee-copq-wrap) and this check's correctness was, up
+    # to this fix, a sort accident (alphabetical happened to put the
+    # Define-phase one first).
+    copq_data = store.latest_artifact_for_tool(project_id, meta, "T-02", oldest=True)
+    check_sheet_data = store.latest_artifact_for_tool(project_id, meta, "T-08")
 
     baseline_mean: float | None = None
     if dataset_id is not None and column is not None:

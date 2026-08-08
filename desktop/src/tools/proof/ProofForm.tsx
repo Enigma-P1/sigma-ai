@@ -47,6 +47,12 @@ export function ProofForm({ projectId, project, onSaved }: ProofFormProps) {
           <TextInput id="proof-metric-ref" data-testid="proof-metric-ref" value={f.state.metricRef} onChange={(e) => f.update({ metricRef: e.target.value })} />
         </Field>
       </div>
+      {f.state.declaredPackage && (
+        <p data-testid="proof-declared-package-chip">
+          Declared package ({f.state.declaredPackage.components.length} components: {f.state.declaredPackage.components.join(", ")}) --
+          proof credit is package-level only.
+        </p>
+      )}
       <div className="sigma-proof-row">
         <Field label="Operational definition (same as baseline)" htmlFor="proof-operational-definition-ref">
           <TextInput id="proof-operational-definition-ref" data-testid="proof-operational-definition-ref" value={f.state.operationalDefinitionRef} onChange={(e) => f.update({ operationalDefinitionRef: e.target.value })} />
@@ -135,7 +141,13 @@ export function ProofForm({ projectId, project, onSaved }: ProofFormProps) {
           <VerdictBanner
             tone={a.test_result.refused ? "exit" : "neutral"}
             headline={a.test_result.refused ? `Refused: ${a.test_result.routing.exit?.exit_id ?? "no test"}` : a.test_result.result?.value.plain_language.comparison_summary ?? ""}
-            detail={a.verdict?.value.proof_form === "descriptive" ? "Descriptive proof — observed improvement is shown, not statistically tested." : a.test_result.result?.value.plain_language.p_value_meaning}
+            detail={
+              a.verdict?.value.proof_form === "descriptive"
+                ? (a.verdict.value.threshold_verdict === "met"
+                    ? "Descriptive proof — observed improvement is shown, not statistically tested."
+                    : "Descriptive proof — threshold not met, so no improvement is claimed; not statistically tested either way.")
+                : a.test_result.result?.value.plain_language.p_value_meaning
+            }
           />
         </div>
       )}

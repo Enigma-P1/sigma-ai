@@ -13,6 +13,7 @@ NIST §6.3.2.1's n=2 table row): 3.267 * (16.9/9) = 6.1347.
 
 import pytest
 
+from factories import RULE2_ONLY_DATA, RULE3_ONLY_DATA
 from sigma_engine.stats.imr import (
     Signal,
     compute_imr_chart,
@@ -21,6 +22,8 @@ from sigma_engine.stats.imr import (
     mr_chart_limits,
     moving_ranges,
     rule1_beyond_3sigma,
+    rule2_two_of_three_beyond_2sigma,
+    rule3_four_of_five_beyond_1sigma,
     rule4_run_of_8,
 )
 
@@ -103,27 +106,10 @@ def test_rule4_run_of_exactly_8_signals_once_over_the_full_run():
 
 
 # --- WECO rules 2/3: opt-in, verified default-off (docs/traceability-
-# matrix.md §4a / §VI.A.1) -------------------------------------------------
-
-# n=20 (clears the EXIT-04 companion floor), tightly alternating baseline
-# (MR always 0.4) so sigma_within is small and predictable, then 2 of the
-# last 3 points pushed to 2-3 sigma above center (zone-A territory) --
-# verified by construction (see this task's research) to trigger rule 2
-# alone: xbar=50.11, sigma_within=0.41993, zone-A upper=50.95, and no
-# point ever reaches the 3-sigma UCL (51.37), so rule 1 never fires.
-RULE2_ONLY_DATA = [
-    50, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2,
-    49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8,
-    51.0, 50.2, 51.0,
-]
-
-# Same baseline shape; last 5 points are 4-of-5 beyond 1-sigma (zone-B),
-# never reaching zone-A or the 3-sigma UCL -- rule 3 alone.
-RULE3_ONLY_DATA = [
-    50, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8, 50.2,
-    49.8, 50.2, 49.8, 50.2, 49.8, 50.2, 49.8,
-    50.5, 50.5, 50.5, 50.5, 49.8,
-]
+# matrix.md §4a / §VI.A.1) -- fixtures live in factories.py (RULE2_ONLY_DATA/
+# RULE3_ONLY_DATA), shared with test_artifacts_control_chart.py's T-21
+# artifact-level proof that the same toggle threads through to monitoring
+# signals. -------------------------------------------------------------
 
 
 def test_rule2_and_rule3_are_off_by_default():
@@ -154,3 +140,23 @@ def test_rule3_signals_only_when_enabled():
 def test_compute_imr_chart_requires_at_least_two_observations():
     with pytest.raises(ValueError):
         compute_imr_chart([1.0])
+
+
+# --- rule2_two_of_three_beyond_2sigma / rule3_four_of_five_beyond_1sigma:
+# the public wrappers T-21's monitoring read (control_chart.py) calls
+# directly, without going through compute_imr_chart's full recompute --
+# same math, same fixtures, exercised as standalone callables. -----------
+
+
+def test_rule2_wrapper_matches_compute_imr_chart_on_the_same_fixture():
+    chart = compute_imr_chart(RULE2_ONLY_DATA, enable_rule2=True)
+    standalone = rule2_two_of_three_beyond_2sigma(RULE2_ONLY_DATA, chart.value.xbar, chart.value.sigma_within)
+    assert standalone == [s for s in chart.value.signals if s.rule_id == "rule2"]
+    assert len(standalone) == 1
+
+
+def test_rule3_wrapper_matches_compute_imr_chart_on_the_same_fixture():
+    chart = compute_imr_chart(RULE3_ONLY_DATA, enable_rule3=True)
+    standalone = rule3_four_of_five_beyond_1sigma(RULE3_ONLY_DATA, chart.value.xbar, chart.value.sigma_within)
+    assert standalone == [s for s in chart.value.signals if s.rule_id == "rule3"]
+    assert len(standalone) >= 1

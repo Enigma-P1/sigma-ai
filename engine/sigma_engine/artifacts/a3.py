@@ -105,7 +105,17 @@ class RealizedBenefits(BaseModel):
     """The results panel's extra structured block (module docstring).
     `window` is rubric R-WRAP-02 #1's stated realized-to-date window (a
     student project may have weeks, not quarters); `annualized_projection`
-    is optional and, when given, is labeled projection, never realized."""
+    is optional and, when given, is labeled projection, never realized.
+
+    **annualized_projection_basis (M4 addition)** is optional-but-required-
+    whenever-a-projection-is-set: rubric R-WRAP-02's own Needs-work line
+    names exactly this gap -- "a projection presented without its basis" --
+    and R-DEF-05's charter-side twin states the passing form plainly: "any
+    annualization or extrapolation states its basis ('Q2 actuals x 4')".
+    Validated below, schema-hard (a conditionally-required field, the same
+    "field X requires field Y" move control_chart.py's ChartSelector makes
+    for defectives_or_defects): a bare projection number with no stated
+    method is not a passing projection, so it cannot be saved as one."""
 
     copq_rerun_artifact_id: str = Field(min_length=1)  # the T-02 re-run this panel is built on
     window: str = Field(min_length=1)  # e.g. "6 weeks post-rollout"
@@ -113,7 +123,18 @@ class RealizedBenefits(BaseModel):
     after_amount: float
     fix_cost: float = 0.0
     annualized_projection: float | None = None
+    annualized_projection_basis: str | None = None
     result: Computed[RealizedBenefitsResult] | None = None  # server-computed -- see A3Artifact._recompute_realized_benefits
+
+    @model_validator(mode="after")
+    def _projection_requires_a_basis(self) -> "RealizedBenefits":
+        if self.annualized_projection is not None and not (self.annualized_projection_basis or "").strip():
+            raise ValueError(
+                "annualized_projection_basis is required whenever annualized_projection is set (rubric R-WRAP-02's "
+                "Needs-work line: \"a projection presented without its basis\") -- state how the projection was "
+                "derived, e.g. \"Q2 actuals x 4\", or remove the projection value"
+            )
+        return self
 
 
 TollgatePhase = Literal["Define", "Measure", "Analyze", "Improve", "Control", "Wrap"]

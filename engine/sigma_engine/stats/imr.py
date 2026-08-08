@@ -146,6 +146,22 @@ def _zone_rule(
     return signals
 
 
+def rule2_two_of_three_beyond_2sigma(data: Sequence[float], xbar: float, sigma: float) -> list[Signal]:
+    """WECO rule 2 (opt-in): 2 of the last 3 points beyond 2 sigma, same
+    side. Public wrapper over `_zone_rule` (control_chart.py's T-21
+    monitoring read needs this callable directly -- compute_imr_chart
+    below is the T-13 baseline's own caller of the exact same rule, no
+    duplicated math between the two callers)."""
+    return _zone_rule(data, xbar, sigma, zone_sigma=WE_RULE2_ZONE_SIGMA, count=WE_RULE2_COUNT, window=WE_RULE2_WINDOW, rule_id="rule2")
+
+
+def rule3_four_of_five_beyond_1sigma(data: Sequence[float], xbar: float, sigma: float) -> list[Signal]:
+    """WECO rule 3 (opt-in): 4 of the last 5 points beyond 1 sigma, same
+    side. Public wrapper over `_zone_rule` -- see rule2_two_of_three_
+    beyond_2sigma's docstring."""
+    return _zone_rule(data, xbar, sigma, zone_sigma=WE_RULE3_ZONE_SIGMA, count=WE_RULE3_COUNT, window=WE_RULE3_WINDOW, rule_id="rule3")
+
+
 class ImrChartResult(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -188,11 +204,9 @@ def compute_imr_chart(
 
     signals = rule1_beyond_3sigma(data, xbar, sigma) + rule4_run_of_8(data, xbar)
     if enable_rule2:
-        signals += _zone_rule(data, xbar, sigma, zone_sigma=WE_RULE2_ZONE_SIGMA,
-                               count=WE_RULE2_COUNT, window=WE_RULE2_WINDOW, rule_id="rule2")
+        signals += rule2_two_of_three_beyond_2sigma(data, xbar, sigma)
     if enable_rule3:
-        signals += _zone_rule(data, xbar, sigma, zone_sigma=WE_RULE3_ZONE_SIGMA,
-                               count=WE_RULE3_COUNT, window=WE_RULE3_WINDOW, rule_id="rule3")
+        signals += rule3_four_of_five_beyond_1sigma(data, xbar, sigma)
     signals.sort(key=lambda s: (s.start_index, s.rule_id))
 
     result = ImrChartResult(

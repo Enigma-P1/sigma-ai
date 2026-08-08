@@ -62,6 +62,50 @@ def test_list_versions_empty_for_unknown_artifact(store):
     assert store.list_versions("proj-1", "no-such-artifact") == []
 
 
+# ---------------------------------------------------------------------------
+# latest_artifact_for_tool (Fix 5, critic-confirmed): the shared "which of
+# this project's artifacts of tool_id X is latest" lookup, replacing three
+# call sites (routes/gates.py, routes/stats.py, prescore/cross_checks.py)
+# that used to each pick a different, wrong "latest" -- meta.artifact_index
+# iterates in the on-disk sort_keys=True order (alphabetical by
+# artifact_id), which is NOT chronological order.
+# ---------------------------------------------------------------------------
+
+
+def test_latest_artifact_for_tool_prefers_updated_at_over_alphabetical_order(store):
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    # "aaa-old" sorts alphabetically FIRST but is chronologically OLDER;
+    # "zzz-new" sorts alphabetically LAST and is chronologically NEWER.
+    # The old stats.py-style bug (first match) would return "aaa-old" here.
+    store.save_artifact("proj-1", "aaa-old", "T-02", {"updated_at": "2026-01-01T00:00:00", "marker": "old"}, "2026-01-01T00:00:00")
+    store.save_artifact("proj-1", "zzz-new", "T-02", {"updated_at": "2026-06-01T00:00:00", "marker": "new"}, "2026-06-01T00:00:00")
+    meta = store.load_project("proj-1")
+
+    latest = store.latest_artifact_for_tool("proj-1", meta, "T-02")
+    assert latest is not None and latest["marker"] == "new"  # updated_at wins over alphabetical
+
+    oldest = store.latest_artifact_for_tool("proj-1", meta, "T-02", oldest=True)
+    assert oldest is not None and oldest["marker"] == "old"
+
+
+def test_latest_artifact_for_tool_tie_breaks_deterministically_by_artifact_id(store):
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    same_ts = "2026-01-01T00:00:00"
+    store.save_artifact("proj-1", "aaa", "T-02", {"updated_at": same_ts, "marker": "aaa"}, same_ts)
+    store.save_artifact("proj-1", "zzz", "T-02", {"updated_at": same_ts, "marker": "zzz"}, same_ts)
+    meta = store.load_project("proj-1")
+    # Deterministic (not dict-iteration-order-dependent): same result on repeated calls.
+    first = store.latest_artifact_for_tool("proj-1", meta, "T-02")
+    second = store.latest_artifact_for_tool("proj-1", meta, "T-02")
+    assert first == second
+
+
+def test_latest_artifact_for_tool_returns_none_when_never_saved(store):
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    meta = store.load_project("proj-1")
+    assert store.latest_artifact_for_tool("proj-1", meta, "T-99") is None
+
+
 def test_writes_are_atomic_no_stray_temp_files(store):
     store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
     store.save_artifact("proj-1", "picker-001", "T-01", {"a": 1}, "2026-08-07T01:00:00")

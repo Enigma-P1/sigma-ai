@@ -16,15 +16,17 @@ def _build_snapshot(project_id: str, store: ProjectStore) -> gates_module.Projec
     meta = store.load_project(project_id)
     tool_ids = {entry.tool_id for entry in meta.artifact_index.values()}
 
-    picker_route: str | None = None
-    msa_verdict: str | None = None
-    for artifact_id, entry in meta.artifact_index.items():
-        if entry.tool_id == "T-01":
-            picker_data = store.load_artifact(project_id, artifact_id, entry.latest_version)
-            picker_route = picker_data.get("route")
-        elif entry.tool_id == "T-12":
-            msa_data = store.load_artifact(project_id, artifact_id, entry.latest_version)
-            msa_verdict = (msa_data.get("result") or {}).get("verdict")
+    # ProjectStore.latest_artifact_for_tool -- the shared lookup also used
+    # by routes/stats.py's _latest_msa_verdict and prescore/cross_checks.py
+    # (critic-confirmed defect: this loop used to keep overwriting on every
+    # match with no break, landing on whichever artifact_id sorted last
+    # alphabetically -- not necessarily the latest by any timestamp, and
+    # not necessarily the same pick routes/stats.py's own old first-match
+    # loop made for the same project).
+    picker_data = store.latest_artifact_for_tool(project_id, meta, "T-01")
+    msa_data = store.latest_artifact_for_tool(project_id, meta, "T-12")
+    picker_route = picker_data.get("route") if picker_data is not None else None
+    msa_verdict = (msa_data.get("result") or {}).get("verdict") if msa_data is not None else None
 
     return gates_module.ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route, msa_verdict=msa_verdict)
 

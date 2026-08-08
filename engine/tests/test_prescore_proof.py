@@ -31,6 +31,37 @@ def test_threshold_as_declared_reads_not_met_for_the_not_met_variant():
     assert "not_met" in results["threshold_as_declared"].detail
 
 
+# ---------------------------------------------------------------------------
+# Also-fix (critic finding 6): threshold_as_declared used to be vacuous --
+# `v in ("met", "not_met")` is always true, since threshold_verdict's own
+# type (Literal["met", "not_met"]) already guarantees it, so the check
+# could never fail no matter what the stored verdict said. Now it recomputes
+# the after value (weight-aware, Fix 3) and compares against a fresh
+# met/not_met read -- both ways: untampered passes (covered above), a
+# hand-edited verdict either direction hard_flags.
+# ---------------------------------------------------------------------------
+
+
+def test_threshold_as_declared_hard_flags_a_met_verdict_stored_over_not_met_data():
+    a = ProofArtifact.model_validate(make_proof())  # data says "met"
+    assert a.verdict.value.threshold_verdict == "met"
+    tampered_value = a.verdict.value.model_copy(update={"threshold_verdict": "not_met"})
+    tampered = a.model_copy(update={"verdict": a.verdict.model_copy(update={"value": tampered_value})})
+    results = _by_id(run_proof_prescore(tampered))
+    assert results["threshold_as_declared"].status == "hard_flag"
+    assert "hand-edited" in results["threshold_as_declared"].detail
+
+
+def test_threshold_as_declared_hard_flags_a_not_met_verdict_stored_over_met_data():
+    a = ProofArtifact.model_validate(make_proof(after_values=PROOF_AFTER_VALUES_NOT_MET))  # data says "not_met"
+    assert a.verdict.value.threshold_verdict == "not_met"
+    tampered_value = a.verdict.value.model_copy(update={"threshold_verdict": "met"})
+    tampered = a.model_copy(update={"verdict": a.verdict.model_copy(update={"value": tampered_value})})
+    results = _by_id(run_proof_prescore(tampered))
+    assert results["threshold_as_declared"].status == "hard_flag"
+    assert "hand-edited" in results["threshold_as_declared"].detail
+
+
 def test_confounder_echo_present_passes_on_the_weakened_variant_too():
     checklist = make_pilot_plan_confounder_checklist()
     checklist["staffing"] = {"changed": True, "note": "Two new hires started the same week as rollout."}

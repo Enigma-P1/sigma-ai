@@ -129,22 +129,32 @@ Implementation beyond the pilot followed the proof: batch-steam +
 sequencing became the standard on every morning from 2026-08-24, the
 documented state round 2 measures from.
 
-## T-19 round 2 — the next-ranked fix, one change again
+## T-19 round 2 — the next-ranked fix, declared as a package
 
-`pilot-plan-round2.json` validated and saved v1, designed 2026-09-03 with
+`pilot-plan-round2.json` validated and saved, designed 2026-09-03 with
 the threshold (5.5, lower is better) declared at 15:00 — five days before
-the first pilot morning. One change, declared as one dosing method whose
-parts cannot deploy apart (the mid-peak swap needs the standby unit; the
-unit is pointless without the dial-in routine) — attribution to the method
-as a whole, never a component, the R-IMP-02 package reading stated up
-front. The comparison window is the round-1 pilot window — the implemented
-current state — so the test isolates what this change adds; the cumulative
-goal check stays with the original baseline in the proof's gap block. The
+the first pilot morning. This is the carve-out the round-1 refusal named,
+used for real: a **declared package**, structurally. `declared_package`
+states the rationale — the dial-in routine and the standby unit deploy
+together or not at all (the mid-peak swap is impossible without a second
+dialed-in grinder standing by; the standby is pointless without the
+routine that keeps it dialed in; separated, neither is testable alone) —
+and lists both components by name, with the `changes` list aligned 1:1 to
+them, so EXIT-10 does not fire for this declared set and the engine
+stamps the attribution onto the artifact itself
+(`package_attribution_note`, computed): *"Declared package of 2
+component(s) … — proof credit is package-level only; nothing here is
+attributable to a single component (rubric R-IMP-02's carve-out)."* The
+comparison window is the round-1 pilot window — the implemented current
+state — so the test isolates what this package adds; the cumulative goal
+check stays with the original baseline in the proof's gap block. The
 honest part of this plan is the confounder checklist: **season and demand
 are declared "yes" before the pilot runs** — fall semester began
 2026-08-31, order counts already ~53–57/peak — with the direction stated
 (more load lengthens queues; the confound can mask a win, not manufacture
-one). Prescore: all three checks pass.
+one). Prescore: all four checks pass, `package_declaration_quality`
+included — two named components, stated rationale, "a real package, not
+a change wearing a costume."
 
 ## The round-2 window, and the capability run
 
@@ -166,17 +176,26 @@ checks in `after-round2-note.md`.
 
 ## T-20 round 2 — goal met on the mean, said honestly
 
-`POST /artifacts/T-20/validate`, saved v1 (`proof-round2.json` is the
+`POST /artifacts/T-20/validate`, saved (`proof-round2.json` is the
 echo). Before = the round-1 window (the implemented state), after = the
-full round-2 window, threshold 5.5 echoed from the plan. The engine's
-verdict, pasted:
+full round-2 window, threshold 5.5 echoed from the plan, and the pilot's
+`declared_package` echoed verbatim so the proof itself knows this was a
+package. The engine's verdict, pasted:
 
 - **Route:** `welch_two_sample_t`. **t = 13.0841**, df = 222.08,
   **p = 2.23e-29**, `significant: true`; **d = 1.69**, 95% CI [1.39,
-  1.98] — the grinder change's own effect, 6.198 → 4.899, isolated from
-  round 1 by the choice of before-window.
+  1.98] — the dosing-method package's own effect, 6.198 → 4.899, isolated
+  from round 1 by the choice of before-window.
 - **Threshold, as declared:** met — "handoff_minutes … = 4.89917 vs 5.5
   (lower_is_better)."
+- **Package attribution, on the verdict itself** — stamped right after
+  the threshold clause, before any improvement language, so attribution
+  scope is set before a reader ever sees "improvement shown": *"This
+  pilot ran as a declared package (2 components: Pre-peak dial-in
+  routine … , Pre-dialed standby grinder …) — proof credit belongs to
+  the package as a whole, never to a single component (rubric R-IMP-02's
+  carve-out)."* Neither the routine nor the standby unit ever gets solo
+  credit for the 1.30-minute drop.
 - **The confound prints on the verdict**, exactly as R-IMP-03 #3 wants:
   `weakened: true`, and the headline carries both declared confounders in
   full — season ("fall semester began 2026-08-31 … the charter's named

@@ -43,3 +43,26 @@
   gap: var(--space-2);
   margin-bottom: var(--space-4);
 }
+
+.sigma-pilot-package-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+.sigma-pilot-package-components {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.sigma-pilot-package-component-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sigma-pilot-package-component-row .sigma-input {
+  flex: 1;
+}

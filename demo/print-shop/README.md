@@ -10,14 +10,17 @@ variable-n p-chart baseline instead of I-MR, FPY/RTY/DPMO instead of
 Cp/Cpk, a two-proportion z instead of Welch's t, and a frozen-then-
 recalculated p-chart holding the gain. **The scope rule, applied**: this
 is deliberately not a second 25-tool thread. Process map, spaghetti, time
-study, fishbone, FMEA, solution matrix, pilot plan, control plan, 5S,
-standard work, and A3 behave identically on attribute data and are not
-duplicated here — the Coffee Bar is their reference; this README carries
-the Analyze/Improve narrative they would hold, in prose, so the
-before/after still has its story. Everything that did ship was POSTed to
-the live engine and accepted; every computed number is the engine's
-(`print-shop-run.md` is the session transcript, and the two refusals in
-it — a prescore hard_flag and a 422 — were run on purpose).
+study, FMEA, solution matrix, pilot plan, control plan, 5S, standard
+work, and A3 behave identically on attribute data and are not duplicated
+here — the Coffee Bar is their reference; this README carries the Improve
+narrative they would hold, in prose, so the before/after still has its
+story. The fishbone is the one Analyze exception: **T-15 ships here**
+because the locked matrix's flawed-example registry assigns its flawed
+pair — the zero-evidence fishbone and its correction — to this demo.
+Everything that did ship was POSTed to the live engine and accepted;
+every computed number is the engine's (`print-shop-run.md` is the session
+transcript, and the three refusals in it — a prescore hard_flag and two
+422s — were run on purpose).
 
 `define/` routes and frames the defect-rate problem. The picker's five
 Yes answers send it to full DMAIC — no single obvious fix when intake,
@@ -48,7 +51,8 @@ discipline the continuous MSA teaches, in attribute form (`msa-note.md`). The ba
 2.4.3): daily subgroups with n varying 58–90, per-day limits, **p̄
 0.086207 frozen from 21 signal-free subgroups** — stable at a bad level,
 in proportions — with capability language from T-10: per-step first-pass
-counts off the job travelers roll to **RTY 84.27%** against the 91.38%
+counts off the job travelers roll to **RTY 83.94%** (each step's FPY the
+direct counted ratio, RTY their product) against the 91.38%
 the customer sees and the ~99.8% final yield that hid the problem
 (reprints are the hidden factory), and the DPMO block reads **22,190
 DPMO / sigma 3.51, shift convention named**, its four opportunities
@@ -57,43 +61,52 @@ failed-check marks by type and shift; through `to-dataset` and the
 engine Pareto, **trim misalignment (48.2%) + wrong paper stock (84.2%
 cumulative) are the verified vital few** (`baseline-note.md`).
 
-`analyze-improve/` holds the tests, the proof, and this thread's
-flawed-then-fixed pair. The chi-square screen (declared before the split
-was cut; Cochran's rule engine-checked, one light cell within the rule)
-reads χ² 0.61, p 0.895, Cramer's V 0.066 — the defect mix is the same on
-both shifts, so the causes are process-shaped, not people-shaped. **What
-the fishbone and pilot would hold** (prose here, per the scope rule, and
-their method is the Coffee Bar's): the fishbone's verified causes would
-sit under Methods and Materials — trim failures trace to jobs reaching
-the cutter without a signed-off imposition (fold/bleed set per operator
-habit), wrong-stock failures to unlabeled tray loads between jobs — with
-the Pareto shares (48.2% / 36.0%) and the traveler rework counts as
-their evidence pointers, one 5-Why running proof-approval → imposition →
-no written pre-flight; ink and quantity would stay honest candidates in
-the tail. The pilot plan would declare **one change**: a prepress
-pre-flight checklist (imposition, bleed, stock SKU confirmed against the
-ticket) **with labeled paper trays as its materials half**, threshold
-0.05 declared 2026-08-01, falsification line "two settled weeks not
-below 5% → revert and take the next cause." That named fix went live
-2026-08-03; the record of it is the engine's. The pre-declared primary
-test — **two-proportion z**, baseline 135/1566 (8.62%) vs settled weeks
-one–two 30/884 (3.39%), floors printed and cleared — reads **z 4.96,
-p 7.1e-07, risk difference +5.23 points, CI +3.32 to +7.03**
-(`hypothesis-note.md`). The proof on the full 24-day window lands
-**threshold met as declared** (0.0368 vs 0.05) and **weakened: true** —
-the term-start surge is on the verdict with its direction stated (more
-load pushes the rate up; it can mask the win, not manufacture it) — with
-both guardrails improved and the gap block closing the loop: **recovered
-114.3% of the halving gap, remaining −0.006, "Goal met — route to
-Control."** The pair: `chart-flawed.json` charts defect *marks* through
-the p route and the engine refuses with **EXIT-11 by name** (422 quoted
-in `teaching-note.md`, the same guard shown firing on the test
-selector); the corrected chart, on defective *orders*, is the control
-phase's.
+`analyze-improve/` holds the tests, the proof, and this thread's **two
+flawed-then-fixed pairs**. The chi-square screen (declared before the
+split was cut; Cochran's rule engine-checked, one light cell within the
+rule) reads χ² 0.61, p 0.895, Cramer's V 0.066 — the defect mix is the
+same on both shifts, so the causes are process-shaped, not people-shaped.
+**The fishbone pair** (the matrix's assigned T-15 flawed example): the
+huddle draft marked the two Pareto leaders *verified* with the evidence
+fields empty, and the engine refused it at the schema — 422, "evidence
+is required (non-empty) when status='verified'", one error per cause,
+because R-ANA-02's verified-without-evidence state cannot even be
+constructed (`fishbone-flawed.json`, quoted in `teaching-note.md`). The
+corrected board (`fishbone-corrected.json`, live as `print-fishbone`)
+carries the verified causes under Methods and Materials — trim failures
+trace to jobs reaching the cutter without a signed-off imposition
+(fold/bleed set per operator habit), wrong-stock failures to unlabeled
+tray loads between jobs — with the check sheet's tally (67/139 on trim)
+and the Pareto's own dataset export as their evidence pointers, one
+5-Why running proof-approval → imposition-from-memory → unwritten
+pre-flight; ink and quantity stay honest candidates in the tail, shift
+mix and rater drift leave as ruled-out with evidence retained. **What
+the pilot would hold** (prose here, per the scope rule): **one change**,
+a prepress pre-flight checklist (imposition, bleed, stock SKU confirmed
+against the ticket) **with labeled paper trays as its materials half**,
+threshold 0.05 declared 2026-08-01, falsification line "two settled
+weeks not below 5% → revert and take the next cause." That named fix
+went live 2026-08-03; the record of it is the engine's. The pre-declared
+primary test — **two-proportion z**, baseline 135/1566 (8.62%) vs
+settled weeks one–two 30/884 (3.39%), floors printed and cleared — reads
+**z 4.96, p 7.1e-07, risk difference +5.23 points, CI +3.32 to +7.03**
+(`hypothesis-note.md`). The proof on the full 24-day window ships the
+after dailies **weighted by daily order count**, so its after-mean is
+the pooled post-window rate — the recalculated chart's own center — and
+lands **threshold met as declared** (0.0379 vs 0.05) and **weakened:
+true** — the term-start surge is on the verdict with its direction
+stated (more load pushes the rate up; it can mask the win, not
+manufacture it) — with both guardrails improved and the gap block
+closing the loop: **recovered 111.8% of the halving gap, remaining
+−0.005, "Goal met — route to Control."** The chart pair:
+`chart-flawed.json` charts defect *marks* through the p route and the
+engine refuses with **EXIT-11 by name** (422 quoted in
+`teaching-note.md`, the same guard shown firing on the test selector);
+the corrected chart, on defective *orders*, is the control phase's.
 
 `control/` closes the way an attribute thread should: on the chart, with
-the limits' whole history in one logged field. One artifact, three
-versions — the 2026-07-23 baseline freeze (armed that day), the
+the limits' whole history in one logged field. One artifact, three chart
+states saved as versions — the 2026-07-23 baseline freeze (armed that day), the
 monitoring close-out where the improvement itself arrives as a **rule-4
 signal on the old limits** (thirty consecutive days below center,
 starting exactly on the change date; acknowledged with
@@ -114,7 +127,8 @@ quoted verbatim) · `define/` picker, charter, voc-ctq, copq ·
 `measure/` orders.csv + orders-note (seed 90, generator embedded),
 collection-plan, msa-round1/2 + msa-note, check-sheet, pareto,
 yield-calc, baseline-pchart + baseline-note · `analyze-improve/`
-hypothesis-shift, hypothesis-run + hypothesis-note, proof,
+hypothesis-shift, hypothesis-run + hypothesis-note,
+fishbone-flawed + fishbone-corrected, proof,
 chart-flawed + teaching-note · `control/` control-chart + control-run.
 JSON files are engine echoes (computed blocks server-stamped, versioned
 in project `print-shop-demo`); the notes quote engine numbers and

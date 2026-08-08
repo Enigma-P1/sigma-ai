@@ -5,10 +5,11 @@ through the live engine, the coffee bar's `baseline-run.md` /
 `improve-run.md` convention applied to the whole attribute thread. Project
 `print-shop-demo` (`POST /project/create`, 2026-06-23). Every artifact in
 this demo was POSTed to the running engine and accepted; every computed
-number in every note is pasted from an engine response; the two refusals
-(a prescore hard_flag and a 422) were run on purpose and are quoted below
-verbatim. Where a phase has its own note, this transcript stays brief and
-points at it.
+number in every note is pasted from an engine response; the three refusals
+(a prescore hard_flag and two 422s — the consensus fishbone and the
+defect-marks chart) were run on purpose and are quoted below verbatim.
+Where a phase has its own note, this transcript stays brief and points
+at it.
 
 Datasets: `orders.csv` saved 2026-07-22 as
 `3122dfa39994454090c24e7a857d18f6` (sha256 `b6b0559d…154d9f`, 1,566 rows;
@@ -96,12 +97,15 @@ The draft's own numbers show what the game buys: 8 opportunities read DPMO
 11,095 / sigma 3.79 — a **0.28-sigma compliment** the process never
 earned, purchased entirely by the denominator. Corrected block: 4
 opportunities, justification naming the four checks verbatim; `POST
-/artifacts/T-10/validate` + save v1 (`measure/yield-calc.json`), prescore
+/artifacts/T-10/validate` + save (`measure/yield-calc.json`), prescore
 all-pass including `opportunity_inflation_justified` **pass** with the
-named list echoed. Engine results: per-step FPY 0.9692 / 0.9538 / 0.9490 /
-0.9606, **RTY 0.8427** (serial declaration explicit), **DPMO 22,190.29,
-sigma 3.5105 "with 1.5σ shift"** — read against first-presentation yield
-91.38% and final yield ~99.8% in `measure/baseline-note.md`.
+named list echoed. Engine results: per-step FPY 0.9687 / 0.9527 / 0.9476 /
+0.9598 — each the direct ratio first_pass_correct/units_in, with
+`defective_units_at_step` (49/74/82/63) derived beside it — **RTY 0.8394**
+(the product of those observed ratios, serial declaration explicit),
+**DPMO 22,190.29, sigma 3.5105 "with 1.5σ shift"** — read against
+first-presentation yield 91.38% and final yield ~99.8% in
+`measure/baseline-note.md`.
 
 ## The baseline freeze, and Analyze's two questions
 
@@ -123,6 +127,34 @@ sigma 3.5105 "with 1.5σ shift"** — read against first-presentation yield
   +7.03]** (Newcombe). Echo: `analyze-improve/hypothesis-run.json`; both
   reads: `analyze-improve/hypothesis-note.md`. Prescores: all five checks
   pass on both runs.
+
+## The consensus fishbone — refused at the schema, then evidenced
+
+The matrix's flawed-example registry assigns T-15's flawed pair to this
+demo, and it ran live 2026-07-28. At the morning huddle, with the Pareto
+ranking on the table, the draft board marked the two vital-few causes
+**verified with the evidence fields empty** — "the Pareto already proved
+it." `POST /artifacts/T-15/validate` came back **HTTP 422**, one value
+error per consensus-verified cause, before any prescore ran:
+
+> Value error, cause 'c-imposition': evidence is required (non-empty)
+> when status='verified'
+>
+> Value error, cause 'c-trays': evidence is required (non-empty) when
+> status='verified'
+
+The draft is kept (`analyze-improve/fishbone-flawed.json`); the corrected
+board (`fishbone-corrected.json`, saved as `print-fishbone` v1 that
+afternoon) attaches the pointers the huddle already had — the check
+sheet's 67/139 trim marks, the Pareto's own dataset export — and does the
+verification work the statuses were claiming: the prepress walk and the
+traveler audit that become the 5-Why chain (proof-approval →
+imposition-from-memory → unwritten pre-flight, the root the rollout
+memo's checklist targets). Engine echo: `verified_causes` count 4
+(c-imposition, c-approval-memory, c-unwritten-preflight, c-trays), ink
+and quantity honest candidates, shift mix and rater drift ruled out with
+their evidence retained. Prescore: all five checks pass, 6/6 branches.
+The write-up: `analyze-improve/teaching-note.md`.
 
 ## The EXIT-11 pair — chart refused, route refused
 
@@ -163,23 +195,28 @@ is echoed by reference where T-20 needs it. The engine runs, in order on
 - **T-21 v3** (16:00): logged `recalculate_reason`, new freeze from the
   24-day post window — **p̄ 0.037891, 0 signals, log now two entries**.
   Echo: `control/control-chart.json`.
-- **T-20** (16:30): threshold **met as declared** (0.036823 vs 0.05);
-  **weakened: true** — season and demand (the ~15% final-week surge)
-  carried on the verdict with direction stated; guardrails both improved
-  (turnaround −5.3%, overtime −9.2%); gap block: recovered **0.049384 of
-  the 0.043207 gap (114.3%), remaining −0.006177, goal_met: true — "Goal
-  met — route to Control."** Echo: `analyze-improve/proof.json`; the
-  full read: `control/control-run.md`. Prescore: five for five.
+- **T-20** (16:30): the after window ships weighted — each daily
+  proportion beside that day's order count — so the proof's after-mean is
+  the **pooled** post-window rate 69/1821 = **0.037891**, the same number
+  the recalculated chart froze as its center. Threshold **met as
+  declared** (0.037891 vs 0.05); **weakened: true** — season and demand
+  (the ~15% final-week surge) carried on the verdict with direction
+  stated; guardrails both improved (turnaround −5.3%, overtime −9.2%);
+  gap block: recovered **0.048316 of the 0.043207 gap (111.8%), remaining
+  −0.005109, goal_met: true — "Goal met — route to Control."** Echo:
+  `analyze-improve/proof.json`; the full read: `control/control-run.md`.
+  Prescore: five for five.
 
 ## The stored record
 
 Project `print-shop-demo` closes the session holding: picker v1, charter
 v1, voc-ctq v1, copq v1, collection-plan v1, **msa v1+v2** (the
-marginal→fix→re-run arc as versions), check-sheet v1, yield v1,
-**pchart v1+v2+v3** (freeze →
+marginal→fix→re-run arc as versions), check-sheet v1, yield, fishbone
+(`print-fishbone`, the corrected board), **pchart v1+v2+v3** (freeze →
 monitored signal → logged recalculation as versions), hypothesis-shift v1,
-hypothesis-beforeafter v1, proof v1 — plus the two datasets and the one
-draft that never saved because the engine refused it. Cross-checks
+hypothesis-beforeafter v1, proof — plus the two datasets and the two
+drafts that never saved because the engine refused them (the consensus
+fishbone, the defect-marks chart). Cross-checks
 (`POST /prescore/cross/print-shop-demo`, dataset column `reject_any`):
 charter impact vs COPQ total **0.0% apart**; goal vs engine-computed
 measured baseline "a genuine improvement." Every shipped JSON is the
