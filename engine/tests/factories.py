@@ -121,6 +121,44 @@ def make_voc_ctq(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_continuous_msa(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "schema_version": 1,
+        "artifact_id": "msa-001",
+        "tool_id": "T-12",
+        "created_at": TS,
+        "updated_at": TS,
+        "data_type": "continuous",
+        "operator": "Sam Lee",
+        "gauge_name": "digital calipers",
+        "gauge_increment": 0.01,
+        "usl": 20.0,
+        "lsl": 0.0,
+        "continuous_items": [
+            {"item_id": f"item-{i}", "readings": [10.0 + i * 0.5, 10.0 + i * 0.5 + 0.02]} for i in range(10)
+        ],
+    }
+    base.update(overrides)
+    return base
+
+
+def make_attribute_msa(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "schema_version": 1,
+        "artifact_id": "msa-attr-001",
+        "tool_id": "T-12",
+        "created_at": TS,
+        "updated_at": TS,
+        "data_type": "attribute",
+        "operator": "Sam Lee",
+        "attribute_items": [
+            {"item_id": f"item-{i}", "rater_a": i % 2 == 0, "rater_b": i % 2 == 0} for i in range(12)
+        ],
+    }
+    base.update(overrides)
+    return base
+
+
 def make_charter(**overrides: Any) -> dict[str, Any]:
     base = {
         "schema_version": 1,

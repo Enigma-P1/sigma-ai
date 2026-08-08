@@ -9,7 +9,7 @@ export const PHASE_ENTRY_GATES: Record<Phase, string[]> = {
   Intake: [],
   Define: ["intake_picker_present", "intake_picker_not_exit01"],
   Measure: ["define_to_measure"],
-  Analyze: ["measure_to_analyze"],
+  Analyze: ["measure_to_analyze", "measure_capability_language_requires_msa_pass"],
   Improve: ["analyze_to_improve"],
   Control: ["improve_to_control"],
   Wrap: ["control_to_wrap"],

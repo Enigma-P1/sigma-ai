@@ -1,6 +1,15 @@
 import { Panel, StatusPill, VerdictBanner } from "../../design/components";
 import { ImrChart } from "./ImrChart";
-import { EXIT04_CELL_TEXT, PP_ONE_SIDED_CELL_TEXT, exitExplanation, fmt, normalityText, sigmaLevelText } from "./baselineLogic";
+import {
+  EXIT04_CELL_TEXT,
+  MEASUREMENT_CHECK_FAILED_DETAIL,
+  MEASUREMENT_CHECK_FAILED_HEADLINE,
+  PP_ONE_SIDED_CELL_TEXT,
+  exitExplanation,
+  fmt,
+  normalityText,
+  sigmaLevelText,
+} from "./baselineLogic";
 import type { BaselineResponse } from "../../api/types";
 import "./BaselineForm.css";
 
@@ -23,10 +32,16 @@ export function BaselineResultView({ result, values, unitLabel = "" }: BaselineR
     );
   }
 
-  const { stability, stable, stability_note, capability, normality, percentile_capability, observed_yield, sigma, exits } = result;
+  const { stability, stable, stability_note, capability, normality, percentile_capability, observed_yield, sigma, exits, measurement_check } = result;
 
   return (
     <div className="sigma-baseline-results">
+      {measurement_check === "failed" && (
+        <div data-testid="baseline-measurement-check-banner">
+          <VerdictBanner tone="fail" headline={MEASUREMENT_CHECK_FAILED_HEADLINE} detail={MEASUREMENT_CHECK_FAILED_DETAIL} />
+        </div>
+      )}
+
       {stability && stable != null && stability_note && (
         <div data-testid="baseline-stability-verdict">
           <ImrChart values={values} stability={stability} stable={stable} stabilityNote={stability_note} unitLabel={unitLabel} />

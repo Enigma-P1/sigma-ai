@@ -36,10 +36,10 @@ export const TOOLS: ToolDef[] = [
   { id: "T-08", name: "Check Sheet / Tally", phase: "Measure", live: false, hasForm: false },
   { id: "T-09", name: "Guided Time Study / Work Sampling", phase: "Measure", live: false, hasForm: false },
   { id: "T-10", name: "Yield Calculator (FPY/RTY + DPMO)", phase: "Measure", live: false, hasForm: false },
-  // T-11 this milestone is the dataset-import half only -- sample-size
-  // guidance is a later unit (M2 brief).
+  // T-11: dataset-import half (M2) plus the sample-size calculator panel
+  // (this unit) -- both live on the same screen.
   { id: "T-11", name: "Data Collection Plan (+ sample-size guidance)", phase: "Measure", live: true, hasForm: true },
-  { id: "T-12", name: "Measurement Check (narrow MSA)", phase: "Measure", live: false, hasForm: false },
+  { id: "T-12", name: "Measurement Check (narrow MSA)", phase: "Measure", live: true, hasForm: true },
   { id: "T-13", name: "Baseline: Stability then Capability", phase: "Measure", live: true, hasForm: true },
   { id: "T-14", name: "Pareto / Histogram / Run Chart", phase: "Measure", live: true, hasForm: true },
 

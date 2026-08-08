@@ -47,6 +47,13 @@ class ProjectSnapshot(BaseModel):
 
     artifact_tool_ids: set[str] = Field(default_factory=set)  # tool_ids with >=1 saved version
     picker_route: str | None = None  # latest T-01 artifact's route, if any
+    # Latest T-12 (Measurement Check) artifact's verdict, if any T-12
+    # artifact has ever been saved for this project -- like picker_route,
+    # this inspects a field *value*, not mere tool presence, because the
+    # frozen rule (matrix §4a EXIT-02) cares which verdict, not whether a
+    # check ever ran. routes/gates.py's _build_snapshot populates this the
+    # same way it populates picker_route.
+    msa_verdict: str | None = None
 
 
 @dataclass(frozen=True)
@@ -76,7 +83,14 @@ GATE_TABLE: tuple[GateRequirement, ...] = (
     ),
     GateRequirement(
         gate_id="measure_to_analyze", from_phase="Measure", to_phase="Analyze", kind="stub",
-        description="not-yet-built: Measure math guards (stability/capability/MSA) ship in M2.",
+        description="not-yet-built: Measure math guards (stability/capability) ship across M2.",
+    ),
+    GateRequirement(
+        gate_id="measure_capability_language_requires_msa_pass", from_phase="Measure", to_phase="Analyze", kind="hard",
+        description=(
+            "Capability-claim language is hard-blocked while the project's latest T-12 measurement check reads "
+            "fail (matrix §4a EXIT-02) -- fix the measurement system and get a passing T-12 re-run first."
+        ),
     ),
     GateRequirement(
         gate_id="analyze_to_improve", from_phase="Analyze", to_phase="Improve", kind="stub",
@@ -132,6 +146,25 @@ def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideL
             return GateResult(
                 status="HARD_BLOCK",
                 reason="Picker route is EXIT-01: not a viable first project as scoped (matrix §4a).",
+            )
+        return GateResult(status="CLEAR")
+
+    if gate_id == "measure_capability_language_requires_msa_pass":
+        # Second field-value-inspecting special case (see the picker
+        # branch above): a hard gate on the latest T-12 *verdict*, not on
+        # T-12's mere presence -- a project that never ran T-12 is a
+        # softer, different concern than one whose latest check reads
+        # fail, and isn't modeled as its own gate this milestone. Hard
+        # blocks can't be overridden (PLAN §4.2): this matches rubric
+        # R-MEA-07's "the suite blocks the capability-language
+        # automatically," not a request the user can talk their way past.
+        if snapshot.msa_verdict == "fail":
+            return GateResult(
+                status="HARD_BLOCK",
+                reason=(
+                    "Measurement check failed (EXIT-02): fix the measurement system and get a passing T-12 "
+                    "re-run before capability language is trusted."
+                ),
             )
         return GateResult(status="CLEAR")
 

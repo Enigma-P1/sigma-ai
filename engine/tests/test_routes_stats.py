@@ -66,3 +66,40 @@ def test_pareto_route_returns_sorted_categories_with_cumulative_share():
 
 def test_pareto_route_rejects_empty_categories():
     assert client.post("/stats/pareto", json={"categories": []}).status_code == 422
+
+
+def test_sample_size_route_always_returns_rule_of_thumb_and_warnings():
+    resp = client.post("/stats/sample-size", json={})
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["rule_of_thumb"]["minimum_n"] == 25
+    assert body["calculator"] is None
+    assert body["warnings"] == []
+
+
+def test_sample_size_route_mean_calculator_matches_engine_function():
+    resp = client.post(
+        "/stats/sample-size",
+        json={"calculator": "mean", "planning_sd": 10.0, "margin_of_error": 3.0, "confidence_level": 0.95},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["calculator"]["value"]["n"] == 43
+
+
+def test_sample_size_route_proportion_calculator_hits_the_385_fixture():
+    resp = client.post(
+        "/stats/sample-size", json={"calculator": "proportion", "planning_p": 0.5, "margin_of_error": 0.05}
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["calculator"]["value"]["n"] == 385
+
+
+def test_sample_size_route_warnings_reflect_flags():
+    resp = client.post("/stats/sample-size", json={"is_convenience_sample": True, "single_operator_only": True})
+    assert resp.status_code == 200, resp.text
+    assert len(resp.json()["warnings"]) == 2
+
+
+def test_sample_size_route_rejects_calculator_missing_required_inputs():
+    resp = client.post("/stats/sample-size", json={"calculator": "mean"})
+    assert resp.status_code == 422

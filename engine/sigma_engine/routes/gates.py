@@ -17,13 +17,16 @@ def _build_snapshot(project_id: str, store: ProjectStore) -> gates_module.Projec
     tool_ids = {entry.tool_id for entry in meta.artifact_index.values()}
 
     picker_route: str | None = None
+    msa_verdict: str | None = None
     for artifact_id, entry in meta.artifact_index.items():
         if entry.tool_id == "T-01":
             picker_data = store.load_artifact(project_id, artifact_id, entry.latest_version)
             picker_route = picker_data.get("route")
-            break
+        elif entry.tool_id == "T-12":
+            msa_data = store.load_artifact(project_id, artifact_id, entry.latest_version)
+            msa_verdict = (msa_data.get("result") or {}).get("verdict")
 
-    return gates_module.ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route)
+    return gates_module.ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route, msa_verdict=msa_verdict)
 
 
 class GateCheckRequest(BaseModel):

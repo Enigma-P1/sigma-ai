@@ -19,11 +19,22 @@ is read as naming what replaces the percentile addition specifically,
 not as replacing the whole capability section. If the intended reading
 was "suppress Cp/Cpk/Pp/Ppk too when non-normal and n<100," that is a
 one-line change to _apply_normality_supplement below.
+
+EXIT-02 consultation (T-12 capability-language block, matrix §4a / rubric
+R-MEA-07): the caller (routes/stats.py) looks up the project's *latest*
+T-12 verdict and passes it in as `msa_verdict` -- this module stays free
+of file I/O, same as everywhere else in stats/. `msa_verdict == "fail"`
+sets `measurement_check="failed"` on the result and suppresses every
+capability-language field (capability, percentile_capability,
+observed_yield, sigma) regardless of stability -- "the suite blocks the
+capability-language automatically" (rubric R-MEA-07 Fail line), not just a
+UI label. Descriptive stats and the I-MR stability read are NOT
+suppressed: those describe process behavior, not a capability claim.
 """
 
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Literal, Sequence
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -124,6 +135,12 @@ class BaselineResult(BaseModel):
     gate_ok: bool
     gate_message: str | None
     n: int | None
+    # Set to "failed" whenever the project's latest T-12 (Measurement
+    # Check) verdict reads "fail" (matrix §4a EXIT-02) -- the flag the UI
+    # renders as "unreliable -- measurement system failed" (task brief).
+    # None means either no T-12 has run yet, or its latest verdict isn't
+    # "fail" -- this field is never anything other than "failed" or None.
+    measurement_check: Literal["failed"] | None
     descriptive: Computed[descriptive_mod.DescriptiveStats] | None
     stability: Computed[imr_mod.ImrChartResult] | None
     stable: bool | None
@@ -136,9 +153,9 @@ class BaselineResult(BaseModel):
     exits: tuple[str, ...]
 
 
-def _gate_failure(message: str, n: int | None) -> BaselineResult:
+def _gate_failure(message: str, n: int | None, measurement_check: Literal["failed"] | None = None) -> BaselineResult:
     return BaselineResult(
-        gate_ok=False, gate_message=message, n=n,
+        gate_ok=False, gate_message=message, n=n, measurement_check=measurement_check,
         descriptive=None, stability=None, stable=None, stability_note=None,
         capability=None, normality=None, percentile_capability=None, observed_yield=None,
         sigma=None, exits=(),
@@ -169,18 +186,26 @@ def run_baseline(
     enable_rule2: bool = False,
     enable_rule3: bool = False,
     apply_sigma_shift: bool = True,
+    msa_verdict: str | None = None,
 ) -> BaselineResult:
     """The T-13 orchestrator. Enforced order: specs + operational
     definition -> n>=2 -> I-MR stability -> capability -> normality ->
-    EXIT-05 supplement. See module docstring for the EXIT-05 "caveat, not
-    a stop" reading applied below."""
+    EXIT-05 supplement -> EXIT-02 capability-language suppression. See
+    module docstring for the EXIT-05 "caveat, not a stop" reading applied
+    below, and for the EXIT-02 consultation contract. `msa_verdict` is the
+    project's latest T-12 verdict as looked up by the caller ("acceptable"
+    / "marginal" / "fail" / None) -- only "fail" has any effect here."""
+    measurement_check: Literal["failed"] | None = "failed" if msa_verdict == "fail" else None
     if usl is None and lsl is None:
-        return _gate_failure("at least one spec limit (USL or LSL) is required before a baseline can run", None)
+        return _gate_failure("at least one spec limit (USL or LSL) is required before a baseline can run", None, measurement_check)
     if not operational_definition_ok:
-        return _gate_failure("operational definition must be confirmed before a baseline can run (matrix III.F.1 / PLAN §4.1)", len(data) or None)
+        return _gate_failure(
+            "operational definition must be confirmed before a baseline can run (matrix III.F.1 / PLAN §4.1)",
+            len(data) or None, measurement_check,
+        )
     n = len(data)
     if n < 2:
-        return _gate_failure("at least 2 observations are required (moving range needs 2 consecutive points)", n)
+        return _gate_failure("at least 2 observations are required (moving range needs 2 consecutive points)", n, measurement_check)
 
     descriptive = descriptive_mod.compute_descriptive_stats(data)
     stability = imr_mod.compute_imr_chart(data, enable_rule2=enable_rule2, enable_rule3=enable_rule3)
@@ -211,8 +236,21 @@ def run_baseline(
     dpmo = sigma_level_mod.dpmo_from_capability(cpu_index, cpl_index)
     sigma = sigma_level_mod.compute_sigma_level(dpmo, apply_shift=apply_sigma_shift) if dpmo > 0 else None
 
+    # EXIT-02 capability-language block (matrix §4a / rubric R-MEA-07): a
+    # failed measurement check suppresses every capability-language field
+    # -- computed above like any other run, then blanked here -- so a
+    # caller can never read a capability number off a BaselineResult whose
+    # measurement system is known to have failed. Descriptive/stability
+    # stay: those aren't a capability claim.
+    if measurement_check == "failed":
+        exits.append("EXIT-02")
+        cap = None
+        percentile_capability = None
+        observed_yield = None
+        sigma = None
+
     return BaselineResult(
-        gate_ok=True, gate_message=None, n=n,
+        gate_ok=True, gate_message=None, n=n, measurement_check=measurement_check,
         descriptive=descriptive, stability=stability, stable=stable, stability_note=stability_note,
         capability=cap, normality=normality_result,
         percentile_capability=percentile_capability, observed_yield=observed_yield,
