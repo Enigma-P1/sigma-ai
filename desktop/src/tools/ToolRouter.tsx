@@ -22,6 +22,8 @@ import { CheckSheetForm } from "./checksheet/CheckSheetForm";
 import { checkSheetHelperContent } from "./checksheet/checkSheetContent";
 import { TimeStudyForm } from "./timestudy/TimeStudyForm";
 import { timeStudyHelperContent } from "./timestudy/timeStudyContent";
+import { YieldCalcForm } from "./yieldcalc/YieldCalcForm";
+import { yieldCalcHelperContent } from "./yieldcalc/yieldCalcContent";
 import { BaselineForm } from "./baseline/BaselineForm";
 import { baselineHelperContent } from "./baseline/baselineContent";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
@@ -156,6 +158,14 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={timeStudyHelperContent}>
         <TimeStudyForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToDataset={onNavigateToDataset} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-10") {
+    return (
+      <ToolScreen {...screenProps} helperContent={yieldCalcHelperContent}>
+        <YieldCalcForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

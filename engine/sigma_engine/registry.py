@@ -30,6 +30,7 @@ from .artifacts import (
     StandardWorkArtifact,
     TimeStudyArtifact,
     VocCtqArtifact,
+    YieldCalcArtifact,
 )
 from .prescore import (
     PrescoreResult,
@@ -55,6 +56,7 @@ from .prescore import (
     run_standard_work_prescore,
     run_time_study_prescore,
     run_voc_ctq_prescore,
+    run_yield_calc_prescore,
 )
 
 ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
@@ -67,6 +69,7 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-07": SpaghettiArtifact,
     "T-08": CheckSheetArtifact,
     "T-09": TimeStudyArtifact,
+    "T-10": YieldCalcArtifact,
     "T-11": DataCollectionPlanArtifact,
     "T-12": MsaArtifact,
     "T-15": FishboneArtifact,
@@ -92,6 +95,7 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-07": run_spaghetti_prescore,
     "T-08": run_check_sheet_prescore,
     "T-09": run_time_study_prescore,
+    "T-10": run_yield_calc_prescore,
     "T-11": run_data_collection_plan_prescore,
     "T-12": run_msa_prescore,
     "T-15": run_fishbone_prescore,

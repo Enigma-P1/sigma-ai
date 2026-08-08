@@ -1,0 +1,27 @@
+.sigma-yieldcalc-step-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr;
+  gap: var(--space-2);
+  align-items: end;
+}
+
+.sigma-yieldcalc-dpmo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+@media (max-width: 720px) {
+  .sigma-yieldcalc-step-grid,
+  .sigma-yieldcalc-dpmo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sigma-yieldcalc-provenance {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  font-family: var(--font-family-mono);
+  margin: var(--space-2) 0;
+}

@@ -213,6 +213,13 @@ from .time_study import (
     element_cycle_export_rows,
 )
 from .voc_ctq import Ctq, Customer, CustomerNeed, VocCtqArtifact, VocStatement
+from .yield_calc import (
+    DpmoBlock,
+    YieldCalcArtifact,
+    YieldStep,
+    compute_dpmo_result,
+    compute_rty_result,
+)
 
 __all__ = [
     "ArtifactBase",
@@ -415,4 +422,9 @@ __all__ = [
     "CustomerNeed",
     "VocCtqArtifact",
     "VocStatement",
+    "DpmoBlock",
+    "YieldCalcArtifact",
+    "YieldStep",
+    "compute_dpmo_result",
+    "compute_rty_result",
 ]

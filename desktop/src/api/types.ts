@@ -1011,6 +1011,53 @@ export interface TimeStudyArtifact extends ArtifactBase {
   work_sampling_summary?: Computed<WorkSamplingSummary> | null;
 }
 
+// ---- T-10 Yield Calculator (artifacts/yield_calc.py) ----
+
+export interface YieldStep {
+  name: string;
+  units_in: number;
+  /** The one input convention this tool uses -- defects_at_step is always
+   * derived server-side (units_in - first_pass_correct), never a second
+   * raw input. */
+  first_pass_correct: number;
+  /** computed_field on the engine -- present once a save/validate has
+   * echoed the step back, absent on a step the user is still filling in
+   * that hasn't round-tripped yet (CopqRow.amount's same "engine-sourced,
+   * never a client stand-in presented as authoritative" precedent). */
+  defects_at_step?: number;
+  dpu_at_step?: number;
+  fpy_at_step?: number;
+}
+
+export interface DpmoBlock {
+  defects: number;
+  units: number;
+  opportunities_per_unit: number;
+  /** Required non-empty the moment opportunities_per_unit > 1 (engine-
+   * enforced, artifacts/yield_calc.py) -- the opportunity-inflation
+   * honesty guard, rubric R-MEA-09. */
+  opportunity_justification: string;
+  apply_sigma_shift: boolean;
+}
+
+export interface YieldCalcArtifact extends ArtifactBase {
+  tool_id: "T-10";
+  steps: YieldStep[];
+  /** Required, no default on the engine side -- RTY is only computed/
+   * claimed when this is explicitly true. */
+  steps_in_series: boolean;
+  dpmo_block?: DpmoBlock | null;
+  /** Server-computed, never hand-typed -- present once round-tripped;
+   * null whenever steps_in_series is false (RTY is only computed/claimed
+   * under the explicit serial assumption). */
+  rty_result?: Computed<number> | null;
+  /** null whenever dpmo_block is absent -- the DPMO/sigma calculation is
+   * independent of the steps table. Reuses the same SigmaLevelResult
+   * shape as T-13's baseline.sigma (always the same shift-convention
+   * label, never a second convention invented for this tool). */
+  dpmo_result?: Computed<SigmaLevelResult> | null;
+}
+
 // ---- T-11 Data Collection Plan (artifacts/data_collection_plan.py) -------
 // The PLAN half of T-11 -- the import half is DatasetMeta/DatasetPreview
 // above, the sample-size half is SampleSizeResponse. No computed fields:

@@ -23,6 +23,7 @@ from .spaghetti import run_spaghetti_prescore
 from .standard_work import run_standard_work_prescore
 from .time_study import run_time_study_prescore
 from .voc_ctq import run_voc_ctq_prescore
+from .yield_calc import run_yield_calc_prescore
 
 __all__ = [
     "PrescoreResult",
@@ -48,4 +49,5 @@ __all__ = [
     "run_standard_work_prescore",
     "run_time_study_prescore",
     "run_voc_ctq_prescore",
+    "run_yield_calc_prescore",
 ]

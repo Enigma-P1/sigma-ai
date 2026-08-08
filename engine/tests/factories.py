@@ -893,6 +893,56 @@ def make_a3_closure(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+# T-10 Yield Calculator fixtures. Also this module's G-yield-01 golden
+# fixture (same convention as make_copq_rows() doubling as its own hand-
+# checkable reference): a 3-step line, each step's DPU/FPY hand-verified
+# via dpu()/fpy_from_dpu() in test_artifacts_yield_calc.py's golden test --
+# step 1: 100 in, 95 first-pass-correct -> 5 defects, DPU=0.05.
+# step 2: 95 in, 90 first-pass-correct -> 5 defects, DPU=5/95.
+# step 3: 90 in, 88 first-pass-correct -> 2 defects, DPU=2/90.
+# RTY = e^-(0.05 + 5/95 + 2/90) ~= 0.882626.
+# DPMO block: 1242 defects / 100000 units / 2 opportunities-per-unit ->
+# DPMO = 1e6*1242/(100000*2) = 6210 -- the published Wikipedia/MoreSteam
+# 4-sigma-with-shift table value already reference-tested in
+# test_stats_sigma_level.py, so this golden is independently NIST/
+# published-table-grounded, not just internally self-consistent.
+def make_yield_calc_steps() -> list[dict[str, Any]]:
+    return [
+        {"name": "Mix", "units_in": 100, "first_pass_correct": 95},
+        {"name": "Mold", "units_in": 95, "first_pass_correct": 90},
+        {"name": "Inspect", "units_in": 90, "first_pass_correct": 88},
+    ]
+
+
+def make_dpmo_block(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "defects": 1242,
+        "units": 100000,
+        "opportunities_per_unit": 2,
+        "opportunity_justification": "Counting both the fill-weight opportunity and the seal-integrity opportunity separately, per the packaging QC spec.",
+        "apply_sigma_shift": True,
+    }
+    base.update(overrides)
+    return base
+
+
+def make_yield_calc(**overrides: Any) -> dict[str, Any]:
+    steps = overrides.pop("steps") if "steps" in overrides else make_yield_calc_steps()
+    dpmo_block = overrides.pop("dpmo_block") if "dpmo_block" in overrides else make_dpmo_block()
+    base = {
+        "schema_version": 1,
+        "artifact_id": "yieldcalc-001",
+        "tool_id": "T-10",
+        "created_at": TS,
+        "updated_at": TS,
+        "steps": steps,
+        "steps_in_series": True,
+        "dpmo_block": dpmo_block,
+    }
+    base.update(overrides)
+    return base
+
+
 def make_a3(**overrides: Any) -> dict[str, Any]:
     panels = overrides.pop("panels") if "panels" in overrides else make_a3_panels()
     realized_benefits = overrides.pop("realized_benefits") if "realized_benefits" in overrides else {
