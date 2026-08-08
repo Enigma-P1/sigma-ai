@@ -902,6 +902,107 @@ async function main() {
       assert(cycle2Deleted === 0, "expected cycle 2 to remain un-deleted after the refused empty-reason attempt");
     });
 
+    // ---- T-10 Yield Calculator (FPY/RTY + DPMO) -- the 25th Tier-A tool,
+    // built after the traceability-matrix audit caught it missing. A
+    // 3-step line, same hand-checkable fixture as engine/tests/factories.py's
+    // make_yield_calc_steps (100->95, 95->90, 90->88; RTY ~= 88.26%), then
+    // an independent DPMO block (1242 defects / 100000 units -> DPMO 6210,
+    // ~4 sigma with the 1.5-shift convention -- the same published-table
+    // value test_stats_sigma_level.py reference-checks). The opportunity-
+    // inflation honesty guard's prescore teeth get their own exercise: a
+    // placeholder justification ("various") clears the schema's bare
+    // non-empty check but trips the prescore's blocklist; a real
+    // justification clears it. ----
+
+    await step("open T-10 Yield Calculator and fill a 3-step line", async () => {
+      await page.locator('[data-testid="nav-tool-T-10"]').click();
+      await page.locator('[data-testid="yieldcalc-save"]').waitFor();
+
+      await page.locator('[data-testid="yieldcalc-step-0-name"]').fill("Mix");
+      await page.locator('[data-testid="yieldcalc-step-0-units-in"]').fill("100");
+      await page.locator('[data-testid="yieldcalc-step-0-fpc"]').fill("95");
+
+      await page.getByRole("button", { name: "+ Add process step" }).click();
+      await page.locator('[data-testid="yieldcalc-step-1-name"]').fill("Mold");
+      await page.locator('[data-testid="yieldcalc-step-1-units-in"]').fill("95");
+      await page.locator('[data-testid="yieldcalc-step-1-fpc"]').fill("90");
+
+      await page.getByRole("button", { name: "+ Add process step" }).click();
+      await page.locator('[data-testid="yieldcalc-step-2-name"]').fill("Inspect");
+      await page.locator('[data-testid="yieldcalc-step-2-units-in"]').fill("90");
+      await page.locator('[data-testid="yieldcalc-step-2-fpc"]').fill("88");
+
+      await page.locator('[data-testid="yieldcalc-series-yes"]').click();
+    });
+
+    await step("add a DPMO block and confirm the justification field is absent at opportunities=1", async () => {
+      await page.locator('[data-testid="yieldcalc-include-dpmo-yes"]').click();
+      await page.locator('[data-testid="yieldcalc-dpmo-defects"]').fill("1242");
+      await page.locator('[data-testid="yieldcalc-dpmo-units"]').fill("100000");
+
+      // opportunities_per_unit defaults to 1 (not inflated) -- the
+      // justification field is a pure client-side conditional on it, no
+      // save needed to observe this.
+      assert(
+        (await page.locator('[data-testid="yieldcalc-dpmo-justification"]').count()) === 0,
+        "expected no justification field to render while opportunities_per_unit is 1 (not inflated)",
+      );
+    });
+
+    await step("set opportunities=2 with a placeholder justification and save", async () => {
+      await page.locator('[data-testid="yieldcalc-dpmo-opportunities"]').fill("2");
+      // The justification field appears the moment opportunities_per_unit > 1.
+      await page.locator('[data-testid="yieldcalc-dpmo-justification"]').waitFor();
+      await page.locator('[data-testid="yieldcalc-dpmo-justification"]').fill("various");
+
+      assert(
+        await page.locator('[data-testid="yieldcalc-save"]').isEnabled(),
+        "Save button should be enabled -- a placeholder justification still clears the schema's bare non-empty check",
+      );
+
+      await page.locator('[data-testid="yieldcalc-save"]').click();
+      await page.locator('[data-testid="yieldcalc-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="yieldcalc-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
+    });
+
+    await step("assert RTY and sigma level render, sigma carrying the shift-convention label", async () => {
+      await page.waitForFunction(() => document.querySelector('[data-testid="yieldcalc-step-0-fpy"]')?.value !== "not yet computed");
+
+      const rtyHeadline = await page.locator('[data-testid="yieldcalc-rty"] .sigma-verdict__headline').textContent();
+      assert(rtyHeadline?.includes("88.26%"), `expected RTY to read 88.26% (hand-checked: e^-(0.05+5/95+2/90)), got ${JSON.stringify(rtyHeadline)}`);
+
+      // 1242 defects / 100000 units / 2 opportunities-per-unit -> DPMO 6210,
+      // the published Wikipedia/MoreSteam 4-sigma-with-shift table row
+      // (test_stats_sigma_level.py's own PUBLISHED_DPMO_BY_SIGMA_LEVEL).
+      const sigmaHeadline = await page.locator('[data-testid="yieldcalc-dpmo-sigma"] .sigma-verdict__headline').textContent();
+      assert(
+        sigmaHeadline?.includes("Sigma level 4 (with 1.5σ shift)"),
+        `expected the sigma level headline to read "Sigma level 4 (with 1.5σ shift)" (DPMO 6210 is the published 4-sigma-with-shift table row), got ${JSON.stringify(sigmaHeadline)}`,
+      );
+      const sigmaDetail = await page.locator('[data-testid="yieldcalc-dpmo-sigma"] .sigma-verdict__detail').textContent();
+      assert(sigmaDetail?.includes("6,210"), `expected the sigma detail to show DPMO 6,210, got ${JSON.stringify(sigmaDetail)}`);
+    });
+
+    await step("assert the opportunity-inflation prescore flag trips on the placeholder justification", async () => {
+      // The prescore call is a separate await after the save+reload
+      // (useYieldCalcForm's handleSave), so poll the pill's actual
+      // data-status rather than just its presence -- the element already
+      // exists from a prior render in general, only its value is new.
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="prescore-check-opportunity_inflation_justified"]')?.getAttribute("data-status") === "hard_flag",
+      );
+    });
+
+    await step("add a real justification, save again, and assert the prescore flag clears", async () => {
+      await page.locator('[data-testid="yieldcalc-dpmo-justification"]').fill("Two inspected weld points per bracket, per the weld QC spec.");
+      await page.locator('[data-testid="yieldcalc-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="yieldcalc-version-badge"]')?.textContent?.includes("v2"));
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="prescore-check-opportunity_inflation_justified"]')?.getAttribute("data-status") === "pass",
+      );
+    });
+
     // ---- Milestone-3 addition: T-17 Hypothesis Testing (guided selector).
     // A real two-group Welch comparison sourced from the coffee-bar fixture
     // already imported via T-11 above -- wait_seconds split by its shift

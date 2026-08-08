@@ -35,7 +35,7 @@ export const TOOLS: ToolDef[] = [
   { id: "T-07", name: "Spaghetti Diagram (interactive)", phase: "Measure", live: true, hasForm: true },
   { id: "T-08", name: "Check Sheet / Tally", phase: "Measure", live: true, hasForm: true },
   { id: "T-09", name: "Guided Time Study / Work Sampling", phase: "Measure", live: true, hasForm: true },
-  { id: "T-10", name: "Yield Calculator (FPY/RTY + DPMO)", phase: "Measure", live: false, hasForm: false },
+  { id: "T-10", name: "Yield Calculator (FPY/RTY + DPMO)", phase: "Measure", live: true, hasForm: true },
   // T-11: dataset-import half (M2) plus the sample-size calculator panel
   // (this unit) -- both live on the same screen.
   { id: "T-11", name: "Data Collection Plan (+ sample-size guidance)", phase: "Measure", live: true, hasForm: true },
