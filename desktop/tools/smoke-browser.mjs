@@ -16,7 +16,11 @@
 // panel's unconfigured state (no ANTHROPIC_API_KEY anywhere in this test's
 // environment, and this script never sets one) and the advisor settings
 // screen's enabled=false save round trip -- no live Anthropic API call
-// anywhere in this script. Fails on any uncaught page error.
+// anywhere in this script. -> M5 unit 2: the five advisor modes' input
+// UI (mode picker, tollgate's phase picker, remedy's constraints box, and
+// that switching to review still shows the honest unconfigured state) --
+// still no live API call anywhere in this script. Fails on any uncaught
+// page error.
 //
 // Usage: node tools/smoke-browser.mjs
 // Env:   APP_URL (default http://localhost:1420)
@@ -1866,6 +1870,48 @@ async function main() {
         (await page.locator('[data-testid="advisor-configured"]').count()) === 0,
         "must not show the configured ask box with no key in the test env",
       );
+    });
+
+    // ---- M5 unit 2 (the five advisor modes): the mode picker and every
+    // mode's input affordances render regardless of configured state (M5
+    // unit 2 brief) -- still no ANTHROPIC_API_KEY anywhere, still no live
+    // API call, this only proves the input UI itself. ----
+
+    await step("advisor mode picker renders all six modes", async () => {
+      const options = await page.locator('[data-testid="advisor-mode-select"] option').allTextContents();
+      assert(options.length === 6, `expected 6 modes, got ${options.length}: ${JSON.stringify(options)}`);
+      const values = await page.locator('[data-testid="advisor-mode-select"] option').evaluateAll((els) => els.map((el) => el.value));
+      for (const expected of ["generic", "review", "help_me_think", "explain", "tollgate", "remedy"]) {
+        assert(values.includes(expected), `expected mode "${expected}" in the picker, got ${JSON.stringify(values)}`);
+      }
+    });
+
+    await step("tollgate mode shows a phase picker with all six DMAIC phases", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("tollgate");
+      const phaseSelect = page.locator('[data-testid="advisor-tollgate-phase-select"]');
+      await phaseSelect.waitFor();
+      const values = await phaseSelect.locator("option").evaluateAll((els) => els.map((el) => el.value));
+      assert(
+        JSON.stringify(values) === JSON.stringify(["Define", "Measure", "Analyze", "Improve", "Control", "Wrap"]),
+        `expected the six tollgate phases in order, got ${JSON.stringify(values)}`,
+      );
+    });
+
+    await step("remedy mode shows the constraints textarea", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("remedy");
+      const constraints = page.locator('[data-testid="advisor-remedy-constraints"]');
+      await constraints.waitFor();
+      assert((await constraints.getAttribute("placeholder"))?.length > 0, "expected the constraints box to have placeholder guidance");
+    });
+
+    await step("review mode still shows the unavailable state cleanly with no key configured", async () => {
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("review");
+      const unconfigured = page.locator('[data-testid="advisor-unconfigured"]');
+      await unconfigured.waitFor();
+      assert((await page.locator('[data-testid="advisor-ask-submit"]').count()) === 0, "must not show a submit button while unconfigured");
+      // Switch back to generic so the settings-navigation step below isn't
+      // depending on which mode happened to be selected last.
+      await page.locator('[data-testid="advisor-mode-select"]').selectOption("generic");
     });
 
     await step("the panel's link opens advisor settings, showing the exact privacy statement", async () => {

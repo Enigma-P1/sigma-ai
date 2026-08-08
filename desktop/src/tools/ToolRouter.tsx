@@ -91,8 +91,9 @@ export function ToolRouter({
   // Spread into every ToolScreen call below -- the Advisor panel lives
   // inside ToolScreen itself (M5 brief), so adding onOpenAdvisorSettings
   // here is the one edit that reaches all 25 tools + the placeholder,
-  // instead of touching every `if (toolId === "T-XX")` block.
-  const screenProps = { toolId, toolName: tool.name, phase, projectId, gate, onGateOverridden, onOpenAdvisorSettings };
+  // instead of touching every `if (toolId === "T-XX")` block. artifactId
+  // (M5 unit 2) rides the same way, from tools.ts's own ToolDef.artifactId.
+  const screenProps = { toolId, toolName: tool.name, phase, projectId, gate, onGateOverridden, onOpenAdvisorSettings, artifactId: tool.artifactId };
 
   if (toolId === "T-01") {
     return (

@@ -297,13 +297,19 @@ def _extract_computed_facts(data: Any, path: str = "") -> list[str]:
     return facts
 
 
-def _render_prescore_line(result: PrescoreResult) -> str:
+def render_prescore_line(result: PrescoreResult) -> str:
     """check_id/tool_id/status are schema-level identifiers/enums --
     always engine-controlled, never user text. `detail` usually is too,
     but see this module's docstring (rule 1) for the two existing checks
     that echo a raw user-typed field into it. Every detail string gets the
     same untrusted wrapping as artifact content, uniformly, rather than
-    trusting some check_ids and not others."""
+    trusting some check_ids and not others.
+
+    Public (M5 unit 2): advisor/modes.py's tollgate context selector runs
+    prescore for every one of a phase's tools, not just "the" current
+    artifact -- it reuses this exact rendering rather than a second,
+    independently-maintained wrapping call site (the one thing this
+    function exists to get uniformly right, per this module's docstring)."""
     wrapped_detail = wrap_untrusted(f"prescore/{result.tool_id}/{result.check_id}", result.detail)
     return f"[{result.status}] {result.tool_id}/{result.check_id}: {wrapped_detail}"
 
@@ -333,15 +339,35 @@ class AssembledContext(BaseModel):
     facts_block: str
     untrusted_blocks: list[str]
     prescore_block: str
+    # Mode-specific, engine-authored context (M5 unit 2): rubric item text
+    # for "review", tollgate questions + per-phase-tool prescore + gate
+    # output for "tollgate", charter/FMEA/baseline context for "remedy".
+    # Populated via assemble_context's `extra_block` param, which the
+    # mode's own context selector (advisor/modes.py) computes -- this
+    # module stays agnostic of what modes exist (rule from the M5 unit 2
+    # brief: "extend assemble_context's parameters minimally, don't fork
+    # it"). Trusted/code-authored AS A WHOLE the same way prescore_block
+    # is -- never wrapped untrusted itself -- but a selector that folds in
+    # anything user-typed (e.g. remedy's charter-goal numbers, which
+    # include free-text unit/metric-name strings) must wrap_untrusted()
+    # that piece BEFORE handing it to extra_block, the same way
+    # render_prescore_line wraps individual detail strings inside the
+    # overall-trusted prescore_block. Empty string when the mode has none.
+    mode_block: str = ""
     budget_report: BudgetReport
 
 
 # ---- Assembly ----
 
 
-def _run_prescore(tool_id: str, data: dict[str, Any], artifact_id: str) -> str:
+def run_prescore_for_artifact(tool_id: str, data: dict[str, Any], artifact_id: str) -> str:
     """Deterministic pre-score first (rule 2). Returns "" when the tool has
-    no registered prescore (not every tool_id does)."""
+    no registered prescore (not every tool_id does).
+
+    Public (M5 unit 2): advisor/modes.py's tollgate context selector calls
+    this once per phase tool with a saved artifact, exactly the same way
+    assemble_context calls it below for the single "current" artifact --
+    one prescore code path, not two."""
     model_cls = ARTIFACT_REGISTRY.get(tool_id)
     prescore_fn = PRESCORE_REGISTRY.get(tool_id)
     if model_cls is None or prescore_fn is None:
@@ -355,7 +381,7 @@ def _run_prescore(tool_id: str, data: dict[str, Any], artifact_id: str) -> str:
         # call, just say so honestly.
         return f"(pre-score unavailable: saved artifact {artifact_id} no longer matches its current schema)"
     results = prescore_fn(validated)
-    return "\n".join(_render_prescore_line(r) for r in results)
+    return "\n".join(render_prescore_line(r) for r in results)
 
 
 def assemble_context(
@@ -365,6 +391,9 @@ def assemble_context(
     mode: str = "generic",
     artifact_id: str | None = None,
     follow_up_artifact_id: str | None = None,
+    additional_full_artifact_ids: Sequence[str] | None = None,
+    summary_tool_ids: Sequence[str] | None = None,
+    extra_block: str = "",
     dataset_ids: Sequence[str] | None = None,
     input_budget_tokens: int = DEFAULT_INPUT_BUDGET_TOKENS,
     output_budget_tokens: int = DEFAULT_OUTPUT_BUDGET_TOKENS,
@@ -374,7 +403,35 @@ def assemble_context(
     optional dataset refs. Output: AssembledContext. Raises
     FileNotFoundError for an unknown project/artifact/dataset (routes/
     advisor.py maps that to 404), exactly like every other store-backed
-    route in this engine."""
+    route in this engine.
+
+    Three params added at M5 unit 2, all optional/default-preserving so
+    every existing caller (and every existing test) is unaffected -- the
+    brief's "extend assemble_context's parameters minimally, don't fork
+    it," used by advisor/modes.py's per-mode context selectors:
+
+    - `additional_full_artifact_ids`: more artifact ids to include in FULL
+      (module docstring's current_artifact tier), same treatment as
+      `follow_up_artifact_id` but not tied to the ask-by-ID follow-up UX
+      loop -- remedy mode uses this for "the T-18 artifact if started"
+      (PLAN §5.1) while `follow_up_artifact_id` stays free for the model's
+      own REQUEST_ARTIFACT loop on top of it.
+    - `summary_tool_ids`: when given, restricts the "every other saved
+      artifact" summaries loop to just these tool_ids, instead of the
+      default "every other artifact in the project" -- tollgate mode uses
+      this for "artifact SUMMARIES for the phase's tools ... NOT full
+      dumps" (PLAN §5.1); remedy uses it for the charter/FMEA summary
+      pair. None (the default) is byte-identical to today's behavior.
+    - `extra_block`: mode-specific engine-authored content, pre-rendered
+      by the caller (rubric text, tollgate questions, charter-baseline
+      facts) -- becomes AssembledContext.mode_block (see that field's
+      docstring for the trust contract). Always small/bounded across
+      every mode that uses it (a handful of rubric items' text, three
+      tollgate questions, one artifact's summary-sized numbers) --
+      counted honestly in budget_report.estimated_input_tokens but never
+      trimmed, the same treatment system_prompt_frame already gets, since
+      unlike an artifact dump it can't grow unboundedly with project size.
+    """
     meta = store.load_project(project_id)  # FileNotFoundError propagates -- 404 at the route layer
 
     system_prompt_frame = build_system_prompt_frame(mode)
@@ -382,7 +439,7 @@ def assemble_context(
     # De-duplicate while preserving order: a follow-up request for the
     # artifact that's already "current" is a harmless no-op, not a second copy.
     full_artifact_ids: list[str] = []
-    for candidate in (artifact_id, follow_up_artifact_id):
+    for candidate in (artifact_id, follow_up_artifact_id, *(additional_full_artifact_ids or ())):
         if candidate and candidate not in full_artifact_ids:
             full_artifact_ids.append(candidate)
 
@@ -404,19 +461,23 @@ def assemble_context(
 
     prescore_block = ""
     if current_data is not None and current_tool_id is not None and artifact_id is not None:
-        prescore_block = _run_prescore(current_tool_id, current_data, artifact_id)
+        prescore_block = run_prescore_for_artifact(current_tool_id, current_data, artifact_id)
 
     facts_block = "\n".join(_extract_computed_facts(current_data)) if current_data is not None else ""
 
     # Summaries: every OTHER saved artifact in the project (rule: full JSON
     # only for the current artifact/follow-up; everything else summarized
-    # with its id so the model can ask for it in full -- M5 brief).
-    # sorted() gives a stable order regardless of dict insertion order
-    # (project_store.py's own docstring warns iteration order of
-    # artifact_index is not chronological -- see its latest_artifact_for_tool).
+    # with its id so the model can ask for it in full -- M5 brief) --
+    # unless `summary_tool_ids` narrows that to a specific set (M5 unit 2
+    # docstring above). sorted() gives a stable order regardless of dict
+    # insertion order (project_store.py's own docstring warns iteration
+    # order of artifact_index is not chronological -- see its
+    # latest_artifact_for_tool).
     summary_items: list[tuple[str, str]] = []
     for other_id, entry in sorted(meta.artifact_index.items()):
         if other_id in full_artifact_ids:
+            continue
+        if summary_tool_ids is not None and entry.tool_id not in summary_tool_ids:
             continue
         data = store.load_artifact(project_id, other_id)
         summary_items.append((other_id, wrap_untrusted(other_id, summarize_artifact(other_id, entry.tool_id, data))))
@@ -432,6 +493,7 @@ def assemble_context(
         current_blocks=current_blocks,
         facts_block=facts_block,
         summary_items=summary_items,
+        extra_block=extra_block,
         input_budget_tokens=input_budget_tokens,
         output_budget_tokens=output_budget_tokens,
     )
@@ -443,6 +505,7 @@ def assemble_context(
         facts_block=kept_facts,
         untrusted_blocks=untrusted_blocks,
         prescore_block=kept_prescore,
+        mode_block=extra_block,
         budget_report=budget_report,
     )
 
@@ -467,12 +530,18 @@ def _apply_budget(
     current_blocks: list[tuple[str, str]],
     facts_block: str,
     summary_items: list[tuple[str, str]],
+    extra_block: str = "",
     input_budget_tokens: int,
     output_budget_tokens: int,
 ) -> tuple[BudgetReport, list[tuple[str, str]], str, str, list[tuple[str, str]]]:
     dropped: list[BudgetDroppedEntry] = []
 
     system_cost = estimate_tokens(system_prompt_frame)  # tier 1: never dropped, see module docstring
+    # mode_block rides with system_prompt_frame -- always included, honestly
+    # counted, never trimmed (assemble_context's docstring explains why:
+    # every mode that populates it keeps it small/bounded, unlike an
+    # artifact dump that scales with project size).
+    extra_cost = estimate_tokens(extra_block) if extra_block else 0
     prescore_cost = estimate_tokens(prescore_block) if prescore_block else 0
     facts_cost = estimate_tokens(facts_block) if facts_block else 0
     kept_current = [(cid, text, estimate_tokens(text)) for cid, text in current_blocks]
@@ -484,6 +553,7 @@ def _apply_budget(
     def total() -> int:
         return (
             system_cost
+            + extra_cost
             + (prescore_cost if keep_prescore else 0)
             + sum(c for _, _, c in kept_current)
             + (facts_cost if keep_facts else 0)
@@ -519,6 +589,8 @@ def _apply_budget(
     # point is reported honestly via estimated_input_tokens, not hidden.
 
     included: list[str] = ["system_prompt_frame"]
+    if extra_block:
+        included.append("mode_block")
     if keep_prescore:
         included.append("prescore_block")
     included.extend(f"current_artifact:{cid}" for cid, _t, _c in kept_current)

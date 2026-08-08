@@ -13,22 +13,12 @@ router = APIRouter(prefix="/gates", tags=["gates"])
 
 
 def _build_snapshot(project_id: str, store: ProjectStore) -> gates_module.ProjectSnapshot:
-    meta = store.load_project(project_id)
-    tool_ids = {entry.tool_id for entry in meta.artifact_index.values()}
-
-    # ProjectStore.latest_artifact_for_tool -- the shared lookup also used
-    # by routes/stats.py's _latest_msa_verdict and prescore/cross_checks.py
-    # (critic-confirmed defect: this loop used to keep overwriting on every
-    # match with no break, landing on whichever artifact_id sorted last
-    # alphabetically -- not necessarily the latest by any timestamp, and
-    # not necessarily the same pick routes/stats.py's own old first-match
-    # loop made for the same project).
-    picker_data = store.latest_artifact_for_tool(project_id, meta, "T-01")
-    msa_data = store.latest_artifact_for_tool(project_id, meta, "T-12")
-    picker_route = picker_data.get("route") if picker_data is not None else None
-    msa_verdict = (msa_data.get("result") or {}).get("verdict") if msa_data is not None else None
-
-    return gates_module.ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route, msa_verdict=msa_verdict)
+    # Thin wrapper -- the real logic is gates_module.build_project_snapshot
+    # (promoted there at M5 unit 2 so advisor/modes.py's tollgate context
+    # selector can build the identical snapshot without a second,
+    # independently-maintained copy). Kept as a local name since every
+    # call site in this file already reads `_build_snapshot(...)`.
+    return gates_module.build_project_snapshot(store, project_id)
 
 
 class GateCheckRequest(BaseModel):

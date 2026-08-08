@@ -2154,7 +2154,19 @@ export interface A3Artifact extends ArtifactBase {
 // optional -- every one of these calls degrades to a clean, typed
 // "unconfigured" response (never a 500) when no API key is set.
 
-export type AdvisorMode = "generic"; // more modes land in a later unit
+// The five PLAN §5.1 modes + "generic" (M5 unit 2) -- mirrors
+// routes/advisor.py's AdvisorMode Literal exactly.
+export type AdvisorMode = "generic" | "review" | "help_me_think" | "explain" | "tollgate" | "remedy";
+
+/** explain mode's optional focus (PLAN §5.1 mode 3): either a computed
+ * result the user clicked (kind/ref read off the tool's own result state)
+ * or free text when nothing clickable applies. Untrusted like any other
+ * user/UI-sourced text -- the engine wraps it the same way as `question`
+ * (advisor/modes.py's AdvisorFocusRef docstring). */
+export interface AdvisorFocusRef {
+  kind: string;
+  ref: string;
+}
 
 export interface AdvisorBudgetDroppedEntry {
   tier: string;
@@ -2175,15 +2187,85 @@ export interface AdvisorAskRequest {
   project_id: string;
   mode: AdvisorMode;
   artifact_id?: string;
+  /** Free-text user input, reused across modes rather than one field per
+   * mode (routes/advisor.py's own scope-call comment): generic/review's
+   * question, help_me_think's optional seed topic, and remedy's optional
+   * constraints (budget, headcount, what can't change) all travel here. */
   question?: string;
   /** An id the advisor asked for by name on a prior turn (a
    * REQUEST_ARTIFACT: line in its answer) -- sent back so the next call's
    * assembled context includes that artifact in full, not just a summary. */
   follow_up_artifact_request?: string;
+  /** tollgate mode's request shape (PLAN §5.1 mode 4) -- required by the
+   * engine whenever mode is "tollgate" (422 otherwise). */
+  phase?: TollgatePhase;
+  /** explain mode's optional focus (PLAN §5.1 mode 3). */
+  focus?: AdvisorFocusRef;
+}
+
+/** review mode's structured payload (advisor/modes.py's ReviewResponse). */
+export interface AdvisorReviewCriterion {
+  criterion_id: string;
+  verdict: "pass" | "needs_work";
+  specific_fix: string;
+}
+export interface AdvisorReviewStructured {
+  criteria: AdvisorReviewCriterion[];
+  overall_note: string;
+}
+
+/** help_me_think mode's structured payload (HelpMeThinkResponse). */
+export interface AdvisorProposal {
+  text: string;
+  /** Required (non-null) when the current artifact is a T-15 fishbone;
+   * may be null for every other divergent tool (T-05, T-18). */
+  evidence_question: string | null;
+}
+export interface AdvisorHelpMeThinkStructured {
+  proposals: AdvisorProposal[];
+}
+
+/** tollgate mode's structured payload (TollgateResponse). */
+export interface AdvisorTollgateAction {
+  action: string;
+  tied_to_question_id: string;
+}
+export interface AdvisorTollgateStructured {
+  recommendation: "go" | "go_with_actions" | "no_go";
+  reasons: string[];
+  actions: AdvisorTollgateAction[];
+}
+
+/** remedy mode's structured payload (RemedyResponse) -- the flagship. */
+export interface AdvisorRemedyCandidate {
+  title: string;
+  why_it_fits_the_verified_cause: string;
+  cause_ids: string[];
+  estimated_cost_band: "low" | "medium" | "high";
+  risks: string;
+  pilot_first: string;
+  how_youd_know_it_worked: string;
+}
+export interface AdvisorRemedyStructured {
+  remedies: AdvisorRemedyCandidate[];
 }
 
 export interface AdvisorAskResponse {
+  mode: AdvisorMode;
+  /** Always present: a prose mode's (generic/explain) answer text, or a
+   * structured mode's raw last-attempt text (useful for display even when
+   * `structured` is null, e.g. the unstructured_fallback case). */
   answer: string;
+  /** The mode-specific parsed payload -- cast to the right
+   * Advisor*Structured interface based on `mode` (review ->
+   * AdvisorReviewStructured, help_me_think -> AdvisorHelpMeThinkStructured,
+   * tollgate -> AdvisorTollgateStructured, remedy -> AdvisorRemedyStructured).
+   * Always null for a prose mode (generic/explain). */
+  structured: AdvisorReviewStructured | AdvisorHelpMeThinkStructured | AdvisorTollgateStructured | AdvisorRemedyStructured | null;
+  /** True exactly when a structured mode's response failed to parse even
+   * after its one retry -- render `answer` as plain text with a "the model
+   * returned unstructured output" note, never as a blank/broken card. */
+  unstructured_fallback: boolean;
   budget_report: AdvisorBudgetReport;
   /** Artifact ids the model asked for by name on this turn, parsed from
    * its answer -- the UI's cue to offer a follow-up call with

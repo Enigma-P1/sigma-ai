@@ -1,27 +1,49 @@
 """POST /advisor/ask, GET/PUT /advisor/settings, POST /advisor/status
-(PLAN §5, M5 brief unit 1). The advisor is Layer 2 and strictly optional:
-every response here is a clean typed result even with no API key
-configured (client.py's AdvisorUnavailable renders as a 409, never a
-500) -- and no other router in this engine ever imports from `advisor/`,
-so Layer 1 is unaffected regardless of what happens here.
+(PLAN §5, M5 unit 1 plumbing + M5 unit 2's five modes). The advisor is
+Layer 2 and strictly optional: every response here is a clean typed
+result even with no API key configured (client.py's AdvisorUnavailable
+renders as a 409, never a 500) -- and no other router in this engine ever
+imports from `advisor/`, so Layer 1 is unaffected regardless of what
+happens here.
+
+M5 unit 2 adds mode-aware dispatch through advisor/modes.py's
+MODE_REGISTRY: every mode (including "generic", re-registered there so
+this file never special-cases it) resolves to a ModeSpec whose
+context_selector replaces the old direct assemble_context() call and
+whose output_parser (a Pydantic model, or None for a prose-only mode)
+decides whether the wire call goes through structured.run_structured_mode
+(one retry on a malformed response, never a 500 -- see that module) or
+the plain single client.ask() call every mode used before this unit.
 """
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
+from ..advisor import modes as modes_module
 from ..advisor.client import AdvisorCallFailed, AdvisorConfigured, AdvisorUnavailable
 from ..advisor.client import ask as client_ask
 from ..advisor.client import resolve_config, resolve_model
-from ..advisor.context import AssembledContext, BudgetReport, assemble_context, parse_requested_artifact_ids, wrap_untrusted
+from ..advisor.context import AssembledContext, BudgetReport, parse_requested_artifact_ids, wrap_untrusted
+from ..advisor.modes import AdvisorFocusRef, ModeSpec
 from ..advisor.settings_store import AdvisorSettings, AdvisorSettingsStore, mask_api_key
+from ..advisor.structured import run_structured_mode
+from ..artifacts.a3 import TollgatePhase
 from ..project_store import ProjectStore
 from .deps import get_store
 
 router = APIRouter(prefix="/advisor", tags=["advisor"])
+
+# The six mode names this route accepts -- MODE_REGISTRY's own keys,
+# re-declared as a Literal (rather than validated dynamically against the
+# dict) so FastAPI's OpenAPI schema and the 422-on-bad-mode behavior both
+# come from ordinary Pydantic validation, exactly like the M5 unit 1
+# plumbing's Literal["generic"] did. test_routes_advisor.py asserts this
+# stays in sync with MODE_REGISTRY's keys.
+AdvisorMode = Literal["generic", "review", "help_me_think", "explain", "tollgate", "remedy"]
 
 # A missing/disabled key is a clean refusal, never a 500 (M5 brief: "a
 # clean 409/412-style response"). 409 for consistency with the one other
@@ -52,28 +74,74 @@ def _require_configured(store: ProjectStore) -> AdvisorConfigured:
 
 class AdvisorAskRequest(BaseModel):
     project_id: str
-    # Plumbing supports "generic" only -- modes land in the next unit
-    # (M5 brief). A Literal here, not a bare str, so an unsupported mode
-    # fails schema validation (422) instead of silently falling back.
-    mode: Literal["generic"] = "generic"
+    mode: AdvisorMode = "generic"
     artifact_id: str | None = None
+    # Free-text user input, reused across modes rather than one new field
+    # per mode (M5 unit 2 scope call -- see the build report): help_me_think's
+    # optional seed topic and remedy's optional constraints both travel here,
+    # exactly like generic's question always has; each mode's addendum
+    # (advisor/modes.py) tells the model how to read whatever's in it.
     question: str | None = None
     # The ask-by-ID follow-up turn (M5 brief): an id the model asked for
     # via a REQUEST_ARTIFACT: line on a prior call, sent back so this call
     # gets that artifact's full JSON instead of just its summary.
     follow_up_artifact_request: str | None = None
+    # tollgate mode's request shape (PLAN §5.1 mode 4: "Request: {phase}").
+    # TollgatePhase (a3.py) reused, not redefined -- an invalid phase name
+    # fails schema validation the same way an invalid mode name does.
+    phase: TollgatePhase | None = None
+    # explain mode's optional focus (PLAN §5.1 mode 3). Untrusted like any
+    # other user/UI-sourced text -- see AdvisorFocusRef's docstring.
+    focus: AdvisorFocusRef | None = None
+
+    @model_validator(mode="after")
+    def _tollgate_requires_phase(self) -> "AdvisorAskRequest":
+        if self.mode == "tollgate" and self.phase is None:
+            raise ValueError("tollgate mode requires `phase`")
+        return self
 
 
 class AdvisorAskResponse(BaseModel):
+    mode: str
+    # Always present: for a prose mode (generic/explain), the model's
+    # answer text; for a structured mode, the raw text of its LAST attempt
+    # -- useful for debugging/display even when `structured` is None.
     answer: str
+    # The mode-specific parsed payload (ReviewResponse/HelpMeThinkResponse/
+    # TollgateResponse/RemedyResponse, model_dump()'d) when a structured
+    # mode's response parsed successfully; always None for a prose mode.
+    structured: dict[str, Any] | None = None
+    # True exactly when a structured mode's response failed to parse even
+    # after its one retry (PLAN §5.1 mode 1: "surfaces as a plain-text
+    # fallback with a 'model returned unstructured output' flag -- never a
+    # 500"). `answer` still carries the model's raw text either way.
+    unstructured_fallback: bool = False
     budget_report: BudgetReport
     requested_artifact_ids: list[str] = []
 
 
+def _effective_question(question: str | None, focus: AdvisorFocusRef | None) -> str | None:
+    """Folds explain mode's `focus` into the same single question string
+    every mode already carries, rather than adding a second wrap_untrusted
+    call site (RULES: "All user-authored text untrusted-wrapped --
+    including mode-specific inputs (constraints, seed topic, focus)" --
+    satisfied here because the combined string below still goes through
+    _build_user_turn's one wrap_untrusted("user_question", ...) call,
+    unchanged)."""
+    if focus is None:
+        return question
+    focus_text = f"(explain this result) {focus.kind}: {focus.ref}"
+    return f"{focus_text}\n\n{question}" if question else focus_text
+
+
 def _build_user_turn(assembled: AssembledContext, question: str | None) -> str:
     """Compose the single user-role message: facts + pre-score (engine-
-    produced, unwrapped) then every untrusted block, then the user's own
-    question -- wrapped exactly like artifact content, since a typed
+    produced, unwrapped), the mode-specific engine-authored block if any
+    (M5 unit 2: rubric text / tollgate questions+phase context / remedy's
+    charter-baseline note -- assembled.mode_block, itself already
+    wrap_untrusted()-safe per-piece where it needed to be, see that
+    field's docstring), every untrusted artifact block, then the user's
+    own question -- wrapped exactly like artifact content, since a typed
     question is user-authored too (context.py assembles the project-derived
     blocks only; wrapping the live question is this route's job, using the
     same wrap_untrusted the assembler uses internally, imported from there
@@ -85,6 +153,8 @@ def _build_user_turn(assembled: AssembledContext, question: str | None) -> str:
         "=== PRE-SCORE (deterministic rubric checks; not user-authored) ===",
         assembled.prescore_block or "(none)",
     ]
+    if assembled.mode_block:
+        parts += ["", "=== MODE CONTEXT (engine-authored; not user-authored) ===", assembled.mode_block]
     if assembled.untrusted_blocks:
         parts += ["", "=== PROJECT ARTIFACTS (user-authored content follows, delimited below) ==="]
         parts += assembled.untrusted_blocks
@@ -96,37 +166,61 @@ def _build_user_turn(assembled: AssembledContext, question: str | None) -> str:
     return "\n".join(parts)
 
 
+def _mode_spec(mode: str) -> ModeSpec:
+    # MODE_REGISTRY is keyed by every value AdvisorMode allows (asserted
+    # in test_routes_advisor.py), so this lookup can't miss for a request
+    # that already passed schema validation.
+    return modes_module.MODE_REGISTRY[mode]
+
+
 @router.post("/ask", response_model=AdvisorAskResponse)
 def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> AdvisorAskResponse:
     config = _require_configured(store)
+    spec = _mode_spec(body.mode)
 
     try:
-        assembled = assemble_context(
+        assembled = spec.context_selector(
             store,
             project_id=body.project_id,
-            mode=body.mode,
             artifact_id=body.artifact_id,
             follow_up_artifact_id=body.follow_up_artifact_request,
+            phase=body.phase,
+            focus=body.focus,
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
-    user_content = _build_user_turn(assembled, body.question)
+    # `focus` is explain mode's field (PLAN §5.1 mode 3); no other mode's
+    # desktop UI ever sends it, so folding it in unconditionally here is
+    # a no-op (returns `question` unchanged) for every other mode.
+    question = _effective_question(body.question, body.focus)
+    user_content = _build_user_turn(assembled, question)
 
     try:
-        answer = client_ask(
-            config,
-            system=assembled.system_prompt_frame,
-            user_content=user_content,
-            max_output_tokens=assembled.budget_report.output_budget_tokens,
-        )
+        if spec.output_parser is None:
+            answer = client_ask(
+                config, system=assembled.system_prompt_frame, user_content=user_content,
+                max_output_tokens=assembled.budget_report.output_budget_tokens,
+            )
+            answer_text, structured, unstructured_fallback = answer.text, None, False
+        else:
+            outcome = run_structured_mode(
+                config, system=assembled.system_prompt_frame, user_content=user_content,
+                response_model=spec.output_parser, max_output_tokens=assembled.budget_report.output_budget_tokens,
+            )
+            answer_text = outcome.raw_text
+            structured = outcome.parsed.model_dump(mode="json") if outcome.parsed is not None else None
+            unstructured_fallback = outcome.unstructured_fallback
     except AdvisorCallFailed as exc:
         raise HTTPException(status_code=_CALL_FAILED_STATUS_CODE, detail=f"The Anthropic API call failed: {exc}") from exc
 
     return AdvisorAskResponse(
-        answer=answer.text,
+        mode=body.mode,
+        answer=answer_text,
+        structured=structured,
+        unstructured_fallback=unstructured_fallback,
         budget_report=assembled.budget_report,
-        requested_artifact_ids=parse_requested_artifact_ids(answer.text),
+        requested_artifact_ids=parse_requested_artifact_ids(answer_text),
     )
 
 

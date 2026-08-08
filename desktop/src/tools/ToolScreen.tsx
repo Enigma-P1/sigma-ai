@@ -16,6 +16,12 @@ export interface ToolScreenProps {
   onGateOverridden: () => void;
   helperContent: HelperFrameContent;
   onOpenAdvisorSettings: () => void;
+  /** This tool's fixed saved-artifact id (app/tools.ts's ToolDef.artifactId),
+   * undefined for the two tools with no saved artifact (T-13, T-14) -- see
+   * that field's own docstring. Passed straight through to AdvisorPanel so
+   * "review"/"help_me_think"/"explain" modes know which artifact is
+   * "current" without re-deriving it (M5 unit 2). */
+  artifactId?: string;
   children: ReactNode;
 }
 
@@ -28,7 +34,7 @@ export interface ToolScreenProps {
  * -- one shared, collapsible, Layer-2-optional panel every tool screen
  * gets for free, rather than 25 individual call sites each wiring one in. */
 export function ToolScreen({
-  toolId, toolName, phase, projectId, gate, onGateOverridden, helperContent, onOpenAdvisorSettings, children,
+  toolId, toolName, phase, projectId, gate, onGateOverridden, helperContent, onOpenAdvisorSettings, artifactId, children,
 }: ToolScreenProps) {
   return (
     <div className="sigma-tool-screen" data-testid="tool-screen" data-tool-id={toolId}>
@@ -42,7 +48,7 @@ export function ToolScreen({
       <div className="sigma-tool-screen__body">
         <div className="sigma-tool-screen__main">{children}</div>
         <div className="sigma-tool-screen__sidebar">
-          <AdvisorPanel projectId={projectId} onOpenSettings={onOpenAdvisorSettings} />
+          <AdvisorPanel projectId={projectId} toolId={toolId} artifactId={artifactId} onOpenSettings={onOpenAdvisorSettings} />
           <HelperFrame content={helperContent} />
         </div>
       </div>
