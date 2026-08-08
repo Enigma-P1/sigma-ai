@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "scores_in_range",
+    "detail": "all 15 category score(s) across 3 round(s) are 0-5 (schema-guaranteed)",
+    "status": "pass",
+    "tool_id": "T-23"
+  },
+  {
+    "check_id": "photos_present",
+    "detail": "every round carries at least one photo",
+    "status": "pass",
+    "tool_id": "T-23"
+  },
+  {
+    "check_id": "uniform_scores_honesty",
+    "detail": "no round scores every category identically",
+    "status": "pass",
+    "tool_id": "T-23"
+  },
+  {
+    "check_id": "recurrence_present",
+    "detail": "a recurrence schedule or >=2 trend points exist",
+    "status": "pass",
+    "tool_id": "T-23"
+  },
+  {
+    "check_id": "min_category_action_present",
+    "detail": "every round's lowest-scoring category carries an action",
+    "status": "pass",
+    "tool_id": "T-23"
+  }
+]

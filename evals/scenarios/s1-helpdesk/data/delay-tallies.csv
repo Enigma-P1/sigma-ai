@@ -1,0 +1,128 @@
+ticket_id,date,primary_delay_reason
+HD-0706-01,2026-07-06,waiting on manager approval
+HD-0706-02,2026-07-06,sat unassigned in triage queue > 4h
+HD-0706-03,2026-07-06,reassigned between techs
+HD-0706-04,2026-07-06,license/stock wait
+HD-0706-05,2026-07-06,sat unassigned in triage queue > 4h
+HD-0706-06,2026-07-06,sat unassigned in triage queue > 4h
+HD-0707-01,2026-07-07,sat unassigned in triage queue > 4h
+HD-0707-02,2026-07-07,waiting on manager approval
+HD-0707-03,2026-07-07,waiting on manager approval
+HD-0707-04,2026-07-07,sat unassigned in triage queue > 4h
+HD-0707-05,2026-07-07,sat unassigned in triage queue > 4h
+HD-0708-01,2026-07-08,waiting on requester reply
+HD-0708-02,2026-07-08,sat unassigned in triage queue > 4h
+HD-0708-03,2026-07-08,sat unassigned in triage queue > 4h
+HD-0708-04,2026-07-08,waiting on manager approval
+HD-0708-05,2026-07-08,waiting on manager approval
+HD-0708-06,2026-07-08,license/stock wait
+HD-0708-07,2026-07-08,sat unassigned in triage queue > 4h
+HD-0709-01,2026-07-09,sat unassigned in triage queue > 4h
+HD-0709-02,2026-07-09,waiting on manager approval
+HD-0709-03,2026-07-09,waiting on manager approval
+HD-0709-04,2026-07-09,sat unassigned in triage queue > 4h
+HD-0709-05,2026-07-09,waiting on manager approval
+HD-0710-01,2026-07-10,waiting on requester reply
+HD-0710-02,2026-07-10,sat unassigned in triage queue > 4h
+HD-0710-03,2026-07-10,waiting on manager approval
+HD-0710-04,2026-07-10,sat unassigned in triage queue > 4h
+HD-0710-05,2026-07-10,waiting on manager approval
+HD-0710-06,2026-07-10,waiting on manager approval
+HD-0713-01,2026-07-13,sat unassigned in triage queue > 4h
+HD-0713-02,2026-07-13,waiting on manager approval
+HD-0713-03,2026-07-13,sat unassigned in triage queue > 4h
+HD-0713-04,2026-07-13,waiting on manager approval
+HD-0713-05,2026-07-13,license/stock wait
+HD-0713-06,2026-07-13,sat unassigned in triage queue > 4h
+HD-0713-07,2026-07-13,sat unassigned in triage queue > 4h
+HD-0713-08,2026-07-13,waiting on requester reply
+HD-0714-01,2026-07-14,sat unassigned in triage queue > 4h
+HD-0714-02,2026-07-14,sat unassigned in triage queue > 4h
+HD-0714-03,2026-07-14,license/stock wait
+HD-0714-04,2026-07-14,sat unassigned in triage queue > 4h
+HD-0714-05,2026-07-14,waiting on manager approval
+HD-0714-06,2026-07-14,waiting on manager approval
+HD-0715-01,2026-07-15,sat unassigned in triage queue > 4h
+HD-0715-02,2026-07-15,waiting on manager approval
+HD-0715-03,2026-07-15,sat unassigned in triage queue > 4h
+HD-0715-04,2026-07-15,sat unassigned in triage queue > 4h
+HD-0715-05,2026-07-15,waiting on manager approval
+HD-0715-06,2026-07-15,waiting on manager approval
+HD-0715-07,2026-07-15,sat unassigned in triage queue > 4h
+HD-0716-01,2026-07-16,sat unassigned in triage queue > 4h
+HD-0716-02,2026-07-16,sat unassigned in triage queue > 4h
+HD-0716-03,2026-07-16,waiting on requester reply
+HD-0716-04,2026-07-16,sat unassigned in triage queue > 4h
+HD-0716-05,2026-07-16,reassigned between techs
+HD-0716-06,2026-07-16,waiting on manager approval
+HD-0716-07,2026-07-16,waiting on manager approval
+HD-0717-01,2026-07-17,reassigned between techs
+HD-0717-02,2026-07-17,waiting on manager approval
+HD-0717-03,2026-07-17,sat unassigned in triage queue > 4h
+HD-0717-04,2026-07-17,sat unassigned in triage queue > 4h
+HD-0717-05,2026-07-17,license/stock wait
+HD-0720-01,2026-07-20,sat unassigned in triage queue > 4h
+HD-0720-02,2026-07-20,waiting on manager approval
+HD-0720-03,2026-07-20,sat unassigned in triage queue > 4h
+HD-0720-04,2026-07-20,waiting on requester reply
+HD-0720-05,2026-07-20,sat unassigned in triage queue > 4h
+HD-0720-06,2026-07-20,sat unassigned in triage queue > 4h
+HD-0721-01,2026-07-21,reassigned between techs
+HD-0721-02,2026-07-21,waiting on manager approval
+HD-0721-03,2026-07-21,waiting on manager approval
+HD-0721-04,2026-07-21,sat unassigned in triage queue > 4h
+HD-0721-05,2026-07-21,waiting on requester reply
+HD-0721-06,2026-07-21,sat unassigned in triage queue > 4h
+HD-0721-07,2026-07-21,sat unassigned in triage queue > 4h
+HD-0722-01,2026-07-22,sat unassigned in triage queue > 4h
+HD-0722-02,2026-07-22,sat unassigned in triage queue > 4h
+HD-0722-03,2026-07-22,sat unassigned in triage queue > 4h
+HD-0722-04,2026-07-22,waiting on manager approval
+HD-0722-05,2026-07-22,sat unassigned in triage queue > 4h
+HD-0722-06,2026-07-22,sat unassigned in triage queue > 4h
+HD-0722-07,2026-07-22,waiting on manager approval
+HD-0723-01,2026-07-23,waiting on requester reply
+HD-0723-02,2026-07-23,sat unassigned in triage queue > 4h
+HD-0723-03,2026-07-23,reassigned between techs
+HD-0723-04,2026-07-23,sat unassigned in triage queue > 4h
+HD-0723-05,2026-07-23,sat unassigned in triage queue > 4h
+HD-0723-06,2026-07-23,sat unassigned in triage queue > 4h
+HD-0724-01,2026-07-24,sat unassigned in triage queue > 4h
+HD-0724-02,2026-07-24,sat unassigned in triage queue > 4h
+HD-0724-03,2026-07-24,sat unassigned in triage queue > 4h
+HD-0724-04,2026-07-24,reassigned between techs
+HD-0724-05,2026-07-24,waiting on requester reply
+HD-0724-06,2026-07-24,sat unassigned in triage queue > 4h
+HD-0727-01,2026-07-27,sat unassigned in triage queue > 4h
+HD-0727-02,2026-07-27,sat unassigned in triage queue > 4h
+HD-0727-03,2026-07-27,reassigned between techs
+HD-0727-04,2026-07-27,reassigned between techs
+HD-0727-05,2026-07-27,sat unassigned in triage queue > 4h
+HD-0728-01,2026-07-28,sat unassigned in triage queue > 4h
+HD-0728-02,2026-07-28,waiting on manager approval
+HD-0728-03,2026-07-28,sat unassigned in triage queue > 4h
+HD-0728-04,2026-07-28,sat unassigned in triage queue > 4h
+HD-0728-05,2026-07-28,waiting on manager approval
+HD-0728-06,2026-07-28,sat unassigned in triage queue > 4h
+HD-0728-07,2026-07-28,sat unassigned in triage queue > 4h
+HD-0729-01,2026-07-29,sat unassigned in triage queue > 4h
+HD-0729-02,2026-07-29,waiting on manager approval
+HD-0729-03,2026-07-29,waiting on requester reply
+HD-0729-04,2026-07-29,sat unassigned in triage queue > 4h
+HD-0729-05,2026-07-29,waiting on manager approval
+HD-0729-06,2026-07-29,sat unassigned in triage queue > 4h
+HD-0729-07,2026-07-29,sat unassigned in triage queue > 4h
+HD-0730-01,2026-07-30,waiting on requester reply
+HD-0730-02,2026-07-30,sat unassigned in triage queue > 4h
+HD-0730-03,2026-07-30,sat unassigned in triage queue > 4h
+HD-0730-04,2026-07-30,sat unassigned in triage queue > 4h
+HD-0730-05,2026-07-30,sat unassigned in triage queue > 4h
+HD-0730-06,2026-07-30,waiting on requester reply
+HD-0731-01,2026-07-31,waiting on manager approval
+HD-0731-02,2026-07-31,waiting on manager approval
+HD-0731-03,2026-07-31,waiting on manager approval
+HD-0731-04,2026-07-31,sat unassigned in triage queue > 4h
+HD-0731-05,2026-07-31,license/stock wait
+HD-0731-06,2026-07-31,waiting on manager approval
+HD-0731-07,2026-07-31,sat unassigned in triage queue > 4h
+HD-0731-08,2026-07-31,sat unassigned in triage queue > 4h

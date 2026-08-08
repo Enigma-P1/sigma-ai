@@ -1,0 +1,50 @@
+[
+  {
+    "check_id": "owner_named",
+    "detail": "every monitored item names an owner",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "owner_accepted",
+    "detail": "every named owner has accepted the role",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "frequency_reason_present",
+    "detail": "every item's monitoring frequency carries a stated reason",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "ctq_and_fix_coverage",
+    "detail": "the plan covers both the primary CTQ and what Improve changed",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "ocap_coverage",
+    "detail": "monitored item(s) with no OCAP entry yet: ['mi-throughput', 'mi-method']",
+    "status": "flag",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "ocap_elements_complete",
+    "detail": "every OCAP entry carries a first response, a containment step, an escalation contact, and an acting owner",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "training_verification_present",
+    "detail": "every training row names how it was verified",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
+    "check_id": "check_in_overdue",
+    "detail": "no check-in schedule on this plan yet",
+    "status": "pass",
+    "tool_id": "T-22"
+  }
+]

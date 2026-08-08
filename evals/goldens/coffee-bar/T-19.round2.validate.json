@@ -1,0 +1,88 @@
+{
+  "artifact": {
+    "analysis_plan": {
+      "expected_route": "welch_two_sample_t",
+      "rationale": "Two independent windows of continuous handoff minutes, n=120 each, different orders and customers -- the same shape as round 1. Welch's t is the expected route; T-20 routes the real data itself."
+    },
+    "artifact_id": "coffee-pilot-round2",
+    "changes": [
+      {
+        "change_id": "chg-1",
+        "text": "Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card"
+      },
+      {
+        "change_id": "chg-2",
+        "text": "Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait"
+      }
+    ],
+    "comparison_design": {
+      "description": "The round-1 pilot window, named exactly: after-round1.csv, 10 weekday mornings 2026-08-10 to 2026-08-21, n=120, mean 6.198, sd 0.866, engine-verified stable -- the implemented current state (batch steaming + sequencing has been the standard on all mornings since 2026-08-24, spot-checked through 2026-09-04). Pilot window: 10 weekday mornings 2026-09-08 to 2026-09-21 (Labor Day 2026-09-07 excluded), same 7:00-10:00 peak, 12 sampled orders per morning. The cumulative goal check runs against the original July baseline in the proof's gap block.",
+      "kind": "before_period"
+    },
+    "confounder_checklist": {
+      "demand": {
+        "changed": true,
+        "note": "Order counts since semester start are already running ~53-57 per peak against the baseline's 48 (~15% more load). Direction stated up front: a busier peak lengthens queues, so this confound biases AGAINST the pilot looking good -- it cannot manufacture a win, only mask one. Daily counts recorded per the charter mitigation."
+      },
+      "measurement": {
+        "changed": false,
+        "note": "Operational definition, POS clock, tally sheet, and the T-12-passed measurement system all unchanged; the every-10th-order stopwatch drift check continues."
+      },
+      "other": {
+        "changed": false,
+        "note": "The round-1 method (batch steaming + sequencing) stays in place unchanged all window -- it is the declared before-state, not a confounder. No menu, price, or layout changes; the espresso machine's annual service was moved to 2026-09-26, after the window closes, so it stays out of the comparison."
+      },
+      "season": {
+        "changed": true,
+        "note": "Fall semester began 2026-08-31 -- the charter's named risk, now real: every earlier window (baseline, round 1) was summer session, this one is term time. Its measurable effect is demand (next row); declared before the pilot runs so the proof re-answers it against actuals, not memory."
+      },
+      "staffing": {
+        "changed": false,
+        "note": "Same crew as both earlier windows -- Priya lead, Marcus and Riley on espresso; the charter's turnover risk has not landed (no departures), and no schedule changes are planned through 2026-09-21."
+      }
+    },
+    "created_at": "2026-09-03T15:30:00Z",
+    "declared_package": {
+      "components": [
+        "Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card",
+        "Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait"
+      ],
+      "rationale": "The dial-in routine and the standby grinder are one inseparable dosing-method change: a mid-peak swap is impossible without a second dialed-in grinder standing by, and a second grinder is pointless without the routine that keeps both units dialed in. Separate them and neither is testable alone -- a routine with a single grinder still stalls the line on every drift, and an un-dialed standby just moves the re-dial wait to a different machine -- so the pilot deploys the package whole and attribution stays package-level."
+    },
+    "falsification_line": "If the pilot-window mean over the full 10 mornings (2026-09-08 to 2026-09-21) is not below 5.5 minutes, the grinder change did not cut the rework stalls -- pull the backup grinder out of the rotation, log the reversion, and route the remaining gap back to Analyze (no cheaper ranked fix remains; the second machine head is the known escalation).",
+    "inclusion": {
+      "honesty_note": "Same convenience constraints as round 1: one site, the crew we have, no randomization. New this round and unavoidable: the window is in-semester (fall term started 2026-08-31) while every earlier window was summer session -- the charter named this risk in July, daily order counts are recorded as the mitigation, and season/demand are declared as live confounders below rather than discovered later.",
+      "how_selected": "Same systematic every-4th-order rule, tally sheet, and POS-clock operational definition as the baseline and round-1 windows -- the yardstick and the sampling rule have not moved across the whole project",
+      "who_or_what": "All espresso-drink orders at the campus coffee bar during the weekday 7:00-10:00 peak, both baristas (Marcus, Riley), every 4th espresso order sampled -- 12 per morning, 6 per daypart, the T-11 collection plan's rule unchanged"
+    },
+    "notes": "Round-2 pilot -- the loop working, not slowness: the round-1 proof's remaining-gap check (coffee-proof-round1, 2026-08-24) recovered 2.21 of the 3.41-minute gap and routed to the next-ranked verified cause, grinder rework (c-grinder, via sol-grinder-backup, rank #2). Designed and saved 2026-09-03, before the first pilot morning 2026-09-08; status flipped to complete when the window closed 2026-09-21. Declared as a PACKAGE, structurally, not as one fused sentence: declared_package states the rationale (the dial-in routine and the standby unit deploy together or not at all -- a mid-peak swap is impossible without a second dialed-in grinder standing by, and the second grinder is pointless without the routine that keeps it dialed in; separated, neither is testable alone) and lists both components by name, with the changes list aligned 1:1 -- so EXIT-10 does not fire for this declared set (the carve-out's whole point) and the engine stamps package-level attribution onto the artifact itself (package_attribution_note): credit goes to the dosing-method package as a whole, never to either component alone (R-IMP-02's carve-out). the_one_change carries the package as a whole -- the one dosing-method change this pilot deploys. The comparison window is the round-1 pilot window: since 2026-08-24 the batch-steam + sequencing method has been the implemented standard on every morning, so the round-1 window IS the current state of the process, and testing against it isolates what THIS change adds. The cumulative claim stays final-state vs the original July baseline, computed in the round-2 proof's gap block (R-IMP-03: per-change credits stay descriptive, never summed). Honest wrinkle, declared now: fall semester began 2026-08-31, so this window runs under semester demand while the baseline and round-1 windows ran in summer session -- season and demand are answered YES below, with the direction of the bias stated (more load lengthens queues; the confound pushes against the pilot, not for it).",
+    "package_attribution_note": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "88f52ba2c9f637fd9337450a4c29f40894f01c236cc89bc06bb0ef439d031ef1",
+        "method": "stamped whenever declared_package is present -- package-level attribution only, never a component-level claim (rubric R-IMP-02's carve-out, matrix EXIT-10)",
+        "warnings": []
+      },
+      "value": "Declared package of 2 component(s) (Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card, Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait) -- proof credit is package-level only; nothing here is attributable to a single component (rubric R-IMP-02's carve-out)."
+    },
+    "schema_version": 1,
+    "status": "complete",
+    "success_threshold": {
+      "declared_at": "2026-09-03T15:00:00Z",
+      "direction": "lower_is_better",
+      "metric_ref": "handoff_minutes (charter C1) -- pilot-window mean",
+      "value": 5.5
+    },
+    "the_one_change": {
+      "linked_cause_ids": [
+        "c-grinder"
+      ],
+      "linked_solution_id": "sol-grinder-backup",
+      "statement": "Change the grinder-dose method to a dialed-in-before-peak routine backed by a standby grinder: dial in the primary grinder before 7:00 and re-dial after every hopper refill, and when it drifts mid-peak, swap in the pre-dialed backup grinder instead of re-dialing while cups wait."
+    },
+    "tool_id": "T-19",
+    "updated_at": "2026-09-21T16:00:00Z"
+  },
+  "valid": true
+}

@@ -1,0 +1,99 @@
+{
+  "artifact": {
+    "artifact_id": "s2-control-plan",
+    "as_of": "2026-11-04T09:00:00Z",
+    "check_in_schedule": null,
+    "created_at": "2026-10-31T18:00:00Z",
+    "monitored_items": [
+      {
+        "characteristic": "Audited misshelve rate (charter C1, primary CTQ)",
+        "frequency": "Weekly",
+        "frequency_reason": "Matches the sampling cadence the limits were frozen from",
+        "how_measured": "Daily shelf-read audit against the written definition, weekly roll-up",
+        "is_improve_change": false,
+        "is_primary_ctq": true,
+        "item_id": "mi-rate",
+        "operational_definition_ref": "s2-collection-plan",
+        "owner_accepted": true,
+        "owner_name": "Ruth Delgado",
+        "per_shift_owners": [],
+        "where": "Shelving floor, rotating ranges"
+      },
+      {
+        "characteristic": "Shelving throughput (items/staff-hour, guardrail)",
+        "frequency": "Weekly",
+        "frequency_reason": "Same cadence as the primary CTQ",
+        "how_measured": "Shelving log, weekly roll-up",
+        "is_improve_change": false,
+        "is_primary_ctq": false,
+        "item_id": "mi-throughput",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Ruth Delgado",
+        "per_shift_owners": [],
+        "where": "Shelving log"
+      },
+      {
+        "characteristic": "Pre-sort method adherence: do carts leave the sorting room in final shelf order?",
+        "frequency": "Twice weekly",
+        "frequency_reason": "Method backsliding grows in days, not months",
+        "how_measured": "Spot-check a sample cart at the sorting-room exit, unannounced",
+        "is_improve_change": true,
+        "is_primary_ctq": false,
+        "item_id": "mi-method",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Ruth Delgado",
+        "per_shift_owners": [],
+        "where": "Sorting room"
+      }
+    ],
+    "notes": "Monitors the audited rate weekly, the throughput guardrail, and the method itself (do carts leave the sorting room in final order?). Quarterly kappa re-run guards the definition as staff turn over.",
+    "ocap_entries": [
+      {
+        "acting_owner": "Ruth Delgado",
+        "action_steps": [
+          "First response: spot-check the pre-sort method before anything else.",
+          "Containment: re-run the mi-method spot-check on the next three carts and re-train on the spot if it fails."
+        ],
+        "escalation_contact": "Colette Marchand (branch manager, sponsor)",
+        "escalation_trigger": "Two signals inside one rolling month",
+        "monitored_item_id": "mi-rate",
+        "ocap_id": "ocap-rate",
+        "trigger_signal": "Any point beyond the frozen band, or 8 consecutive points one side of center"
+      }
+    ],
+    "plan_health": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "aca24816445a9026c3b1ad3bde542c3ce67c2ac30599460fd2be2f79274fa377",
+        "method": "plan_health = ownerless monitored items (is_theater -- R-CTL-03's Fail line) + items whose named owner hasn't accepted + whether the schedule's next_due has passed as_of (PLAN §4.1)",
+        "warnings": []
+      },
+      "value": {
+        "check_in_overdue": false,
+        "check_in_overdue_detail": "no check-in schedule on this plan yet",
+        "is_theater": false,
+        "ownerless_item_ids": [],
+        "unaccepted_owner_item_ids": []
+      }
+    },
+    "schema_version": 1,
+    "tool_id": "T-22",
+    "training_rows": [
+      {
+        "by_when": "2026-11-10",
+        "by_whom": "Ruth Delgado",
+        "done": true,
+        "row_id": "tr-pages",
+        "sop_ref": "s2-standard-work",
+        "verified_at": "2026-11-04",
+        "verified_how": "Observed demonstration of the pre-sort method against the written rules",
+        "who": "Theo Brandt, Keisha Monroe, Sam Whitaker (shelving pages)"
+      }
+    ],
+    "updated_at": "2026-11-04T09:00:00Z"
+  },
+  "valid": true
+}

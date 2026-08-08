@@ -1,0 +1,162 @@
+{
+  "artifact": {
+    "artifact_id": "s1-control-plan",
+    "as_of": "2026-10-16T17:00:00Z",
+    "check_in_schedule": {
+      "cadence": {
+        "interval": 1,
+        "unit": "weeks"
+      },
+      "completed": [
+        {
+          "check_in_id": "ci-1",
+          "completed_at": "2026-10-16T17:00:00Z",
+          "due_date": "2026-10-16",
+          "entered": {
+            "dataset_id": null,
+            "kind": "manual",
+            "subgroup": null,
+            "values": [
+              6.8,
+              7.5,
+              7.9,
+              6.2,
+              8.1,
+              7.0
+            ]
+          },
+          "label": "week 1: is the fix holding?",
+          "note": "First week after freeze; no signals expected.",
+          "result": {
+            "provenance": {
+              "assumptions_checked": [
+                "limits are the FROZEN baseline carried on this plan, never recomputed from the check-in's own values"
+              ],
+              "engine_version": "0.1.0",
+              "input_hash": "22b5d6c01cc69a04591c0a5db4ebaf7de4c7f61736b0a7a2ed161666f226b9a4",
+              "method": "check-in pass/fail = entered value(s) tested against the LINKED CONTROL CHART'S FROZEN limits (p-chart limits re-derived per this check-in's own subgroup n via p_chart_limits, since a p-chart's band breathes with n) -- the check-in's own few points are never treated as a fresh signal search",
+              "warnings": []
+            },
+            "value": {
+              "detail": "all 6 entered value(s) hold inside the frozen band [0.6069, 13.83]",
+              "verdict": "pass"
+            }
+          }
+        }
+      ],
+      "control_chart_ref": "s1-control-chart",
+      "frozen_limits": {
+        "center": 7.2169,
+        "chart_type": "imr",
+        "control_chart_artifact_id": "s1-control-chart",
+        "frozen_at": "2026-10-09T18:00:00Z",
+        "lcl": 0.6069,
+        "p_bar": null,
+        "ucl": 13.827
+      },
+      "next_due": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "009512c5184b237b709e9a4a031172a2dea83378b158bb662a8e2425efa5457a",
+          "method": "next_due = start_date advanced by (count of completed check-ins) whole cadence steps -- a sequential schedule, never a hand-typed date",
+          "warnings": []
+        },
+        "value": "2026-10-23"
+      },
+      "start_date": "2026-10-16"
+    },
+    "created_at": "2026-10-09T18:30:00Z",
+    "monitored_items": [
+      {
+        "characteristic": "Mean resolution time, routine tickets (charter C1, primary CTQ)",
+        "frequency": "Weekly",
+        "frequency_reason": "Matches the sampling cadence the limits were frozen from",
+        "how_measured": "Ticket-system timestamps, business hours, tenths -- the T-11 operational definition, unchanged",
+        "is_improve_change": false,
+        "is_primary_ctq": true,
+        "item_id": "mi-resolution",
+        "operational_definition_ref": "s1-collection-plan",
+        "owner_accepted": true,
+        "owner_name": "Naomi Castillo",
+        "per_shift_owners": [],
+        "where": "Ticket system event log"
+      },
+      {
+        "characteristic": "Reopened tickets per 100 (guardrail)",
+        "frequency": "Weekly",
+        "frequency_reason": "Same cadence as the primary CTQ",
+        "how_measured": "Reopen count / total closed tickets x100, weekly roll-up",
+        "is_improve_change": false,
+        "is_primary_ctq": false,
+        "item_id": "mi-reopen",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Naomi Castillo",
+        "per_shift_owners": [],
+        "where": "Ticket system"
+      },
+      {
+        "characteristic": "Dispatch-within-the-hour compliance (the changed method itself)",
+        "frequency": "Weekly",
+        "frequency_reason": "A lapsed method is the failure mode the chart cannot see directly",
+        "how_measured": "Spot-check: assignment timestamp minus ticket-created timestamp, sampled weekly",
+        "is_improve_change": true,
+        "is_primary_ctq": false,
+        "item_id": "mi-method",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Naomi Castillo",
+        "per_shift_owners": [],
+        "where": "Ticket system"
+      }
+    ],
+    "notes": "Monitors C1 weekly, the reopen guardrail, and the method itself (dispatch-within-the-hour compliance) so a lapsed method is caught before the chart has to catch it.",
+    "ocap_entries": [
+      {
+        "acting_owner": "Naomi Castillo",
+        "action_steps": [
+          "First response: check dispatch-within-the-hour compliance for the signal week before anything else.",
+          "Containment: if the queue is backing up, add a second dispatcher for the day; log the reason."
+        ],
+        "escalation_contact": "Victor Braun (IT manager, sponsor)",
+        "escalation_trigger": "Two signals inside one rolling month",
+        "monitored_item_id": "mi-resolution",
+        "ocap_id": "ocap-resolution",
+        "trigger_signal": "Any point beyond the frozen band, or 8 consecutive points one side of center"
+      }
+    ],
+    "plan_health": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "8b23a4b3d6a4500b36dddc3a3751a3ad339d4d866e93debaa4f5d4515b887804",
+        "method": "plan_health = ownerless monitored items (is_theater -- R-CTL-03's Fail line) + items whose named owner hasn't accepted + whether the schedule's next_due has passed as_of (PLAN §4.1)",
+        "warnings": []
+      },
+      "value": {
+        "check_in_overdue": false,
+        "check_in_overdue_detail": "next check-in due 2026-10-23, not yet due as of 2026-10-16T17:00:00Z",
+        "is_theater": false,
+        "ownerless_item_ids": [],
+        "unaccepted_owner_item_ids": []
+      }
+    },
+    "schema_version": 1,
+    "tool_id": "T-22",
+    "training_rows": [
+      {
+        "by_when": "2026-10-15",
+        "by_whom": "Naomi Castillo",
+        "done": true,
+        "row_id": "tr-techs",
+        "sop_ref": "s1-standard-work",
+        "verified_at": "2026-10-13",
+        "verified_how": "Observed a full dispatcher-of-the-day rotation cycle",
+        "who": "Ben Okafor, Lena Fischer, Marco Diaz (techs)"
+      }
+    ],
+    "updated_at": "2026-10-12T09:00:00Z"
+  },
+  "valid": true
+}

@@ -1,0 +1,108 @@
+{
+  "artifact_count": 25,
+  "artifact_index": {
+    "coffee-a3": {
+      "latest_version": 1,
+      "tool_id": "T-25"
+    },
+    "coffee-charter": {
+      "latest_version": 1,
+      "tool_id": "T-03"
+    },
+    "coffee-check-sheet": {
+      "latest_version": 1,
+      "tool_id": "T-08"
+    },
+    "coffee-collection-plan": {
+      "latest_version": 1,
+      "tool_id": "T-11"
+    },
+    "coffee-control-chart": {
+      "latest_version": 1,
+      "tool_id": "T-21"
+    },
+    "coffee-control-plan": {
+      "latest_version": 1,
+      "tool_id": "T-22"
+    },
+    "coffee-copq": {
+      "latest_version": 1,
+      "tool_id": "T-02"
+    },
+    "coffee-copq-wrap": {
+      "latest_version": 1,
+      "tool_id": "T-02"
+    },
+    "coffee-fishbone": {
+      "latest_version": 1,
+      "tool_id": "T-15"
+    },
+    "coffee-five-s": {
+      "latest_version": 1,
+      "tool_id": "T-23"
+    },
+    "coffee-fmea": {
+      "latest_version": 1,
+      "tool_id": "T-16"
+    },
+    "coffee-hypothesis-daypart": {
+      "latest_version": 1,
+      "tool_id": "T-17"
+    },
+    "coffee-msa": {
+      "latest_version": 1,
+      "tool_id": "T-12"
+    },
+    "coffee-picker": {
+      "latest_version": 1,
+      "tool_id": "T-01"
+    },
+    "coffee-pilot-round1": {
+      "latest_version": 1,
+      "tool_id": "T-19"
+    },
+    "coffee-pilot-round2": {
+      "latest_version": 1,
+      "tool_id": "T-19"
+    },
+    "coffee-process-map": {
+      "latest_version": 1,
+      "tool_id": "T-06"
+    },
+    "coffee-proof-round1": {
+      "latest_version": 1,
+      "tool_id": "T-20"
+    },
+    "coffee-proof-round2": {
+      "latest_version": 1,
+      "tool_id": "T-20"
+    },
+    "coffee-sipoc": {
+      "latest_version": 1,
+      "tool_id": "T-04"
+    },
+    "coffee-solution-matrix": {
+      "latest_version": 1,
+      "tool_id": "T-18"
+    },
+    "coffee-spaghetti": {
+      "latest_version": 1,
+      "tool_id": "T-07"
+    },
+    "coffee-standard-work": {
+      "latest_version": 1,
+      "tool_id": "T-24"
+    },
+    "coffee-time-study": {
+      "latest_version": 1,
+      "tool_id": "T-09"
+    },
+    "coffee-voc-ctq": {
+      "latest_version": 1,
+      "tool_id": "T-05"
+    }
+  },
+  "folder_path": "/root/.sigma-ai/projects/eval-coffee-bar",
+  "name": "Coffee Bar (golden replay)",
+  "project_id": "eval-coffee-bar"
+}

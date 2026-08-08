@@ -1,0 +1,180 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "ticket_id",
+      "sample_values": [
+        "HD-0706-01",
+        "HD-0706-02",
+        "HD-0706-03",
+        "HD-0706-04",
+        "HD-0706-05"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "request_type",
+      "sample_values": [
+        "access_grant",
+        "password_reset",
+        "access_grant",
+        "access_grant",
+        "access_grant"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "channel",
+      "sample_values": [
+        "portal",
+        "portal",
+        "portal",
+        "portal",
+        "email"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "tech",
+      "sample_values": [
+        "M.D.",
+        "M.D.",
+        "B.O.",
+        "B.O.",
+        "B.O."
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "resolution_hours",
+      "sample_values": [
+        "32.1",
+        "10.6",
+        "28.0",
+        "28.6",
+        "22.1"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "row_count": 127
+  },
+  "row_count": 127,
+  "sample_rows": [
+    {
+      "channel": "portal",
+      "date": "2026-07-06",
+      "request_type": "access_grant",
+      "resolution_hours": "32.1",
+      "tech": "M.D.",
+      "ticket_id": "HD-0706-01"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-06",
+      "request_type": "password_reset",
+      "resolution_hours": "10.6",
+      "tech": "M.D.",
+      "ticket_id": "HD-0706-02"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-06",
+      "request_type": "access_grant",
+      "resolution_hours": "28.0",
+      "tech": "B.O.",
+      "ticket_id": "HD-0706-03"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-06",
+      "request_type": "access_grant",
+      "resolution_hours": "28.6",
+      "tech": "B.O.",
+      "ticket_id": "HD-0706-04"
+    },
+    {
+      "channel": "email",
+      "date": "2026-07-06",
+      "request_type": "access_grant",
+      "resolution_hours": "22.1",
+      "tech": "B.O.",
+      "ticket_id": "HD-0706-05"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-06",
+      "request_type": "password_reset",
+      "resolution_hours": "25.6",
+      "tech": "M.D.",
+      "ticket_id": "HD-0706-06"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-07",
+      "request_type": "password_reset",
+      "resolution_hours": "24.8",
+      "tech": "B.O.",
+      "ticket_id": "HD-0707-01"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-07",
+      "request_type": "access_grant",
+      "resolution_hours": "34.2",
+      "tech": "M.D.",
+      "ticket_id": "HD-0707-02"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-07",
+      "request_type": "access_grant",
+      "resolution_hours": "31.0",
+      "tech": "L.F.",
+      "ticket_id": "HD-0707-03"
+    },
+    {
+      "channel": "portal",
+      "date": "2026-07-07",
+      "request_type": "password_reset",
+      "resolution_hours": "15.5",
+      "tech": "B.O.",
+      "ticket_id": "HD-0707-04"
+    }
+  ],
+  "source_filename": "tickets-baseline.csv"
+}

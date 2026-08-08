@@ -1,0 +1,14 @@
+[
+  {
+    "check_id": "total_matches_rows",
+    "detail": "stored total matches sum(quantity * rate) over rows",
+    "status": "pass",
+    "tool_id": "T-02"
+  },
+  {
+    "check_id": "period_consistency",
+    "detail": "rows mix periods: ['Q3 2026', 'Q3 2026 (3-week sample, extrapolated)']",
+    "status": "flag",
+    "tool_id": "T-02"
+  }
+]

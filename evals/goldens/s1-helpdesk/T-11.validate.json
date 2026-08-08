@@ -1,0 +1,56 @@
+{
+  "artifact": {
+    "artifact_id": "s1-collection-plan",
+    "bias_note": "Every-2nd-ticket sampling across all techs and both channels, 20 consecutive business days -- not a single easy morning.",
+    "charter_metric_id": "C1",
+    "created_at": "2026-07-03T09:00:00Z",
+    "data_type": "continuous",
+    "logistics": {
+      "planned_n": 130,
+      "sample_size_rationale": "Engine sample-size panel, mean calculator: planning SD 6.5 (June spot-pull), margin 1.25h at 95% confidence returns n=104; achieved n=127.",
+      "when_how_often": "Every 2nd routine ticket, all three techs, both channels, 20 consecutive business days",
+      "where_collected": "Ticket system event log",
+      "who_collects": "Naomi Castillo (help desk lead) owns the extract"
+    },
+    "metric_name": "Elapsed business hours, ticket open to confirmed resolution",
+    "no_stratification_reason": "",
+    "notes": "Chosen precisely because techs batch-close tickets at day's end, so the tech's close-click would flatter the number.",
+    "operational_definition": {
+      "how_instrument": "Ticket-system timestamps: created timestamp to requester-confirmation-reply timestamp (or auto-confirm at +2 business days)",
+      "precision_unit": "Tenths of a business hour, business-hours calendar 8:00-17:00 Mon-Fri",
+      "starts_when": "Ticket-created timestamp",
+      "stops_when": "Requester's confirmation reply, or auto-confirm at +2 business days",
+      "two_people_confirmed": true,
+      "what_measured": "Elapsed business hours for one routine ticket, open to confirmed resolution"
+    },
+    "schema_version": 1,
+    "stratification_factors": [
+      {
+        "name": "request_type",
+        "values_expected": [
+          "password_reset",
+          "software_install",
+          "access_grant"
+        ]
+      },
+      {
+        "name": "channel",
+        "values_expected": [
+          "portal",
+          "email"
+        ]
+      },
+      {
+        "name": "tech",
+        "values_expected": [
+          "B.O.",
+          "L.F.",
+          "M.D."
+        ]
+      }
+    ],
+    "tool_id": "T-11",
+    "updated_at": "2026-07-03T09:00:00Z"
+  },
+  "valid": true
+}

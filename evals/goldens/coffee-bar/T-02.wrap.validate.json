@@ -1,0 +1,65 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-copq-wrap",
+    "created_at": "2026-10-19T14:00:00Z",
+    "notes": "Wrap-phase COPQ re-run with post-improvement actuals over a STATED window: the first 4 weeks after the round-2 change was implemented beyond its pilot, 2026-09-22 to 2026-10-16, 19 weekday service mornings. Same four categories, same sources, same rates as the Q2 baseline COPQ (coffee-copq) so the two runs compare money to money: remakes from the barista waste sheet at the invoiced $1.10, comps from the POS comp log reason-code 'wait' at the $4.80 average, walk-aways from the same morning tally method at the $5.25 average ticket (still the one estimate row), overtime from the time-clock export at $16.50. The engine computes every row amount and the total; nothing here is hand-typed. Window total $252.95 against the Q2 baseline pro-rated to an equal 4 weeks ($4,021 x 4/13 = $1,237.23) -- the before/after money the A3's realized-benefits panel runs on, with the pro-rating named there as an assumption (Q2 was summer session; this window is semester, ~15% busier, which if anything understates the recovery). Recorded in control-run.md.",
+    "rows": [
+      {
+        "amount": 77.0,
+        "basis": "Remade drinks on the barista waste sheet across the window's 19 service mornings (~2.3 per 100 orders at semester volume); per-remake cost from the same supplier invoices as the Q2 run",
+        "category": "rework",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "2026-09-22 to 2026-10-16 (4 weeks post-rollout)",
+        "quantity": 70.0,
+        "rate": 1.1
+      },
+      {
+        "amount": 43.199999999999996,
+        "basis": "POS comp log, reason code 'wait', across the window -- down from ~65 per equivalent 4 weeks in Q2; rate is the same average comped-drink price",
+        "category": "custom",
+        "custom_label": "Comped drinks (long-wait apologies)",
+        "is_estimate": false,
+        "period": "2026-09-22 to 2026-10-16 (4 weeks post-rollout)",
+        "quantity": 9.0,
+        "rate": 4.8
+      },
+      {
+        "amount": 99.75,
+        "basis": "Estimate, same method as Q2: pickup-counter walk-away tally averaged ~1 per morning across the 19 mornings (Q2 ran 6 per morning); average ticket from the POS",
+        "category": "lost_business",
+        "custom_label": null,
+        "is_estimate": true,
+        "period": "2026-09-22 to 2026-10-16 (4 weeks post-rollout)",
+        "quantity": 19.0,
+        "rate": 5.25
+      },
+      {
+        "amount": 33.0,
+        "basis": "Time-clock export, morning-shift overtime code: 2.0 hours across the window (~0.1 per morning, against Q2's 0.65) -- the peak backlog that drove it no longer builds",
+        "category": "overtime",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "2026-09-22 to 2026-10-16 (4 weeks post-rollout)",
+        "quantity": 2.0,
+        "rate": 16.5
+      }
+    ],
+    "schema_version": 1,
+    "tool_id": "T-02",
+    "total": {
+      "provenance": {
+        "assumptions_checked": [
+          "each row's amount is quantity * rate, never hand-entered"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "3990dca3f2a9eefca7f61e3bb6b6663a8f0f122dbbace01a2ac09842df4e2fe8",
+        "method": "copq_total = sum(quantity * rate per row)",
+        "warnings": []
+      },
+      "value": 252.95
+    },
+    "updated_at": "2026-10-19T14:00:00Z"
+  },
+  "valid": true
+}

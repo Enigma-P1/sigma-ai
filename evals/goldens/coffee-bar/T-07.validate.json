@@ -1,0 +1,217 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-spaghetti",
+    "calibration": {
+      "point_a": {
+        "x": 100.0,
+        "y": 455.0
+      },
+      "point_b": {
+        "x": 580.0,
+        "y": 455.0
+      },
+      "real_length": 6.0,
+      "unit": "meters"
+    },
+    "created_at": "2026-07-22T15:10:00Z",
+    "floor_plan": {
+      "height_px": 500,
+      "image_id": "<normalized>",
+      "sha256": "210f1e9ef02be03fd9ab8e580aa653be1fde9297aa8587690399b335e4b29d6f",
+      "source_filename": "floorplan.png",
+      "width_px": 700
+    },
+    "metrics": {
+      "provenance": {
+        "assumptions_checked": [
+          "default walk speed is 84 m/min (276 ft/min) unless overridden -- a stated, cited, overridable constant, not a per-project measurement (T-09 timing a real walk is the honest upgrade)",
+          "path crossings compare routes only within the same layout_mode -- current and proposed are two different hypothetical floor states, never walked simultaneously"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "90ee67829989d47ed1b0194e6888de446019ff4c35101289eb86b3147d474d39",
+        "method": "pixels_per_unit = |point_b - point_a| / real_length; distance_per_trip = polyline pixel length / pixels_per_unit; walk_time = distance / walk_speed (default 84 m/min, override honored when set); daily = per-trip x frequency_per_day; crossings = proper segment-intersection count between different routes within the same layout_mode (orientation/cross-product test, collinear touches and shared endpoints excluded); delta = proposed - current per operator and overall, only once both layout modes have >=1 route",
+        "warnings": []
+      },
+      "value": {
+        "crossings": [
+          {
+            "crossing_count": 1,
+            "route_id_a": "R1",
+            "route_id_b": "R3"
+          }
+        ],
+        "delta": null,
+        "operator_totals": [
+          {
+            "daily_trip_count": 158.0,
+            "layout_mode": "current",
+            "operator_id": "op-marcus",
+            "operator_name": "Marcus Webb",
+            "total_daily_distance": 796.4028222700754,
+            "total_daily_walk_time_minutes": 9.48098597940566
+          }
+        ],
+        "pixels_per_unit": 80.0,
+        "routes": [
+          {
+            "daily_distance": 251.15577810846943,
+            "daily_walk_time_minutes": 2.989949739386541,
+            "distance_per_trip": 5.2324120439264465,
+            "frequency_per_day": 48.0,
+            "layout_mode": "current",
+            "operator_id": "op-marcus",
+            "route_id": "R1",
+            "trip_label": "Register to espresso (start next drink)",
+            "unit": "meters",
+            "walk_time_minutes_per_trip": 0.06229061957055294
+          },
+          {
+            "daily_distance": 237.9,
+            "daily_walk_time_minutes": 2.8321428571428573,
+            "distance_per_trip": 4.575,
+            "frequency_per_day": 52.0,
+            "layout_mode": "current",
+            "operator_id": "op-marcus",
+            "route_id": "R2",
+            "trip_label": "Espresso to grinder and back (dose)",
+            "unit": "meters",
+            "walk_time_minutes_per_trip": 0.054464285714285715
+          },
+          {
+            "daily_distance": 249.49363183425007,
+            "daily_walk_time_minutes": 2.970162283741072,
+            "distance_per_trip": 5.197783996546876,
+            "frequency_per_day": 48.0,
+            "layout_mode": "current",
+            "operator_id": "op-marcus",
+            "route_id": "R3",
+            "trip_label": "Espresso to pickup counter (deliver and call)",
+            "unit": "meters",
+            "walk_time_minutes_per_trip": 0.06187838091127234
+          },
+          {
+            "daily_distance": 57.8534123273559,
+            "daily_walk_time_minutes": 0.6887310991351893,
+            "distance_per_trip": 5.78534123273559,
+            "frequency_per_day": 10.0,
+            "layout_mode": "current",
+            "operator_id": "op-marcus",
+            "route_id": "R4",
+            "trip_label": "Pickup back to register (cover the line)",
+            "unit": "meters",
+            "walk_time_minutes_per_trip": 0.06887310991351893
+          }
+        ],
+        "total_crossing_count": 1,
+        "total_daily_distance_all": 796.4028222700754,
+        "total_daily_walk_time_minutes_all": 9.48098597940566,
+        "unit": "meters",
+        "walk_speed_units_per_minute": 84.0
+      }
+    },
+    "notes": "Marcus's walking during the July 22 morning peak, traced on the bar floor plan (floorplan.png, 700x500 -- stdlib-rendered like the desktop smoke fixture). Calibrated on the 6 m front-counter face (480 px, 80 px/m). Current layout only -- the proposed layout arrives with Improve. Trip counts are the July 22 tally: 48 orders that peak (same 48 as the process map's demand block), one grinder round trip per drink plus four extra for re-pulls and a hopper refill (52), and ten walks back to cover the register line. The engine computes the distances, the daily walking burden, and the one path crossing -- the delivery path crosses the start-next-drink path in front of the machine, where the July 28 rush pileup also happened.",
+    "observation_window": {
+      "duration": "180 minutes (one full peak)",
+      "shift": "Weekday morning",
+      "when": "Wednesday 2026-07-22, 7:00-10:00 morning peak"
+    },
+    "operators": [
+      {
+        "color_index": 0,
+        "name": "Marcus Webb",
+        "operator_id": "op-marcus"
+      }
+    ],
+    "routes": [
+      {
+        "frequency_per_day": 48.0,
+        "layout_mode": "current",
+        "operator_id": "op-marcus",
+        "points": [
+          {
+            "x": 137.0,
+            "y": 367.0
+          },
+          {
+            "x": 420.0,
+            "y": 250.0
+          },
+          {
+            "x": 360.0,
+            "y": 155.0
+          }
+        ],
+        "route_id": "R1",
+        "trip_label": "Register to espresso (start next drink)"
+      },
+      {
+        "frequency_per_day": 52.0,
+        "layout_mode": "current",
+        "operator_id": "op-marcus",
+        "points": [
+          {
+            "x": 360.0,
+            "y": 155.0
+          },
+          {
+            "x": 177.0,
+            "y": 155.0
+          },
+          {
+            "x": 360.0,
+            "y": 155.0
+          }
+        ],
+        "route_id": "R2",
+        "trip_label": "Espresso to grinder and back (dose)"
+      },
+      {
+        "frequency_per_day": 48.0,
+        "layout_mode": "current",
+        "operator_id": "op-marcus",
+        "points": [
+          {
+            "x": 360.0,
+            "y": 155.0
+          },
+          {
+            "x": 300.0,
+            "y": 250.0
+          },
+          {
+            "x": 580.0,
+            "y": 367.0
+          }
+        ],
+        "route_id": "R3",
+        "trip_label": "Espresso to pickup counter (deliver and call)"
+      },
+      {
+        "frequency_per_day": 10.0,
+        "layout_mode": "current",
+        "operator_id": "op-marcus",
+        "points": [
+          {
+            "x": 580.0,
+            "y": 367.0
+          },
+          {
+            "x": 355.0,
+            "y": 300.0
+          },
+          {
+            "x": 137.0,
+            "y": 367.0
+          }
+        ],
+        "route_id": "R4",
+        "trip_label": "Pickup back to register (cover the line)"
+      }
+    ],
+    "schema_version": 1,
+    "tool_id": "T-07",
+    "updated_at": "2026-07-22T15:10:00Z",
+    "walk_speed_override_per_minute": null
+  },
+  "valid": true
+}

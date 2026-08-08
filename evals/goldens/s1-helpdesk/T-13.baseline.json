@@ -1,0 +1,126 @@
+{
+  "capability": {
+    "provenance": {
+      "assumptions_checked": [
+        "at least one spec limit present",
+        "process assumed normal (NIST §6.1.6)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "bb82f9cef001ab2fed86602d2b2ac3d439e027f8d1c47033988f0752e933ab5c",
+      "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST §6.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+      "warnings": []
+    },
+    "value": {
+      "cp_index": null,
+      "cpk_index": -0.9599422594912749,
+      "lsl": null,
+      "mean": 26.714173228346457,
+      "n": 127,
+      "one_sided": true,
+      "performance_not_capability": false,
+      "pp_index": null,
+      "ppk_index": -1.0107572573208554,
+      "sigma_overall": 6.17166752709443,
+      "sigma_within": 6.498367668580436,
+      "usl": 8.0
+    }
+  },
+  "dataset_provenance": {
+    "column": "resolution_hours",
+    "dataset_id": "<normalized>",
+    "dataset_sha256": "46ba763d4c4691e926b357b65dd22b9fe277b160aaadca24f31d1201ceb5002f",
+    "row_count_used": 127
+  },
+  "descriptive": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 2"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "9e51de1f0d92de8703e8dabbae7a9b076de56181e952409f725ef0a9df39b2fe",
+      "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH §1.3.5.1/§1.3.5.6",
+      "warnings": []
+    },
+    "value": {
+      "iqr": 8.649999999999999,
+      "max": 42.9,
+      "mean": 26.714173228346457,
+      "median": 26.6,
+      "min": 10.6,
+      "n": 127,
+      "q1": 22.3,
+      "q3": 30.95,
+      "sd": 6.17166752709443
+    }
+  },
+  "exits": [],
+  "gate_message": null,
+  "gate_ok": true,
+  "measurement_check": null,
+  "n": 127,
+  "normality": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 3 for a computable statistic"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "9e51de1f0d92de8703e8dabbae7a9b076de56181e952409f725ef0a9df39b2fe",
+      "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST §1.3.5.14); concern iff p<0.05 and n>=15",
+      "warnings": []
+    },
+    "value": {
+      "advisory": "no_concern",
+      "approx_pvalue": 0.15,
+      "n": 127,
+      "p_band": "p >= 0.15",
+      "statistic": 0.29135138744169353
+    }
+  },
+  "observed_yield": null,
+  "percentile_capability": null,
+  "sigma": {
+    "provenance": {
+      "assumptions_checked": [
+        "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "26fb7abcd6efa318e0aba9002a416d785beea28cb85c06e8fc1a9b735a17a50f",
+      "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+      "warnings": []
+    },
+    "value": {
+      "convention": "with 1.5σ shift",
+      "dpmo": 998786.3971713751,
+      "sigma_level": -1.5322717719625798
+    }
+  },
+  "stability": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 2",
+        "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "d2ef3f208d71593de07c1aad350a668c0df208e4e93d42a686c125a26cad111a",
+      "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+      "warnings": []
+    },
+    "value": {
+      "i_cl": 26.714173228346464,
+      "i_lcl": 7.219070222605154,
+      "i_ucl": 46.209276234087774,
+      "mr_bar": 7.330158730158732,
+      "mr_cl": 7.330158730158732,
+      "mr_lcl": 0.0,
+      "mr_ucl": 23.947628571428577,
+      "n": 127,
+      "rule2_enabled": false,
+      "rule3_enabled": false,
+      "sigma_within": 6.498367668580436,
+      "signals": [],
+      "xbar": 26.714173228346464
+    }
+  },
+  "stability_note": "stable: 127 points, no default-rule signal",
+  "stable": true
+}

@@ -1,0 +1,77 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-10-05",
+        "2026-10-05",
+        "2026-10-05",
+        "2026-10-06",
+        "2026-10-06"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "section",
+      "sample_values": [
+        "adult",
+        "juvenile",
+        "nonfiction",
+        "adult",
+        "juvenile"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "items_audited",
+      "sample_values": [
+        "25",
+        "18",
+        "17",
+        "26",
+        "23"
+      ],
+      "type": "numeric"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "misshelved",
+      "sample_values": [
+        "2",
+        "0",
+        "1",
+        "0",
+        "0"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "created_at": "2026-10-31T17:00:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-s2-library",
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "date": 0,
+      "items_audited": 0,
+      "misshelved": 0,
+      "section": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "date": 0,
+      "items_audited": 0,
+      "misshelved": 0,
+      "section": 0
+    },
+    "row_count": 72
+  },
+  "row_count": 72,
+  "schema_version": 1,
+  "sha256": "407db59b789babcd308e172d22fbaf5c93c04b4715cf9b2aa54b7961b26412d1",
+  "source_artifact_id": null,
+  "source_filename": "after-audit.csv",
+  "source_tool_id": null
+}

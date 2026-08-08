@@ -1,0 +1,82 @@
+{
+  "detail": [
+    {
+      "ctx": {
+        "error": "EXIT-10: more than one change described for a single pilot (matrix §4a trigger: \"pilot plan declares more than one change\"). The Improve loop is one-change-at-a-time by design (PLAN §4.1, rubric R-IMP-02 #1): run the extra change as its own sequential pilot once this one is proven, declare a genuinely inseparable PACKAGE explicitly if the components truly cannot deploy apart (R-IMP-02's carve-out -- attribution then goes to the package only, never a component), or route to the advisor / v1.1 Experiment Planner / a human expert for a real multi-factor question. Remove the extra entry from `changes` (got 2) before saving."
+      },
+      "input": {
+        "analysis_plan": {
+          "expected_route": "welch_two_sample_t",
+          "rationale": "Two independent windows of continuous handoff minutes, n=120 each -- different orders, different customers, nobody measured twice. Welch's t is the engine's two-independent-means default (no shared-variance assumption). A forecast, not a lock: T-20 routes the real data itself."
+        },
+        "artifact_id": "coffee-pilot-round1",
+        "changes": [
+          {
+            "change_id": "chg-1",
+            "text": "Batch milk steaming with marked-cup sequencing at the drink-build step: scan the next three marked cups for a same-milk pair before each build, pull both drinks' shots back-to-back while one shared pitcher steams, and build cups strictly in ticket order from a marked front-of-rail position."
+          },
+          {
+            "change_id": "chg-bogus",
+            "text": "An extra bundled change, proving EXIT-10 fires."
+          }
+        ],
+        "comparison_design": {
+          "description": "The frozen Measure baseline, named exactly: wait-times.csv, every-4th-order sampling, 10 weekday mornings 2026-07-20 to 2026-07-31, n=120, mean 8.408, sd 1.042, engine-verified stable (0 rule-1/rule-4 signals). The pilot window mirrors it: 10 weekday mornings 2026-08-10 to 2026-08-21, same 7:00-10:00 peak, 12 sampled orders per morning, 6 per daypart.",
+          "kind": "before_period"
+        },
+        "confounder_checklist": {
+          "demand": {
+            "changed": false,
+            "note": "Summer-session demand has held near the baseline's 48 orders per peak all July; daily order counts will be recorded through the pilot (the charter's mitigation) and re-checked at proof."
+          },
+          "measurement": {
+            "changed": false,
+            "note": "Same operational definition (register order-paid stamp to name call, tenths of a minute), same POS wall clock, same tally sheet; the T-12 measurement check (repeatability 8.94%, acceptable) still stands and nothing about the instrument changes."
+          },
+          "other": {
+            "changed": false,
+            "note": "No menu, price, or layout changes scheduled in the window; the espresso machine's annual service is booked for late September, after both planned pilot rounds. FMEA actions already in flight (queue-rail labels, register read-back) predate the pilot window and run in both periods."
+          },
+          "season": {
+            "changed": false,
+            "note": "Both windows sit inside summer session; fall semester begins 2026-08-31, after the pilot ends -- the window was placed to keep it out."
+          },
+          "staffing": {
+            "changed": false,
+            "note": "Same morning crew as the baseline window -- Priya on register/lead, Marcus and Riley rotating the espresso station; no hires, departures, or schedule changes planned through 2026-08-21."
+          }
+        },
+        "created_at": "2026-08-07T16:00:00Z",
+        "falsification_line": "If the pilot-window mean over the full 10 mornings (2026-08-10 to 2026-08-21) is not below 7.0 minutes, batching did not move the queue -- revert to single-drink build, log the reversion, and take the next-ranked fix to its own pilot.",
+        "inclusion": {
+          "honesty_note": "This is the crew and counter we have: one site, no randomization, and the same two baristas as the baseline. The window is summer session by design -- it ends 2026-08-21, before fall semester starts 2026-08-31, so the charter's demand confound stays out of round 1. What convenience costs us: nothing here says the change works on a different crew or a semester-load morning.",
+          "how_selected": "Same systematic every-4th-order rule as the baseline, same tally sheet, same POS-clock operational definition -- selection method held identical so the two windows compare like for like",
+          "who_or_what": "All espresso-drink orders at the campus coffee bar during the weekday 7:00-10:00 peak, both baristas (Marcus, Riley), every 4th espresso order sampled -- 12 per morning, 6 per daypart, exactly the T-11 collection plan's rule"
+        },
+        "notes": "Round-1 pilot of the T-18 ranked list's #1 fix (sol-batch-steam), designed and saved 2026-08-07 -- threshold, falsification line, and confounder answers all entered before the first pilot morning (2026-08-10); status flipped to complete when the window closed 2026-08-21. One change only: a draft with the grinder dial-in added as a second change was refused by the engine with EXIT-10 named in the error, and the grinder change went back to the queue as round 2 -- the refusal run is recorded in improve-run.md. The pilot window is 10 weekday mornings, 2026-08-10 to 2026-08-21, deliberately ending before fall semester starts (the charter's confound risk); sampling, operational definition, and measurement system are the baseline's own, unchanged.",
+        "schema_version": 1,
+        "status": "complete",
+        "success_threshold": {
+          "declared_at": "2026-08-07T15:45:00Z",
+          "direction": "lower_is_better",
+          "metric_ref": "handoff_minutes (charter C1) -- pilot-window mean",
+          "value": 7.0
+        },
+        "the_one_change": {
+          "linked_cause_ids": [
+            "c-batch-locked",
+            "c-queue"
+          ],
+          "linked_solution_id": "sol-batch-steam",
+          "statement": "Batch milk steaming with marked-cup sequencing at the drink-build step: scan the next three marked cups for a same-milk pair before each build, pull both drinks' shots back-to-back while one shared pitcher steams, and build cups strictly in ticket order from a marked front-of-rail position."
+        },
+        "tool_id": "T-19",
+        "updated_at": "2026-08-21T16:30:00Z"
+      },
+      "loc": [],
+      "msg": "Value error, EXIT-10: more than one change described for a single pilot (matrix §4a trigger: \"pilot plan declares more than one change\"). The Improve loop is one-change-at-a-time by design (PLAN §4.1, rubric R-IMP-02 #1): run the extra change as its own sequential pilot once this one is proven, declare a genuinely inseparable PACKAGE explicitly if the components truly cannot deploy apart (R-IMP-02's carve-out -- attribution then goes to the package only, never a component), or route to the advisor / v1.1 Experiment Planner / a human expert for a real multi-factor question. Remove the extra entry from `changes` (got 2) before saving.",
+      "type": "value_error",
+      "url": "https://errors.pydantic.dev/2.13/v/value_error"
+    }
+  ]
+}

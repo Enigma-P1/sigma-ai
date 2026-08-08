@@ -1,0 +1,105 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "order_id",
+      "sample_values": [
+        "POS-0720-01",
+        "POS-0720-02",
+        "POS-0720-03",
+        "POS-0720-04",
+        "POS-0720-05"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "daypart",
+      "sample_values": [
+        "early",
+        "early",
+        "early",
+        "early",
+        "early"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "drink_type",
+      "sample_values": [
+        "americano",
+        "americano",
+        "mocha",
+        "mocha",
+        "cappuccino"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "barista",
+      "sample_values": [
+        "Riley",
+        "Riley",
+        "Riley",
+        "Marcus",
+        "Marcus"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "wait_minutes",
+      "sample_values": [
+        "6.7",
+        "9.0",
+        "8.7",
+        "7.5",
+        "8.2"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "created_at": "2026-07-31T17:00:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-coffee-bar",
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "barista": 0,
+      "date": 0,
+      "daypart": 0,
+      "drink_type": 0,
+      "order_id": 0,
+      "wait_minutes": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "barista": 0,
+      "date": 0,
+      "daypart": 0,
+      "drink_type": 0,
+      "order_id": 0,
+      "wait_minutes": 0
+    },
+    "row_count": 120
+  },
+  "row_count": 120,
+  "schema_version": 1,
+  "sha256": "6d31a43fbf305e84fad004cb20d0d06b02a395c3a59f9e6ba89aaf2ba1c72dc0",
+  "source_artifact_id": null,
+  "source_filename": "wait-times.csv",
+  "source_tool_id": null
+}

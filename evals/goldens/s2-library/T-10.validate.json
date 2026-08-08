@@ -1,0 +1,45 @@
+{
+  "artifact": {
+    "artifact_id": "s2-yield",
+    "created_at": "2026-09-25T09:00:00Z",
+    "dpmo_block": {
+      "apply_sigma_shift": true,
+      "defects": 90.0,
+      "opportunities_per_unit": 1.0,
+      "opportunity_justification": "",
+      "units": 1379.0
+    },
+    "dpmo_result": {
+      "provenance": {
+        "assumptions_checked": [
+          "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "d45022fe8cbe4da0703e4cd6bb185386a40fe4666504b8c13b1a48229d2b4111",
+        "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+        "warnings": []
+      },
+      "value": {
+        "convention": "with 1.5σ shift",
+        "dpmo": 65264.68455402466,
+        "sigma_level": 3.012017663381638
+      }
+    },
+    "notes": "The honest floor: one opportunity per book. No serial-steps claim (steps_in_series=false) -- RTY is not computed.",
+    "rty_result": null,
+    "schema_version": 1,
+    "steps": [
+      {
+        "defective_units_at_step": 90.0,
+        "first_pass_correct": 1289.0,
+        "fpy_at_step": 0.9347353154459753,
+        "name": "Shelf-read audit (written definition)",
+        "units_in": 1379.0
+      }
+    ],
+    "steps_in_series": false,
+    "tool_id": "T-10",
+    "updated_at": "2026-09-25T09:00:00Z"
+  },
+  "valid": true
+}

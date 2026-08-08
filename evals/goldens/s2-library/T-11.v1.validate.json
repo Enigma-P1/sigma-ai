@@ -1,0 +1,41 @@
+{
+  "artifact": {
+    "artifact_id": "s2-collection-plan",
+    "bias_note": "A pre-existing informal misshelve log exists (the closers' daily tally) but has never been checked for rater agreement -- not trusted until T-12 passes.",
+    "charter_metric_id": "C1",
+    "created_at": "2026-08-20T09:00:00Z",
+    "data_type": "attribute_defective",
+    "logistics": {
+      "planned_n": 1300,
+      "sample_size_rationale": "Pending -- the judgment rule must be written and pass T-12 before a real sample-size panel means anything.",
+      "when_how_often": "Daily",
+      "where_collected": "Shelf-read audit of daily assigned ranges",
+      "who_collects": "Rotating audit assignment, both shifts"
+    },
+    "metric_name": "Audited misshelve proportion",
+    "no_stratification_reason": "",
+    "notes": "First draft: proposes auditing daily assigned ranges, but the measurement question -- who judges, by what rule -- has no written answer yet. The honest next step is T-12, not trusting any count (including the pre-existing closers' log).",
+    "operational_definition": {
+      "how_instrument": "Daily shelf-read audit of that day's two assigned ranges per section -- judgment rule not yet written down",
+      "precision_unit": "pass/fail per book",
+      "starts_when": "Book is scanned into the audit range",
+      "stops_when": "Auditor records pass/fail",
+      "two_people_confirmed": false,
+      "what_measured": "Whether a re-shelved book is where the call-number walk finds it (pass/fail)"
+    },
+    "schema_version": 1,
+    "stratification_factors": [
+      {
+        "name": "section",
+        "values_expected": [
+          "adult",
+          "juvenile",
+          "nonfiction"
+        ]
+      }
+    ],
+    "tool_id": "T-11",
+    "updated_at": "2026-08-20T09:00:00Z"
+  },
+  "valid": true
+}

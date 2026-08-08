@@ -1,0 +1,215 @@
+{
+  "artifact": {
+    "artifact_id": "s1-process-map",
+    "connectors": [
+      {
+        "from_step": "s1",
+        "label": "morning triage batch",
+        "to_step": "s2"
+      },
+      {
+        "from_step": "s2",
+        "label": "access grants only",
+        "to_step": "s3"
+      },
+      {
+        "from_step": "s3",
+        "label": null,
+        "to_step": "s4"
+      },
+      {
+        "from_step": "s2",
+        "label": "non-access tickets",
+        "to_step": "s4"
+      },
+      {
+        "from_step": "s4",
+        "label": null,
+        "to_step": "s5"
+      }
+    ],
+    "constraint_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "pace is arithmetic on two fields (available time / demand), not full takt/line-balancing (T-32, v1.1)",
+          "only value_add/enabling steps are eligible -- a non_value_add (wait) step is excluded by construction"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "7c7a22d7e2ff20babac077c27560b9ea41e5611a777e45d227c1ddcb162195fc",
+        "method": "constraint_step = argmax(step.time_minutes) over PROCESSING steps only (step_type value_add or enabling) -- a pure-wait non_value_add step cannot be the constraint (matrix §5a A-7, fidelity fix); pace_minutes_per_unit = available_time_minutes / demand_units; meets_pace judged on this step",
+        "warnings": []
+      },
+      "value": {
+        "meets_pace": false,
+        "pace_minutes_per_unit": 90.0,
+        "step_id": "s5",
+        "step_name": "Requester confirms resolution",
+        "time_minutes": 156.0
+      }
+    },
+    "created_at": "2026-07-15T09:00:00Z",
+    "demand": {
+      "available_time_minutes": 540.0,
+      "demand_units": 6.0
+    },
+    "lanes": [
+      {
+        "lane_id": "requester",
+        "name": "Requester",
+        "owner": "N/A"
+      },
+      {
+        "lane_id": "queue",
+        "name": "Shared ticket queue",
+        "owner": "Naomi Castillo"
+      },
+      {
+        "lane_id": "dispatcher",
+        "name": "Dispatcher (daily triage)",
+        "owner": "Naomi Castillo"
+      },
+      {
+        "lane_id": "approver",
+        "name": "Approving manager (access grants only)",
+        "owner": "N/A"
+      },
+      {
+        "lane_id": "tech",
+        "name": "Tech",
+        "owner": "Ben Okafor / Lena Fischer / Marco Diaz"
+      }
+    ],
+    "layout": {
+      "s1": {
+        "x": 60.0,
+        "y": 40.0
+      },
+      "s2": {
+        "x": 240.0,
+        "y": 40.0
+      },
+      "s3": {
+        "x": 420.0,
+        "y": 180.0
+      },
+      "s4": {
+        "x": 600.0,
+        "y": 40.0
+      },
+      "s5": {
+        "x": 780.0,
+        "y": 40.0
+      }
+    },
+    "longest_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "no step_type filter -- a pure wait is eligible here even though it can't be the constraint_step"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "67bce47d5a17482378134b21d7e150ddf98dac8121ba063345e5f11b00ba852c",
+        "method": "longest_step = argmax(step.time_minutes) over ALL timed steps, any step_type (waits included)",
+        "warnings": []
+      },
+      "value": {
+        "step_id": "s1",
+        "step_name": "Ticket sits unassigned in triage queue",
+        "step_type": "non_value_add",
+        "time_minutes": 990.0
+      }
+    },
+    "notes": "Stage means from the event-log decomposition: queue 16.5h + dispatch-to-first-action 2.8h + hands-on 1.9h + confirmation 2.6h = 23.8h (matches the non-access group mean 23.76h); access grants add ~7.4h manager-approval wait on top (matches the access group mean 31.12h).",
+    "schema_version": 1,
+    "steps": [
+      {
+        "defect_point": false,
+        "lane_id": "queue",
+        "name": "Ticket sits unassigned in triage queue",
+        "order": 1,
+        "reason": "Naomi triages once each morning; anything after ~9:30 waits until the next morning to be assigned at all",
+        "step_id": "s1",
+        "step_type": "non_value_add",
+        "strata": [
+          "channel"
+        ],
+        "time_minutes": 990.0,
+        "wastes": [
+          {
+            "note": "Median 16.5h sit -- the single largest block of the cycle",
+            "waste_id": "waiting"
+          }
+        ]
+      },
+      {
+        "defect_point": false,
+        "lane_id": "dispatcher",
+        "name": "Ticket assigned, awaiting tech first action",
+        "order": 2,
+        "reason": "Gap between assignment and a tech actually starting work",
+        "step_id": "s2",
+        "step_type": "non_value_add",
+        "strata": [],
+        "time_minutes": 168.0,
+        "wastes": [
+          {
+            "note": "2.8h mean",
+            "waste_id": "waiting"
+          }
+        ]
+      },
+      {
+        "defect_point": true,
+        "lane_id": "approver",
+        "name": "Manager approval wait (access grants only)",
+        "order": 3,
+        "reason": "Approval is requested only when a tech first touches the ticket -- access grants alone",
+        "step_id": "s3",
+        "step_type": "non_value_add",
+        "strata": [
+          "request_type"
+        ],
+        "time_minutes": 444.0,
+        "wastes": [
+          {
+            "note": "7.4h mean on access grants; requested late in the cycle, not at ticket open",
+            "waste_id": "waiting"
+          }
+        ]
+      },
+      {
+        "defect_point": false,
+        "lane_id": "tech",
+        "name": "Tech performs hands-on work",
+        "order": 4,
+        "reason": "The transformation the requester is waiting on",
+        "step_id": "s4",
+        "step_type": "value_add",
+        "strata": [
+          "tech"
+        ],
+        "time_minutes": 114.0,
+        "wastes": []
+      },
+      {
+        "defect_point": false,
+        "lane_id": "requester",
+        "name": "Requester confirms resolution",
+        "order": 5,
+        "reason": "Confirmation reply, or auto-confirm at +2 business days",
+        "step_id": "s5",
+        "step_type": "enabling",
+        "strata": [],
+        "time_minutes": 156.0,
+        "wastes": [
+          {
+            "note": "2.6h mean confirmation lag",
+            "waste_id": "waiting"
+          }
+        ]
+      }
+    ],
+    "tool_id": "T-06",
+    "updated_at": "2026-07-15T09:00:00Z"
+  },
+  "valid": true
+}

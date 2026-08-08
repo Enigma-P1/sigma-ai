@@ -1,0 +1,275 @@
+{
+  "artifact": {
+    "artifact_id": "s2-a3",
+    "closure": {
+      "close_check": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "f176d1f56f7844714f579eed3cf72523ed5a9da7559a7fb057aa00d0c7e911c9",
+          "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project may close' however clean the rest of the stack",
+          "warnings": []
+        },
+        "value": {
+          "blocking_rows": [],
+          "close_blocked": false,
+          "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+        }
+      },
+      "fmea_check": null,
+      "lessons": [],
+      "objectives_input": {
+        "achieved_value": 0.025557011795543906,
+        "charter_baseline_value": 0.06526468455402465,
+        "charter_goal_value": 0.032632342277012324,
+        "direction": "lower_is_better"
+      },
+      "objectives_verdict": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "be9d0fde6b342887b8d882cb127cab223fec23ef5a83d39ca9e1aa111b822dac",
+          "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN §4.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+          "warnings": []
+        },
+        "value": {
+          "after_value": 0.025557011795543906,
+          "charter_baseline_value": 0.06526468455402465,
+          "charter_goal_value": 0.032632342277012324,
+          "direction": "lower_is_better",
+          "goal_met": true,
+          "loop_verdict": "Goal met -- route to Control.",
+          "next_cause_ref": null,
+          "original_gap": 0.032632342277012324,
+          "recovered": 0.03970767275848074,
+          "recovered_pct": 121.68195718654434,
+          "remaining": -0.007075330481468418
+        }
+      },
+      "open_items": [],
+      "project_status": "open"
+    },
+    "created_at": "2026-11-05T09:00:00Z",
+    "notes": "The measurement stop is told as a finding, not an embarrassment: round-1 kappa, the fix, round 2, and the baseline that came back HIGHER than the broken pre-log.",
+    "panels": [
+      {
+        "narrative": "Patrons and desk staff report the catalog says a book is on the shelf and it isn't there. An informal closers' log suggested ~3.8% -- but the two counters had never agreed on a definition (a fingerprint hiding in the logged_by column).",
+        "panel": "background",
+        "seeded_at": "2026-11-05T09:05:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-charter",
+          "fields": [
+            "problem_statement",
+            "business_impact"
+          ],
+          "tool_id": "T-03"
+        }
+      },
+      {
+        "narrative": "The measurement stop: T-12 round 1 failed (kappa 0.336, EXIT-02) -- the run stopped, no baseline, no chart. After the written-definition fix, round 2 passed (kappa 0.878), and the baseline came back HIGHER than the broken log: p-bar 0.0653 (stable, 21 subgroups), not the pre-log's ~3.8% -- the broken gauge had hidden roughly two-fifths of the problem.",
+        "panel": "current_condition",
+        "seeded_at": "2026-11-05T09:10:00Z",
+        "seeded_from": {
+          "artifact_ref": "written-definition baseline audit (T-13 via T-21/T-10)",
+          "fields": [
+            "p_bar",
+            "stable"
+          ],
+          "tool_id": "T-13"
+        }
+      },
+      {
+        "narrative": "Halve the audited misshelve proportion from 0.0653 to 0.0326 by 2026-11-30, without dropping shelving throughput more than 10%.",
+        "panel": "goal",
+        "seeded_at": "2026-11-05T09:12:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-charter",
+          "fields": [
+            "goal"
+          ],
+          "tool_id": "T-03"
+        }
+      },
+      {
+        "narrative": "Out-of-order-within-bay (48.9%) and wrong-bay (32.2%) are the engine-verified 81.1% vital few. Root cause: sorting happens at the shelf, on a room with no sortable standard -- the section chi-square screen shows juvenile hit hardest, where series conventions bite.",
+        "panel": "analysis",
+        "seeded_at": "2026-11-05T09:16:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-fishbone",
+          "fields": [
+            "causes",
+            "effect"
+          ],
+          "tool_id": "T-15"
+        }
+      },
+      {
+        "narrative": "Pre-sorted carts + posted standard ranked first, directly at the verified root; double-checking at the shelf and a training-only workshop both ranked lower (symptom, not root).",
+        "panel": "countermeasures",
+        "seeded_at": "2026-11-05T09:20:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-solution-matrix",
+          "fields": [
+            "ranked_fix_list"
+          ],
+          "tool_id": "T-18"
+        }
+      },
+      {
+        "narrative": "Settled-weeks two-proportion z: baseline vs settled weeks, z=4.01, p=6.0e-05 -- significant. Full 24-day after window: threshold met (rate under 4.0%), verdict weakened by the declared fall reading-program confound (direction: can only push the rate up). Gap recovery over 100% of the halving goal.",
+        "panel": "results",
+        "seeded_at": "2026-11-05T09:26:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-proof",
+          "fields": [
+            "gap",
+            "verdict",
+            "test_result"
+          ],
+          "tool_id": "T-20"
+        }
+      },
+      {
+        "narrative": "p-chart limits history on one artifact: baseline freeze, the improvement arriving as a rule-4 run on the old limits, then a logged recalculation on the 24-day post window. Control plan monitors the rate weekly, throughput, and the method itself; Ruth Delgado accepted the owner role 2026-11-04. Quarterly kappa re-run guards the definition.",
+        "panel": "follow_up_control",
+        "seeded_at": "2026-11-05T09:30:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-control-plan",
+          "fields": [
+            "monitored_items",
+            "ocap_entries"
+          ],
+          "tool_id": "T-22"
+        }
+      },
+      {
+        "narrative": "The measurement stop is the project's real lesson: a plausible-looking log would have frozen a ~3.8% baseline nobody could trust, and every downstream number would have inherited an unchecked gauge. Stopping at EXIT-02, fixing the definition, and re-baselining found a HIGHER, honest number -- the strongest argument for having stopped.",
+        "panel": "lessons",
+        "seeded_at": "2026-11-05T09:34:00Z",
+        "seeded_from": {
+          "artifact_ref": "s2-proof",
+          "fields": [
+            "gap",
+            "verdict"
+          ],
+          "tool_id": "T-20"
+        }
+      }
+    ],
+    "realized_benefits": null,
+    "schema_version": 1,
+    "tollgates": [
+      {
+        "answers": [],
+        "phase": "Define",
+        "questions": [
+          {
+            "question_id": "define-1",
+            "text": "Is the problem stated in measurable terms, with no cause and no fix implied?"
+          },
+          {
+            "question_id": "define-2",
+            "text": "Does the charter name a process owner who has actually agreed to the scope?"
+          },
+          {
+            "question_id": "define-3",
+            "text": "Is the business impact stated in dollars or hours, and does it hold up against an independent number?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Measure",
+        "questions": [
+          {
+            "question_id": "measure-1",
+            "text": "Is the baseline built on a process the data shows is stable, not just assumed to be?"
+          },
+          {
+            "question_id": "measure-2",
+            "text": "Has the measurement system itself been checked, and did it pass?"
+          },
+          {
+            "question_id": "measure-3",
+            "text": "Is the operational definition tight enough that two different people would measure the same thing the same way?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Analyze",
+        "questions": [
+          {
+            "question_id": "analyze-1",
+            "text": "Does every candidate cause carry actual evidence, not just an opinion in the room?"
+          },
+          {
+            "question_id": "analyze-2",
+            "text": "Are the verified causes the ones the data points to, not just the easiest ones to fix?"
+          },
+          {
+            "question_id": "analyze-3",
+            "text": "Has every severity-9/10 failure mode been given an action, not just logged and left?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Improve",
+        "questions": [
+          {
+            "question_id": "improve-1",
+            "text": "Was exactly one change piloted at a time, with a success threshold set before the data came in?"
+          },
+          {
+            "question_id": "improve-2",
+            "text": "Does the before/after proof account honestly for anything else that changed during the pilot?"
+          },
+          {
+            "question_id": "improve-3",
+            "text": "How much of the original gap does this fix close, and what is the plan for what's left?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Control",
+        "questions": [
+          {
+            "question_id": "control-1",
+            "text": "Does every monitored item have a real, named owner who has accepted the role?"
+          },
+          {
+            "question_id": "control-2",
+            "text": "Is there an out-of-control response path a person could actually follow, today, without asking what it means?"
+          },
+          {
+            "question_id": "control-3",
+            "text": "Is someone trained on the new method, by name, with a way to verify they can actually do it?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Wrap",
+        "questions": [
+          {
+            "question_id": "wrap-1",
+            "text": "Does the realized benefit trace to the measured improvement, not to the original COPQ hope?"
+          },
+          {
+            "question_id": "wrap-2",
+            "text": "Are the lessons learned substantive, including at least one thing that didn't work?"
+          },
+          {
+            "question_id": "wrap-3",
+            "text": "Is every open item handed off to a named owner, not left to fall through?"
+          }
+        ]
+      }
+    ],
+    "tool_id": "T-25",
+    "updated_at": "2026-11-05T09:00:00Z"
+  },
+  "valid": true
+}

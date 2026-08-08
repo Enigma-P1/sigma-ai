@@ -1,0 +1,105 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "ticket_id",
+      "sample_values": [
+        "HD-0914-01",
+        "HD-0914-02",
+        "HD-0914-03",
+        "HD-0914-04",
+        "HD-0914-05"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-09-14",
+        "2026-09-14",
+        "2026-09-14",
+        "2026-09-14",
+        "2026-09-14"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "request_type",
+      "sample_values": [
+        "software_install",
+        "software_install",
+        "password_reset",
+        "software_install",
+        "software_install"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "channel",
+      "sample_values": [
+        "portal",
+        "email",
+        "portal",
+        "email",
+        "portal"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "tech",
+      "sample_values": [
+        "M.D.",
+        "B.O.",
+        "L.F.",
+        "B.O.",
+        "B.O."
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "resolution_hours",
+      "sample_values": [
+        "6.7",
+        "5.5",
+        "3.0",
+        "7.8",
+        "8.4"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "created_at": "2026-10-09T17:00:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-s1-helpdesk",
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "row_count": 124
+  },
+  "row_count": 124,
+  "schema_version": 1,
+  "sha256": "c910a167dc67491bd40adf8ec6f80e472c58b67ccd431f9d6a7f613b1163edcb",
+  "source_artifact_id": null,
+  "source_filename": "tickets-after.csv",
+  "source_tool_id": null
+}

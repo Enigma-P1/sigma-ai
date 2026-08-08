@@ -1,0 +1,8 @@
+[
+  {
+    "check_id": "tree_completeness",
+    "detail": "every CTQ resolves to a parent need and statement, with measure+direction present",
+    "status": "pass",
+    "tool_id": "T-05"
+  }
+]

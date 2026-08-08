@@ -1,0 +1,297 @@
+{
+  "artifact": {
+    "artifact_id": "s2-msa",
+    "attribute_items": [
+      {
+        "item_id": "SR2-01",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-02",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-03",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-04",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-05",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-06",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-07",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-08",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-09",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-10",
+        "rater_a": false,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-11",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-12",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-13",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-14",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-15",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-16",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-17",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-18",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-19",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-20",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-21",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-22",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-23",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-24",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-25",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-26",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-27",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-28",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-29",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-30",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-31",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-32",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-33",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-34",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-35",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-36",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-37",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-38",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-39",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-40",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-41",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-42",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-43",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-44",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-45",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-46",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-47",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR2-48",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-49",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR2-50",
+        "rater_a": false,
+        "rater_b": true
+      }
+    ],
+    "continuous_items": [],
+    "created_at": "2026-08-27T09:00:00Z",
+    "data_type": "attribute",
+    "gauge_increment": null,
+    "gauge_name": null,
+    "lsl": null,
+    "notes": "Round 2: a fresh 50-position planted set two days after the written definition, same raters, round-1 sheets sealed.",
+    "operator": "Ruth Delgado (study coordinator)",
+    "result": {
+      "attribute_agreement": {
+        "provenance": {
+          "assumptions_checked": [
+            "two raters, binary (pass/fail) judgment per item"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "9e6bb8d6d2a3f3755ecd2aebde1a4e434202ca7a3949ddffa6b634c988790ad8",
+          "method": "Cohen's kappa (Cohen 1960) = (p_o - p_e)/(1 - p_e), two-rater binary pass/fail; % agreement reported alongside per matrix §4a EXIT-02 (attribute), never alone",
+          "warnings": []
+        },
+        "value": {
+          "kappa": 0.8776508972267536,
+          "n": 50,
+          "p_expected": 0.5096,
+          "p_observed": 0.94,
+          "percent_agreement": 94.0,
+          "verdict": "acceptable"
+        }
+      },
+      "caveat": null,
+      "data_type": "attribute",
+      "exit02": null,
+      "repeatability": null,
+      "resolution_check": null,
+      "verdict": "acceptable"
+    },
+    "schema_version": 1,
+    "tool_id": "T-12",
+    "updated_at": "2026-08-29T09:00:00Z",
+    "usl": null
+  },
+  "valid": true
+}

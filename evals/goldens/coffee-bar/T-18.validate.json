@@ -1,0 +1,194 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-solution-matrix",
+    "created_at": "2026-08-07T09:00:00Z",
+    "criteria": [
+      {
+        "criterion_id": "crit-gap-impact",
+        "declared_at": "2026-08-07T09:40:00Z",
+        "name": "Gap impact -- how much of the 3.41-minute gap this can recover (5 = attacks the largest verified block)",
+        "weight": 0.5
+      },
+      {
+        "criterion_id": "crit-effort",
+        "declared_at": "2026-08-07T09:40:00Z",
+        "name": "Effort and speed to implement (5 = startable within a week with training only, 1 = weeks of install and disruption)",
+        "weight": 0.25
+      },
+      {
+        "criterion_id": "crit-cost",
+        "declared_at": "2026-08-07T09:40:00Z",
+        "name": "Cost (5 = near-zero spend, 1 = major capital)",
+        "weight": 0.25
+      }
+    ],
+    "notes": "Candidate fixes for the Analyze handoff's ranked verified causes, built 2026-08-07. Two candidates compete for the top-ranked cause chain (the drink-queue pileup and its one-head/batch-locked root, 55% of delay tallies): a method change on the head that exists (batch milk steaming + marked-cup sequencing) and the capital fix (a second machine head). One candidate attacks the #2 cause (grinder rework, 25%): a backup grinder + dose dial-in routine. Criteria and weights were declared 09:40, scores entered 11:10 -- weights before scores, and the engine's timestamps show the order. Every rating's basis is stated in its solution description; the arithmetic (quadrants, weighted totals, ranking) is the engine's. The honest loser: the second machine head carries the highest gap impact on the board (5) and still ranks last -- a ~$12k two-group machine plus install weeks against a $40 method change; it stays on the ranked list as the escalation path if the method changes cannot close the gap, not as a rejected idea. The ranked list is the Improve queue: #1 goes to the round-1 pilot (T-19) alone; #2 waits for the round-1 proof's remaining-gap check.",
+    "ranked_fix_list": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "44e65fb4a81d2f55169c9e8c911f09daef8ddc37a87255ff53c9127669934d34",
+        "method": "ranked = linked solutions (linked_cause_ids non-empty) ordered by weighted_total desc when present, else impact desc / effort asc, tie-broken by solution_id; unlinked solutions never enter the ranked list -- listed separately, each flagged (PLAN §4.1's ranked fix list, rubric R-IMP-01)",
+        "warnings": []
+      },
+      "value": {
+        "ranked": [
+          {
+            "effort": 2,
+            "impact": 4,
+            "linked_cause_ids": [
+              "c-batch-locked",
+              "c-queue"
+            ],
+            "name": "Batch milk steaming + marked-cup sequencing at the drink-build step",
+            "quadrant": "quick_win",
+            "rank": 1,
+            "solution_id": "sol-batch-steam",
+            "weighted_total": 4.25
+          },
+          {
+            "effort": 2,
+            "impact": 3,
+            "linked_cause_ids": [
+              "c-grinder"
+            ],
+            "name": "Backup grinder + dose dial-in routine",
+            "quadrant": "quick_win",
+            "rank": 2,
+            "solution_id": "sol-grinder-backup",
+            "weighted_total": 3.5
+          },
+          {
+            "effort": 5,
+            "impact": 5,
+            "linked_cause_ids": [
+              "c-one-head",
+              "c-station-serial"
+            ],
+            "name": "Second espresso machine head (replace with a two-group machine)",
+            "quadrant": "major_project",
+            "rank": 3,
+            "solution_id": "sol-second-head",
+            "weighted_total": 3.0
+          }
+        ],
+        "unlinked": []
+      }
+    },
+    "schema_version": 1,
+    "scores": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "985517f8efa565bd7a1efe34e2db24e40e2e6e8c51be03a2c2ddcfbd077f9ced",
+        "method": "quadrant = impact/effort each split at the 1-5 scale's midpoint (>=3 high, <3 low); weighted_total = sum(score * weight) over criterion_scores when a solution has scored every declared criterion, else None (nothing to weight yet -- schema guarantees criterion_scores is all-or-nothing per solution)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "quadrant": "quick_win",
+          "solution_id": "sol-batch-steam",
+          "weighted_total": 4.25
+        },
+        {
+          "quadrant": "quick_win",
+          "solution_id": "sol-grinder-backup",
+          "weighted_total": 3.5
+        },
+        {
+          "quadrant": "major_project",
+          "solution_id": "sol-second-head",
+          "weighted_total": 3.0
+        }
+      ]
+    },
+    "solutions": [
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 4,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 4,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 5,
+            "scored_at": "2026-08-07T11:10:00Z"
+          }
+        ],
+        "description": "Method change at the espresso station, no new equipment beyond a second large pitcher (~$40 with rail labels): scan the next three marked cups for a same-milk pair before each build; for a pair, pull both drinks' shots back-to-back while one shared pitcher steams, and build cups strictly in ticket order from a marked front-of-rail position. Attacks the verified root directly -- one machine head with batch sizes locked to one drink at a time (c-batch-locked) -- and the 4.5-minute drink-queue wait that root produces (c-queue, 55% of the 40 delay tallies, the Pareto's biggest vital-few bar). Impact rated 4: the queue is the largest single block of the 8.41-minute baseline, and milk drinks are ~80% of orders (latte 40 + cappuccino 25 + mocha 15), so pairing opportunities are frequent. Effort rated 2: a training conversation, a laminated card, and a marked rail -- startable Monday. Cost scored 5 (near-zero spend); speed scored 4 (one week of paired-shift practice); gap-impact scored 4.",
+        "effort": 2,
+        "impact": 4,
+        "linked_cause_ids": [
+          "c-batch-locked",
+          "c-queue"
+        ],
+        "name": "Batch milk steaming + marked-cup sequencing at the drink-build step",
+        "solution_id": "sol-batch-steam"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 3,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 4,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 4,
+            "scored_at": "2026-08-07T11:10:00Z"
+          }
+        ],
+        "description": "One dosing method change built around a standby unit: dial in the grinder before peak and re-dial after every hopper refill; when the primary drifts mid-peak, swap in the dialed-in backup grinder instead of re-dialing with cups waiting. Attacks grinder rework re-pulls (c-grinder, 10 of 40 delay tallies, 25% -- the second vital-few bar), each re-pull restarting a drink and stalling every cup behind it (~2 minutes, FMEA r-repull's cause: grind drift after hopper refills). Impact rated 3: it recovers the rework share of the gap, not the queue itself. Effort rated 2: dining services has a compatible refurbished grinder (~$300) and the routine is a card plus a log. Cost scored 4; speed scored 4 (needs the unit transferred and dialed); gap-impact scored 3.",
+        "effort": 2,
+        "impact": 3,
+        "linked_cause_ids": [
+          "c-grinder"
+        ],
+        "name": "Backup grinder + dose dial-in routine",
+        "solution_id": "sol-grinder-backup"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 5,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 1,
+            "scored_at": "2026-08-07T11:10:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 1,
+            "scored_at": "2026-08-07T11:10:00Z"
+          }
+        ],
+        "description": "The capital fix for the same root the batching change attacks: a two-group machine doubles head capacity so two drinks progress in parallel (c-one-head, c-station-serial -- the fishbone's 'change the batching or add head capacity' fork, taken the equipment way). Impact rated 5: it removes the serial constraint outright instead of working around it. Effort rated 5 and cost scored 1: roughly $9-14k for the machine, plumbing and electrical install, counter re-layout, and an estimated two weeks of disrupted service -- Dana's budget cycle could not fund it before spring. Speed scored 1; gap-impact scored 5. Ranked honestly, not picked: it loses to the method change on cost/effort/speed while the method change is available at $40, and it stays on the list as the known escalation if the gap will not close without new capacity.",
+        "effort": 5,
+        "impact": 5,
+        "linked_cause_ids": [
+          "c-one-head",
+          "c-station-serial"
+        ],
+        "name": "Second espresso machine head (replace with a two-group machine)",
+        "solution_id": "sol-second-head"
+      }
+    ],
+    "tool_id": "T-18",
+    "updated_at": "2026-08-07T16:30:00Z"
+  },
+  "valid": true
+}

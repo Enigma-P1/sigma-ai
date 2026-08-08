@@ -1,0 +1,565 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-check-sheet",
+    "categories": [
+      {
+        "category_id": "drink_queue_backlog",
+        "label": "Drink-queue backlog"
+      },
+      {
+        "category_id": "grinder_rework",
+        "label": "Grinder rework (re-pull)"
+      },
+      {
+        "category_id": "milk_steam",
+        "label": "Milk steaming queue"
+      },
+      {
+        "category_id": "restock",
+        "label": "Mid-peak restock run"
+      },
+      {
+        "category_id": "pos_reprint",
+        "label": "POS ticket reprint"
+      }
+    ],
+    "created_at": "2026-07-20T07:00:00Z",
+    "entries": [
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E01",
+        "entry_mode": "tap",
+        "note": "six marked cups deep before the first pull",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-20T07:38:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E02",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-20T08:52:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E03",
+        "entry_mode": "tap",
+        "note": "sour shot dumped, re-dosed",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-20T08:05:00"
+      },
+      {
+        "category_id": "milk_steam",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E04",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-20T09:10:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E05",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-21T07:46:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E06",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-21T09:02:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E07",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-21T08:41:00"
+      },
+      {
+        "category_id": "restock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E08",
+        "entry_mode": "tap",
+        "note": "cup sleeves ran out mid-queue",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-21T09:25:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E09",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-22T07:33:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E10",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-22T08:12:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E11",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-22T07:55:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E12",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-22T09:18:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E13",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-23T07:41:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E14",
+        "entry_mode": "tap",
+        "note": "grind setting drifted after hopper refill",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-23T08:36:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E15",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-23T08:58:00"
+      },
+      {
+        "category_id": "milk_steam",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E16",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-23T07:59:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E17",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-24T07:52:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E18",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-24T08:47:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E19",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-24T09:06:00"
+      },
+      {
+        "category_id": "restock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E20",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-24T08:22:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E21",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-27T07:36:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E22",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-27T08:09:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E23",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-27T08:33:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E24",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-27T09:12:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E25",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-28T07:44:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E26",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-28T07:58:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E27",
+        "entry_mode": "tap",
+        "note": "class-break rush, 14 in line -- same event the time study caught as cycle 6",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-28T08:14:00"
+      },
+      {
+        "category_id": "milk_steam",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E28",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-28T09:05:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E29",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-29T07:49:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E30",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-29T08:55:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E31",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-29T08:18:00"
+      },
+      {
+        "category_id": "pos_reprint",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E32",
+        "entry_mode": "tap",
+        "note": "ticket printer jam, order re-rung",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-29T09:21:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E33",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-30T07:35:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E34",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-30T08:44:00"
+      },
+      {
+        "category_id": "restock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E35",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-30T08:03:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E36",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-30T09:09:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E37",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-31T07:42:00"
+      },
+      {
+        "category_id": "drink_queue_backlog",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E38",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "early"
+        },
+        "timestamp": "2026-07-31T08:16:00"
+      },
+      {
+        "category_id": "grinder_rework",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E39",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Marcus",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-31T08:50:00"
+      },
+      {
+        "category_id": "milk_steam",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E40",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "barista": "Riley",
+          "daypart": "late"
+        },
+        "timestamp": "2026-07-31T09:14:00"
+      }
+    ],
+    "notes": "Delay-reason tally kept alongside the wait-time sampling, same 10 weekday mornings (2026-07-20 to 2026-07-31). Tally rule agreed on day one: one tap when a sampled order's handoff is visibly held up by the named cause -- the dominant cause per order, not every cause. Categories were set up front from the July 15 pre-study walk; timestamps are the POS wall clock (local). Exported with to_dataset and run through the engine Pareto -- drink-queue backlog and grinder rework are the vital few at exactly 80% cumulative. Named for where the delay actually sits (six marked cups deep before the first pull, per E01's note) -- it is the drink queue at the espresso station backing up, not the register line.",
+    "schema_version": 1,
+    "strata_fields": [
+      {
+        "key": "daypart",
+        "label": "Daypart"
+      },
+      {
+        "key": "barista",
+        "label": "Barista on espresso"
+      }
+    ],
+    "tool_id": "T-08",
+    "updated_at": "2026-07-31T16:30:00Z"
+  },
+  "valid": true
+}

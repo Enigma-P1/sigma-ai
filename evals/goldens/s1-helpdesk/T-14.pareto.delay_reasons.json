@@ -1,0 +1,51 @@
+{
+  "provenance": {
+    "assumptions_checked": [],
+    "engine_version": "0.1.0",
+    "input_hash": "2fdab6323dbdf2715f9e9fb41e48a44244aed37b90ce2e5fdce6551609bf8e13",
+    "method": "Pareto: tally per category, sorted count-descending, cumulative share; vital few = the categories up to and including the one that crosses 80% cumulative share (PLAN §4.1 T-14 row); flat = it takes >= 80% of the distinct categories themselves to get there, i.e. no small subset dominates",
+    "warnings": []
+  },
+  "value": {
+    "categories": [
+      {
+        "category": "Sat unassigned in triage queue > 4h",
+        "count": 68,
+        "cumulative_share": 0.5354330708661418,
+        "share": 0.5354330708661418,
+        "vital_few": true
+      },
+      {
+        "category": "Waiting on manager approval",
+        "count": 34,
+        "cumulative_share": 0.8031496062992126,
+        "share": 0.2677165354330709,
+        "vital_few": true
+      },
+      {
+        "category": "Waiting on requester reply",
+        "count": 11,
+        "cumulative_share": 0.889763779527559,
+        "share": 0.08661417322834646,
+        "vital_few": false
+      },
+      {
+        "category": "Reassigned between techs",
+        "count": 8,
+        "cumulative_share": 0.952755905511811,
+        "share": 0.06299212598425197,
+        "vital_few": false
+      },
+      {
+        "category": "License/stock wait",
+        "count": 6,
+        "cumulative_share": 1.0,
+        "share": 0.047244094488188976,
+        "vital_few": false
+      }
+    ],
+    "flat": false,
+    "total": 127,
+    "vital_few_count": 2
+  }
+}

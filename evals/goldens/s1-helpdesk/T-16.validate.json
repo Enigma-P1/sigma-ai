@@ -1,0 +1,146 @@
+{
+  "artifact": {
+    "anchors": {
+      "detection": {
+        "1": "Almost certain -- current controls will catch it before it ever leaves this step.",
+        "10": "No current control could detect this cause or mode before it reaches the next step.",
+        "2": "Very high chance the current controls catch it before it moves on.",
+        "3": "High chance the current controls catch it.",
+        "4": "Moderately high chance the current controls catch it.",
+        "5": "Moderate chance the current controls catch it.",
+        "6": "Low chance of detection with the current controls.",
+        "7": "Very low chance of detection with the current controls.",
+        "8": "Remote chance of detection with the current controls.",
+        "9": "Very remote chance the current controls catch it in time."
+      },
+      "occurrence": {
+        "1": "Remote -- failure from this cause is unlikely; no known history of it.",
+        "10": "Very high -- the cause is present on nearly every unit or cycle.",
+        "2": "Low -- rare, roughly 1 in 150,000.",
+        "3": "Low -- relatively few failures, roughly 1 in 15,000.",
+        "4": "Moderate-low -- roughly 1 in 2,000.",
+        "5": "Moderate -- roughly 1 in 400.",
+        "6": "Moderate -- occasional failures, roughly 1 in 80.",
+        "7": "High -- roughly 1 in 20.",
+        "8": "High -- repeated failures, roughly 1 in 8.",
+        "9": "Very high -- frequent, roughly 1 in 3."
+      },
+      "severity": {
+        "1": "None -- no discernible effect on the customer or the process.",
+        "10": "Extreme -- safety hazard or a regulatory violation, with no warning before it happens.",
+        "2": "Very low -- a minor nuisance most customers would never notice.",
+        "3": "Low -- a slight, easily-tolerated effect; only a discerning customer notices.",
+        "4": "Low-moderate -- a minor loss of performance; many customers notice.",
+        "5": "Moderate -- performance is reduced in a way most customers notice and dislike.",
+        "6": "Moderate-high -- performance is noticeably degraded; the customer is dissatisfied.",
+        "7": "High -- major function is lost; most customers are significantly dissatisfied.",
+        "8": "Very high -- the product or process becomes unusable; the customer is very dissatisfied.",
+        "9": "Extreme -- safety hazard or a regulatory violation, but with some warning beforehand."
+      }
+    },
+    "artifact_id": "s1-fmea",
+    "blocking_flags": {
+      "provenance": {
+        "assumptions_checked": [
+          "keyword match is a heuristic screen, not a certified safety/regulatory determination"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "37a1c23cc71e7ba35ceb77df11b45bff923d14929c603b25b68ad18d5e512d51",
+        "method": "blocking_flags = rows with severity in {9,10} AND effect text matching a safety/regulatory keyword AND action blank (rubric R-ANA-03 Fail line; R-WRAP-03 blocks project-close on any non-empty result)",
+        "warnings": []
+      },
+      "value": []
+    },
+    "created_at": "2026-08-06T14:00:00Z",
+    "notes": "Process FMEA on the request flow. Highest-severity row is access-granted-with-wrong-scope (severity 8, security exposure) -- low RPN by frequency, surfaced by the severity-first view. Highest-RPN row is the mis-routed-then-forgotten ticket.",
+    "rows": [
+      {
+        "action": "Add a 4-hour unacknowledged-assignment alert to the dispatcher view",
+        "action_due": "2026-09-01",
+        "action_owner": "Naomi Castillo",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "No cross-check between assignment and tech acknowledgment",
+        "detection": 8,
+        "effect": "Resolution stalls well past the promise with nobody chasing it",
+        "failure_mode": "Ticket mis-routed to the wrong tech and sits unnoticed",
+        "occurrence": 7,
+        "process_step_ref": "s2",
+        "row_id": "r-misrouted",
+        "rpn": 280,
+        "severity": 5,
+        "step_name": "Ticket assigned, awaiting tech first action"
+      },
+      {
+        "action": "Approver checklist naming exact scope + quarterly access review",
+        "action_due": "2026-09-15",
+        "action_owner": "Victor Braun",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Approval request doesn't name the exact scope requested",
+        "detection": 6,
+        "effect": "Security exposure -- an over-privileged account",
+        "failure_mode": "Access granted with wrong scope (excess permissions)",
+        "occurrence": 2,
+        "process_step_ref": "s3",
+        "row_id": "r-wrong-scope",
+        "rpn": 96,
+        "severity": 8,
+        "step_name": "Manager approval wait (access grants only)"
+      },
+      {
+        "action": "Quarterly org-chart sync for the approval routing table",
+        "action_due": "2026-09-30",
+        "action_owner": "Victor Braun",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Org-chart data in the ticket system goes stale",
+        "detection": 5,
+        "effect": "Approval stalls until the requester notices and re-routes it",
+        "failure_mode": "Approval request sent to the wrong or former manager",
+        "occurrence": 4,
+        "process_step_ref": "s3",
+        "row_id": "r-wrong-approver",
+        "rpn": 120,
+        "severity": 6,
+        "step_name": "Manager approval wait (access grants only)"
+      },
+      {
+        "action": "Flag auto-confirmed tickets for a follow-up satisfaction check",
+        "action_due": "2026-09-10",
+        "action_owner": "Naomi Castillo",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Auto-confirm at +2 business days treated as equivalent to a real confirmation",
+        "detection": 5,
+        "effect": "Requester's issue isn't actually fixed; a second cycle starts",
+        "failure_mode": "Ticket closed without a genuine confirmation, then reopens",
+        "occurrence": 6,
+        "process_step_ref": "s5",
+        "row_id": "r-premature-close",
+        "rpn": 120,
+        "severity": 4,
+        "step_name": "Requester confirms resolution"
+      }
+    ],
+    "schema_version": 1,
+    "sorted_view": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "54b11cff676af865e510dbbe5ccbde9643a8adef0823b9427b241da7405766fa",
+        "method": "sorted_view = row_ids ordered severity desc, then rpn (severity*occurrence*detection) desc, tie-broken by row_id -- severity-first per rubric R-ANA-03 #3 (the RPN limitation: equal RPNs are not equal risks, and a lower-severity row can never outrank a higher-severity one here on RPN alone)",
+        "warnings": []
+      },
+      "value": [
+        "r-wrong-scope",
+        "r-wrong-approver",
+        "r-misrouted",
+        "r-premature-close"
+      ]
+    },
+    "tool_id": "T-16",
+    "updated_at": "2026-08-07T10:00:00Z"
+  },
+  "valid": true
+}

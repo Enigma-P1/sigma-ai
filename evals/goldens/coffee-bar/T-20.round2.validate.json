@@ -1,0 +1,767 @@
+{
+  "artifact": {
+    "after": {
+      "column": "wait_minutes",
+      "dataset_id": "<normalized>",
+      "dataset_sha256": "96d34e2bce8654cce7fc212caf5417b33a15eee2d8f90c12e0344f6f3b89b66e",
+      "values": [
+        3.8,
+        5.2,
+        5.1,
+        4.4,
+        4.8,
+        4.4,
+        6.0,
+        4.4,
+        4.8,
+        6.1,
+        4.9,
+        5.5,
+        5.2,
+        4.6,
+        4.6,
+        5.8,
+        5.2,
+        4.2,
+        5.1,
+        5.0,
+        4.7,
+        5.8,
+        5.6,
+        6.5,
+        5.4,
+        5.2,
+        3.6,
+        3.6,
+        3.9,
+        4.6,
+        5.3,
+        4.9,
+        5.3,
+        4.0,
+        4.3,
+        5.8,
+        4.3,
+        3.4,
+        5.5,
+        5.7,
+        5.8,
+        4.8,
+        4.8,
+        5.3,
+        4.7,
+        5.0,
+        4.2,
+        5.7,
+        3.9,
+        4.8,
+        3.8,
+        5.5,
+        4.8,
+        4.2,
+        4.1,
+        4.1,
+        6.2,
+        4.5,
+        4.9,
+        4.7,
+        4.5,
+        3.6,
+        4.1,
+        3.8,
+        5.0,
+        5.6,
+        5.2,
+        5.0,
+        4.2,
+        5.0,
+        5.6,
+        4.8,
+        5.6,
+        4.4,
+        4.9,
+        5.0,
+        4.0,
+        6.5,
+        4.7,
+        5.9,
+        5.7,
+        4.8,
+        5.5,
+        6.6,
+        5.5,
+        4.7,
+        4.7,
+        5.5,
+        5.0,
+        3.5,
+        5.1,
+        4.5,
+        4.6,
+        4.7,
+        4.7,
+        4.5,
+        5.5,
+        4.9,
+        5.0,
+        6.0,
+        4.9,
+        4.8,
+        5.2,
+        4.7,
+        4.8,
+        4.4,
+        4.4,
+        5.1,
+        5.2,
+        5.2,
+        4.0,
+        5.1,
+        4.4,
+        4.9,
+        4.8,
+        4.8,
+        5.3,
+        5.2,
+        5.3,
+        4.7
+      ],
+      "weights": null
+    },
+    "after_baseline": {
+      "capability": {
+        "provenance": {
+          "assumptions_checked": [
+            "at least one spec limit present",
+            "process assumed normal (NIST §6.1.6)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "815008dfdb11e1c1a868aba19c2599ec87140e98753422a7d8e933d6d9f58821",
+          "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST §6.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+          "warnings": []
+        },
+        "value": {
+          "cp_index": null,
+          "cpk_index": 0.05390306650736751,
+          "lsl": null,
+          "mean": 4.899166666666667,
+          "n": 120,
+          "one_sided": true,
+          "performance_not_capability": false,
+          "pp_index": null,
+          "ppk_index": 0.05106723765126233,
+          "sigma_overall": 0.6581736678345711,
+          "sigma_within": 0.6235472912569278,
+          "usl": 5.0
+        }
+      },
+      "descriptive": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 2"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "ff28c412804eed3b101d234b625e95c453f8b0eeda00e231a32b589bbac782da",
+          "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH §1.3.5.1/§1.3.5.6",
+          "warnings": []
+        },
+        "value": {
+          "iqr": 0.7999999999999998,
+          "max": 6.6,
+          "mean": 4.899166666666667,
+          "median": 4.9,
+          "min": 3.4,
+          "n": 120,
+          "q1": 4.5,
+          "q3": 5.3,
+          "sd": 0.6581736678345711
+        }
+      },
+      "exits": [],
+      "gate_message": null,
+      "gate_ok": true,
+      "measurement_check": null,
+      "n": 120,
+      "normality": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 3 for a computable statistic"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "ff28c412804eed3b101d234b625e95c453f8b0eeda00e231a32b589bbac782da",
+          "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST §1.3.5.14); concern iff p<0.05 and n>=15",
+          "warnings": []
+        },
+        "value": {
+          "advisory": "no_concern",
+          "approx_pvalue": 0.15,
+          "n": 120,
+          "p_band": "p >= 0.15",
+          "statistic": 0.3591470942158139
+        }
+      },
+      "observed_yield": null,
+      "percentile_capability": null,
+      "sigma": {
+        "provenance": {
+          "assumptions_checked": [
+            "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "aa977005b5f164f3eb5d977902f01dbb14c77c4dbc11d7bf360417429b09184d",
+          "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+          "warnings": []
+        },
+        "value": {
+          "convention": "with 1.5σ shift",
+          "dpmo": 439119.60343906796,
+          "sigma_level": 1.653201712953787
+        }
+      },
+      "stability": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 2",
+            "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "cb80fbd58e7a17ea2c38f497dd07af77214cf5db90e6756ac2569d5eae531d4f",
+          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+          "warnings": []
+        },
+        "value": {
+          "i_cl": 4.899166666666667,
+          "i_lcl": 3.0285247928958836,
+          "i_ucl": 6.769808540437451,
+          "mr_bar": 0.7033613445378144,
+          "mr_cl": 0.7033613445378144,
+          "mr_lcl": 0.0,
+          "mr_ucl": 2.2978815126050396,
+          "n": 120,
+          "rule2_enabled": false,
+          "rule3_enabled": false,
+          "sigma_within": 0.6235472912569278,
+          "signals": [],
+          "xbar": 4.899166666666667
+        }
+      },
+      "stability_note": "stable: 120 points, no default-rule signal",
+      "stable": true
+    },
+    "artifact_id": "coffee-proof-round2",
+    "before": {
+      "column": "wait_minutes",
+      "dataset_id": "<normalized>",
+      "dataset_sha256": "280674e36e87b79991b76e55006d4b8b7f1e33918433025c2d598f5d201c7684",
+      "values": [
+        8.4,
+        6.9,
+        6.0,
+        4.8,
+        5.5,
+        6.7,
+        5.6,
+        6.4,
+        7.5,
+        4.3,
+        7.9,
+        6.5,
+        7.6,
+        5.6,
+        6.5,
+        6.0,
+        6.1,
+        7.2,
+        7.0,
+        7.1,
+        6.2,
+        5.6,
+        7.7,
+        7.3,
+        6.3,
+        7.2,
+        6.6,
+        6.7,
+        6.1,
+        6.9,
+        7.2,
+        6.0,
+        5.8,
+        6.2,
+        6.7,
+        7.2,
+        6.4,
+        5.7,
+        4.3,
+        5.8,
+        5.1,
+        6.5,
+        5.5,
+        6.6,
+        7.7,
+        6.1,
+        5.7,
+        7.0,
+        4.6,
+        5.9,
+        5.9,
+        6.0,
+        5.5,
+        6.8,
+        7.4,
+        6.6,
+        5.6,
+        7.4,
+        5.8,
+        7.2,
+        5.7,
+        6.8,
+        7.0,
+        5.9,
+        5.5,
+        6.0,
+        5.5,
+        7.2,
+        5.9,
+        7.5,
+        5.9,
+        5.3,
+        4.4,
+        5.5,
+        7.3,
+        5.9,
+        5.3,
+        6.4,
+        6.1,
+        6.3,
+        4.5,
+        6.1,
+        5.8,
+        5.4,
+        7.6,
+        6.1,
+        6.3,
+        6.4,
+        6.0,
+        6.2,
+        6.9,
+        6.1,
+        5.6,
+        6.9,
+        8.2,
+        6.7,
+        4.9,
+        6.6,
+        4.4,
+        6.3,
+        6.0,
+        6.8,
+        7.1,
+        6.4,
+        6.9,
+        4.4,
+        6.1,
+        5.7,
+        4.9,
+        6.3,
+        5.2,
+        5.7,
+        6.4,
+        5.6,
+        4.3,
+        5.3,
+        5.9,
+        5.9,
+        5.6,
+        6.5
+      ],
+      "weights": null
+    },
+    "before_baseline": {
+      "capability": {
+        "provenance": {
+          "assumptions_checked": [
+            "at least one spec limit present",
+            "process assumed normal (NIST §6.1.6)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "4c1f5d492b289365919ce3474115317b1cef3f94bb7324fe0bbbe8ec046618c9",
+          "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST §6.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+          "warnings": []
+        },
+        "value": {
+          "cp_index": null,
+          "cpk_index": -0.4540069997177533,
+          "lsl": null,
+          "mean": 6.198333333333333,
+          "n": 120,
+          "one_sided": true,
+          "performance_not_capability": false,
+          "pp_index": null,
+          "ppk_index": -0.46126541839879,
+          "sigma_overall": 0.8659752682762403,
+          "sigma_within": 0.8798200131116275,
+          "usl": 5.0
+        }
+      },
+      "descriptive": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 2"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "22d91e16823e9eb55bd6e69907da0f1e6c7f3900922915a09647f00b1c12ed5d",
+          "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH §1.3.5.1/§1.3.5.6",
+          "warnings": []
+        },
+        "value": {
+          "iqr": 1.125,
+          "max": 8.4,
+          "mean": 6.198333333333333,
+          "median": 6.1,
+          "min": 4.3,
+          "n": 120,
+          "q1": 5.675,
+          "q3": 6.8,
+          "sd": 0.8659752682762403
+        }
+      },
+      "exits": [],
+      "gate_message": null,
+      "gate_ok": true,
+      "measurement_check": null,
+      "n": 120,
+      "normality": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 3 for a computable statistic"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "22d91e16823e9eb55bd6e69907da0f1e6c7f3900922915a09647f00b1c12ed5d",
+          "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST §1.3.5.14); concern iff p<0.05 and n>=15",
+          "warnings": []
+        },
+        "value": {
+          "advisory": "no_concern",
+          "approx_pvalue": 0.15,
+          "n": 120,
+          "p_band": "p >= 0.15",
+          "statistic": 0.4442976132879721
+        }
+      },
+      "observed_yield": null,
+      "percentile_capability": null,
+      "sigma": {
+        "provenance": {
+          "assumptions_checked": [
+            "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "82e3666b4f1344d2db002ddc3478e5e5cfcd6d8a0d8e15e36bceb245f894b1ae",
+          "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+          "warnings": []
+        },
+        "value": {
+          "convention": "with 1.5σ shift",
+          "dpmo": 916789.5749827,
+          "sigma_level": 0.1162037448036295
+        }
+      },
+      "stability": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 2",
+            "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "273ed032d4bb7a6b5314f6b1492d14e72a36b65a8a71eb1b0fbf6e8cfaf02c79",
+          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+          "warnings": []
+        },
+        "value": {
+          "i_cl": 6.1983333333333315,
+          "i_lcl": 3.558873293998449,
+          "i_ucl": 8.837793372668214,
+          "mr_bar": 0.9924369747899158,
+          "mr_cl": 0.9924369747899158,
+          "mr_lcl": 0.0,
+          "mr_ucl": 3.2422915966386547,
+          "n": 120,
+          "rule2_enabled": false,
+          "rule3_enabled": false,
+          "sigma_within": 0.8798200131116275,
+          "signals": [],
+          "xbar": 6.1983333333333315
+        }
+      },
+      "stability_note": "stable: 120 points, no default-rule signal",
+      "stable": true
+    },
+    "charter_baseline_value": 8.408333333333333,
+    "charter_goal_direction": "lower_is_better",
+    "charter_goal_value": 5.0,
+    "charter_ref": "coffee-charter",
+    "confounders": {
+      "demand": {
+        "changed": true,
+        "note": "Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it."
+      },
+      "measurement": {
+        "changed": false,
+        "note": "Operational definition, POS clock, tally sheet, and measurement system unchanged; stopwatch drift checks stayed within a tenth all window."
+      },
+      "other": {
+        "changed": false,
+        "note": "Round-1 method ran unchanged as the before-state; no menu, price, or layout changes; machine service stayed booked for 2026-09-26, outside the window."
+      },
+      "season": {
+        "changed": true,
+        "note": "As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict."
+      },
+      "staffing": {
+        "changed": false,
+        "note": "Held: same crew all 10 mornings, no absences or substitutions in the shift log; the charter's turnover risk still has not landed."
+      }
+    },
+    "created_at": "2026-09-21T17:00:00Z",
+    "declared_package": {
+      "components": [
+        "Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card",
+        "Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait"
+      ],
+      "rationale": "The dial-in routine and the standby grinder are one inseparable dosing-method change: a mid-peak swap is impossible without a second dialed-in grinder standing by, and a second grinder is pointless without the routine that keeps both units dialed in. Separate them and neither is testable alone -- a routine with a single grinder still stalls the line on every drift, and an un-dialed standby just moves the re-dial wait to a different machine -- so the pilot deploys the package whole and attribution stays package-level."
+    },
+    "declared_threshold": {
+      "declared_at": "2026-09-03T15:00:00Z",
+      "direction": "lower_is_better",
+      "metric_ref": "handoff_minutes (charter C1) -- pilot-window mean",
+      "value": 5.5
+    },
+    "gap": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "3f516ff8bbda794aed9e37baadf91a3288f89ebf8a59b4240985fdebafe711f7",
+        "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN §4.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+        "warnings": []
+      },
+      "value": {
+        "after_value": 4.899166666666667,
+        "charter_baseline_value": 8.408333333333333,
+        "charter_goal_value": 5.0,
+        "direction": "lower_is_better",
+        "goal_met": true,
+        "loop_verdict": "Goal met -- route to Control.",
+        "next_cause_ref": null,
+        "original_gap": 3.408333333333333,
+        "recovered": 3.5091666666666663,
+        "recovered_pct": 102.95843520782395,
+        "remaining": -0.10083333333333311
+      }
+    },
+    "guardrail_report": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "f3ea71c974e335f55c9a71b35b002ae6c891bedebb9b63540509ba17ca46d8ce",
+        "method": "direction-aware before/after compare per guardrail; material_worsening = worse AND |pct_change| >= 5% of the before value (engine convention, not a published quantity -- rubric R-IMP-03 #5)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "after_value": 2.3,
+          "before_value": 3.6,
+          "direction": "lower_is_better",
+          "material_worsening": false,
+          "metric_ref": "drink remake rate (remakes per 100 orders, barista waste sheet -- charter consequential metric)",
+          "moved": "improved",
+          "pct_change": -0.36111111111111116
+        },
+        {
+          "after_value": 8.1,
+          "before_value": 8.65,
+          "direction": "lower_is_better",
+          "material_worsening": false,
+          "metric_ref": "barista labor hours per morning shift (scheduled 8.0 + peak-end overtime, time clock -- charter consequential metric)",
+          "moved": "improved",
+          "pct_change": -0.06358381502890181
+        }
+      ]
+    },
+    "guardrails": [
+      {
+        "after_value": 2.3,
+        "before_value": 3.6,
+        "direction": "lower_is_better",
+        "metric_ref": "drink remake rate (remakes per 100 orders, barista waste sheet -- charter consequential metric)"
+      },
+      {
+        "after_value": 8.1,
+        "before_value": 8.65,
+        "direction": "lower_is_better",
+        "metric_ref": "barista labor hours per morning shift (scheduled 8.0 + peak-end overtime, time clock -- charter consequential metric)"
+      }
+    ],
+    "lsl": null,
+    "measurement_system_ref": "coffee-msa",
+    "metric_ref": "handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)",
+    "next_cause_ref": null,
+    "notes": "Round-2 before/after proof, run live 2026-09-21 against the plan coffee-pilot-round2 declared 2026-09-03. Same yardstick as every prior window, one copy each: handoff_minutes under the T-11 operational definition and the T-12-passed measurement system. Before is the round-1 pilot window (after-round1.csv, n=120, mean 6.198 -- the implemented state since 2026-08-24), so the Welch test isolates what the grinder change itself added; the CUMULATIVE claim is the gap block, which runs final state against the original measured baseline 8.408333 per R-IMP-03 (per-change credits stay descriptive, never summed). After is the full declared pilot window (after-round2.csv, n=120, all 10 mornings, no trimming). The declared season/demand confounders are re-answered YES against actuals and the engine prints the weakened sentence on the verdict -- the direction of the bias (semester demand is ~15% MORE load) means the confound could only have masked improvement, not manufactured it, and the note travels with the number. Guardrails are the charter's two consequential metrics on their charter-baseline before-values, so the guardrail read is cumulative too. Capability of the after-window (Cpk 0.054 against USL 5.0) is the honest close: the mean promise is met, the every-order promise is not -- recorded in improve-run.md with the /stats/baseline run. The pilot's declared_package is echoed verbatim (R-IMP-02's carve-out), so the verdict itself carries package-level attribution: the win belongs to the dosing-method package as a whole -- the dial-in routine plus the standby grinder -- never to either component alone.",
+    "operational_definition_ok": true,
+    "operational_definition_ref": "coffee-collection-plan",
+    "pilot_ref": "coffee-pilot-round2",
+    "schema_version": 1,
+    "test_result": {
+      "question_text": "Did the pilot change 'handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)' between the before and after periods?",
+      "refused": false,
+      "result": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 8 per sample",
+            "independent groups"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "9b2389d02ebd1377c8bf7416a513c74cdcf1447cce28e1199007bddd2898c543",
+          "method": "Welch's two-sample t-test (scipy.stats.ttest_ind, equal_var=False; NIST/SEMATECH §7.3.1 unequal-variance form + Welch-Satterthwaite df) + Cohen's d on the unweighted-average SD (Delacre, Lakens & Leys 2017)",
+          "warnings": []
+        },
+        "value": {
+          "alpha": 0.05,
+          "assumptions_checked": [
+            "n >= 8 per sample cleared (matrix §4a EXIT-06); groups independent"
+          ],
+          "contingency": null,
+          "cramers_v": null,
+          "df": 222.0843827734964,
+          "df_between": null,
+          "df_within": null,
+          "effect_size_ci": [
+            1.394431328975428,
+            1.9838676467195506
+          ],
+          "effect_size_ci_method": "Hedges & Olkin (1985) large-sample approximate SE -- not an exact noncentral-t CI",
+          "effect_size_name": "Cohen's d (Welch/unequal-variance form)",
+          "effect_size_value": 1.6891494878474893,
+          "equal_shape_caveat": null,
+          "exit13": null,
+          "groups": [
+            {
+              "label": "before",
+              "mean": 6.198333333333333,
+              "median": null,
+              "n": 120,
+              "proportion": null,
+              "sd": 0.8659752682762403,
+              "successes": null
+            },
+            {
+              "label": "after",
+              "mean": 4.899166666666667,
+              "median": null,
+              "n": 120,
+              "proportion": null,
+              "sd": 0.6581736678345711,
+              "successes": null
+            }
+          ],
+          "hodges_lehmann_ci": null,
+          "hodges_lehmann_ci_method": null,
+          "hodges_lehmann_shift": null,
+          "p_value": 2.226864227325567e-29,
+          "plain_language": {
+            "comparison_summary": "Compared before (n=120, mean=6.198) against after (n=120, mean=4.899) using Welch's two-sample t-test (unequal variances assumed by default -- no equal-variance check to trip on).",
+            "effect_size_in_words": "Cohen's d = 1.69 -- a large difference (Cohen 1988 conventional bands: negligible<0.2, small<0.5, medium<0.8, large>=0.8).",
+            "p_value_meaning": "p = 0.0000, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 2.2e-27% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+            "practical_significance_prompt": "Statistically detectable ≠ big enough to matter -- compare the effect size above against the goal."
+          },
+          "rank_biserial_r": null,
+          "risk_difference": null,
+          "risk_difference_ci": null,
+          "risk_difference_ci_method": null,
+          "significant": true,
+          "statistic": 13.084095671376229,
+          "statistic_name": "t",
+          "test_name": "welch_two_sample_t",
+          "two_sided": true,
+          "warnings": []
+        }
+      },
+      "routing": {
+        "comparison_type": "two_independent",
+        "decision_path": [
+          {
+            "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+            "branch": "one pre-declared primary comparison -- continue",
+            "question": "Is exactly one primary comparison declared, and does the test count stay within it?"
+          },
+          {
+            "answer": "declared_data_type='continuous'",
+            "branch": "not count/rate data -- continue",
+            "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?"
+          },
+          {
+            "answer": "measurements_per_unit=1",
+            "branch": "at most paired (<=2) -- continue",
+            "question": "How many related measurements per unit are there?"
+          },
+          {
+            "answer": "two_independent",
+            "branch": "the two_independent path",
+            "question": "What kind of comparison is this?"
+          },
+          {
+            "answer": "no (time_ordered=False)",
+            "branch": "EXIT-09 not applicable -- continue",
+            "question": "Is this data time-ordered?"
+          },
+          {
+            "answer": "before: n=120 >= 15; after: n=120 >= 15",
+            "branch": "use the parametric default (Welch t)",
+            "question": "Does either group have n<15 with a declared-ordinal, shape-concern, or advisory-normality flag?"
+          },
+          {
+            "answer": "welch_two_sample_t",
+            "branch": "route=welch_two_sample_t",
+            "question": "Which test fits two independent continuous/ordinal samples?"
+          },
+          {
+            "answer": "before n=120, after n=120 (need >=8 per sample)",
+            "branch": "floor cleared -- compute",
+            "question": "Does each sample clear the EXIT-06 floor (n>=8 per sample)?"
+          }
+        ],
+        "exit": null,
+        "question": "Did the pilot change 'handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)' between the before and after periods?",
+        "recommend_nonparametric": false,
+        "route": "welch_two_sample_t",
+        "switch_reason": null
+      }
+    },
+    "tool_id": "T-20",
+    "updated_at": "2026-09-21T17:00:00Z",
+    "usl": 5.0,
+    "verdict": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "b9064dcc7d65639790514615e7cfb3946b815cebb465e5854c1601384ea85d37",
+        "method": "threshold check AS DECLARED (met|not_met, never reworded) + package attribution (declared-package pilots only, rubric R-IMP-02) + confounder echo (any changed=true weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)",
+        "warnings": []
+      },
+      "value": {
+        "confounder_notes": [
+          "season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.",
+          "demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it."
+        ],
+        "guardrail_tradeoff": null,
+        "headline": "Threshold met, as declared: handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak) = 4.89917 vs 5.5 (lower_is_better). This pilot ran as a declared package (2 components: Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card, Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait) -- proof credit belongs to the package as a whole, never to a single component (rubric R-IMP-02's carve-out). Improvement shown, but a reported confounder weakens this proof: season: As declared up front: fall semester began 2026-08-31, so this window ran in term time while the before-window (and the July baseline) ran in summer session -- the charter's named risk, carried on the verdict.; demand: Actuals: daily order counts ran 53-58 per peak (mean 55.4) vs 48 at baseline and 47.6 in round 1 -- about 15% more load. Direction: a busier peak lengthens queues, so this confound biases against the pilot; it weakens the claim without being able to manufacture it..",
+        "package_attribution": "This pilot ran as a declared package (2 components: Pre-peak dial-in routine: dial in the primary grinder before 7:00 and re-dial after every hopper refill, logged on the grinder card, Pre-dialed standby grinder: when the primary drifts mid-peak, swap in the standby unit instead of re-dialing while cups wait) -- proof credit belongs to the package as a whole, never to a single component (rubric R-IMP-02's carve-out).",
+        "proof_form": "inferential",
+        "stability_caveat": null,
+        "threshold_verdict": "met",
+        "weakened": true
+      }
+    }
+  },
+  "valid": true
+}

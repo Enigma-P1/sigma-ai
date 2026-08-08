@@ -1,0 +1,157 @@
+{
+  "artifact": {
+    "artifact_id": "s1-fishbone",
+    "causes": [
+      {
+        "branch": "method",
+        "cause_id": "c-triage-batch",
+        "evidence": {
+          "kind": "check_sheet",
+          "ref": "s1-check-sheet"
+        },
+        "parent_cause_id": null,
+        "status": "verified",
+        "text": "Once-a-day triage batch: anything arriving after ~9:30 waits until the next morning to be assigned at all",
+        "why_chain_position": null
+      },
+      {
+        "branch": "method",
+        "cause_id": "c-scheduled-event",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Process map s1 (queue): 16.5h mean sit -- the dominant stage, engine-named readout"
+        },
+        "parent_cause_id": "c-triage-batch",
+        "status": "verified",
+        "text": "Assignment is a scheduled event (Naomi's 8:30 triage block), not a continuous flow",
+        "why_chain_position": 1
+      },
+      {
+        "branch": "method",
+        "cause_id": "c-approval-wait",
+        "evidence": {
+          "kind": "check_sheet",
+          "ref": "s1-check-sheet"
+        },
+        "parent_cause_id": null,
+        "status": "verified",
+        "text": "Manager approval on access grants is requested late (only when a tech first touches the ticket), adding ~7.4h",
+        "why_chain_position": null
+      },
+      {
+        "branch": "method",
+        "cause_id": "c-email-lag",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Collection-plan stratified view: email +2.4h vs portal in the plan's strata -- real but minor, not yet linked to the gap"
+        },
+        "parent_cause_id": null,
+        "status": "investigating",
+        "text": "Email-channel tickets show a small extra lag versus portal tickets",
+        "why_chain_position": null
+      },
+      {
+        "branch": "people",
+        "cause_id": "c-tech-skill",
+        "evidence": null,
+        "parent_cause_id": null,
+        "status": "candidate",
+        "text": "Tech skill mix may affect resolution speed",
+        "why_chain_position": null
+      },
+      {
+        "branch": "method",
+        "cause_id": "c-ticket-form",
+        "evidence": null,
+        "parent_cause_id": null,
+        "status": "candidate",
+        "text": "Ticket-form quality (missing details) may force back-and-forth",
+        "why_chain_position": null
+      },
+      {
+        "branch": "measurement",
+        "cause_id": "c-extraction-error",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "T-12 measurement check passed at 1.66% repeatability (s1-msa)"
+        },
+        "parent_cause_id": null,
+        "status": "ruled_out",
+        "text": "Event-log extraction / clock error could be inflating recorded waits",
+        "why_chain_position": null
+      },
+      {
+        "branch": "people",
+        "cause_id": "c-tech-capacity",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Hands-on work is only 1.9h of the 26.7h cycle (process map s4) -- techs are not idle and not the bottleneck"
+        },
+        "parent_cause_id": null,
+        "status": "ruled_out",
+        "text": "Techs are overloaded (capacity-constrained)",
+        "why_chain_position": null
+      }
+    ],
+    "created_at": "2026-08-06T09:00:00Z",
+    "effect": {
+      "charter_ref": "s1-charter",
+      "text": "Routine tickets average 26.71 business hours against the 8.0-hour promise (baseline n=127, stable, one-sided Cpk -0.96, 127/127 over the promise)"
+    },
+    "layout": {},
+    "notes": "Verified causes carry evidence; investigating/candidate/ruled-out states used honestly per the spec's arc.",
+    "schema_version": 1,
+    "tool_id": "T-15",
+    "updated_at": "2026-08-07T09:00:00Z",
+    "verified_causes": {
+      "provenance": {
+        "assumptions_checked": [
+          "schema guarantees every status='verified' cause already carries non-empty evidence"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "964de170d7bbc2791605bbee346f8a9565e436df00ad0b2fe8faf8bb7e4c0623",
+        "method": "verified_causes = every cause with status == 'verified', in causes-list order, each carrying its evidence pointer (rubric R-ANA-02/R-ANA-06 feed) -- an empty list is an honest zero, not 'nothing to compute yet': a fishbone with no verified causes is a valid, common in-progress state.",
+        "warnings": []
+      },
+      "value": {
+        "causes": [
+          {
+            "branch": "method",
+            "cause_id": "c-triage-batch",
+            "evidence": {
+              "kind": "check_sheet",
+              "ref": "s1-check-sheet"
+            },
+            "parent_cause_id": null,
+            "text": "Once-a-day triage batch: anything arriving after ~9:30 waits until the next morning to be assigned at all",
+            "why_chain_position": null
+          },
+          {
+            "branch": "method",
+            "cause_id": "c-scheduled-event",
+            "evidence": {
+              "kind": "observation_note",
+              "ref": "Process map s1 (queue): 16.5h mean sit -- the dominant stage, engine-named readout"
+            },
+            "parent_cause_id": "c-triage-batch",
+            "text": "Assignment is a scheduled event (Naomi's 8:30 triage block), not a continuous flow",
+            "why_chain_position": 1
+          },
+          {
+            "branch": "method",
+            "cause_id": "c-approval-wait",
+            "evidence": {
+              "kind": "check_sheet",
+              "ref": "s1-check-sheet"
+            },
+            "parent_cause_id": null,
+            "text": "Manager approval on access grants is requested late (only when a tech first touches the ticket), adding ~7.4h",
+            "why_chain_position": null
+          }
+        ],
+        "count": 3
+      }
+    }
+  },
+  "valid": true
+}

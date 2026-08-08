@@ -1,0 +1,218 @@
+{
+  "artifact": {
+    "anchors": {
+      "detection": {
+        "1": "Almost certain -- current controls will catch it before it ever leaves this step.",
+        "10": "No current control could detect this cause or mode before it reaches the next step.",
+        "2": "Very high chance the current controls catch it before it moves on.",
+        "3": "High chance the current controls catch it.",
+        "4": "Moderately high chance the current controls catch it.",
+        "5": "Moderate chance the current controls catch it.",
+        "6": "Low chance of detection with the current controls.",
+        "7": "Very low chance of detection with the current controls.",
+        "8": "Remote chance of detection with the current controls.",
+        "9": "Very remote chance the current controls catch it in time."
+      },
+      "occurrence": {
+        "1": "Remote -- failure from this cause is unlikely; no known history of it.",
+        "10": "Very high -- the cause is present on nearly every unit or cycle.",
+        "2": "Low -- rare, roughly 1 in 150,000.",
+        "3": "Low -- relatively few failures, roughly 1 in 15,000.",
+        "4": "Moderate-low -- roughly 1 in 2,000.",
+        "5": "Moderate -- roughly 1 in 400.",
+        "6": "Moderate -- occasional failures, roughly 1 in 80.",
+        "7": "High -- roughly 1 in 20.",
+        "8": "High -- repeated failures, roughly 1 in 8.",
+        "9": "Very high -- frequent, roughly 1 in 3."
+      },
+      "severity": {
+        "1": "None -- no discernible effect on the customer or the process.",
+        "10": "Extreme -- safety hazard or a regulatory violation, with no warning before it happens.",
+        "2": "Very low -- a minor nuisance most customers would never notice.",
+        "3": "Low -- a slight, easily-tolerated effect; only a discerning customer notices.",
+        "4": "Low-moderate -- a minor loss of performance; many customers notice.",
+        "5": "Moderate -- performance is reduced in a way most customers notice and dislike.",
+        "6": "Moderate-high -- performance is noticeably degraded; the customer is dissatisfied.",
+        "7": "High -- major function is lost; most customers are significantly dissatisfied.",
+        "8": "Very high -- the product or process becomes unusable; the customer is very dissatisfied.",
+        "9": "Extreme -- safety hazard or a regulatory violation, but with some warning beforehand."
+      }
+    },
+    "artifact_id": "coffee-fmea",
+    "blocking_flags": {
+      "provenance": {
+        "assumptions_checked": [
+          "keyword match is a heuristic screen, not a certified safety/regulatory determination"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "2fa823ff1113f0756af5e7ed6dcd6f10b6c402fd90844360f10ebc0c690b15ba",
+        "method": "blocking_flags = rows with severity in {9,10} AND effect text matching a safety/regulatory keyword AND action blank (rubric R-ANA-03 Fail line; R-WRAP-03 blocks project-close on any non-empty result)",
+        "warnings": []
+      },
+      "value": []
+    },
+    "created_at": "2026-08-05T14:00:00Z",
+    "notes": "Process FMEA over the map's five steps (coffee-process-map s1-s5), rating the discrete failures that ride on top of the stable 8.4-minute baseline -- the chronic slowness itself is the baseline's common-cause story, not a failure mode. Ratings are anchor lookups with the between-anchor judgment calls argued here since rows carry no note field. Occurrence: re-pulls ran 10 of 120 sampled orders (~1 in 12), between the 1-in-20 (7) and 1-in-8 (8) anchors -- rated 7 because the tally counts only orders where rework was the dominant delay. Queue mix-ups and unheard name calls rated 6 (~1 in 80, burst-driven); mis-keys, buried cups, wrong finishes, and printer jams rated 5 (~1 in 400; the one tallied reprint in 120 sampled orders sits between the 5 and 6 anchors -- 5 chosen). The steam scald rated occurrence 2: one first-aid event recalled in roughly two semesters of peak service. Severity of the scald argued at 8, not 9: the credible event is a momentary first-aid burn with visible-steam warning, below the bar this team reserves for anchor 9's injury-level hazard -- and because severity is never ignorable at this level either, the row carries an action and owner regardless, so the board holds no unaddressed safety row. Detection 8 on the mix-up row: nothing checks cup against ticket between marking and name call. The highest RPN (288) is the drink-queue mix-up at the queue-to-station handoff; the severity-first view instead leads with the severity-8 scald at RPN 48 -- the two sorts disagreeing is the RPN limitation on display, and both rows get actions for their own reasons.",
+    "rows": [
+      {
+        "action": "Replace handwritten marks with POS-printed sticky labels applied in ticket order; queue rail gets a marked front position so oldest cup is always the grab",
+        "action_due": "2026-08-21",
+        "action_owner": "Priya Shah",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Handwritten cup marks smear near the steam wand; grab order is whatever sits closest when the queue runs six-plus deep",
+        "detection": 8,
+        "effect": "Drinks built against the wrong tickets -- both customers wait through a remake and the queue behind them stalls",
+        "failure_mode": "Marked cups taken out of ticket order during a burst; two orders swap at the queue-to-station handoff",
+        "occurrence": 6,
+        "process_step_ref": "s2",
+        "row_id": "r-queue-mixup",
+        "rpn": 288,
+        "severity": 6,
+        "step_name": "Cup waits in drink queue"
+      },
+      {
+        "action": "Add a one-line read-back of size/milk/decaf to the register script during peak",
+        "action_due": "2026-08-24",
+        "action_owner": "Priya Shah",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Peak-rush entry with abbreviated POS buttons; modifiers mistapped and unread",
+        "detection": 7,
+        "effect": "Customer receives the wrong drink at handoff; the remake doubles that customer's wait",
+        "failure_mode": "Order details keyed wrong at the register (size, milk, decaf)",
+        "occurrence": 5,
+        "process_step_ref": "s1",
+        "row_id": "r-register-miskey",
+        "rpn": 245,
+        "severity": 7,
+        "step_name": "Take order and payment at register"
+      },
+      {
+        "action": "Re-angle the wand to park outboard of the work path and add purge-and-park to the drink-build standard",
+        "action_due": "2026-08-14",
+        "action_owner": "Marcus Webb",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Wand parks angled into the work path; rush pace puts the pitcher hand across it",
+        "detection": 3,
+        "effect": "Barista scalds a hand -- a first-aid burn, and the station stops while it is treated",
+        "failure_mode": "Steam wand contacts the barista's hand while juggling pitcher and portafilter in a rush",
+        "occurrence": 2,
+        "process_step_ref": "s3",
+        "row_id": "r-steam-burn",
+        "rpn": 48,
+        "severity": 8,
+        "step_name": "Prepare drink at espresso station"
+      },
+      {
+        "action": "Covered by the queue-rail ticket-order fix (r-queue-mixup); name-call loop adds an oldest-mark sweep each cycle",
+        "action_due": "2026-08-21",
+        "action_owner": "Marcus Webb",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Cups nine deep in a class-break burst hide the oldest mark from view",
+        "detection": 6,
+        "effect": "One customer waits ten-plus minutes and may walk away -- the VoC's vending-machine line made real",
+        "failure_mode": "A marked cup gets buried mid-queue and its drink never starts until the customer asks",
+        "occurrence": 5,
+        "process_step_ref": "s2",
+        "row_id": "r-buried-cup",
+        "rpn": 210,
+        "severity": 7,
+        "step_name": "Cup waits in drink queue"
+      },
+      {
+        "action": "Re-dial the grind after every hopper refill; refills logged on the check sheet so drift is visible",
+        "action_due": "2026-08-18",
+        "action_owner": "Marcus Webb",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Grind setting drifts after mid-peak hopper refills until the grinder is re-dialed",
+        "detection": 2,
+        "effect": "That drink restarts and every cup behind it waits roughly two more minutes",
+        "failure_mode": "Shot pulls sour or channelled and is dumped, the drink re-started from dosing",
+        "occurrence": 7,
+        "process_step_ref": "s3",
+        "row_id": "r-repull",
+        "rpn": 70,
+        "severity": 5,
+        "step_name": "Prepare drink at espresso station"
+      },
+      {
+        "action": "",
+        "action_due": null,
+        "action_owner": "",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Single spoken call competes with music and grinder noise at peak",
+        "detection": 4,
+        "effect": "Drink cools while the recorded wait keeps running -- the VoC's 'nobody called my name' complaint",
+        "failure_mode": "Name called once, unheard over peak noise; the finished drink strands on the counter",
+        "occurrence": 6,
+        "process_step_ref": "s5",
+        "row_id": "r-name-call",
+        "rpn": 120,
+        "severity": 5,
+        "step_name": "Call name and hand off at pickup counter"
+      },
+      {
+        "action": "",
+        "action_due": null,
+        "action_owner": "",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Syrup pumps unlabeled on the back row; finish happens mid-conversation at pickup",
+        "detection": 5,
+        "effect": "Drink comes back across the counter for a quick fix or remake",
+        "failure_mode": "Wrong syrup pumped or lid/sleeve missed on the finished drink",
+        "occurrence": 5,
+        "process_step_ref": "s4",
+        "row_id": "r-wrong-finish",
+        "rpn": 100,
+        "severity": 4,
+        "step_name": "Finish drink (syrup, lid, sleeve)"
+      },
+      {
+        "action": "",
+        "action_due": null,
+        "action_owner": "",
+        "action_status": "open",
+        "anchors_consulted": true,
+        "cause": "Worn printer feed roller jams on multi-item tickets",
+        "detection": 2,
+        "effect": "The order enters the drink queue late; one reprint tallied in the study (check-sheet E32)",
+        "failure_mode": "Ticket printer jams and the order is re-rung",
+        "occurrence": 5,
+        "process_step_ref": "s1",
+        "row_id": "r-ticket-jam",
+        "rpn": 40,
+        "severity": 4,
+        "step_name": "Take order and payment at register"
+      }
+    ],
+    "schema_version": 1,
+    "sorted_view": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "5f847f4e3897bcd8314e7c8836edbc7cfc2b467b2f2d9f42b979ffea226c630c",
+        "method": "sorted_view = row_ids ordered severity desc, then rpn (severity*occurrence*detection) desc, tie-broken by row_id -- severity-first per rubric R-ANA-03 #3 (the RPN limitation: equal RPNs are not equal risks, and a lower-severity row can never outrank a higher-severity one here on RPN alone)",
+        "warnings": []
+      },
+      "value": [
+        "r-steam-burn",
+        "r-register-miskey",
+        "r-buried-cup",
+        "r-queue-mixup",
+        "r-name-call",
+        "r-repull",
+        "r-wrong-finish",
+        "r-ticket-jam"
+      ]
+    },
+    "tool_id": "T-16",
+    "updated_at": "2026-08-06T11:30:00Z"
+  },
+  "valid": true
+}

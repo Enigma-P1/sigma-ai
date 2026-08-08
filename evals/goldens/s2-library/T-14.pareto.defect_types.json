@@ -1,0 +1,44 @@
+{
+  "provenance": {
+    "assumptions_checked": [],
+    "engine_version": "0.1.0",
+    "input_hash": "b7f4a8f511d71e50acfe038dc132ea7e599d8b2d912e2c2ffe1acd6769f8c8c5",
+    "method": "Pareto: tally per category, sorted count-descending, cumulative share; vital few = the categories up to and including the one that crosses 80% cumulative share (PLAN §4.1 T-14 row); flat = it takes >= 80% of the distinct categories themselves to get there, i.e. no small subset dominates",
+    "warnings": []
+  },
+  "value": {
+    "categories": [
+      {
+        "category": "out-of-order within bay",
+        "count": 44,
+        "cumulative_share": 0.4888888888888889,
+        "share": 0.4888888888888889,
+        "vital_few": true
+      },
+      {
+        "category": "wrong bay",
+        "count": 29,
+        "cumulative_share": 0.8111111111111111,
+        "share": 0.32222222222222224,
+        "vital_few": true
+      },
+      {
+        "category": "series shelved by author",
+        "count": 10,
+        "cumulative_share": 0.9222222222222223,
+        "share": 0.1111111111111111,
+        "vital_few": false
+      },
+      {
+        "category": "oversize/flat exception",
+        "count": 7,
+        "cumulative_share": 1.0,
+        "share": 0.07777777777777778,
+        "vital_few": false
+      }
+    ],
+    "flat": false,
+    "total": 90,
+    "vital_few_count": 2
+  }
+}

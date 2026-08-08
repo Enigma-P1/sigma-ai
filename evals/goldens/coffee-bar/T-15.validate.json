@@ -1,0 +1,215 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-fishbone",
+    "causes": [
+      {
+        "branch": "method",
+        "cause_id": "c-queue",
+        "evidence": {
+          "kind": "check_sheet",
+          "ref": "coffee-check-sheet"
+        },
+        "parent_cause_id": null,
+        "status": "verified",
+        "text": "Marked cups pile up in the single drink queue ahead of the espresso station -- a cup waits a median 4.5 of the 8.4 minutes before its shot starts",
+        "why_chain_position": null
+      },
+      {
+        "branch": "machine",
+        "cause_id": "c-station-serial",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Engine constraint readout on the process map (coffee-process-map, 2026-08-03): step s3 'Prepare drink at espresso station' (2.0 min) is the named constraint against the 3.75-min pace. Queue depth observed six cups deep at 07:38 Jul 20 (check-sheet E01 note) and nine deep in the Jul 28 08:12 class-break rush (time-study cycle 6, flagged outlier)."
+        },
+        "parent_cause_id": "c-queue",
+        "status": "verified",
+        "text": "Every drink funnels through the one espresso station, which clears about one drink every two minutes -- a class-break burst of six cups takes roughly twelve minutes to drain",
+        "why_chain_position": 1
+      },
+      {
+        "branch": "machine",
+        "cause_id": "c-one-head",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Gemba observation during the Jul 28-29 time study (Dana Ellis): all espresso pulls ran serially on the one group head across both peaks -- at no point did two drinks progress in parallel; the 52 grinder round trips per peak (spaghetti route R2) all feed that one group."
+        },
+        "parent_cause_id": "c-station-serial",
+        "status": "verified",
+        "text": "The station's machine has a single brew group, so shots pull strictly one at a time and milk steams while the group idles",
+        "why_chain_position": 2
+      },
+      {
+        "branch": "machine",
+        "cause_id": "c-batch-locked",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Machine and settings check with the process owner (Marcus Webb, 2026-08-05): one-group semi-automatic, programmed single-shot volumes, steam pitcher sized for one drink -- combining same-drink orders is outside the current method. This is the chain's Improve-ready root: change the batching or add head capacity."
+        },
+        "parent_cause_id": "c-one-head",
+        "status": "verified",
+        "text": "One machine head and batch sizes locked to one drink at a time -- shots and milk are built per single order even when three lattes sit adjacent in the queue",
+        "why_chain_position": 3
+      },
+      {
+        "branch": "machine",
+        "cause_id": "c-grinder",
+        "evidence": {
+          "kind": "check_sheet",
+          "ref": "coffee-check-sheet"
+        },
+        "parent_cause_id": null,
+        "status": "verified",
+        "text": "Sour or channelled shots get dumped and re-pulled at the grinder-dose step, restarting the drink and stalling every cup behind it",
+        "why_chain_position": null
+      },
+      {
+        "branch": "material",
+        "cause_id": "c-grind-drift",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "One dated lead so far: check-sheet E14 (Jul 23, 08:36) -- 'grind setting drifted after hopper refill.' Being gathered before this moves past investigating: a refill-time vs re-pull-time split across the ten mornings."
+        },
+        "parent_cause_id": "c-grinder",
+        "status": "investigating",
+        "text": "Grind setting drifts after mid-peak hopper refills -- fresh beans change dose behavior until the grinder is re-dialed",
+        "why_chain_position": 1
+      },
+      {
+        "branch": "people",
+        "cause_id": "c-staffing",
+        "evidence": {
+          "kind": "hypothesis_run",
+          "ref": "coffee-hypothesis-daypart"
+        },
+        "parent_cause_id": null,
+        "status": "investigating",
+        "text": "Peak staffing keeps one barista on espresso for the whole 7:00-10:00 window regardless of the class-schedule surge pattern",
+        "why_chain_position": null
+      },
+      {
+        "branch": "environment",
+        "cause_id": "c-music",
+        "evidence": null,
+        "parent_cause_id": null,
+        "status": "candidate",
+        "text": "Up-tempo peak playlist may push baristas to rush tamping, seeding channelled shots",
+        "why_chain_position": null
+      },
+      {
+        "branch": "environment",
+        "cause_id": "c-cup-placement",
+        "evidence": null,
+        "parent_cause_id": null,
+        "status": "candidate",
+        "text": "Cup stack and syrup pumps sit behind the barista, adding a turn-and-reach to every drink build",
+        "why_chain_position": null
+      },
+      {
+        "branch": "machine",
+        "cause_id": "c-register-hw",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Ruled out by the map and time study: step s1 'Take order and payment at register' medians 0.8 min (time-study el-order median 48 s) -- a sub-minute step; even cut to zero it recovers less than a quarter of the 3.4-minute gap, and the queue ahead of the espresso station would absorb the earlier arrival."
+        },
+        "parent_cause_id": null,
+        "status": "ruled_out",
+        "text": "Register or POS hardware lag stretches the order-entry step at the front of every order",
+        "why_chain_position": null
+      },
+      {
+        "branch": "measurement",
+        "cause_id": "c-ticket-skew",
+        "evidence": {
+          "kind": "observation_note",
+          "ref": "Ruled out by the T-12 measurement check (coffee-msa, camera-video test/retest blind to the first pass): repeatability 8.94% -- acceptable -- at 0.1-min resolution on a 5.1-min span. The measurement system is real error of a few tenths, and the gap is 3.4 whole minutes."
+        },
+        "parent_cause_id": null,
+        "status": "ruled_out",
+        "text": "Recorded waits inflated by clock skew between the POS timestamp and the name-call stopwatch reading",
+        "why_chain_position": null
+      }
+    ],
+    "created_at": "2026-08-05T09:00:00Z",
+    "effect": {
+      "charter_ref": "coffee-charter",
+      "text": "Espresso orders take a measured 8.4 minutes register-to-handoff against the customer's 5-minute line (baseline n=120, mean 8.41 vs USL 5.0, stable, Cpk -1.14)"
+    },
+    "layout": {},
+    "notes": "Cause exploration for the baselined gap, built breadth-first on Aug 5 (all six branches carry causes before any chain goes deep) and statused as evidence arrived through Aug 6. Verified causes carry evidence that ties them to the gap: the drink-queue pileup (22 of 40 delay tallies, 55% -- the Pareto's biggest vital-few bar) and grinder rework (10 of 40, 25%) are the check sheet's engine-verified vital few at exactly 80% cumulative; the 5-Why chain under the pileup runs three deep to the Improve-ready root -- one machine head, batch sizes locked to one drink at a time -- each step carrying its own dated observation, never one verification waved across neighbors. Peak staffing shape stays investigating: the T-17 daypart run (coffee-hypothesis-daypart) found late mornings only 0.45 min slower -- a real but small difference that says the drivers operate all morning, so staffing shape is not yet tied to the gap. Two causes are ruled out with their evidence kept on the board: register hardware (s1 medians 0.8 min -- a sub-minute step that even at zero recovers under a quarter of the 3.4-minute gap) and measurement clock skew (T-12 passed at 8.94% repeatability). Music tempo and cup placement remain candidates with the no-evidence chip showing -- honest guesses, listed so they are visibly guesses.",
+    "schema_version": 1,
+    "tool_id": "T-15",
+    "updated_at": "2026-08-06T15:00:00Z",
+    "verified_causes": {
+      "provenance": {
+        "assumptions_checked": [
+          "schema guarantees every status='verified' cause already carries non-empty evidence"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "2393ed0084237aac8600c981fdee22f0100ca19ab904f80c3db4bbcbaadbefbe",
+        "method": "verified_causes = every cause with status == 'verified', in causes-list order, each carrying its evidence pointer (rubric R-ANA-02/R-ANA-06 feed) -- an empty list is an honest zero, not 'nothing to compute yet': a fishbone with no verified causes is a valid, common in-progress state.",
+        "warnings": []
+      },
+      "value": {
+        "causes": [
+          {
+            "branch": "method",
+            "cause_id": "c-queue",
+            "evidence": {
+              "kind": "check_sheet",
+              "ref": "coffee-check-sheet"
+            },
+            "parent_cause_id": null,
+            "text": "Marked cups pile up in the single drink queue ahead of the espresso station -- a cup waits a median 4.5 of the 8.4 minutes before its shot starts",
+            "why_chain_position": null
+          },
+          {
+            "branch": "machine",
+            "cause_id": "c-station-serial",
+            "evidence": {
+              "kind": "observation_note",
+              "ref": "Engine constraint readout on the process map (coffee-process-map, 2026-08-03): step s3 'Prepare drink at espresso station' (2.0 min) is the named constraint against the 3.75-min pace. Queue depth observed six cups deep at 07:38 Jul 20 (check-sheet E01 note) and nine deep in the Jul 28 08:12 class-break rush (time-study cycle 6, flagged outlier)."
+            },
+            "parent_cause_id": "c-queue",
+            "text": "Every drink funnels through the one espresso station, which clears about one drink every two minutes -- a class-break burst of six cups takes roughly twelve minutes to drain",
+            "why_chain_position": 1
+          },
+          {
+            "branch": "machine",
+            "cause_id": "c-one-head",
+            "evidence": {
+              "kind": "observation_note",
+              "ref": "Gemba observation during the Jul 28-29 time study (Dana Ellis): all espresso pulls ran serially on the one group head across both peaks -- at no point did two drinks progress in parallel; the 52 grinder round trips per peak (spaghetti route R2) all feed that one group."
+            },
+            "parent_cause_id": "c-station-serial",
+            "text": "The station's machine has a single brew group, so shots pull strictly one at a time and milk steams while the group idles",
+            "why_chain_position": 2
+          },
+          {
+            "branch": "machine",
+            "cause_id": "c-batch-locked",
+            "evidence": {
+              "kind": "observation_note",
+              "ref": "Machine and settings check with the process owner (Marcus Webb, 2026-08-05): one-group semi-automatic, programmed single-shot volumes, steam pitcher sized for one drink -- combining same-drink orders is outside the current method. This is the chain's Improve-ready root: change the batching or add head capacity."
+            },
+            "parent_cause_id": "c-one-head",
+            "text": "One machine head and batch sizes locked to one drink at a time -- shots and milk are built per single order even when three lattes sit adjacent in the queue",
+            "why_chain_position": 3
+          },
+          {
+            "branch": "machine",
+            "cause_id": "c-grinder",
+            "evidence": {
+              "kind": "check_sheet",
+              "ref": "coffee-check-sheet"
+            },
+            "parent_cause_id": null,
+            "text": "Sour or channelled shots get dumped and re-pulled at the grinder-dose step, restarting the drink and stalling every cup behind it",
+            "why_chain_position": null
+          }
+        ],
+        "count": 5
+      }
+    }
+  },
+  "valid": true
+}

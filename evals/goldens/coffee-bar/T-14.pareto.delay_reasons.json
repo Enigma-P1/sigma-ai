@@ -1,0 +1,51 @@
+{
+  "provenance": {
+    "assumptions_checked": [],
+    "engine_version": "0.1.0",
+    "input_hash": "258705009c8ab831f374844c30424565c516226b160c0e661e810dec2ca02c63",
+    "method": "Pareto: tally per category, sorted count-descending, cumulative share; vital few = the categories up to and including the one that crosses 80% cumulative share (PLAN §4.1 T-14 row); flat = it takes >= 80% of the distinct categories themselves to get there, i.e. no small subset dominates",
+    "warnings": []
+  },
+  "value": {
+    "categories": [
+      {
+        "category": "Drink-queue backlog",
+        "count": 22,
+        "cumulative_share": 0.55,
+        "share": 0.55,
+        "vital_few": true
+      },
+      {
+        "category": "Grinder rework (re-pull)",
+        "count": 10,
+        "cumulative_share": 0.8,
+        "share": 0.25,
+        "vital_few": true
+      },
+      {
+        "category": "Milk steaming queue",
+        "count": 4,
+        "cumulative_share": 0.9,
+        "share": 0.1,
+        "vital_few": false
+      },
+      {
+        "category": "Mid-peak restock run",
+        "count": 3,
+        "cumulative_share": 0.975,
+        "share": 0.075,
+        "vital_few": false
+      },
+      {
+        "category": "POS ticket reprint",
+        "count": 1,
+        "cumulative_share": 1.0,
+        "share": 0.025,
+        "vital_few": false
+      }
+    ],
+    "flat": false,
+    "total": 40,
+    "vital_few_count": 2
+  }
+}

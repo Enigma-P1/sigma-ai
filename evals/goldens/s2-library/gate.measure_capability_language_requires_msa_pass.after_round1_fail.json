@@ -1,0 +1,7 @@
+{
+  "missing": [],
+  "overridden": false,
+  "override_reason": null,
+  "reason": "Measurement check failed (EXIT-02): fix the measurement system and get a passing T-12 re-run before capability language is trusted.",
+  "status": "HARD_BLOCK"
+}

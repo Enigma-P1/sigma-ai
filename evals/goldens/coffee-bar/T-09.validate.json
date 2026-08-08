@@ -1,0 +1,372 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-time-study",
+    "created_at": "2026-07-28T07:00:00Z",
+    "cycles": [
+      {
+        "cycle_number": 1,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 45.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 268.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 119.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 35.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 28.0
+          }
+        ],
+        "observer_note": "July 28, 7:24 -- two tickets ahead in the cup line"
+      },
+      {
+        "cycle_number": 2,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 40.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 252.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 111.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 32.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 26.0
+          }
+        ],
+        "observer_note": "July 28, 7:47"
+      },
+      {
+        "cycle_number": 3,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 52.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 281.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 128.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 40.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 34.0
+          }
+        ],
+        "observer_note": "July 28, 9:03 -- mocha with an extra syrup pump"
+      },
+      {
+        "cycle_number": 4,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 43.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 236.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 104.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 29.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 22.0
+          }
+        ],
+        "observer_note": "July 28, 9:41 -- quiet stretch, one ticket in the line"
+      },
+      {
+        "cycle_number": 5,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 49.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 272.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 121.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 37.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 31.0
+          }
+        ],
+        "observer_note": "July 29, 7:31"
+      },
+      {
+        "cycle_number": 6,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 60.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 452.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 146.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 47.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 44.0
+          }
+        ],
+        "observer_note": "July 28, 8:12 class-break rush -- 14 people hit the register at once, cup line ran nine deep; queue time is the real event, kept in the record and flagged by the fence, not dropped"
+      },
+      {
+        "cycle_number": 7,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 55.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 294.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 134.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 43.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 38.0
+          }
+        ],
+        "observer_note": "July 29, 8:26 -- steady line, three tickets waiting"
+      },
+      {
+        "cycle_number": 8,
+        "deleted": null,
+        "element_times": [
+          {
+            "element_id": "el-order",
+            "seconds": 47.0
+          },
+          {
+            "element_id": "el-queue",
+            "seconds": 261.0
+          },
+          {
+            "element_id": "el-prepare",
+            "seconds": 116.0
+          },
+          {
+            "element_id": "el-finish",
+            "seconds": 34.0
+          },
+          {
+            "element_id": "el-handoff",
+            "seconds": 29.0
+          }
+        ],
+        "observer_note": "July 29, 9:17"
+      }
+    ],
+    "element_stats": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "08264aa5841402b949329b6b526d56fe2ba0e547142513cf69d0cfaf0d40d5b0",
+        "method": "per-element n/mean/median/sample-SD(n-1, NIST SS1.3.5.6)/IQR (stats/descriptive.py) once n>=2; outliers flagged via Tukey's 1.5xIQR inner fence (NIST/SEMATECH SS7.1.6 'mild outlier': Q1-1.5xIQR / Q3+1.5xIQR), never dropped from the stats; cycle-count guidance floor n>=10 flagged (prescore), never enforced (schema)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "below_recommended_cycles": true,
+          "cycle_count_note": "8 cycles; tool recommends >= 10 -- treat spread as rough",
+          "descriptive": {
+            "iqr": 8.25,
+            "max": 60.0,
+            "mean": 48.875,
+            "median": 48.0,
+            "min": 40.0,
+            "n": 8,
+            "q1": 44.5,
+            "q3": 52.75,
+            "sd": 6.577830732305077
+          },
+          "element_id": "el-order",
+          "element_name": "Take order and payment at register",
+          "n": 8,
+          "outliers": []
+        },
+        {
+          "below_recommended_cycles": true,
+          "cycle_count_note": "8 cycles; tool recommends >= 10 -- treat spread as rough",
+          "descriptive": {
+            "iqr": 25.5,
+            "max": 452.0,
+            "mean": 289.5,
+            "median": 270.0,
+            "min": 236.0,
+            "n": 8,
+            "q1": 258.75,
+            "q3": 284.25,
+            "sd": 67.97898835039292
+          },
+          "element_id": "el-queue",
+          "element_name": "Cup waits in drink queue",
+          "n": 8,
+          "outliers": [
+            {
+              "cycle_number": 6,
+              "direction": "high",
+              "fence_value": 322.5,
+              "reason": "452s is above the upper fence Q3 + 1.5xIQR = 322.5s (Q1=258.75, Q3=284.25, IQR=25.5)",
+              "seconds": 452.0
+            }
+          ]
+        },
+        {
+          "below_recommended_cycles": true,
+          "cycle_count_note": "8 cycles; tool recommends >= 10 -- treat spread as rough",
+          "descriptive": {
+            "iqr": 14.75,
+            "max": 146.0,
+            "mean": 122.375,
+            "median": 120.0,
+            "min": 104.0,
+            "n": 8,
+            "q1": 114.75,
+            "q3": 129.5,
+            "sd": 13.340994822618846
+          },
+          "element_id": "el-prepare",
+          "element_name": "Prepare drink at espresso station",
+          "n": 8,
+          "outliers": []
+        },
+        {
+          "below_recommended_cycles": true,
+          "cycle_count_note": "8 cycles; tool recommends >= 10 -- treat spread as rough",
+          "descriptive": {
+            "iqr": 7.25,
+            "max": 47.0,
+            "mean": 37.125,
+            "median": 36.0,
+            "min": 29.0,
+            "n": 8,
+            "q1": 33.5,
+            "q3": 40.75,
+            "sd": 5.938674695827104
+          },
+          "element_id": "el-finish",
+          "element_name": "Finish drink (syrup, lid, sleeve)",
+          "n": 8,
+          "outliers": []
+        },
+        {
+          "below_recommended_cycles": true,
+          "cycle_count_note": "8 cycles; tool recommends >= 10 -- treat spread as rough",
+          "descriptive": {
+            "iqr": 7.5,
+            "max": 44.0,
+            "mean": 31.5,
+            "median": 30.0,
+            "min": 22.0,
+            "n": 8,
+            "q1": 27.5,
+            "q3": 35.0,
+            "sd": 7.010196655077313
+          },
+          "element_id": "el-handoff",
+          "element_name": "Call name and hand off",
+          "n": 8,
+          "outliers": []
+        }
+      ]
+    },
+    "elements": [
+      {
+        "description": "SIPOC step 1: ticket ordered and paid, POS prints the ticket",
+        "element_id": "el-order",
+        "name": "Take order and payment at register"
+      },
+      {
+        "description": "SIPOC step 2: cup marked and set in line at the espresso station until the shot for it starts",
+        "element_id": "el-queue",
+        "name": "Cup waits in drink queue"
+      },
+      {
+        "description": "SIPOC step 3: dose, pull, steam, build",
+        "element_id": "el-prepare",
+        "name": "Prepare drink at espresso station"
+      },
+      {
+        "description": "SIPOC step 4",
+        "element_id": "el-finish",
+        "name": "Finish drink (syrup, lid, sleeve)"
+      },
+      {
+        "description": "SIPOC steps 5-6 merged: name called, drink set on the pickup counter and collected",
+        "element_id": "el-handoff",
+        "name": "Call name and hand off"
+      }
+    ],
+    "interval_observations": [],
+    "notes": "Eight full order-to-handoff cycles timed by Dana Ellis with a phone stopwatch across the July 28 and 29 morning peaks -- four cycles each morning, orders picked at random from the sampled stream. Elements are the SIPOC steps inside the charter boundary; SIPOC steps 5 and 6 (call the name, hand the drink over) are timed as one element because the call and the hand are one continuous act at the pickup counter. Element medians thread to the process map's step times (0.8 / 4.5 / 2.0 / 0.6 / 0.5 min, summing to the charter's 8.4) -- that sum is the typical cycle (each element's median, robust to outliers), not the mean total: the eight full cycles timed here average 8.8 minutes, pulled up by cycle 6's rush. Cycle 6 is the July 28 8:12 class-break rush; the engine flags its queue time as a high outlier and it stays in the record, flagged, never dropped. Eight cycles is below the tool's 10-cycle guidance -- the per-element note says so; spread is read as rough.",
+    "schema_version": 1,
+    "tool_id": "T-09",
+    "updated_at": "2026-07-29T11:40:00Z",
+    "work_sampling_summary": null
+  },
+  "valid": true
+}

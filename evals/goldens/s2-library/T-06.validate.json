@@ -1,0 +1,174 @@
+{
+  "artifact": {
+    "artifact_id": "s2-process-map",
+    "connectors": [
+      {
+        "from_step": "s1",
+        "label": null,
+        "to_step": "s2"
+      },
+      {
+        "from_step": "s2",
+        "label": null,
+        "to_step": "s3"
+      },
+      {
+        "from_step": "s3",
+        "label": null,
+        "to_step": "s4"
+      }
+    ],
+    "constraint_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "pace is arithmetic on two fields (available time / demand), not full takt/line-balancing (T-32, v1.1)",
+          "only value_add/enabling steps are eligible -- a non_value_add (wait) step is excluded by construction"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "6234dad81d71c57d7e195e1e0c0c4937ed00a97b922e53392e90157ab0ff3838",
+        "method": "constraint_step = argmax(step.time_minutes) over PROCESSING steps only (step_type value_add or enabling) -- a pure-wait non_value_add step cannot be the constraint (matrix §5a A-7, fidelity fix); pace_minutes_per_unit = available_time_minutes / demand_units; meets_pace judged on this step",
+        "warnings": []
+      },
+      "value": {
+        "meets_pace": true,
+        "pace_minutes_per_unit": 7.384615384615385,
+        "step_id": "s4",
+        "step_name": "Daily shelf-read audit",
+        "time_minutes": 5.0
+      }
+    },
+    "created_at": "2026-08-15T09:00:00Z",
+    "demand": {
+      "available_time_minutes": 480.0,
+      "demand_units": 65.0
+    },
+    "lanes": [
+      {
+        "lane_id": "checkin",
+        "name": "Check-in desk",
+        "owner": "Circulation desk staff"
+      },
+      {
+        "lane_id": "sorting-room",
+        "name": "Sorting room",
+        "owner": "Ruth Delgado"
+      },
+      {
+        "lane_id": "page",
+        "name": "Shelving page",
+        "owner": "Alan Wexford / Mira Chen / pages"
+      },
+      {
+        "lane_id": "audit",
+        "name": "Shelf-read audit",
+        "owner": "Ruth Delgado"
+      }
+    ],
+    "layout": {
+      "s1": {
+        "x": 60.0,
+        "y": 40.0
+      },
+      "s2": {
+        "x": 240.0,
+        "y": 40.0
+      },
+      "s3": {
+        "x": 420.0,
+        "y": 40.0
+      },
+      "s4": {
+        "x": 600.0,
+        "y": 40.0
+      }
+    },
+    "longest_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "no step_type filter -- a pure wait is eligible here even though it can't be the constraint_step"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "eee7fd09a281d6b8cde88d266a104c4ff625a5f0cb801e8d3d62c0c4b81f13fe",
+        "method": "longest_step = argmax(step.time_minutes) over ALL timed steps, any step_type (waits included)",
+        "warnings": []
+      },
+      "value": {
+        "step_id": "s4",
+        "step_name": "Daily shelf-read audit",
+        "step_type": "enabling",
+        "time_minutes": 5.0
+      }
+    },
+    "notes": "The physical reality: check-in scan, rough sort onto sorting-room carts, then pages sort AT THE SHELF while balancing an armload -- the verified root the fishbone names.",
+    "schema_version": 1,
+    "steps": [
+      {
+        "defect_point": false,
+        "lane_id": "checkin",
+        "name": "Check-in scan",
+        "order": 1,
+        "reason": "Required system update, no transformation",
+        "step_id": "s1",
+        "step_type": "enabling",
+        "strata": [],
+        "time_minutes": 0.5,
+        "wastes": []
+      },
+      {
+        "defect_point": true,
+        "lane_id": "sorting-room",
+        "name": "Rough-sort onto sorting-room cart",
+        "order": 2,
+        "reason": "Cramped room, unlabeled sort shelves, a standing pile nobody owns",
+        "step_id": "s2",
+        "step_type": "non_value_add",
+        "strata": [
+          "section"
+        ],
+        "time_minutes": 2.0,
+        "wastes": [
+          {
+            "note": "No sortable standard exists yet at this step -- order is created later, at the worst possible place",
+            "waste_id": "motion"
+          }
+        ]
+      },
+      {
+        "defect_point": true,
+        "lane_id": "page",
+        "name": "Page sorts and shelves at the shelf",
+        "order": 3,
+        "reason": "The transformation the patron needs, but interleaving happens here while balancing an armload",
+        "step_id": "s3",
+        "step_type": "value_add",
+        "strata": [
+          "section"
+        ],
+        "time_minutes": 3.0,
+        "wastes": [
+          {
+            "note": "Out-of-order and wrong-bay placements dominate the Pareto (81.1% vital few)",
+            "waste_id": "defects"
+          }
+        ]
+      },
+      {
+        "defect_point": false,
+        "lane_id": "audit",
+        "name": "Daily shelf-read audit",
+        "order": 4,
+        "reason": "Verification step, not a transformation",
+        "step_id": "s4",
+        "step_type": "enabling",
+        "strata": [
+          "section"
+        ],
+        "time_minutes": 5.0,
+        "wastes": []
+      }
+    ],
+    "tool_id": "T-06",
+    "updated_at": "2026-08-15T09:00:00Z"
+  },
+  "valid": true
+}

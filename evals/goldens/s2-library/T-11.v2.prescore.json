@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "operational_definition_complete",
+    "detail": "what/how/precision/starts/stops are all stated",
+    "status": "pass",
+    "tool_id": "T-11"
+  },
+  {
+    "check_id": "two_people_confirmed",
+    "detail": "confirmed: two people measuring this would record the same value",
+    "status": "pass",
+    "tool_id": "T-11"
+  },
+  {
+    "check_id": "data_type_declared",
+    "detail": "declared: attribute_defective",
+    "status": "pass",
+    "tool_id": "T-11"
+  },
+  {
+    "check_id": "stratification_or_reason",
+    "detail": "1 stratification factor(s) declared",
+    "status": "pass",
+    "tool_id": "T-11"
+  },
+  {
+    "check_id": "logistics_complete",
+    "detail": "who/where/when-how-often are all stated",
+    "status": "pass",
+    "tool_id": "T-11"
+  },
+  {
+    "check_id": "planned_n_with_rationale",
+    "detail": "planned n=1300, rationale stated",
+    "status": "pass",
+    "tool_id": "T-11"
+  }
+]

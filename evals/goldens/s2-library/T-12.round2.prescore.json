@@ -1,0 +1,20 @@
+[
+  {
+    "check_id": "verdict_recorded",
+    "detail": "verdict recorded: acceptable",
+    "status": "pass",
+    "tool_id": "T-12"
+  },
+  {
+    "check_id": "result_matches_inputs",
+    "detail": "stored verdict matches recomputed verdict from the stored readings",
+    "status": "pass",
+    "tool_id": "T-12"
+  },
+  {
+    "check_id": "item_count_meets_guidance",
+    "detail": "50 items (guidance: >= 10 spanning the observed range, matrix §4a)",
+    "status": "pass",
+    "tool_id": "T-12"
+  }
+]

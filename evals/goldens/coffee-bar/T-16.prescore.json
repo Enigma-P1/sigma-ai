@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "mode_specificity",
+    "detail": "every failure mode is more than one word",
+    "status": "pass",
+    "tool_id": "T-16"
+  },
+  {
+    "check_id": "ratings_in_range",
+    "detail": "all 8 row(s) carry severity/occurrence/detection in 1-10 (schema-guaranteed)",
+    "status": "pass",
+    "tool_id": "T-16"
+  },
+  {
+    "check_id": "anchors_consulted_confirmed",
+    "detail": "every row confirms the anchor scale was consulted",
+    "status": "pass",
+    "tool_id": "T-16"
+  },
+  {
+    "check_id": "high_severity_without_action",
+    "detail": "no severity-9/10 row is left without an action",
+    "status": "pass",
+    "tool_id": "T-16"
+  },
+  {
+    "check_id": "action_owners_present",
+    "detail": "every recorded action has a named owner",
+    "status": "pass",
+    "tool_id": "T-16"
+  }
+]

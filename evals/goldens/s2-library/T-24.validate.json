@@ -1,0 +1,54 @@
+{
+  "artifact": {
+    "artifact_id": "s2-standard-work",
+    "change_log": [
+      {
+        "at": "2026-11-01T09:00:00Z",
+        "note": "v1 effective: pre-sort written as the one standard method.",
+        "version": 1
+      }
+    ],
+    "created_at": "2026-11-01T09:00:00Z",
+    "effective_date": "2026-09-28",
+    "linked_control_plan_id": "s2-control-plan",
+    "notes": "The sorting-room standard + the four shelving-defect rules as one page each.",
+    "owner": "Ruth Delgado",
+    "schema_version": 1,
+    "seeded_from_process_map_id": "s2-process-map",
+    "steps": [
+      {
+        "action": "Sort returns into final shelf order in the sorting room, against the posted standard",
+        "changed_from_prior": true,
+        "note": "Pilot change",
+        "order": 1,
+        "source_step_ref": "s2",
+        "standard": "Every cart leaves the sorting room in call-number order for its range",
+        "step_id": "st-1"
+      },
+      {
+        "action": "Clip an exception flag at sort time for series/oversize items",
+        "changed_from_prior": true,
+        "note": "Pilot change",
+        "order": 2,
+        "source_step_ref": "s2",
+        "standard": "Every series/oversize exception flagged before leaving the sorting room",
+        "step_id": "st-2"
+      },
+      {
+        "action": "Place at the shelf from the pre-sorted cart",
+        "changed_from_prior": true,
+        "note": "Pages no longer sort at the shelf",
+        "order": 3,
+        "source_step_ref": "s3",
+        "standard": "Book placed in call-number order per the four written rules",
+        "step_id": "st-3"
+      }
+    ],
+    "supersedes": "The unwritten, sort-at-the-shelf practice",
+    "title": "Pre-sorted carts + written shelving-defect rules",
+    "tool_id": "T-24",
+    "updated_at": "2026-11-01T09:00:00Z",
+    "version": 1
+  },
+  "valid": true
+}

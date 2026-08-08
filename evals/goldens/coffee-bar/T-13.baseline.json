@@ -1,0 +1,126 @@
+{
+  "capability": {
+    "provenance": {
+      "assumptions_checked": [
+        "at least one spec limit present",
+        "process assumed normal (NIST §6.1.6)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "db9f4aa9cdb182012d8e58211d9aad44bea8d6523851ebbaee557104c95735ed",
+      "method": "Cp/Cpk (sigma_within), Pp/Ppk (sigma_overall) per NIST §6.1.6; Cpk=min(Cpu,Cpl), one-sided uses the applicable index only",
+      "warnings": []
+    },
+    "value": {
+      "cp_index": null,
+      "cpk_index": -1.1397792725460885,
+      "lsl": null,
+      "mean": 8.408333333333333,
+      "n": 120,
+      "one_sided": true,
+      "performance_not_capability": false,
+      "pp_index": null,
+      "ppk_index": -1.09054673144979,
+      "sigma_overall": 1.0417812261935324,
+      "sigma_within": 0.9967816913999643,
+      "usl": 5.0
+    }
+  },
+  "dataset_provenance": {
+    "column": "wait_minutes",
+    "dataset_id": "<normalized>",
+    "dataset_sha256": "6d31a43fbf305e84fad004cb20d0d06b02a395c3a59f9e6ba89aaf2ba1c72dc0",
+    "row_count_used": 120
+  },
+  "descriptive": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 2"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "30c48e65523c371c7472ab4f1741dca44a53d163071faf304462c6a9938ab539",
+      "method": "descriptive: mean, sample sd (n-1), median, IQR (linear-interpolation percentiles) per NIST/SEMATECH §1.3.5.1/§1.3.5.6",
+      "warnings": []
+    },
+    "value": {
+      "iqr": 1.2999999999999998,
+      "max": 11.1,
+      "mean": 8.408333333333333,
+      "median": 8.4,
+      "min": 6.0,
+      "n": 120,
+      "q1": 7.7,
+      "q3": 9.0,
+      "sd": 1.0417812261935324
+    }
+  },
+  "exits": [],
+  "gate_message": null,
+  "gate_ok": true,
+  "measurement_check": null,
+  "n": 120,
+  "normality": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 3 for a computable statistic"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "30c48e65523c371c7472ab4f1741dca44a53d163071faf304462c6a9938ab539",
+      "method": "Anderson-Darling (scipy.stats.anderson, method='interpolate', Stephens tables per NIST §1.3.5.14); concern iff p<0.05 and n>=15",
+      "warnings": []
+    },
+    "value": {
+      "advisory": "no_concern",
+      "approx_pvalue": 0.15,
+      "n": 120,
+      "p_band": "p >= 0.15",
+      "statistic": 0.21260240181456425
+    }
+  },
+  "observed_yield": null,
+  "percentile_capability": null,
+  "sigma": {
+    "provenance": {
+      "assumptions_checked": [
+        "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "0ab8b1894974a3eff0b4498502d9c5569b77dc6d87fde16dbe0806b02f760325",
+      "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+      "warnings": []
+    },
+    "value": {
+      "convention": "with 1.5σ shift",
+      "dpmo": 999465.3721981304,
+      "sigma_level": -1.7716401943493896
+    }
+  },
+  "stability": {
+    "provenance": {
+      "assumptions_checked": [
+        "n >= 2",
+        "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "634a40aca7af2c8970782c28626c3a8f0d7d8323e2293ce7b08afcda34a714dd",
+      "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+      "warnings": []
+    },
+    "value": {
+      "i_cl": 8.408333333333335,
+      "i_lcl": 5.417988259133442,
+      "i_ucl": 11.398678407533229,
+      "mr_bar": 1.1243697478991597,
+      "mr_cl": 1.1243697478991597,
+      "mr_lcl": 0.0,
+      "mr_ucl": 3.6733159663865544,
+      "n": 120,
+      "rule2_enabled": false,
+      "rule3_enabled": false,
+      "sigma_within": 0.9967816913999643,
+      "signals": [],
+      "xbar": 8.408333333333335
+    }
+  },
+  "stability_note": "stable: 120 points, no default-rule signal",
+  "stable": true
+}

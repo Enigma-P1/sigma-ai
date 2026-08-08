@@ -1,0 +1,132 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-08-31",
+        "2026-08-31",
+        "2026-08-31",
+        "2026-09-01",
+        "2026-09-01"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "section",
+      "sample_values": [
+        "adult",
+        "juvenile",
+        "nonfiction",
+        "adult",
+        "juvenile"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "items_audited",
+      "sample_values": [
+        "29",
+        "22",
+        "18",
+        "25",
+        "22"
+      ],
+      "type": "numeric"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "misshelved",
+      "sample_values": [
+        "0",
+        "4",
+        "2",
+        "1",
+        "0"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "date": 0,
+      "items_audited": 0,
+      "misshelved": 0,
+      "section": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "date": 0,
+      "items_audited": 0,
+      "misshelved": 0,
+      "section": 0
+    },
+    "row_count": 63
+  },
+  "row_count": 63,
+  "sample_rows": [
+    {
+      "date": "2026-08-31",
+      "items_audited": "29",
+      "misshelved": "0",
+      "section": "adult"
+    },
+    {
+      "date": "2026-08-31",
+      "items_audited": "22",
+      "misshelved": "4",
+      "section": "juvenile"
+    },
+    {
+      "date": "2026-08-31",
+      "items_audited": "18",
+      "misshelved": "2",
+      "section": "nonfiction"
+    },
+    {
+      "date": "2026-09-01",
+      "items_audited": "25",
+      "misshelved": "1",
+      "section": "adult"
+    },
+    {
+      "date": "2026-09-01",
+      "items_audited": "22",
+      "misshelved": "0",
+      "section": "juvenile"
+    },
+    {
+      "date": "2026-09-01",
+      "items_audited": "17",
+      "misshelved": "2",
+      "section": "nonfiction"
+    },
+    {
+      "date": "2026-09-02",
+      "items_audited": "26",
+      "misshelved": "4",
+      "section": "adult"
+    },
+    {
+      "date": "2026-09-02",
+      "items_audited": "24",
+      "misshelved": "1",
+      "section": "juvenile"
+    },
+    {
+      "date": "2026-09-02",
+      "items_audited": "19",
+      "misshelved": "0",
+      "section": "nonfiction"
+    },
+    {
+      "date": "2026-09-03",
+      "items_audited": "24",
+      "misshelved": "0",
+      "section": "adult"
+    }
+  ],
+  "source_filename": "baseline-audit.csv"
+}

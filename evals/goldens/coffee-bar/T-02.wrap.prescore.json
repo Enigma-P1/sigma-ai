@@ -1,0 +1,14 @@
+[
+  {
+    "check_id": "total_matches_rows",
+    "detail": "stored total matches sum(quantity * rate) over rows",
+    "status": "pass",
+    "tool_id": "T-02"
+  },
+  {
+    "check_id": "period_consistency",
+    "detail": "all rows share one period",
+    "status": "pass",
+    "tool_id": "T-02"
+  }
+]

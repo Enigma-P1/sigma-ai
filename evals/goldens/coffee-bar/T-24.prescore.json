@@ -1,0 +1,26 @@
+[
+  {
+    "check_id": "step_schema_present",
+    "detail": "all 7 step(s) carry an action and a standard (schema-guaranteed)",
+    "status": "pass",
+    "tool_id": "T-24"
+  },
+  {
+    "check_id": "metadata_present",
+    "detail": "version 1, owner 'Priya Shah', effective 2026-09-22 (schema-guaranteed)",
+    "status": "pass",
+    "tool_id": "T-24"
+  },
+  {
+    "check_id": "changed_steps_marked",
+    "detail": "at least one step is marked changed from the prior method",
+    "status": "pass",
+    "tool_id": "T-24"
+  },
+  {
+    "check_id": "steps_read_as_actions",
+    "detail": "every step reads as an action",
+    "status": "pass",
+    "tool_id": "T-24"
+  }
+]

@@ -1,0 +1,1069 @@
+{
+  "covered_count": 33,
+  "generated_from": {
+    "engine_tests_dir": "engine/tests",
+    "matrix": "docs/traceability-matrix.md"
+  },
+  "golden_id_count": 41,
+  "ids": {
+    "G-5s-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "floorplan.five_s_round1.upload",
+            "floorplan.five_s_round2.upload",
+            "floorplan.five_s_round3.upload",
+            "T-23.validate",
+            "T-23.save",
+            "T-23.prescore"
+          ],
+          "tool_id": "T-23"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-23.validate",
+            "T-23.save",
+            "T-23.prescore"
+          ],
+          "tool_id": "T-23"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-a3-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore",
+            "T-25.load"
+          ],
+          "tool_id": "T-25"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore"
+          ],
+          "tool_id": "T-25"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore"
+          ],
+          "tool_id": "T-25"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-baseline-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-13.baseline"
+          ],
+          "tool_id": "T-13"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-13.baseline",
+            "T-13.after_window"
+          ],
+          "tool_id": "T-13"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-baseline-02": {
+      "design_note": "Unstable-baseline (EXIT-04) path: all three scenarios' baselines are engine-verified stable by construction (their data-notes' acceptance checks require zero rule-1/rule-4 signals) -- none tells an instability story.",
+      "homes": [],
+      "uncovered_reason": "Unstable-baseline (EXIT-04) path: all three scenarios' baselines are engine-verified stable by construction (their data-notes' acceptance checks require zero rule-1/rule-4 signals) -- none tells an instability story."
+    },
+    "G-baseline-03": {
+      "design_note": "Non-normal / percentile-capability (EXIT-05) path: both continuous scenarios (Coffee Bar, S-1) read normality no_concern by construction; S-2's baseline is the attribute p-chart path (T-21/T-10), which never touches T-13's normal-theory/percentile capability code at all.",
+      "homes": [],
+      "uncovered_reason": "Non-normal / percentile-capability (EXIT-05) path: both continuous scenarios (Coffee Bar, S-1) read normality no_concern by construction; S-2's baseline is the attribute p-chart path (T-21/T-10), which never touches T-13's normal-theory/percentile capability code at all."
+    },
+    "G-charter-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-03.flawed.validate",
+            "T-03.flawed.prescore",
+            "T-03.validate",
+            "T-03.save",
+            "T-03.prescore",
+            "T-03.load",
+            "T-03.versions"
+          ],
+          "tool_id": "T-03"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-03.validate",
+            "T-03.save",
+            "T-03.prescore"
+          ],
+          "tool_id": "T-03"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-03.validate",
+            "T-03.save",
+            "T-03.prescore"
+          ],
+          "tool_id": "T-03"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-checksheet-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-08.validate",
+            "T-08.save",
+            "T-08.prescore",
+            "T-08.to_dataset"
+          ],
+          "tool_id": "T-08"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-08.validate",
+            "T-08.save",
+            "T-08.prescore",
+            "T-08.to_dataset"
+          ],
+          "tool_id": "T-08"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-08.validate",
+            "T-08.save",
+            "T-08.prescore",
+            "T-08.to_dataset"
+          ],
+          "tool_id": "T-08"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-copq-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-02.validate",
+            "T-02.save",
+            "T-02.prescore",
+            "T-02.wrap.validate",
+            "T-02.wrap.save",
+            "T-02.wrap.prescore"
+          ],
+          "tool_id": "T-02"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-02.validate",
+            "T-02.save",
+            "T-02.prescore"
+          ],
+          "tool_id": "T-02"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-02.validate",
+            "T-02.save",
+            "T-02.prescore"
+          ],
+          "tool_id": "T-02"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-ctq-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-05.validate",
+            "T-05.save",
+            "T-05.prescore"
+          ],
+          "tool_id": "T-05"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-05.validate",
+            "T-05.save",
+            "T-05.prescore"
+          ],
+          "tool_id": "T-05"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-05.validate",
+            "T-05.save",
+            "T-05.prescore"
+          ],
+          "tool_id": "T-05"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-ctrlplan-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-22.validate",
+            "T-22.save",
+            "T-22.prescore"
+          ],
+          "tool_id": "T-22"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-22.validate",
+            "T-22.save",
+            "T-22.prescore"
+          ],
+          "tool_id": "T-22"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-22.validate",
+            "T-22.save",
+            "T-22.prescore"
+          ],
+          "tool_id": "T-22"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-dcp-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "dataset.wait_times.preview",
+            "dataset.wait_times.save",
+            "T-11.validate",
+            "T-11.save",
+            "T-11.prescore",
+            "T-11.sample_size"
+          ],
+          "tool_id": "T-11"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "dataset.tickets_baseline.preview",
+            "dataset.tickets_baseline.save",
+            "dataset.tickets_after.save",
+            "T-11.validate",
+            "T-11.save",
+            "T-11.prescore",
+            "T-11.sample_size"
+          ],
+          "tool_id": "T-11"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-11.v1.validate",
+            "T-11.v1.save",
+            "T-11.v1.prescore",
+            "T-11.v2.validate",
+            "T-11.v2.save",
+            "T-11.v2.prescore",
+            "T-11.sample_size",
+            "dataset.baseline_audit.preview",
+            "dataset.baseline_audit.save",
+            "dataset.after_audit.save"
+          ],
+          "tool_id": "T-11"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-fishbone-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-15.validate",
+            "T-15.save",
+            "T-15.prescore"
+          ],
+          "tool_id": "T-15"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-15.validate",
+            "T-15.save",
+            "T-15.prescore"
+          ],
+          "tool_id": "T-15"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-15.validate",
+            "T-15.save",
+            "T-15.prescore"
+          ],
+          "tool_id": "T-15"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-fmea-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-16.validate",
+            "T-16.save",
+            "T-16.prescore"
+          ],
+          "tool_id": "T-16"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-16.validate",
+            "T-16.save",
+            "T-16.prescore"
+          ],
+          "tool_id": "T-16"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-hist-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-13.baseline"
+          ],
+          "tool_id": "T-13"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-13.baseline",
+            "T-13.after_window"
+          ],
+          "tool_id": "T-13"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-hyp-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-17.validate",
+            "T-17.save",
+            "T-17.prescore"
+          ],
+          "tool_id": "T-17"
+        },
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-20.round1.validate",
+            "T-20.round1.save",
+            "T-20.round1.prescore",
+            "T-20.round2.validate",
+            "T-20.round2.save",
+            "T-20.round2.prescore"
+          ],
+          "tool_id": "T-20"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-17.validate",
+            "T-17.save",
+            "T-17.prescore"
+          ],
+          "tool_id": "T-17"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-20.validate",
+            "T-20.save",
+            "T-20.prescore"
+          ],
+          "tool_id": "T-20"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-hyp-02": {
+      "design_note": "One-way ANOVA (3+ groups): none of the three scenarios' declared primary or screening comparisons is an ANOVA -- S-1/Coffee Bar run two-independent Welch t, S-2 runs chi-square + two-proportion z.",
+      "homes": [],
+      "uncovered_reason": "One-way ANOVA (3+ groups): none of the three scenarios' declared primary or screening comparisons is an ANOVA -- S-1/Coffee Bar run two-independent Welch t, S-2 runs chi-square + two-proportion z."
+    },
+    "G-hyp-03": {
+      "harness_steps": [
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-17.section_screen.validate",
+            "T-17.section_screen.save",
+            "T-17.section_screen.prescore",
+            "T-17.primary.validate",
+            "T-17.primary.save",
+            "T-17.primary.prescore"
+          ],
+          "tool_id": "T-17"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-hyp-04": {
+      "harness_steps": [
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-17.section_screen.validate",
+            "T-17.section_screen.save",
+            "T-17.section_screen.prescore",
+            "T-17.primary.validate",
+            "T-17.primary.save",
+            "T-17.primary.prescore"
+          ],
+          "tool_id": "T-17"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-hyp-05": {
+      "design_note": "Nonparametric (Mann-Whitney / Wilcoxon) fallback: every scenario's continuous data clears the normality/shape checks by construction, so the selector never switches off its parametric default.",
+      "homes": [],
+      "uncovered_reason": "Nonparametric (Mann-Whitney / Wilcoxon) fallback: every scenario's continuous data clears the normality/shape checks by construction, so the selector never switches off its parametric default."
+    },
+    "G-hyp-06": {
+      "design_note": "A T-17 selector EXIT case (matrix §4: 'an exit case appears in ... G-hyp-06'): none of the three scenarios' hypothesis calls is engineered to trip a T-17 exit -- S-2's named exit is T-12's EXIT-02, not a hypothesis-selector case.",
+      "homes": [],
+      "uncovered_reason": "A T-17 selector EXIT case (matrix §4: 'an exit case appears in ... G-hyp-06'): none of the three scenarios' hypothesis calls is engineered to trip a T-17 exit -- S-2's named exit is T-12's EXIT-02, not a hypothesis-selector case."
+    },
+    "G-hyp-07": {
+      "design_note": "One-sample-vs-target routes (matrix correction A-1): every declared comparison across all three scenarios is two-sample (Welch t, chi-square, two-proportion z) -- none compares one sample against a fixed target value.",
+      "homes": [],
+      "uncovered_reason": "One-sample-vs-target routes (matrix correction A-1): every declared comparison across all three scenarios is two-sample (Welch t, chi-square, two-proportion z) -- none compares one sample against a fixed target value."
+    },
+    "G-imr-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-21.validate",
+            "T-21.save",
+            "T-21.prescore"
+          ],
+          "tool_id": "T-21"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-21.validate",
+            "T-21.save",
+            "T-21.prescore"
+          ],
+          "tool_id": "T-21"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-msa-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-12.validate",
+            "T-12.save",
+            "T-12.prescore"
+          ],
+          "tool_id": "T-12"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-12.validate",
+            "T-12.save",
+            "T-12.prescore"
+          ],
+          "tool_id": "T-12"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-12.round1.validate",
+            "T-12.round1.save",
+            "T-12.round1.prescore",
+            "T-12.round2.validate",
+            "T-12.round2.save",
+            "T-12.round2.prescore"
+          ],
+          "tool_id": "T-12"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-msa-02": {
+      "harness_steps": [
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-12.round1.validate",
+            "T-12.round1.save",
+            "T-12.round1.prescore",
+            "T-12.round2.validate",
+            "T-12.round2.save",
+            "T-12.round2.prescore"
+          ],
+          "tool_id": "T-12"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-pareto-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-14.pareto.delay_reasons",
+            "T-14.descriptive.wait_times"
+          ],
+          "tool_id": "T-14"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-14.pareto.delay_reasons",
+            "T-14.descriptive.baseline"
+          ],
+          "tool_id": "T-14"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-14.pareto.defect_types"
+          ],
+          "tool_id": "T-14"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-pchart-01": {
+      "harness_steps": [
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-21.freeze.validate",
+            "T-21.freeze.save",
+            "T-21.freeze.prescore",
+            "T-21.extend_no_refreeze.validate",
+            "T-21.extend_no_refreeze.save",
+            "T-21.extend_no_refreeze.prescore",
+            "T-21.recalculate.validate",
+            "T-21.recalculate.save",
+            "T-21.recalculate.prescore"
+          ],
+          "tool_id": "T-21"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-picker-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-01.validate",
+            "T-01.save",
+            "T-01.prescore"
+          ],
+          "tool_id": "T-01"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-01.validate",
+            "T-01.save",
+            "T-01.prescore"
+          ],
+          "tool_id": "T-01"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-01.validate",
+            "T-01.save",
+            "T-01.prescore"
+          ],
+          "tool_id": "T-01"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-picker-02": {
+      "design_note": "PDCA quick-path route: all three scenarios' Picker artifacts route full-DMAIC (none is a small-problem/PDCA story).",
+      "homes": [],
+      "uncovered_reason": "PDCA quick-path route: all three scenarios' Picker artifacts route full-DMAIC (none is a small-problem/PDCA story)."
+    },
+    "G-pilot-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-19.round1.exit10_probe",
+            "T-19.round1.validate",
+            "T-19.round1.save",
+            "T-19.round1.prescore",
+            "T-19.round2.validate",
+            "T-19.round2.save",
+            "T-19.round2.prescore"
+          ],
+          "tool_id": "T-19"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-19.exit10_probe",
+            "T-19.validate",
+            "T-19.save",
+            "T-19.prescore"
+          ],
+          "tool_id": "T-19"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-19.exit10_probe",
+            "T-19.validate",
+            "T-19.save",
+            "T-19.prescore"
+          ],
+          "tool_id": "T-19"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-procmap-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-06.validate",
+            "T-06.save",
+            "T-06.prescore"
+          ],
+          "tool_id": "T-06"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-06.validate",
+            "T-06.save",
+            "T-06.prescore"
+          ],
+          "tool_id": "T-06"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-06.validate",
+            "T-06.save",
+            "T-06.prescore"
+          ],
+          "tool_id": "T-06"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-proof-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-20.round1.validate",
+            "T-20.round1.save",
+            "T-20.round1.prescore",
+            "T-20.round2.validate",
+            "T-20.round2.save",
+            "T-20.round2.prescore"
+          ],
+          "tool_id": "T-20"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-20.validate",
+            "T-20.save",
+            "T-20.prescore"
+          ],
+          "tool_id": "T-20"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-20.validate",
+            "T-20.save",
+            "T-20.prescore"
+          ],
+          "tool_id": "T-20"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-run-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-13.baseline"
+          ],
+          "tool_id": "T-13"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-13.baseline",
+            "T-13.after_window"
+          ],
+          "tool_id": "T-13"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-scatter-01": {
+      "design_note": "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a genuine desktop-only rendering surface.",
+      "homes": [],
+      "uncovered_reason": "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a genuine desktop-only rendering surface."
+    },
+    "G-sipoc-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-04.validate",
+            "T-04.save",
+            "T-04.prescore"
+          ],
+          "tool_id": "T-04"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-04.validate",
+            "T-04.save",
+            "T-04.prescore"
+          ],
+          "tool_id": "T-04"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-04.validate",
+            "T-04.save",
+            "T-04.prescore"
+          ],
+          "tool_id": "T-04"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-solmatrix-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-18.validate",
+            "T-18.save",
+            "T-18.prescore"
+          ],
+          "tool_id": "T-18"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-18.validate",
+            "T-18.save",
+            "T-18.prescore"
+          ],
+          "tool_id": "T-18"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-18.validate",
+            "T-18.save",
+            "T-18.prescore"
+          ],
+          "tool_id": "T-18"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-spaghetti-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "floorplan.station.upload",
+            "T-07.validate",
+            "T-07.save",
+            "T-07.prescore"
+          ],
+          "tool_id": "T-07"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-stdwork-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-24.validate",
+            "T-24.save",
+            "T-24.prescore"
+          ],
+          "tool_id": "T-24"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-24.validate",
+            "T-24.save",
+            "T-24.prescore"
+          ],
+          "tool_id": "T-24"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-24.validate",
+            "T-24.save",
+            "T-24.prescore"
+          ],
+          "tool_id": "T-24"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-timestudy-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-09.validate",
+            "T-09.save",
+            "T-09.prescore"
+          ],
+          "tool_id": "T-09"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-tollgate-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore",
+            "T-25.load"
+          ],
+          "tool_id": "T-25"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore"
+          ],
+          "tool_id": "T-25"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-25.validate",
+            "T-25.save",
+            "T-25.prescore"
+          ],
+          "tool_id": "T-25"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-werules-01": {
+      "harness_steps": [
+        {
+          "scenario": "coffee-bar",
+          "steps": [
+            "T-21.validate",
+            "T-21.save",
+            "T-21.prescore"
+          ],
+          "tool_id": "T-21"
+        },
+        {
+          "scenario": "s1-helpdesk",
+          "steps": [
+            "T-21.validate",
+            "T-21.save",
+            "T-21.prescore"
+          ],
+          "tool_id": "T-21"
+        },
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-21.freeze.validate",
+            "T-21.freeze.save",
+            "T-21.freeze.prescore",
+            "T-21.extend_no_refreeze.validate",
+            "T-21.extend_no_refreeze.save",
+            "T-21.extend_no_refreeze.prescore",
+            "T-21.recalculate.validate",
+            "T-21.recalculate.save",
+            "T-21.recalculate.prescore"
+          ],
+          "tool_id": "T-21"
+        }
+      ],
+      "homes": [
+        "harness-step"
+      ]
+    },
+    "G-yield-01": {
+      "harness_steps": [
+        {
+          "scenario": "s2-library",
+          "steps": [
+            "T-10.validate",
+            "T-10.save",
+            "T-10.prescore"
+          ],
+          "tool_id": "T-10"
+        }
+      ],
+      "homes": [
+        "unit-test",
+        "harness-step"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_artifacts_yield_calc.py"
+      ]
+    }
+  },
+  "uncovered": [
+    "G-baseline-02",
+    "G-baseline-03",
+    "G-hyp-02",
+    "G-hyp-05",
+    "G-hyp-06",
+    "G-hyp-07",
+    "G-picker-02",
+    "G-scatter-01"
+  ],
+  "uncovered_count": 8
+}

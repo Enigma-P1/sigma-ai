@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "elements_defined_before_timing",
+    "detail": "5 work element(s) declared; every cycle's element_times can only reference a declared element_id (schema-enforced referential integrity), so elements are structurally defined before any time against them can exist",
+    "status": "pass",
+    "tool_id": "T-09"
+  },
+  {
+    "check_id": "cycle_count_floor",
+    "detail": "below the >= 10-cycle guidance (shortfall named on each element's own stats): ['Take order and payment at register', 'Cup waits in drink queue', 'Prepare drink at espresso station', 'Finish drink (syrup, lid, sleeve)', 'Call name and hand off']",
+    "status": "flag",
+    "tool_id": "T-09"
+  },
+  {
+    "check_id": "spread_present",
+    "detail": "every element with >= 2 recorded cycles reports mean/median/SD/IQR spread",
+    "status": "pass",
+    "tool_id": "T-09"
+  },
+  {
+    "check_id": "outliers_have_notes",
+    "detail": "every flagged outlier cycle carries an observer note",
+    "status": "pass",
+    "tool_id": "T-09"
+  },
+  {
+    "check_id": "stats_match_recomputation",
+    "detail": "stored per-element stats match a fresh recomputation from the raw cycles",
+    "status": "pass",
+    "tool_id": "T-09"
+  }
+]

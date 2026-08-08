@@ -1,0 +1,29 @@
+{
+  "calculator": {
+    "provenance": {
+      "assumptions_checked": [
+        "planning_sd is a reasonable estimate of the true process spread (pilot data, history, or a stated guess)"
+      ],
+      "engine_version": "0.1.0",
+      "input_hash": "6b5a79c437d03ade64fc28fa3f0b775cc70b2058a628b585410359ced47a39d1",
+      "method": "n = (z*s/E)^2, rounded up (NIST/SEMATECH §7.2.1 CI-for-a-mean, solved for n)",
+      "warnings": []
+    },
+    "value": {
+      "confidence_level": 0.95,
+      "margin_of_error": 1.25,
+      "n": 104,
+      "n_exact": 103.87304651156914,
+      "plain_english": "To estimate the average within +/-1.25 (your data's units) at 95% confidence -- using a planning estimate of spread (SD) of 6.5 -- collect at least 104 data points.",
+      "planning_sd": 6.5,
+      "z": 1.959963984540054
+    }
+  },
+  "rule_of_thumb": {
+    "context": "imr_baseline",
+    "minimum_n": 25,
+    "rationale": "Convention, not a derived law: 25-30 individual readings, in true time order, is the commonly-taught rule of thumb for a usable I-MR baseline -- a little above the 20-point floor this suite's own baseline tool (T-13) requires before it will freeze control limits, leaving room for a few points to be legitimately excluded as special causes. Collecting fewer is an honest, named shortfall -- not a hard stop the way T-13's own floor is.",
+    "recommended_n": 30
+  },
+  "warnings": []
+}

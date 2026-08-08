@@ -1,0 +1,20 @@
+[
+  {
+    "check_id": "unlinked_solution_flags",
+    "detail": "every solution links to at least one cause",
+    "status": "pass",
+    "tool_id": "T-18"
+  },
+  {
+    "check_id": "ranked_list_exists",
+    "detail": "3 linked solution(s) ranked -- #1 is 'Pre-sorted carts + posted sorting standard'",
+    "status": "pass",
+    "tool_id": "T-18"
+  },
+  {
+    "check_id": "quadrant_vs_rank_consistency",
+    "detail": "stored quadrants, weighted totals, and ranking all re-derive from the stored solutions/criteria",
+    "status": "pass",
+    "tool_id": "T-18"
+  }
+]
