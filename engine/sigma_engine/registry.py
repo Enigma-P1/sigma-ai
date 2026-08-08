@@ -10,6 +10,7 @@ from .artifacts import (
     ArtifactBase,
     CharterArtifact,
     CheckSheetArtifact,
+    ControlChartArtifact,
     CopqArtifact,
     DataCollectionPlanArtifact,
     FishboneArtifact,
@@ -19,6 +20,7 @@ from .artifacts import (
     PickerArtifact,
     PilotPlanArtifact,
     ProcessMapArtifact,
+    ProofArtifact,
     SipocArtifact,
     SolutionMatrixArtifact,
     SpaghettiArtifact,
@@ -29,6 +31,7 @@ from .prescore import (
     PrescoreResult,
     run_charter_prescore,
     run_check_sheet_prescore,
+    run_control_chart_prescore,
     run_copq_prescore,
     run_data_collection_plan_prescore,
     run_fishbone_prescore,
@@ -38,6 +41,7 @@ from .prescore import (
     run_picker_prescore,
     run_pilot_plan_prescore,
     run_process_map_prescore,
+    run_proof_prescore,
     run_sipoc_prescore,
     run_solution_matrix_prescore,
     run_spaghetti_prescore,
@@ -62,6 +66,8 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-17": HypothesisRunArtifact,
     "T-18": SolutionMatrixArtifact,
     "T-19": PilotPlanArtifact,
+    "T-20": ProofArtifact,
+    "T-21": ControlChartArtifact,
 }
 
 PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
@@ -81,4 +87,6 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-17": run_hypothesis_prescore,
     "T-18": run_solution_matrix_prescore,
     "T-19": run_pilot_plan_prescore,
+    "T-20": run_proof_prescore,
+    "T-21": run_control_chart_prescore,
 }

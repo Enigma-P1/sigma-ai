@@ -1550,3 +1550,176 @@ export interface PilotPlanArtifact extends ArtifactBase {
   confounder_checklist: PilotConfounderChecklist;
   status: PilotStatus;
 }
+
+// ---- T-21 Control Charts (artifacts/control_chart.py, stats/p_chart.py) ----
+
+export type ChartType = "imr" | "p";
+export type DataShape = "continuous" | "attribute";
+export type DefectivesOrDefects = "defectives" | "defects";
+
+export interface ChartSelector {
+  data_shape: DataShape;
+  defectives_or_defects?: DefectivesOrDefects | null;
+}
+
+export interface ControlChartDataSource {
+  kind: "dataset" | "check_sheet" | "manual";
+  dataset_id?: string | null;
+  dataset_sha256?: string | null;
+  column?: string | null;
+  check_sheet_artifact_id?: string | null;
+}
+
+export interface PSubgroup {
+  label: string;
+  n: number;
+  defective_count: number;
+}
+
+export interface PChartPoint {
+  label: string;
+  n: number;
+  defective_count: number;
+  p: number;
+  ucl: number;
+  lcl: number;
+}
+
+export interface PChartResult {
+  k: number;
+  total_defectives: number;
+  total_n: number;
+  p_bar: number;
+  points: PChartPoint[];
+  signals: ImrSignal[];
+  meets_freeze_floor: boolean;
+}
+
+export interface ArmedState {
+  monitoring_started: boolean;
+  cadence_note: string;
+}
+
+export interface RecalculationLogEntry {
+  reason: string;
+  at: string;
+  triggered_by: "initial_freeze" | "recalculate";
+}
+
+export interface SignalAcknowledgment {
+  acknowledged: boolean;
+  response_note: string;
+  at?: string | null;
+}
+
+export interface TrackedSignal {
+  signal: ImrSignal;
+  acknowledgment: SignalAcknowledgment;
+}
+
+/** control_chart.py's EXIT-11 payload shape -- surfaces inside a 422's
+ * validation `msg` string (the same ValidationError-as-teaching-text
+ * move pilot_plan.py's EXIT-10 uses), never as a separate JSON field. */
+export interface ControlChartArtifact extends ArtifactBase {
+  tool_id: "T-21";
+  chart_type: ChartType;
+  metric_ref: string;
+  selector: ChartSelector;
+  source: ControlChartDataSource;
+  imr_values?: number[] | null;
+  p_subgroups?: PSubgroup[] | null;
+  freeze_requested: boolean;
+  recalculate_reason?: string | null;
+  action_at?: string | null;
+  frozen_at?: string | null;
+  source_dataset_hash?: string | null;
+  frozen_window_values?: number[] | null;
+  frozen_window_subgroups?: PSubgroup[] | null;
+  imr_baseline?: Computed<ImrChartResult> | null;
+  p_baseline?: Computed<PChartResult> | null;
+  recalculation_log: RecalculationLogEntry[];
+  armed: ArmedState;
+  acknowledgments: Record<string, SignalAcknowledgment>;
+  signals?: Computed<TrackedSignal[]> | null;
+}
+
+// ---- T-20 Before/After Proof + Remaining-Gap Check (artifacts/proof.py) ----
+
+export interface ProofDataRef {
+  dataset_id?: string | null;
+  dataset_sha256?: string | null;
+  column?: string | null;
+  values: number[];
+}
+
+export interface GuardrailInput {
+  metric_ref: string;
+  direction: PilotDirection;
+  before_value: number;
+  after_value: number;
+}
+
+export interface GuardrailCheck extends GuardrailInput {
+  pct_change: number | null;
+  moved: "improved" | "worse" | "unchanged";
+  material_worsening: boolean;
+}
+
+export interface NextCauseRef {
+  cause_id: string;
+  cause_text: string;
+  via_solution_id: string;
+  via_solution_name: string;
+  rank: number;
+}
+
+export interface GapResult {
+  charter_baseline_value: number;
+  charter_goal_value: number;
+  after_value: number;
+  direction: PilotDirection;
+  original_gap: number;
+  recovered: number;
+  recovered_pct: number | null;
+  remaining: number;
+  goal_met: boolean;
+  next_cause_ref: NextCauseRef | null;
+  loop_verdict: string;
+}
+
+export interface ProofVerdict {
+  proof_form: "inferential" | "descriptive";
+  threshold_verdict: "met" | "not_met";
+  weakened: boolean;
+  confounder_notes: string[];
+  stability_caveat: string | null;
+  guardrail_tradeoff: string | null;
+  headline: string;
+}
+
+export interface ProofArtifact extends ArtifactBase {
+  tool_id: "T-20";
+  pilot_ref: string;
+  metric_ref: string;
+  operational_definition_ref: string;
+  measurement_system_ref: string;
+  usl?: number | null;
+  lsl?: number | null;
+  operational_definition_ok: boolean;
+  before: ProofDataRef;
+  after: ProofDataRef;
+  declared_threshold: PilotSuccessThreshold;
+  confounders: PilotConfounderChecklist;
+  guardrails: GuardrailInput[];
+  charter_ref: string;
+  charter_baseline_value: number;
+  charter_goal_value: number;
+  charter_goal_direction: PilotDirection;
+  next_cause_ref?: NextCauseRef | null;
+  before_baseline?: BaselineResult | null;
+  after_baseline?: BaselineResult | null;
+  test_result?: HypothesisRunResult | null;
+  guardrail_report?: Computed<GuardrailCheck[]> | null;
+  gap?: Computed<GapResult> | null;
+  verdict?: Computed<ProofVerdict> | null;
+}
