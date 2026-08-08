@@ -11,14 +11,22 @@ import { sipocHelperContent } from "./sipoc/sipocContent";
 import { VocCtqForm } from "./voc_ctq/VocCtqForm";
 import { vocCtqHelperContent } from "./voc_ctq/vocCtqContent";
 import { DataImportForm } from "./dataimport/DataImportForm";
+import { dataImportHelperContent } from "./dataimport/dataImportContent";
 import { SampleSizePanel } from "./samplesize/SampleSizePanel";
 import { MsaForm } from "./msa/MsaForm";
+import { msaHelperContent } from "./msa/msaContent";
 import { ProcessMapForm } from "./processmap/ProcessMapForm";
+import { processMapHelperContent } from "./processmap/processMapContent";
 import { SpaghettiForm } from "./spaghetti/SpaghettiForm";
+import { spaghettiHelperContent } from "./spaghetti/spaghettiContent";
 import { CheckSheetForm } from "./checksheet/CheckSheetForm";
+import { checkSheetHelperContent } from "./checksheet/checkSheetContent";
 import { TimeStudyForm } from "./timestudy/TimeStudyForm";
+import { timeStudyHelperContent } from "./timestudy/timeStudyContent";
 import { BaselineForm } from "./baseline/BaselineForm";
+import { baselineHelperContent } from "./baseline/baselineContent";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
+import { chartSetHelperContent } from "./chartset/chartSetContent";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -96,12 +104,12 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
-  // T-06/T-11/T-12/T-13/T-14 (M2): real engine-backed forms, but
-  // helper-frame content stays PLACEHOLDER this milestone -- a content
-  // unit follows, same as every not-yet-content-written tool.
+  // T-06..T-14 (M2): real engine-backed forms with the real M2 helper
+  // content (the Measure content unit) -- each panel's checklist restates
+  // its rubric items, per tier-a-done-means §2.
   if (toolId === "T-06") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={processMapHelperContent}>
         <ProcessMapForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -109,7 +117,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-07") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={spaghettiHelperContent}>
         <SpaghettiForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -117,7 +125,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-08") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={checkSheetHelperContent}>
         <CheckSheetForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToDataset={onNavigateToDataset} />
       </ToolScreen>
     );
@@ -125,7 +133,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-09") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={timeStudyHelperContent}>
         <TimeStudyForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToDataset={onNavigateToDataset} />
       </ToolScreen>
     );
@@ -133,7 +141,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-11") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={dataImportHelperContent}>
         <DataImportForm projectId={projectId} onSaved={onSaved} />
         <SampleSizePanel />
       </ToolScreen>
@@ -142,7 +150,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-12") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={msaHelperContent}>
         <MsaForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
@@ -150,7 +158,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-13") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={baselineHelperContent}>
         <BaselineForm projectId={projectId} initialDatasetId={presetFor("T-13")} />
       </ToolScreen>
     );
@@ -158,7 +166,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
 
   if (toolId === "T-14") {
     return (
-      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+      <ToolScreen {...screenProps} helperContent={chartSetHelperContent}>
         <ChartSetScreen projectId={projectId} initialDatasetId={presetFor("T-14")} />
       </ToolScreen>
     );
