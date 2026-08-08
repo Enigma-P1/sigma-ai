@@ -1,0 +1,40 @@
+date,section,defect_type
+2026-10-05,adult,out-of-order within bay
+2026-10-05,adult,out-of-order within bay
+2026-10-05,nonfiction,oversize/flat exception
+2026-10-07,nonfiction,out-of-order within bay
+2026-10-08,juvenile,wrong bay
+2026-10-08,juvenile,wrong bay
+2026-10-09,adult,out-of-order within bay
+2026-10-10,juvenile,out-of-order within bay
+2026-10-10,nonfiction,out-of-order within bay
+2026-10-12,juvenile,out-of-order within bay
+2026-10-13,adult,out-of-order within bay
+2026-10-13,juvenile,out-of-order within bay
+2026-10-13,juvenile,wrong bay
+2026-10-14,juvenile,oversize/flat exception
+2026-10-14,juvenile,wrong bay
+2026-10-15,nonfiction,oversize/flat exception
+2026-10-15,nonfiction,wrong bay
+2026-10-16,nonfiction,wrong bay
+2026-10-17,juvenile,series shelved by author
+2026-10-19,adult,out-of-order within bay
+2026-10-19,adult,out-of-order within bay
+2026-10-19,adult,wrong bay
+2026-10-20,adult,wrong bay
+2026-10-20,nonfiction,out-of-order within bay
+2026-10-21,adult,out-of-order within bay
+2026-10-21,juvenile,out-of-order within bay
+2026-10-21,nonfiction,oversize/flat exception
+2026-10-23,juvenile,series shelved by author
+2026-10-23,nonfiction,out-of-order within bay
+2026-10-23,nonfiction,out-of-order within bay
+2026-10-26,adult,out-of-order within bay
+2026-10-26,juvenile,out-of-order within bay
+2026-10-27,nonfiction,wrong bay
+2026-10-28,juvenile,out-of-order within bay
+2026-10-29,adult,wrong bay
+2026-10-29,juvenile,series shelved by author
+2026-10-29,nonfiction,wrong bay
+2026-10-30,juvenile,out-of-order within bay
+2026-10-31,nonfiction,oversize/flat exception
