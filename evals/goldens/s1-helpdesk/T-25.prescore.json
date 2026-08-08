@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "panels_seeded_or_narrated",
+    "detail": "every panel is seeded from an artifact or carries narrative text",
+    "status": "pass",
+    "tool_id": "T-25"
+  },
+  {
+    "check_id": "realized_benefits_present",
+    "detail": "the realized-benefits panel is missing its COPQ re-run reference or stated window (R-WRAP-02 #1)",
+    "status": "flag",
+    "tool_id": "T-25"
+  },
+  {
+    "check_id": "tollgates_answered",
+    "detail": "phase(s) with an unanswered tollgate question: ['Define', 'Measure', 'Analyze', 'Improve', 'Control', 'Wrap']",
+    "status": "flag",
+    "tool_id": "T-25"
+  },
+  {
+    "check_id": "lessons_substantive",
+    "detail": "0 lesson(s) recorded, a went-wrong lesson present=False -- a lessons panel of only wins is not lessons (R-WRAP-03 #2)",
+    "status": "flag",
+    "tool_id": "T-25"
+  },
+  {
+    "check_id": "open_items_have_owners",
+    "detail": "every open item has a named owner",
+    "status": "pass",
+    "tool_id": "T-25"
+  },
+  {
+    "check_id": "close_blocked_surfaced",
+    "detail": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure.",
+    "status": "pass",
+    "tool_id": "T-25"
+  }
+]

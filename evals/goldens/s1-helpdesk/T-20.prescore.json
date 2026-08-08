@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "threshold_as_declared",
+    "detail": "threshold_verdict='met' matches a fresh recompute (7.21694 vs declared 12, lower_is_better)",
+    "status": "pass",
+    "tool_id": "T-20"
+  },
+  {
+    "check_id": "confounder_echo_present",
+    "detail": "1 confounder(s) changed (['season']); verdict.weakened=True, weakened sentence in headline=True",
+    "status": "pass",
+    "tool_id": "T-20"
+  },
+  {
+    "check_id": "guardrail_section_present_or_explicitly_none",
+    "detail": "2 guardrail(s) reported alongside the primary metric",
+    "status": "pass",
+    "tool_id": "T-20"
+  },
+  {
+    "check_id": "gap_arithmetic_consistency",
+    "detail": "original_gap=18.7142, recovered=19.4972, remaining=-0.783065, goal_met=True -- recomputed and matches",
+    "status": "pass",
+    "tool_id": "T-20"
+  },
+  {
+    "check_id": "metric_identity_single_copy",
+    "detail": "metric_ref='resolution_hours (charter C1: mean resolution time, routine tickets)', operational_definition_ref='s1-collection-plan', measurement_system_ref='s1-msa' -- one copy each, shared by before and after by construction (a changed yardstick cannot happen)",
+    "status": "pass",
+    "tool_id": "T-20"
+  }
+]

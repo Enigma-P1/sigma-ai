@@ -1,0 +1,11 @@
+{
+  "content_type": "image/png",
+  "created_at": "2026-07-21T14:15:00Z",
+  "height_px": 500,
+  "image_id": "<normalized>",
+  "project_id": "eval-coffee-bar",
+  "schema_version": 1,
+  "sha256": "210f1e9ef02be03fd9ab8e580aa653be1fde9297aa8587690399b335e4b29d6f",
+  "source_filename": "floorplan.png",
+  "width_px": 700
+}

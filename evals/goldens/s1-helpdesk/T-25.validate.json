@@ -1,0 +1,276 @@
+{
+  "artifact": {
+    "artifact_id": "s1-a3",
+    "closure": {
+      "close_check": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "f176d1f56f7844714f579eed3cf72523ed5a9da7559a7fb057aa00d0c7e911c9",
+          "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project may close' however clean the rest of the stack",
+          "warnings": []
+        },
+        "value": {
+          "blocking_rows": [],
+          "close_blocked": false,
+          "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+        }
+      },
+      "fmea_check": null,
+      "lessons": [],
+      "objectives_input": {
+        "achieved_value": 7.216935483870968,
+        "charter_baseline_value": 26.714173228346457,
+        "charter_goal_value": 8.0,
+        "direction": "lower_is_better"
+      },
+      "objectives_verdict": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "d33fda447ae79e264ef7bb13418f1943472ebfe015ef72af4df569b9261ccf8b",
+          "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN §4.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+          "warnings": []
+        },
+        "value": {
+          "after_value": 7.216935483870968,
+          "charter_baseline_value": 26.714173228346457,
+          "charter_goal_value": 8.0,
+          "direction": "lower_is_better",
+          "goal_met": true,
+          "loop_verdict": "Goal met -- route to Control.",
+          "next_cause_ref": null,
+          "original_gap": 18.714173228346457,
+          "recovered": 19.49723774447549,
+          "recovered_pct": 104.18433935912768,
+          "remaining": -0.7830645161290342
+        }
+      },
+      "open_items": [],
+      "project_status": "open"
+    },
+    "created_at": "2026-10-20T09:00:00Z",
+    "notes": "No claim upgraded in transit: the mean promise is kept (goal met, remaining -0.78), the every-ticket promise honestly is not.",
+    "panels": [
+      {
+        "narrative": "Routine tickets averaged 26.71 business hours against the 8-hour service-catalog promise (baseline n=127); Q2 status-chase and rework costs ran near $7,742/quarter.",
+        "panel": "background",
+        "seeded_at": "2026-10-20T09:05:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-charter",
+          "fields": [
+            "problem_statement",
+            "business_impact"
+          ],
+          "tool_id": "T-03"
+        }
+      },
+      {
+        "narrative": "Baseline: stable (zero rule-1/rule-4 signals) yet one-sided Cpk -0.96 -- the process was built to miss the promise every time, not having a bad week.",
+        "panel": "current_condition",
+        "seeded_at": "2026-10-20T09:07:00Z",
+        "seeded_from": {
+          "artifact_ref": "tickets-baseline.csv (T-13 baseline run)",
+          "fields": [
+            "descriptive.mean",
+            "stable",
+            "capability.cpk_index"
+          ],
+          "tool_id": "T-13"
+        }
+      },
+      {
+        "narrative": "Cut mean resolution time to 8.0 business hours by 2026-10-31 without degrading the reopen-rate or overtime guardrails.",
+        "panel": "goal",
+        "seeded_at": "2026-10-20T09:08:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-charter",
+          "fields": [
+            "goal"
+          ],
+          "tool_id": "T-03"
+        }
+      },
+      {
+        "narrative": "The once-a-day triage batch (53.5% of delay tallies) and the late manager-approval request on access grants (26.8%) are the engine-verified 80.3% vital few; the Welch t confirms access grants run ~7.4h slower than the rest even though non-access tickets alone already average 23.76h against the promise.",
+        "panel": "analysis",
+        "seeded_at": "2026-10-20T09:12:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-fishbone",
+          "fields": [
+            "causes",
+            "effect"
+          ],
+          "tool_id": "T-15"
+        }
+      },
+      {
+        "narrative": "Assign-on-arrival dispatch rule ranked first ($0, attacks the #1 cause); pre-approved access matrix queued second; the fourth-tech hire ranked last -- capacity was never the verified cause.",
+        "panel": "countermeasures",
+        "seeded_at": "2026-10-20T09:15:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-solution-matrix",
+          "fields": [
+            "ranked_fix_list"
+          ],
+          "tool_id": "T-18"
+        }
+      },
+      {
+        "narrative": "After window (n=124): mean 7.22h, threshold met (vs 12.0), weakened by the declared fall-onboarding confound (direction: could only mask the win). Goal gap recovered ~104.2%. Capability at the moment of best news: stable, Cpk 0.12 -- the mean promise is kept, ~35.5% of tickets still ran over the 8-hour line.",
+        "panel": "results",
+        "seeded_at": "2026-10-20T09:20:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-proof",
+          "fields": [
+            "gap",
+            "verdict",
+            "test_result"
+          ],
+          "tool_id": "T-20"
+        }
+      },
+      {
+        "narrative": "I-MR chart frozen on the after window (center 7.22, limits 0.61/13.83); control plan monitors C1 weekly, the reopen guardrail, and dispatch-within-the-hour compliance itself; Naomi Castillo accepted the owner role 2026-10-12.",
+        "panel": "follow_up_control",
+        "seeded_at": "2026-10-20T09:24:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-control-plan",
+          "fields": [
+            "monitored_items",
+            "ocap_entries"
+          ],
+          "tool_id": "T-22"
+        }
+      },
+      {
+        "narrative": "The dead end worth naming: tech capacity was investigated and ruled out early (hands-on work is only 1.9h of 26.7h) -- resisting the instinct to just hire is what let the $0 dispatch-rule fix do the work.",
+        "panel": "lessons",
+        "seeded_at": "2026-10-20T09:26:00Z",
+        "seeded_from": {
+          "artifact_ref": "s1-proof",
+          "fields": [
+            "gap",
+            "verdict"
+          ],
+          "tool_id": "T-20"
+        }
+      }
+    ],
+    "realized_benefits": null,
+    "schema_version": 1,
+    "tollgates": [
+      {
+        "answers": [],
+        "phase": "Define",
+        "questions": [
+          {
+            "question_id": "define-1",
+            "text": "Is the problem stated in measurable terms, with no cause and no fix implied?"
+          },
+          {
+            "question_id": "define-2",
+            "text": "Does the charter name a process owner who has actually agreed to the scope?"
+          },
+          {
+            "question_id": "define-3",
+            "text": "Is the business impact stated in dollars or hours, and does it hold up against an independent number?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Measure",
+        "questions": [
+          {
+            "question_id": "measure-1",
+            "text": "Is the baseline built on a process the data shows is stable, not just assumed to be?"
+          },
+          {
+            "question_id": "measure-2",
+            "text": "Has the measurement system itself been checked, and did it pass?"
+          },
+          {
+            "question_id": "measure-3",
+            "text": "Is the operational definition tight enough that two different people would measure the same thing the same way?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Analyze",
+        "questions": [
+          {
+            "question_id": "analyze-1",
+            "text": "Does every candidate cause carry actual evidence, not just an opinion in the room?"
+          },
+          {
+            "question_id": "analyze-2",
+            "text": "Are the verified causes the ones the data points to, not just the easiest ones to fix?"
+          },
+          {
+            "question_id": "analyze-3",
+            "text": "Has every severity-9/10 failure mode been given an action, not just logged and left?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Improve",
+        "questions": [
+          {
+            "question_id": "improve-1",
+            "text": "Was exactly one change piloted at a time, with a success threshold set before the data came in?"
+          },
+          {
+            "question_id": "improve-2",
+            "text": "Does the before/after proof account honestly for anything else that changed during the pilot?"
+          },
+          {
+            "question_id": "improve-3",
+            "text": "How much of the original gap does this fix close, and what is the plan for what's left?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Control",
+        "questions": [
+          {
+            "question_id": "control-1",
+            "text": "Does every monitored item have a real, named owner who has accepted the role?"
+          },
+          {
+            "question_id": "control-2",
+            "text": "Is there an out-of-control response path a person could actually follow, today, without asking what it means?"
+          },
+          {
+            "question_id": "control-3",
+            "text": "Is someone trained on the new method, by name, with a way to verify they can actually do it?"
+          }
+        ]
+      },
+      {
+        "answers": [],
+        "phase": "Wrap",
+        "questions": [
+          {
+            "question_id": "wrap-1",
+            "text": "Does the realized benefit trace to the measured improvement, not to the original COPQ hope?"
+          },
+          {
+            "question_id": "wrap-2",
+            "text": "Are the lessons learned substantive, including at least one thing that didn't work?"
+          },
+          {
+            "question_id": "wrap-3",
+            "text": "Is every open item handed off to a named owner, not left to fall through?"
+          }
+        ]
+      }
+    ],
+    "tool_id": "T-25",
+    "updated_at": "2026-10-20T09:00:00Z"
+  },
+  "valid": true
+}

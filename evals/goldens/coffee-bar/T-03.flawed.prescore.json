@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "problem_statement_solution_language",
+    "detail": "solution/cause language found: ['because', 'install', 'training']",
+    "status": "flag",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "goal_solution_language",
+    "detail": "solution/cause language found: ['install', 'train']",
+    "status": "flag",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "magnitude_pattern",
+    "detail": "magnitude missing: ['unit', 'period']",
+    "status": "flag",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "owner_not_placeholder",
+    "detail": "owner name 'TBD' looks like a placeholder",
+    "status": "flag",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "consequential_metric_present",
+    "detail": "no consequential/guardrail metric named",
+    "status": "flag",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "risk_block_present",
+    "detail": "key-risks block is empty (matrix correction A-4)",
+    "status": "flag",
+    "tool_id": "T-03"
+  }
+]

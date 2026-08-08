@@ -1,0 +1,301 @@
+{
+  "artifact": {
+    "artifact_id": "s2-msa",
+    "attribute_items": [
+      {
+        "item_id": "SR1-01",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-02",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-03",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-04",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-05",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-06",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-07",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-08",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-09",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-10",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-11",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-12",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-13",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-14",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-15",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-16",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-17",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-18",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-19",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-20",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-21",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-22",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-23",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-24",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-25",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-26",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-27",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-28",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-29",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-30",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-31",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-32",
+        "rater_a": false,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-33",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-34",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-35",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-36",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-37",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-38",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-39",
+        "rater_a": false,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-40",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-41",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-42",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-43",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-44",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-45",
+        "rater_a": true,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-46",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-47",
+        "rater_a": false,
+        "rater_b": false
+      },
+      {
+        "item_id": "SR1-48",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-49",
+        "rater_a": true,
+        "rater_b": true
+      },
+      {
+        "item_id": "SR1-50",
+        "rater_a": true,
+        "rater_b": true
+      }
+    ],
+    "continuous_items": [],
+    "created_at": "2026-08-27T09:00:00Z",
+    "data_type": "attribute",
+    "gauge_increment": null,
+    "gauge_name": null,
+    "lsl": null,
+    "notes": "Round 1: 50 flagged shelf positions, judged independently by Alan Wexford (rater A) and Mira Chen (rater B) under their own two PRIVATE definitions -- no written standard existed yet.",
+    "operator": "Ruth Delgado (study coordinator)",
+    "result": {
+      "attribute_agreement": {
+        "provenance": {
+          "assumptions_checked": [
+            "two raters, binary (pass/fail) judgment per item"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "4e1b42d9738ff862d041c53d10c7f6fd08ce23adaba34b54fee9ab4fbead484a",
+          "method": "Cohen's kappa (Cohen 1960) = (p_o - p_e)/(1 - p_e), two-rater binary pass/fail; % agreement reported alongside per matrix §4a EXIT-02 (attribute), never alone",
+          "warnings": []
+        },
+        "value": {
+          "kappa": 0.336283185840708,
+          "n": 50,
+          "p_expected": 0.5479999999999999,
+          "p_observed": 0.7,
+          "percent_agreement": 70.0,
+          "verdict": "fail"
+        }
+      },
+      "caveat": null,
+      "data_type": "attribute",
+      "exit02": {
+        "exit_id": "EXIT-02",
+        "message": "Stop -- fix your measurement first. Capability-claim language is blocked, and downstream results render as \"unreliable -- measurement system failed\" until this is fixed.",
+        "routes_to": "Rework the operational definition / gauge (T-11), then re-run this check (T-12)."
+      },
+      "repeatability": null,
+      "resolution_check": null,
+      "verdict": "fail"
+    },
+    "schema_version": 1,
+    "tool_id": "T-12",
+    "updated_at": "2026-08-27T09:00:00Z",
+    "usl": null
+  },
+  "valid": true
+}

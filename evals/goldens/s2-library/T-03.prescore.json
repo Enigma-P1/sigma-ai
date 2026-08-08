@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "problem_statement_solution_language",
+    "detail": "clean",
+    "status": "pass",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "goal_solution_language",
+    "detail": "clean",
+    "status": "pass",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "magnitude_pattern",
+    "detail": "number+unit+period all present",
+    "status": "pass",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "owner_not_placeholder",
+    "detail": "owner is named",
+    "status": "pass",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "consequential_metric_present",
+    "detail": "at least one guardrail metric named",
+    "status": "pass",
+    "tool_id": "T-03"
+  },
+  {
+    "check_id": "risk_block_present",
+    "detail": "2 risk row(s)",
+    "status": "pass",
+    "tool_id": "T-03"
+  }
+]

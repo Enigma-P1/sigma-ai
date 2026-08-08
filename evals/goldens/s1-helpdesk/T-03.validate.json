@@ -1,0 +1,106 @@
+{
+  "artifact": {
+    "artifact_id": "s1-charter",
+    "business_impact": {
+      "amount": 30967.0,
+      "basis": "COPQ calculator Q2 2026 total ($7,742) x 4 -- labeled projection, Q2 actuals x4 basis stated",
+      "unit": "dollars per year"
+    },
+    "created_at": "2026-07-01T11:00:00Z",
+    "goal": {
+      "baseline_value": 26.71,
+      "consequential_metrics": [
+        "Reopened tickets per 100",
+        "Tech overtime hours per week"
+      ],
+      "metric_name": "Mean resolution time, routine (P3) tickets",
+      "statement": "Cut mean routine-ticket resolution time to at most 8.0 business hours by 2026-10-31, without degrading the reopen-rate or tech-overtime guardrails.",
+      "target_date": "2026-10-31",
+      "target_value": 8.0,
+      "unit": "business hours"
+    },
+    "notes": "Problem statement is magnitude-only (no cause, no fix); risks include the fall onboarding surge and approval-policy pushback.",
+    "problem_statement": {
+      "magnitude": {
+        "number": 26.71,
+        "period": "July 2026 baseline window (n=127)",
+        "unit": "business hours average resolution time, routine (P3) tickets"
+      },
+      "what": "Routine (P3) help-desk tickets take far longer to resolve than the published service-catalog promise.",
+      "when": "Ongoing through 2026; June 2026 spot-pull and the July 2026 baseline window both confirm it.",
+      "where": "Harborview Mutual internal IT help desk (~380-person regional insurance office)."
+    },
+    "process_owner": {
+      "name": "Naomi Castillo",
+      "role": "Help desk lead -- runs the daily triage and dispatch"
+    },
+    "risks": [
+      {
+        "impact": "medium",
+        "likelihood": "high",
+        "mitigation": "Declare the confound before the window opens; read its direction on the proof honestly",
+        "owner": "Naomi Castillo",
+        "risk": "Fall onboarding class of 14 new hires starts 2026-09-21, inside the after window, and can only push access-grant volume (and resolution times) up"
+      },
+      {
+        "impact": "medium",
+        "likelihood": "medium",
+        "mitigation": "Queue the access matrix as a second, later pilot rather than bundling it with the dispatch-rule change",
+        "owner": "Victor Braun",
+        "risk": "Approval-policy pushback on any pre-approved access matrix change"
+      }
+    ],
+    "schema_version": 1,
+    "scope": {
+      "in_scope": "Routine (P3) tickets: password resets, software installs, access grants, open-to-confirmed-resolution.",
+      "out_scope": "P1/P2 incidents, project work, and any ticket outside the routine queue."
+    },
+    "team": [
+      {
+        "name": "Naomi Castillo",
+        "role": "Help desk lead (process owner)"
+      },
+      {
+        "name": "Ben Okafor",
+        "role": "Tech"
+      },
+      {
+        "name": "Lena Fischer",
+        "role": "Tech"
+      },
+      {
+        "name": "Marco Diaz",
+        "role": "Tech"
+      },
+      {
+        "name": "Victor Braun",
+        "role": "IT manager (sponsor)"
+      }
+    ],
+    "timeline": [
+      {
+        "date": "2026-07-10",
+        "name": "Define complete"
+      },
+      {
+        "date": "2026-08-05",
+        "name": "Measure complete (baseline in hand)"
+      },
+      {
+        "date": "2026-08-20",
+        "name": "Analyze complete (causes verified)"
+      },
+      {
+        "date": "2026-10-09",
+        "name": "Improve complete (fix proven)"
+      },
+      {
+        "date": "2026-10-31",
+        "name": "Control plan in place"
+      }
+    ],
+    "tool_id": "T-03",
+    "updated_at": "2026-07-01T11:00:00Z"
+  },
+  "valid": true
+}

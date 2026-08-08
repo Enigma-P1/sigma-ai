@@ -1,0 +1,55 @@
+{
+  "artifact": {
+    "artifact_id": "s2-copq",
+    "created_at": "2026-08-01T10:00:00Z",
+    "notes": "Q3 ingredients per the charter's cost case; the engine computes each row amount and the total.",
+    "rows": [
+      {
+        "amount": 352.82,
+        "basis": "74 searches averaging 11 staff-minutes each (13.57 staff-hours); loaded staff rate $26/hour",
+        "category": "custom",
+        "custom_label": "Catalog-said-available searches (desk staff time)",
+        "is_estimate": true,
+        "period": "Q3 2026 (3-week sample, extrapolated)",
+        "quantity": 13.57,
+        "rate": 26.0
+      },
+      {
+        "amount": 407.4,
+        "basis": "21 replacement copies traced to shelving losses, average $19.40 each",
+        "category": "scrap",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "Q3 2026",
+        "quantity": 21.0,
+        "rate": 19.4
+      },
+      {
+        "amount": 257.40000000000003,
+        "basis": "66 holds cancelled 'missing' per quarter, ~9 minutes desk+ILL handling each (9.9 staff-hours); loaded staff rate $26/hour",
+        "category": "custom",
+        "custom_label": "Holds cancelled 'missing' (desk + ILL handling)",
+        "is_estimate": false,
+        "period": "Q3 2026",
+        "quantity": 9.9,
+        "rate": 26.0
+      }
+    ],
+    "schema_version": 1,
+    "tool_id": "T-02",
+    "total": {
+      "provenance": {
+        "assumptions_checked": [
+          "each row's amount is quantity * rate, never hand-entered"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "75dac1afd0a257871fb421a856b899938a2448e769fd39179725b3bf4db99561",
+        "method": "copq_total = sum(quantity * rate per row)",
+        "warnings": []
+      },
+      "value": 1017.6200000000001
+    },
+    "updated_at": "2026-08-01T10:00:00Z"
+  },
+  "valid": true
+}

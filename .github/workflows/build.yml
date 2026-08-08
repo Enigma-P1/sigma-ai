@@ -39,6 +39,49 @@ jobs:
         working-directory: engine
         run: pytest -v
 
+      # M6 golden-scenario eval harness (PLAN §9): a scripted walkthrough
+      # drives the Coffee Bar demo + the two held-out scenarios through
+      # every Tier-A tool in their declared scope and diffs the result
+      # against evals/goldens/. Runs OUTSIDE the engine package (plain
+      # python + httpx, engine/.venv already has httpx from the dev
+      # extras installed above) against a real ephemeral engine instance,
+      # never mocked -- a real regression in the stats/schema layer is
+      # exactly what this step exists to catch before it ships. Freezing
+      # goldens is a local/PR-author action (see evals/README.md); CI only
+      # ever replays and fails on drift.
+      - name: Start engine (ephemeral, for the golden-scenario harness)
+        working-directory: engine
+        run: |
+          set -euo pipefail
+          .venv/bin/python -m uvicorn sigma_engine.main:app --port 8000 > /tmp/eval-harness-engine.log 2>&1 &
+          echo $! > /tmp/eval-harness-engine.pid
+          for _ in $(seq 1 30); do
+            curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1 && break
+            sleep 0.5
+          done
+          curl -sf http://127.0.0.1:8000/health
+          echo
+
+      - name: Run golden-scenario harness (replay, fails the job on diff)
+        env:
+          SIGMA_PROJECTS_ROOT: ${{ runner.temp }}/sigma-ai-eval-projects
+        run: engine/.venv/bin/python evals/harness/run_goldens.py
+
+      - name: Stop engine
+        if: always()
+        run: |
+          if [ -f /tmp/eval-harness-engine.pid ]; then
+            kill "$(cat /tmp/eval-harness-engine.pid)" 2>/dev/null || true
+          fi
+
+      - name: Upload engine log (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: eval-harness-engine-log
+          path: /tmp/eval-harness-engine.log
+          if-no-files-found: ignore
+
   build-windows:
     name: Build Windows installer
     needs: test

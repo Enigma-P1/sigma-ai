@@ -1,0 +1,1211 @@
+{
+  "artifact": {
+    "artifact_id": "s2-check-sheet",
+    "categories": [
+      {
+        "category_id": "cat-0",
+        "label": "out-of-order within bay"
+      },
+      {
+        "category_id": "cat-1",
+        "label": "oversize/flat exception"
+      },
+      {
+        "category_id": "cat-2",
+        "label": "series shelved by author"
+      },
+      {
+        "category_id": "cat-3",
+        "label": "wrong bay"
+      }
+    ],
+    "created_at": "2026-08-31T08:00:00Z",
+    "entries": [
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E001",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E002",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E003",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E004",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E005",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E006",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-08-31",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-08-31T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E007",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-01",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-01T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E008",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-01",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-01T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E009",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-01",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-01T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E010",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-02",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-02T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E011",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-02",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-02T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E012",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-02",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-02T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E013",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-02",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-02T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E014",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-02",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-02T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E015",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-03",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-03T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E016",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-03",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-03T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E017",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-03",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-03T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E018",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-03",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-03T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E019",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-04",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-04T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E020",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-04",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-04T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E021",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-05",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-05T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E022",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E023",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E024",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E025",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E026",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E027",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E028",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-07",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-07T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E029",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E030",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E031",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E032",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E033",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E034",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E035",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-08",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-08T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E036",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-09",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-09T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E037",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-09",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-09T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E038",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-09",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-09T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E039",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E040",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E041",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E042",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E043",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E044",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E045",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E046",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E047",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-10",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-10T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E048",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-11",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-11T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E049",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-11",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-11T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E050",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-11",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-11T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E051",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-11",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-11T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E052",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-12",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-12T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E053",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-12",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-12T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E054",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-12",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-12T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E055",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-14",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-14T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E056",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-14",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-14T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E057",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-14",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-14T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E058",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-14",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-14T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E059",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-15",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-15T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E060",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-15",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-15T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E061",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-15",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-15T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E062",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-15",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-15T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E063",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-16",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-16T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E064",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-16",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-16T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E065",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-16",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-16T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E066",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-16",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-16T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E067",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-17",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-17T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E068",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-17",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-17T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E069",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-17",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-17T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E070",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-17",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-17T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E071",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-18",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-18T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E072",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-18",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-18T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E073",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-18",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-18T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E074",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-18",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-18T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E075",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-19",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-19T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E076",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-19",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-19T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E077",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-19",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-19T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E078",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-19",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-19T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E079",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-19",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-19T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E080",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-21",
+          "section": "adult"
+        },
+        "timestamp": "2026-09-21T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E081",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-21",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-21T17:00:00"
+      },
+      {
+        "category_id": "cat-3",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E082",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-21",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-21T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E083",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-22",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-22T17:00:00"
+      },
+      {
+        "category_id": "cat-2",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E084",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-22",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-22T17:00:00"
+      },
+      {
+        "category_id": "cat-1",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E085",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E086",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E087",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "juvenile"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E088",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E089",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      },
+      {
+        "category_id": "cat-0",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E090",
+        "entry_mode": "tap",
+        "note": "",
+        "strata": {
+          "date": "2026-09-23",
+          "section": "nonfiction"
+        },
+        "timestamp": "2026-09-23T17:00:00"
+      }
+    ],
+    "notes": "One mark per misshelved book found on the written-definition baseline audit (90 marks, 2026-08-31 to 2026-09-24).",
+    "schema_version": 1,
+    "strata_fields": [
+      {
+        "key": "date",
+        "label": "Date"
+      },
+      {
+        "key": "section",
+        "label": "Section"
+      }
+    ],
+    "tool_id": "T-08",
+    "updated_at": "2026-09-24T17:00:00Z"
+  },
+  "valid": true
+}

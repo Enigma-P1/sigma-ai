@@ -1,0 +1,8 @@
+[
+  {
+    "check_id": "step_count_range",
+    "detail": "6 steps is within the declared 4-7 range",
+    "status": "pass",
+    "tool_id": "T-04"
+  }
+]

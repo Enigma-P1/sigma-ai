@@ -1,0 +1,180 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "order_id",
+      "sample_values": [
+        "POS-0720-01",
+        "POS-0720-02",
+        "POS-0720-03",
+        "POS-0720-04",
+        "POS-0720-05"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20",
+        "2026-07-20"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "daypart",
+      "sample_values": [
+        "early",
+        "early",
+        "early",
+        "early",
+        "early"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "drink_type",
+      "sample_values": [
+        "americano",
+        "americano",
+        "mocha",
+        "mocha",
+        "cappuccino"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "barista",
+      "sample_values": [
+        "Riley",
+        "Riley",
+        "Riley",
+        "Marcus",
+        "Marcus"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "wait_minutes",
+      "sample_values": [
+        "6.7",
+        "9.0",
+        "8.7",
+        "7.5",
+        "8.2"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "barista": 0,
+      "date": 0,
+      "daypart": 0,
+      "drink_type": 0,
+      "order_id": 0,
+      "wait_minutes": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "barista": 0,
+      "date": 0,
+      "daypart": 0,
+      "drink_type": 0,
+      "order_id": 0,
+      "wait_minutes": 0
+    },
+    "row_count": 120
+  },
+  "row_count": 120,
+  "sample_rows": [
+    {
+      "barista": "Riley",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "americano",
+      "order_id": "POS-0720-01",
+      "wait_minutes": "6.7"
+    },
+    {
+      "barista": "Riley",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "americano",
+      "order_id": "POS-0720-02",
+      "wait_minutes": "9.0"
+    },
+    {
+      "barista": "Riley",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "mocha",
+      "order_id": "POS-0720-03",
+      "wait_minutes": "8.7"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "mocha",
+      "order_id": "POS-0720-04",
+      "wait_minutes": "7.5"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "cappuccino",
+      "order_id": "POS-0720-05",
+      "wait_minutes": "8.2"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "early",
+      "drink_type": "latte",
+      "order_id": "POS-0720-06",
+      "wait_minutes": "7.6"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "late",
+      "drink_type": "americano",
+      "order_id": "POS-0720-07",
+      "wait_minutes": "10.2"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "late",
+      "drink_type": "americano",
+      "order_id": "POS-0720-08",
+      "wait_minutes": "7.6"
+    },
+    {
+      "barista": "Riley",
+      "date": "2026-07-20",
+      "daypart": "late",
+      "drink_type": "latte",
+      "order_id": "POS-0720-09",
+      "wait_minutes": "8.3"
+    },
+    {
+      "barista": "Marcus",
+      "date": "2026-07-20",
+      "daypart": "late",
+      "drink_type": "latte",
+      "order_id": "POS-0720-10",
+      "wait_minutes": "10.4"
+    }
+  ],
+  "source_filename": "wait-times.csv"
+}

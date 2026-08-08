@@ -1,0 +1,32 @@
+{
+  "artifact": {
+    "artifact_id": "s2-picker",
+    "business_impact_plausible": {
+      "answer": true,
+      "detail": "Search time, replacement copies, and hold-cancellation handling put Q3 cost near $2,195/quarter -- small in dollars, large in patron trust."
+    },
+    "created_at": "2026-08-01T09:10:00Z",
+    "data_obtainable": {
+      "answer": true,
+      "detail": "Audits are staffed and already run daily; the written definition just needs finishing."
+    },
+    "measurable_outcome": {
+      "answer": true,
+      "detail": "Audited misshelve proportion from the daily shelf-read audit."
+    },
+    "notes": "Five intake criteria, all Yes; training, sorting, and audit practice are all suspect -- no single obvious fix -- full DMAIC.",
+    "process_owner_engaged": {
+      "answer": true,
+      "detail": "Ruth Delgado, circulation supervisor, is named owner-in-waiting; branch manager Colette Marchand sponsors."
+    },
+    "route": "full-DMAIC",
+    "schema_version": 1,
+    "scope_narrow": {
+      "answer": true,
+      "detail": "Re-shelving of returned items at the Marion Street branch; new-acquisition shelving and branch transfers are out of scope."
+    },
+    "tool_id": "T-01",
+    "updated_at": "2026-08-01T09:10:00Z"
+  },
+  "valid": true
+}

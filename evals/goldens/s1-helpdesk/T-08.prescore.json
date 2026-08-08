@@ -1,0 +1,26 @@
+[
+  {
+    "check_id": "strata_declared",
+    "detail": "1 stratification field(s) declared: date",
+    "status": "pass",
+    "tool_id": "T-08"
+  },
+  {
+    "check_id": "entries_present",
+    "detail": "127 entries recorded, each with a validated ISO8601 timestamp",
+    "status": "pass",
+    "tool_id": "T-08"
+  },
+  {
+    "check_id": "entries_carry_full_strata",
+    "detail": "every entry carries a value for every declared strata field",
+    "status": "pass",
+    "tool_id": "T-08"
+  },
+  {
+    "check_id": "category_coverage",
+    "detail": "every declared category has at least one tally",
+    "status": "pass",
+    "tool_id": "T-08"
+  }
+]

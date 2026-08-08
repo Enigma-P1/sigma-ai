@@ -1,0 +1,225 @@
+{
+  "by_tool": {
+    "T-01": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Project Picker (+ PDCA quick path routing)",
+      "phase": "Intake",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-02": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "COPQ / Benefit Calculator",
+      "phase": "Define",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-03": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Project Charter",
+      "phase": "Define",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-04": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "SIPOC",
+      "phase": "Define",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-05": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "VoC → CTQ Tree",
+      "phase": "Define",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-06": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Process Map (swimlane) + Waste Walk",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-07": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 1,
+      "name": "Spaghetti Diagram (interactive)",
+      "phase": "Measure",
+      "s1-helpdesk": "na",
+      "s1-helpdesk_na_reason": "No movement component: the work is queue-and-keyboard; no verified or candidate cause involves physical travel, so a spaghetti diagram would map nothing.",
+      "s2-library": "na",
+      "s2-library_na_reason": "The pain is placement accuracy, not travel: no cause implicates walking distance or layout, so a spaghetti diagram would decorate, not diagnose."
+    },
+    "T-08": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Check Sheet / Tally",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-09": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 1,
+      "name": "Guided Time Study / Work Sampling",
+      "phase": "Measure",
+      "s1-helpdesk": "na",
+      "s1-helpdesk_na_reason": "The ticket system timestamps every stage of every ticket; the baseline extract already carries the element times a stopwatch or work-sampling study would re-collect.",
+      "s2-library": "na",
+      "s2-library_na_reason": "No timed cycle is in question — the CTQ is binary placement correctness; element times bear on none of the verified causes."
+    },
+    "T-10": {
+      "coffee-bar": "na",
+      "coffee-bar_na_reason": "Continuous-metric demo: no per-step pass/fail counts or opportunity structure for T-10 to tally (evals/scenarios/README.md coverage table).",
+      "covered_by_count": 1,
+      "name": "Yield Calculator (FPY/RTY + DPMO)",
+      "phase": "Measure",
+      "s1-helpdesk": "na",
+      "s1-helpdesk_na_reason": "Continuous-metric project: T-13's baseline already reports the model-based DPMO/sigma readout; there are no per-step pass/fail counts or opportunity structure for T-10 to tally.",
+      "s2-library": "in_scope"
+    },
+    "T-11": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Data Collection Plan (+ sample-size guidance)",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-12": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Measurement Check (narrow MSA)",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-13": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Baseline: Stability then Capability",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-14": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Pareto / Histogram / Run Chart",
+      "phase": "Measure",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-15": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Fishbone (6M) + 5 Whys",
+      "phase": "Analyze",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-16": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 2,
+      "name": "FMEA (process)",
+      "phase": "Analyze",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "na",
+      "s2-library_na_reason": "Severity is uniform across the failure modes (every misshelve is one findability failure — no safety or irreversibility differential), so RPN would reduce to occurrence, which the Pareto already ranks with real counts."
+    },
+    "T-17": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Hypothesis Testing (guided selector)",
+      "phase": "Analyze",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-18": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Solution Selection Matrix",
+      "phase": "Improve",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-19": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Pilot Plan",
+      "phase": "Improve",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-20": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Before/After Proof + Remaining-Gap Check",
+      "phase": "Improve",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-21": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Control Charts (I-MR, p)",
+      "phase": "Control",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-22": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Control Plan + Response Plan (OCAP) + Scheduled Check-ins",
+      "phase": "Control",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-23": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 2,
+      "name": "5S Audit (scored)",
+      "phase": "Control",
+      "s1-helpdesk": "na",
+      "s1-helpdesk_na_reason": "No workplace-organization component: the queue is digital, and no cause pointed at physical clutter or layout.",
+      "s2-library": "in_scope"
+    },
+    "T-24": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "Standard Work / SOP",
+      "phase": "Control",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    },
+    "T-25": {
+      "coffee-bar": "in_scope",
+      "covered_by_count": 3,
+      "name": "A3 Final Report + Tollgate Checklists",
+      "phase": "Wrap",
+      "s1-helpdesk": "in_scope",
+      "s2-library": "in_scope"
+    }
+  },
+  "generated_from": {
+    "coffee_bar": "evals/scenarios/README.md collective-coverage table (no machine-readable spec exists for the shipped demo)",
+    "matrix": "docs/traceability-matrix.md §1",
+    "s1_spec": "evals/scenarios/s1-helpdesk/spec.md (frontmatter)",
+    "s2_spec": "evals/scenarios/s2-library/spec.md (frontmatter)"
+  },
+  "scenarios": [
+    "coffee-bar",
+    "s1-helpdesk",
+    "s2-library"
+  ],
+  "tier_a_tool_count": 25,
+  "uncovered_tools": []
+}

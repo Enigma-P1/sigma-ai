@@ -1,0 +1,597 @@
+{
+  "artifact": {
+    "acknowledgments": {},
+    "action_at": null,
+    "armed": {
+      "cadence_note": "Ruth enters each day's audit at close.",
+      "monitoring_started": true
+    },
+    "artifact_id": "s2-control-chart",
+    "chart_type": "p",
+    "created_at": "2026-09-25T09:00:00Z",
+    "freeze_requested": false,
+    "frozen_at": "2026-09-25T09:00:00Z",
+    "frozen_window_subgroups": [
+      {
+        "defective_count": 6,
+        "label": "2026-08-31",
+        "n": 69
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-01",
+        "n": 64
+      },
+      {
+        "defective_count": 5,
+        "label": "2026-09-02",
+        "n": 69
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-03",
+        "n": 61
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-09-04",
+        "n": 68
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-09-05",
+        "n": 54
+      },
+      {
+        "defective_count": 7,
+        "label": "2026-09-07",
+        "n": 74
+      },
+      {
+        "defective_count": 7,
+        "label": "2026-09-08",
+        "n": 62
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-09",
+        "n": 67
+      },
+      {
+        "defective_count": 9,
+        "label": "2026-09-10",
+        "n": 77
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-11",
+        "n": 72
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-12",
+        "n": 56
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-14",
+        "n": 74
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-15",
+        "n": 73
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-16",
+        "n": 66
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-17",
+        "n": 66
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-18",
+        "n": 66
+      },
+      {
+        "defective_count": 5,
+        "label": "2026-09-19",
+        "n": 44
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-21",
+        "n": 67
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-09-22",
+        "n": 61
+      },
+      {
+        "defective_count": 6,
+        "label": "2026-09-23",
+        "n": 69
+      }
+    ],
+    "frozen_window_values": null,
+    "imr_baseline": null,
+    "imr_values": null,
+    "metric_ref": "audited misshelve rate (charter C1)",
+    "notes": "(2) The improvement itself arrives on the frozen limits: 24 post-window days appended, no re-freeze -- exactly one rule-4 signal expected (24 consecutive points below center).",
+    "p_baseline": {
+      "provenance": {
+        "assumptions_checked": [
+          "n_i > 0 for every subgroup",
+          "defective_count_i <= n_i for every subgroup"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "32eda38fa0c3e383b729c902b7bafe4ee8de2dca1edfb9722fb99fe619d4bcf6",
+        "method": "p-chart: CL=pbar (pooled proportion, sum(defectives)/sum(n)); UCL_i/LCL_i = pbar +/- 3*sqrt(pbar(1-pbar)/n_i) per subgroup, LCL floored at 0 / UCL capped at 1 (NIST/SEMATECH §6.3.3.2); WECO rule1 (beyond own per-point limits) + rule4 (8 consecutive same side of pbar) default per matrix §4a",
+        "warnings": []
+      },
+      "value": {
+        "k": 21,
+        "meets_freeze_floor": true,
+        "p_bar": 0.06526468455402465,
+        "points": [
+          {
+            "defective_count": 6,
+            "label": "2026-08-31",
+            "lcl": 0.0,
+            "n": 69,
+            "p": 0.08695652173913043,
+            "ucl": 0.15446782753634652
+          },
+          {
+            "defective_count": 3,
+            "label": "2026-09-01",
+            "lcl": 0.0,
+            "n": 64,
+            "p": 0.046875,
+            "ucl": 0.15788680407205563
+          },
+          {
+            "defective_count": 5,
+            "label": "2026-09-02",
+            "lcl": 0.0,
+            "n": 69,
+            "p": 0.07246376811594203,
+            "ucl": 0.15446782753634652
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-03",
+            "lcl": 0.0,
+            "n": 61,
+            "p": 0.06557377049180328,
+            "ucl": 0.16013706212090845
+          },
+          {
+            "defective_count": 2,
+            "label": "2026-09-04",
+            "lcl": 0.0,
+            "n": 68,
+            "p": 0.029411764705882353,
+            "ucl": 0.155121339152007
+          },
+          {
+            "defective_count": 1,
+            "label": "2026-09-05",
+            "lcl": 0.0,
+            "n": 54,
+            "p": 0.018518518518518517,
+            "ucl": 0.16609887642702664
+          },
+          {
+            "defective_count": 7,
+            "label": "2026-09-07",
+            "lcl": 0.0,
+            "n": 74,
+            "p": 0.0945945945945946,
+            "ucl": 0.151401506069376
+          },
+          {
+            "defective_count": 7,
+            "label": "2026-09-08",
+            "lcl": 0.0,
+            "n": 62,
+            "p": 0.11290322580645161,
+            "ucl": 0.15936885208855872
+          },
+          {
+            "defective_count": 3,
+            "label": "2026-09-09",
+            "lcl": 0.0,
+            "n": 67,
+            "p": 0.04477611940298507,
+            "ucl": 0.15578942756699377
+          },
+          {
+            "defective_count": 9,
+            "label": "2026-09-10",
+            "lcl": 0.0,
+            "n": 77,
+            "p": 0.11688311688311688,
+            "ucl": 0.14970684561953101
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-11",
+            "lcl": 0.0,
+            "n": 72,
+            "p": 0.05555555555555555,
+            "ucl": 0.15258965628611879
+          },
+          {
+            "defective_count": 3,
+            "label": "2026-09-12",
+            "lcl": 0.0,
+            "n": 56,
+            "p": 0.05357142857142857,
+            "ucl": 0.1642818953178245
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-14",
+            "lcl": 0.0,
+            "n": 74,
+            "p": 0.05405405405405406,
+            "ucl": 0.151401506069376
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-15",
+            "lcl": 0.0,
+            "n": 73,
+            "p": 0.0547945205479452,
+            "ucl": 0.15198947754704434
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-16",
+            "lcl": 0.0,
+            "n": 66,
+            "p": 0.06060606060606061,
+            "ucl": 0.1564726428671478
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-17",
+            "lcl": 0.0,
+            "n": 66,
+            "p": 0.06060606060606061,
+            "ucl": 0.1564726428671478
+          },
+          {
+            "defective_count": 4,
+            "label": "2026-09-18",
+            "lcl": 0.0,
+            "n": 66,
+            "p": 0.06060606060606061,
+            "ucl": 0.1564726428671478
+          },
+          {
+            "defective_count": 5,
+            "label": "2026-09-19",
+            "lcl": 0.0,
+            "n": 44,
+            "p": 0.11363636363636363,
+            "ucl": 0.17697116372812005
+          },
+          {
+            "defective_count": 3,
+            "label": "2026-09-21",
+            "lcl": 0.0,
+            "n": 67,
+            "p": 0.04477611940298507,
+            "ucl": 0.15578942756699377
+          },
+          {
+            "defective_count": 2,
+            "label": "2026-09-22",
+            "lcl": 0.0,
+            "n": 61,
+            "p": 0.03278688524590164,
+            "ucl": 0.16013706212090845
+          },
+          {
+            "defective_count": 6,
+            "label": "2026-09-23",
+            "lcl": 0.0,
+            "n": 69,
+            "p": 0.08695652173913043,
+            "ucl": 0.15446782753634652
+          }
+        ],
+        "signals": [],
+        "total_defectives": 90,
+        "total_n": 1379
+      }
+    },
+    "p_subgroups": [
+      {
+        "defective_count": 6,
+        "label": "2026-08-31",
+        "n": 69
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-01",
+        "n": 64
+      },
+      {
+        "defective_count": 5,
+        "label": "2026-09-02",
+        "n": 69
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-03",
+        "n": 61
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-09-04",
+        "n": 68
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-09-05",
+        "n": 54
+      },
+      {
+        "defective_count": 7,
+        "label": "2026-09-07",
+        "n": 74
+      },
+      {
+        "defective_count": 7,
+        "label": "2026-09-08",
+        "n": 62
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-09",
+        "n": 67
+      },
+      {
+        "defective_count": 9,
+        "label": "2026-09-10",
+        "n": 77
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-11",
+        "n": 72
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-12",
+        "n": 56
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-14",
+        "n": 74
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-15",
+        "n": 73
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-16",
+        "n": 66
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-17",
+        "n": 66
+      },
+      {
+        "defective_count": 4,
+        "label": "2026-09-18",
+        "n": 66
+      },
+      {
+        "defective_count": 5,
+        "label": "2026-09-19",
+        "n": 44
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-09-21",
+        "n": 67
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-09-22",
+        "n": 61
+      },
+      {
+        "defective_count": 6,
+        "label": "2026-09-23",
+        "n": 69
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-05",
+        "n": 60
+      },
+      {
+        "defective_count": 0,
+        "label": "2026-10-06",
+        "n": 67
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-07",
+        "n": 63
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-08",
+        "n": 64
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-09",
+        "n": 66
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-10",
+        "n": 50
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-12",
+        "n": 69
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-13",
+        "n": 67
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-14",
+        "n": 67
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-15",
+        "n": 60
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-16",
+        "n": 65
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-17",
+        "n": 55
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-19",
+        "n": 62
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-20",
+        "n": 67
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-21",
+        "n": 65
+      },
+      {
+        "defective_count": 0,
+        "label": "2026-10-22",
+        "n": 64
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-23",
+        "n": 72
+      },
+      {
+        "defective_count": 0,
+        "label": "2026-10-24",
+        "n": 54
+      },
+      {
+        "defective_count": 2,
+        "label": "2026-10-26",
+        "n": 70
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-27",
+        "n": 64
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-28",
+        "n": 68
+      },
+      {
+        "defective_count": 3,
+        "label": "2026-10-29",
+        "n": 66
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-30",
+        "n": 68
+      },
+      {
+        "defective_count": 1,
+        "label": "2026-10-31",
+        "n": 53
+      }
+    ],
+    "recalculate_reason": null,
+    "recalculation_log": [
+      {
+        "at": "2026-09-25T09:00:00Z",
+        "reason": "initial freeze",
+        "triggered_by": "initial_freeze"
+      }
+    ],
+    "rule2_enabled": false,
+    "rule3_enabled": false,
+    "schema_version": 1,
+    "selector": {
+      "data_shape": "attribute",
+      "defectives_or_defects": "defectives"
+    },
+    "signals": {
+      "provenance": {
+        "assumptions_checked": [
+          "baseline limits are frozen -- not recomputed from the current data"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "f2535631106de95e7433a8f1c3d99b03e02483b521831fd9f05458f1a2a24284",
+        "method": "signals = WECO rule1 (imr: beyond the frozen +/-3sigma band; p: beyond each point's own frozen-pbar-derived limits) + rule4 (8 consecutive points same side of the frozen center) always, + rule2 (2 of 3 beyond 2 sigma)/rule3 (4 of 5 beyond 1 sigma) when opted in (I-MR only) -- evaluated against the FROZEN baseline over the current data (matrix §4a / VI.A.1)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "acknowledgment": {
+            "acknowledged": false,
+            "at": null,
+            "response_note": ""
+          },
+          "signal": {
+            "description": "24 consecutive points fall below the center line (indices 21-44)",
+            "end_index": 44,
+            "rule_id": "rule4",
+            "side": "below",
+            "start_index": 21
+          }
+        }
+      ]
+    },
+    "source": {
+      "check_sheet_artifact_id": null,
+      "column": "misshelved",
+      "dataset_id": "<normalized>",
+      "dataset_sha256": "642b1c227add71cbb352fc7bfee3980800129d405c2afa397f68c170358c99ca",
+      "kind": "dataset"
+    },
+    "source_dataset_hash": "32eda38fa0c3e383b729c902b7bafe4ee8de2dca1edfb9722fb99fe619d4bcf6",
+    "tool_id": "T-21",
+    "updated_at": "2026-10-31T09:00:00Z"
+  },
+  "valid": true
+}

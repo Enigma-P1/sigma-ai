@@ -1,0 +1,452 @@
+{
+  "artifact_id": "coffee-a3",
+  "closure": {
+    "close_check": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "e01793274bf6efab7cbcdaa21b3bf5f31d3d14ad30ee0a07e6ef389a9b921767",
+        "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project may close' however clean the rest of the stack",
+        "warnings": []
+      },
+      "value": {
+        "blocking_rows": [],
+        "close_blocked": false,
+        "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+      }
+    },
+    "fmea_check": {
+      "blocking_flags": [],
+      "fmea_artifact_id": "coffee-fmea"
+    },
+    "lessons": [
+      {
+        "lesson_id": "les-1",
+        "text": "The first charter draft named the fix ('install a second machine head') instead of the problem, and the prescore's solution-language flag forced the rewrite. That failure was load-bearing: the matrix later scored the second head last on cost and effort, and the $40 method change it would have pre-empted recovered 64.8% of the gap. Write the problem, not the remedy -- the tool that caught it earned its place.",
+        "went_wrong": true
+      },
+      {
+        "lesson_id": "les-2",
+        "text": "We spent our one pre-declared Analyze comparison on the daypart split expecting a staffing story, and it came back real but minor (0.45 min, d = -0.44) -- a dead end as a driver. The dead end paid for itself: it kept the project off a schedule reshuffle that could not have recovered more than a fraction of a 3.4-minute gap, and it kept the staffing cause honestly labeled 'investigating' instead of verified.",
+        "went_wrong": true
+      },
+      {
+        "lesson_id": "les-3",
+        "text": "Meeting the mean goal is not the every-order promise. The improved process is stable at 4.90 minutes -- and with sd 0.65 against the 5.0 line, Cpk is 0.05 and the model puts ~43.9% of orders over five minutes. Saying so plainly at close is what keeps the next project honest: the center moved; the spread is the remaining work.",
+        "went_wrong": false
+      }
+    ],
+    "objectives_input": {
+      "achieved_value": 4.899166666666667,
+      "charter_baseline_value": 8.408333333333333,
+      "charter_goal_value": 5.0,
+      "direction": "lower_is_better"
+    },
+    "objectives_verdict": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "3f516ff8bbda794aed9e37baadf91a3288f89ebf8a59b4240985fdebafe711f7",
+        "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN §4.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+        "warnings": []
+      },
+      "value": {
+        "after_value": 4.899166666666667,
+        "charter_baseline_value": 8.408333333333333,
+        "charter_goal_value": 5.0,
+        "direction": "lower_is_better",
+        "goal_met": true,
+        "loop_verdict": "Goal met -- route to Control.",
+        "next_cause_ref": null,
+        "original_gap": 3.408333333333333,
+        "recovered": 3.5091666666666663,
+        "recovered_pct": 102.95843520782395,
+        "remaining": -0.10083333333333311
+      }
+    },
+    "open_items": [
+      {
+        "description": "CTQ C2 (90% of peak orders within 5 minutes) is not met: Cpk 0.05, ~43.9% of orders modeled over the line at the improved center. Candidate follow-on project: attack spread (order-mix batching windows, or the second-head escalation the matrix kept ranked).",
+        "item_id": "oi-c2-spread",
+        "owner": "Dana Ellis"
+      },
+      {
+        "description": "Fishbone cause c-staffing stays 'investigating': the daypart effect was minor under summer load, but semester demand (~15% higher) reopens the question -- re-run the daypart split on fall data before winter break.",
+        "item_id": "oi-staffing",
+        "owner": "Priya Shah"
+      },
+      {
+        "description": "Weekly check-ins continue through semester end (2026-12-18); any deliberate process change that moves the center triggers a logged limit-recalculation decision on coffee-control-chart, never a silent refit.",
+        "item_id": "oi-checkins",
+        "owner": "Priya Shah"
+      },
+      {
+        "description": "Fishbone cause c-grind-drift ('investigating'): the refill-time vs re-pull-time split was overtaken by the round-2 fix, but the grinder card now logs every refill and re-dial -- close the loop with a month of card data confirming drift is contained.",
+        "item_id": "oi-grind-drift",
+        "owner": "Marcus Webb"
+      }
+    ],
+    "project_status": "closed"
+  },
+  "created_at": "2026-10-26T15:00:00Z",
+  "notes": "The one-page story of the whole project, assembled at wrap from the saved record: every panel names the artifact its numbers come from, every number is identical to its computed source, and no claim is upgraded in transit -- the results panel keeps the round-2 proof's confound sentence and the capability caveat, because that is what the proof said. Panel seeds follow the desktop's seeding map (background/goal from the charter, current condition from the T-13 baseline run on the saved dataset, analysis from the fishbone, countermeasures from the solution matrix, results from the round-2 proof, follow-up from the control plan, lessons from the loop record). Realized benefits run on the wrap COPQ re-run (coffee-copq-wrap) over its stated 4-week window, net of the $360 the two fixes actually cost, with the annualized figure labeled a projection and its assumptions named -- not the charter's original $16,084, which priced the whole pain, not the measured recovery. Closure: objectives-vs-charter reconciliation is the engine's own gap arithmetic (proof.compute_gap, reused verbatim); the close check ran live against the latest FMEA's computed blocking flags -- the severity-8 steam-scald row carries its action (now a line in the T-24 SOP), no severity-9/10 row is unaddressed, blocking_flags came back empty, and the project closes CLEAN (control-run.md records the run). Project status: closed 2026-10-28, three days ahead of the charter's control-plan milestone.",
+  "panels": [
+    {
+      "narrative": "Espresso orders at the campus coffee bar were taking too long during the weekday 7:00-10:00 peak -- 8.4 minutes on average from register to handoff across Q2 2026 -- producing walk-aways, comped drinks, remakes, and peak-end overtime the COPQ worksheet priced at $4,021 for the quarter ($16,084/yr on the charter, Q2 actuals x 4). Customers told us the line plainly: more than five minutes and they go to the vending machine. The project was chartered to fix the wait without breaking what works: drink quality (remake rate) and labor hours ride along as guardrail metrics.",
+      "panel": "background",
+      "seeded_at": "2026-10-26T15:05:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-charter",
+        "fields": [
+          "problem_statement",
+          "business_impact"
+        ],
+        "tool_id": "T-03"
+      }
+    },
+    {
+      "narrative": "The measured baseline (120 orders, 10 mornings, July 2026, run through the live stats engine): mean 8.41 minutes, sd 1.04, and STABLE -- zero control-chart signals. That stability is the finding: nothing special was going wrong on bad mornings; the process was built to produce an 8.4-minute wait. Against the customer's 5.0-minute line it was not capable -- Cpk -1.14, every one of the 120 sampled orders over the line -- so the fix had to remove common causes from the process itself, not chase bad days.",
+      "panel": "current_condition",
+      "seeded_at": "2026-10-26T15:10:00Z",
+      "seeded_from": {
+        "artifact_ref": "<normalized>",
+        "fields": [
+          "descriptive.mean",
+          "descriptive.sd",
+          "stable",
+          "capability.cpk_index",
+          "sigma.dpmo"
+        ],
+        "tool_id": "T-13"
+      }
+    },
+    {
+      "narrative": "Reduce average order-to-handoff time during the weekday 7:00-10:00 peak from 8.4 to 5.0 minutes by October 31, 2026 -- a 3.41-minute gap against the measured 8.41 baseline -- while the remake rate holds no worse than Q2's 3.6 per 100 orders and barista labor hours do not grow. The 5.0-minute target is the customer's own walk-away line, not a number we liked.",
+      "panel": "goal",
+      "seeded_at": "2026-10-26T15:12:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-charter",
+        "fields": [
+          "goal"
+        ],
+        "tool_id": "T-03"
+      }
+    },
+    {
+      "narrative": "The delay tally named the vital few at exactly 80%: the drink-queue pileup ahead of the single espresso station (22 of 40 tallies, 55% -- a cup waits a median 4.5 of the 8.4 minutes before its shot starts) and grinder rework re-pulls (10 of 40, 25%, ~2 minutes each). The 5-Why chain under the pileup ran three deep to an Improve-ready root: one machine head, batch sizes locked to one drink at a time. Two suspects were ruled out with the evidence kept on the board (register hardware -- a 0.8-minute step; measurement clock skew -- the check passed at 8.94%), and the daypart/staffing question tested real but minor (late mornings 0.45 min slower, both windows 3+ minutes past the promise), so staffing shape stayed honestly under investigation rather than verified.",
+      "panel": "analysis",
+      "seeded_at": "2026-10-26T15:18:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-fishbone",
+        "fields": [
+          "causes",
+          "effect"
+        ],
+        "tool_id": "T-15"
+      }
+    },
+    {
+      "narrative": "Three candidate fixes, each linked to a verified cause, scored on declared criteria (gap impact 0.5, effort 0.25, cost 0.25 -- weights set before scores): (1) batch milk steaming + marked-cup sequencing, a $40 method change attacking the one-head batching root, weighted total 4.25; (2) a backup grinder + dose dial-in routine attacking rework, 3.5; (3) a second machine head, 3.0 -- the highest gap-impact score on the board (5) and still last on cost and effort ($9-14k plus install weeks against a $40 method change). It stayed ranked as the known escalation, not rejected. The list ran as a queue: one change piloted at a time, in rank order -- a draft pilot bundling two changes was refused by the engine with EXIT-10 named, and the second change waited its turn.",
+      "panel": "countermeasures",
+      "seeded_at": "2026-10-26T15:24:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-solution-matrix",
+        "fields": [
+          "ranked_fix_list"
+        ],
+        "tool_id": "T-18"
+      }
+    },
+    {
+      "narrative": "Round 1 (batch steaming + sequencing, threshold declared 7.0 before the pilot): the window came in at 6.20 min -- threshold met, Welch t = 17.87, p = 2.2e-45, d = 2.31 -- recovering 2.21 of the 3.41-minute gap (64.8%) with 1.20 remaining, so the loop took the next-ranked cause instead of stopping. Round 2 (grinder dial-in + standby swap, threshold 5.5): 4.90 min -- threshold met, and the cumulative gap check against the July baseline reads GOAL MET (remaining -0.10). Two honest riders travel with that result, exactly as the proof printed them. First, fall semester began mid-project: round 2 ran under ~15% more demand than the baseline windows, a declared confound that weakens the proof -- though its direction (more load, longer queues) could only mask improvement, not fake it. Second, the mean promise is met but the every-order promise is not: the improved process is stable at 4.90 with Cpk 0.05 against the 5.0 line -- the engine's model puts ~43.9% of orders over five minutes (46 of the 120 sampled orders were). Guardrails both improved: remakes 3.6 to 2.3 per 100, labor hours 8.65 to 8.1 per morning shift.",
+      "panel": "results",
+      "seeded_at": "2026-10-26T15:32:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-proof-round2",
+        "fields": [
+          "gap",
+          "verdict",
+          "test_result",
+          "after_baseline.capability"
+        ],
+        "tool_id": "T-20"
+      }
+    },
+    {
+      "narrative": "The improved state is held by an armed I-MR chart with limits frozen from the round-2 window (center 4.90, limits 3.03 / 6.77 -- the customer's 5.0 stays a spec line, never a control limit) and a control plan with named owners who accepted: Priya Shah on the daily handoff entries and the twice-weekly method spot-check, Marcus Webb on the weekly remake roll-up. Each monitored item has an investigate-then-respond OCAP that starts with the two changed methods -- did the batch/sequencing or the grinder dial-in lapse? -- before anyone touches a knob. All four staff are trained on the T-24 SOP with observed-demonstration sign-offs. Two weekly check-ins have come due so far; both were answered on time and both passed against the frozen band. The chart has been armed and quiet since the freeze: zero signals.",
+      "panel": "follow_up_control",
+      "seeded_at": "2026-10-26T15:38:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-control-plan",
+        "fields": [
+          "monitored_items",
+          "ocap_entries",
+          "check_in_schedule"
+        ],
+        "tool_id": "T-22"
+      }
+    },
+    {
+      "narrative": "What the record teaches, including what went wrong: our first charter draft named the fix instead of the problem and had to be rewritten when the prescore flagged its solution language -- left standing, it would have chartered a $12k machine before the $40 method change got a look. The daypart study we expected to carry the staffing story came back real but minor -- a dead end that saved a pointless schedule reshuffle. And the close is deliberately modest: partial recovery per round was the plan working, not failing -- 64.8% then the remainder -- while the capability number (Cpk 0.05) keeps the team honest that averaging under five minutes is not the same promise as EVERY order under five.",
+      "panel": "lessons",
+      "seeded_at": "2026-10-26T15:44:00Z",
+      "seeded_from": {
+        "artifact_ref": "coffee-proof-round1",
+        "fields": [
+          "gap",
+          "verdict"
+        ],
+        "tool_id": "T-20"
+      }
+    }
+  ],
+  "realized_benefits": {
+    "after_amount": 252.95,
+    "annualized_projection": 12795.64,
+    "annualized_projection_basis": "4-week realized recovery x 13: (1,237.23 - 252.95) = 984.28 per four-week window, x 13 windows/yr = 12,795.64 -- proportional COPQ recovery carried forward, equivalently the quarter's proportional recovery (984.28 x 13/4 = 3,198.91) x 4 quarters. Assumes semester demand and the window's improved rates hold year-round; the before side of the delta is itself the Q2 baseline pro-rated to the same 4 weeks (4,021 x 4/13 = 1,237.23), so this projects the measured recovery, never the charter's original 16,084.",
+    "before_amount": 1237.23,
+    "copq_rerun_artifact_id": "coffee-copq-wrap",
+    "fix_cost": 360.0,
+    "result": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "a5691f2fcfa0017cb2b0c4629f3ebe749531a35bb9b093c0177a7081acd639b7",
+        "method": "realized_to_date = before_amount - after_amount (the COPQ re-run's own before/after money, rubric R-WRAP-02 #2: ties to the measured improvement, not the original COPQ hope); net_of_fix_cost = realized_to_date - fix_cost (#3: costs of the fix netted, or at least named beside the benefit)",
+        "warnings": []
+      },
+      "value": {
+        "net_of_fix_cost": 624.28,
+        "realized_to_date": 984.28
+      }
+    },
+    "window": "2026-09-22 to 2026-10-16 -- the first 4 weeks after the round-2 rollout (19 weekday service mornings)"
+  },
+  "schema_version": 1,
+  "tollgates": [
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-charter",
+          "question_id": "define-1",
+          "response": "Yes -- after one failed try: the first draft implied the fix and was rewritten (charter-flawed.json and the teaching note keep the before/after). The final statement is measurable (8.4 min, Q2 2026) with no cause or remedy in it."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-charter",
+          "question_id": "define-2",
+          "response": "Yes -- Priya Shah, the morning shift lead who runs the process daily, named as process owner and still in the role at close."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-copq",
+          "question_id": "define-3",
+          "response": "Yes -- $16,084/yr stated as Q2 COPQ actuals x 4 with the basis on the charter; the engine computed the COPQ from logged quantities and invoiced rates, one row honestly marked estimate."
+        }
+      ],
+      "phase": "Define",
+      "questions": [
+        {
+          "question_id": "define-1",
+          "text": "Is the problem stated in measurable terms, with no cause and no fix implied?"
+        },
+        {
+          "question_id": "define-2",
+          "text": "Does the charter name a process owner who has actually agreed to the scope?"
+        },
+        {
+          "question_id": "define-3",
+          "text": "Is the business impact stated in dollars or hours, and does it hold up against an independent number?"
+        }
+      ]
+    },
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-collection-plan",
+          "question_id": "measure-1",
+          "response": "Yes -- stability was engine-verified, not assumed: 120 points, zero rule-1/rule-4 signals (measure/baseline-run.md), and only then was capability language used."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-msa",
+          "question_id": "measure-2",
+          "response": "Yes -- genuine blind test/retest from camera video: repeatability 8.94%, acceptable, single-operator caveat carried in the record."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-collection-plan",
+          "question_id": "measure-3",
+          "response": "Yes -- register order-paid stamp to name call, tenths of a minute; the two-people test (Priya and Marcus, 12 orders) matched once 'stops when' was pinned to the name call."
+        }
+      ],
+      "phase": "Measure",
+      "questions": [
+        {
+          "question_id": "measure-1",
+          "text": "Is the baseline built on a process the data shows is stable, not just assumed to be?"
+        },
+        {
+          "question_id": "measure-2",
+          "text": "Has the measurement system itself been checked, and did it pass?"
+        },
+        {
+          "question_id": "measure-3",
+          "text": "Is the operational definition tight enough that two different people would measure the same thing the same way?"
+        }
+      ]
+    },
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-fishbone",
+          "question_id": "analyze-1",
+          "response": "Yes -- five verified causes each carry a dated evidence pointer; music tempo and cup placement stayed labeled candidates with the no-evidence chip showing, and two causes were ruled out with their evidence kept on the board."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-check-sheet",
+          "question_id": "analyze-2",
+          "response": "Yes -- the ranked causes are the tally's engine-verified 80% vital few (queue 55%, rework 25%), not the easy fixes; the tempting easy answer (register hardware) is the one we ruled out."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-fmea",
+          "question_id": "analyze-3",
+          "response": "Yes -- the severity-8 steam-scald row carries an action with an owner (wand re-angle + purge-and-park, now a line in the T-24 SOP standard); no severity-9/10 row exists, and the close check confirmed no blocking flag."
+        }
+      ],
+      "phase": "Analyze",
+      "questions": [
+        {
+          "question_id": "analyze-1",
+          "text": "Does every candidate cause carry actual evidence, not just an opinion in the room?"
+        },
+        {
+          "question_id": "analyze-2",
+          "text": "Are the verified causes the ones the data points to, not just the easiest ones to fix?"
+        },
+        {
+          "question_id": "analyze-3",
+          "text": "Has every severity-9/10 failure mode been given an action, not just logged and left?"
+        }
+      ]
+    },
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-pilot-round1",
+          "question_id": "improve-1",
+          "response": "Yes -- one change per pilot, enforced for real: the bundled draft was refused (EXIT-10 by name), thresholds (7.0, then 5.5) were declared before each window opened, and the grinder change waited for round 2."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-proof-round2",
+          "question_id": "improve-2",
+          "response": "Yes -- the round-2 proof carries the semester confound in its own verdict (season + demand changed, ~15% more load, direction stated: it could mask improvement, not manufacture it); round 1 re-answered all five confounders 'no' against recorded actuals."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-proof-round2",
+          "question_id": "improve-3",
+          "response": "Round 1 closed 64.8% of the 3.41-minute gap (2.21 recovered, 1.20 remaining) and routed to the next cause; round 2 closed the rest (remaining -0.10, goal met on the mean). What's left is spread, not center: Cpk 0.05, ~43.9% of orders modeled over 5 minutes -- handed off as an open item with an owner."
+        }
+      ],
+      "phase": "Improve",
+      "questions": [
+        {
+          "question_id": "improve-1",
+          "text": "Was exactly one change piloted at a time, with a success threshold set before the data came in?"
+        },
+        {
+          "question_id": "improve-2",
+          "text": "Does the before/after proof account honestly for anything else that changed during the pilot?"
+        },
+        {
+          "question_id": "improve-3",
+          "text": "How much of the original gap does this fix close, and what is the plan for what's left?"
+        }
+      ]
+    },
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-control-plan",
+          "question_id": "control-1",
+          "response": "Yes -- every monitored item names a person who accepted on the 2026-09-22 handoff walk (Priya Shah x2, Marcus Webb); the plan health check shows zero ownerless items."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-control-plan",
+          "question_id": "control-2",
+          "response": "Yes -- each OCAP starts with a concrete first response (check the two changed methods, re-time three orders), a containment step, and a named escalation (two signals in a week -> Dana Ellis)."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-standard-work",
+          "question_id": "control-3",
+          "response": "Yes -- all four staff trained on SOP coffee-standard-work v1 with observed-demonstration verification, sign-offs dated 2026-09-24 through 2026-10-01."
+        }
+      ],
+      "phase": "Control",
+      "questions": [
+        {
+          "question_id": "control-1",
+          "text": "Does every monitored item have a real, named owner who has accepted the role?"
+        },
+        {
+          "question_id": "control-2",
+          "text": "Is there an out-of-control response path a person could actually follow, today, without asking what it means?"
+        },
+        {
+          "question_id": "control-3",
+          "text": "Is someone trained on the new method, by name, with a way to verify they can actually do it?"
+        }
+      ]
+    },
+    {
+      "answers": [
+        {
+          "answered": true,
+          "evidence_ref": "coffee-copq-wrap",
+          "question_id": "wrap-1",
+          "response": "Yes -- realized-to-date is the COPQ re-run's own before/after money over a stated 4-week window ($1,237.23 pro-rated baseline vs $252.95 actual, $984.28 gross, $624.28 net of the $360 fix cost); the $12,795.64 annualized figure is labeled a projection with its assumptions named, and the original $16,084 is never claimed as realized."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-a3",
+          "question_id": "wrap-2",
+          "response": "Yes -- three lessons, two of them genuine went-wrongs (the solution-shaped first charter; the daypart dead end), plus the stable-but-not-yet-capable close stated in plain words."
+        },
+        {
+          "answered": true,
+          "evidence_ref": "coffee-a3",
+          "question_id": "wrap-3",
+          "response": "Yes -- four open items, each with a named owner: the C2 every-order promise (Dana Ellis), the staffing-shape question under semester load (Priya Shah), check-ins through semester end (Priya Shah), and the grind-drift evidence split (Marcus Webb)."
+        }
+      ],
+      "phase": "Wrap",
+      "questions": [
+        {
+          "question_id": "wrap-1",
+          "text": "Does the realized benefit trace to the measured improvement, not to the original COPQ hope?"
+        },
+        {
+          "question_id": "wrap-2",
+          "text": "Are the lessons learned substantive, including at least one thing that didn't work?"
+        },
+        {
+          "question_id": "wrap-3",
+          "text": "Is every open item handed off to a named owner, not left to fall through?"
+        }
+      ]
+    }
+  ],
+  "tool_id": "T-25",
+  "updated_at": "2026-10-28T11:00:00Z"
+}

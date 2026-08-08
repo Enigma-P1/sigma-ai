@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "routing_recorded",
+    "detail": "route='welch_two_sample_t', exit=None, 9 decision-path node(s) recorded",
+    "status": "pass",
+    "tool_id": "T-17"
+  },
+  {
+    "check_id": "route_tamper_check",
+    "detail": "stored route/exit re-derives from the stored question",
+    "status": "pass",
+    "tool_id": "T-17"
+  },
+  {
+    "check_id": "declared_primary_present",
+    "detail": "declared_primary=True",
+    "status": "pass",
+    "tool_id": "T-17"
+  },
+  {
+    "check_id": "exit_honored",
+    "detail": "no result stored past a raised routing exit",
+    "status": "pass",
+    "tool_id": "T-17"
+  },
+  {
+    "check_id": "tests_run_vs_declared_primary",
+    "detail": "tests_run_including_this_one=1 <= comparisons_declared=1",
+    "status": "pass",
+    "tool_id": "T-17"
+  }
+]

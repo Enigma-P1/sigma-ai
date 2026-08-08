@@ -1,0 +1,56 @@
+[
+  {
+    "check_id": "lane_count_minimum",
+    "detail": "4 lane(s)",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "lane_owner_present",
+    "detail": "every lane has a named owner",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "step_count_minimum",
+    "detail": "4 step(s)",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "step_type_tag_present",
+    "detail": "all 4 step(s) carry a value_add/non_value_add/enabling tag",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "reason_required_for_tagged_steps",
+    "detail": "every value-add/non-value-add step has a reason",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "times_present_half",
+    "detail": "4/4 steps carry a time",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "orphan_steps",
+    "detail": "every step has at least one connector",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "waste_notes_present",
+    "detail": "every checked waste has a concrete note",
+    "status": "pass",
+    "tool_id": "T-06"
+  },
+  {
+    "check_id": "bottleneck_fields_consistency",
+    "detail": "stored longest_step and constraint_step both match recomputed",
+    "status": "pass",
+    "tool_id": "T-06"
+  }
+]

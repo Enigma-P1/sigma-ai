@@ -1,0 +1,82 @@
+{
+  "detail": [
+    {
+      "ctx": {
+        "error": "EXIT-10: more than one change described for a single pilot (matrix §4a trigger: \"pilot plan declares more than one change\"). The Improve loop is one-change-at-a-time by design (PLAN §4.1, rubric R-IMP-02 #1): run the extra change as its own sequential pilot once this one is proven, declare a genuinely inseparable PACKAGE explicitly if the components truly cannot deploy apart (R-IMP-02's carve-out -- attribution then goes to the package only, never a component), or route to the advisor / v1.1 Experiment Planner / a human expert for a real multi-factor question. Remove the extra entry from `changes` (got 2) before saving."
+      },
+      "input": {
+        "analysis_plan": {
+          "expected_route": "welch_two_sample_t",
+          "rationale": "Two independent windows of continuous resolution hours -- Welch's t is the engine's two-independent-means default."
+        },
+        "artifact_id": "s1-pilot",
+        "changes": [
+          {
+            "change_id": "chg-1",
+            "text": "Assign-on-arrival dispatch rule: kill the once-a-day triage batch; each new routine ticket is assigned within the hour by a rotating dispatcher-of-the-day."
+          },
+          {
+            "change_id": "chg-2",
+            "text": "Pre-approved access matrix for standard roles -- bundled in to save a second pilot round."
+          }
+        ],
+        "comparison_design": {
+          "description": "The frozen July baseline (tickets-baseline.csv, n=127, mean 26.71, stable) vs the measured after window.",
+          "kind": "before_period"
+        },
+        "confounder_checklist": {
+          "demand": {
+            "changed": false,
+            "note": "No other volume change beyond the onboarding class noted above."
+          },
+          "measurement": {
+            "changed": false,
+            "note": "Same operational definition and extraction procedure as the baseline; T-12 still stands."
+          },
+          "other": {
+            "changed": false,
+            "note": "No ticketing-system or approval-policy change landed in the window."
+          },
+          "season": {
+            "changed": true,
+            "note": "Fall onboarding class of 14 new hires starts 2026-09-21, inside the after window -- can only push access-grant volume (and resolution times) up, never manufacture a win."
+          },
+          "staffing": {
+            "changed": false,
+            "note": "Same three techs and dispatch lead throughout."
+          }
+        },
+        "created_at": "2026-09-01T09:00:00Z",
+        "falsification_line": "Two settled weeks above 12.0 business hours -> revert to batch triage and take the next-ranked cause.",
+        "inclusion": {
+          "honesty_note": "Same desk, same techs as the baseline -- no randomization across sites.",
+          "how_selected": "Same systematic every-2nd-ticket rule as the baseline",
+          "who_or_what": "All routine (P3) tickets, all three techs, both channels, every 2nd ticket sampled -- the T-11 collection plan's rule"
+        },
+        "notes": "One change only -- a draft bundling the access matrix into the same pilot was refused with EXIT-10, and the access matrix stayed queued for its own later pilot.",
+        "schema_version": 1,
+        "status": "complete",
+        "success_threshold": {
+          "declared_at": "2026-09-03T09:00:00Z",
+          "direction": "lower_is_better",
+          "metric_ref": "resolution_hours (charter C1) -- after-window mean",
+          "value": 12.0
+        },
+        "the_one_change": {
+          "linked_cause_ids": [
+            "c-triage-batch",
+            "c-scheduled-event"
+          ],
+          "linked_solution_id": "sol-dispatch-rule",
+          "statement": "Assign-on-arrival dispatch rule: kill the once-a-day triage batch; each new routine ticket is assigned within the hour by a rotating dispatcher-of-the-day."
+        },
+        "tool_id": "T-19",
+        "updated_at": "2026-10-09T17:00:00Z"
+      },
+      "loc": [],
+      "msg": "Value error, EXIT-10: more than one change described for a single pilot (matrix §4a trigger: \"pilot plan declares more than one change\"). The Improve loop is one-change-at-a-time by design (PLAN §4.1, rubric R-IMP-02 #1): run the extra change as its own sequential pilot once this one is proven, declare a genuinely inseparable PACKAGE explicitly if the components truly cannot deploy apart (R-IMP-02's carve-out -- attribution then goes to the package only, never a component), or route to the advisor / v1.1 Experiment Planner / a human expert for a real multi-factor question. Remove the extra entry from `changes` (got 2) before saving.",
+      "type": "value_error",
+      "url": "https://errors.pydantic.dev/2.13/v/value_error"
+    }
+  ]
+}

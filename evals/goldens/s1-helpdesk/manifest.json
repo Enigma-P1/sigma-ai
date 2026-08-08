@@ -1,0 +1,740 @@
+{
+  "scenario_id": "s1-helpdesk",
+  "step_count": 75,
+  "steps": [
+    {
+      "input_hash": "9e91bcb6abf769adedc62cbb0f5ee30f3d830f1063df97fab38d246b3926046a",
+      "method": "POST",
+      "name": "T-01.validate",
+      "path": "/artifacts/T-01/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "1fcb1fd4d63598e8a6eb456e48d6cb2358361eedff17323331378ddf513f6040",
+      "method": "POST",
+      "name": "T-01.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-01",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "f1e356276b8b5118c377d27bc55f8084956b59bc600424e2b0c99477efab7857",
+      "method": "POST",
+      "name": "T-01.prescore",
+      "path": "/prescore/T-01",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "d0cf38d9b3a53e0e66e218934bed8967d142144daf051d2ee01e8a96ef106e5d",
+      "method": "POST",
+      "name": "gate.intake_picker_present",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "b95eb5c9e0c120ca4dd1257491739616611ff9cfa04830e39d6c5ff5c77c59c8",
+      "method": "POST",
+      "name": "gate.intake_picker_not_exit01",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "e7a2fee6bd50421a062ac6b563926e2bbe21f937f07feada9c33af20f51c1bb5",
+      "method": "POST",
+      "name": "T-02.validate",
+      "path": "/artifacts/T-02/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "07da500ef04b5fc530de6599cb0cd5baf29369fde766724defbdef93a72b0195",
+      "method": "POST",
+      "name": "T-02.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "51194c9362e7932d4e8a583b099d3085c9f481124fbc23afdeaf7edeefddcc48",
+      "method": "POST",
+      "name": "T-02.prescore",
+      "path": "/prescore/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "2e177b04a24fa20a981028c7752e2ee9a4106ec113c0be609722c56634e10b75",
+      "method": "POST",
+      "name": "T-03.validate",
+      "path": "/artifacts/T-03/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "114262cac37074d0dcaaad34293e7b3f312491bd2f1b0a074867867e3a06d159",
+      "method": "POST",
+      "name": "T-03.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-03",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "7f910a9152833629ce8d8c45e916d5195baef8af9ce5fa4d66cd6c0603bad453",
+      "method": "POST",
+      "name": "T-03.prescore",
+      "path": "/prescore/T-03",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "97300d30a243ce9d80042ec7f2274f922ff76d54e3d7d19b44a0f48036156a58",
+      "method": "POST",
+      "name": "T-04.validate",
+      "path": "/artifacts/T-04/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "120721626ed4aca8c45eb7e5eb7ff0637d8c2b23e85f691d73ba1849a8587d82",
+      "method": "POST",
+      "name": "T-04.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-04",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "83b5b9104f120e88f331e93f2946e5776767f603efe20b855186e214bdd9327a",
+      "method": "POST",
+      "name": "T-04.prescore",
+      "path": "/prescore/T-04",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "86fa326eefab266e59d054d0e1e56ad7f16c33319d2fade37eb1a61ab08bbc99",
+      "method": "POST",
+      "name": "T-05.validate",
+      "path": "/artifacts/T-05/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "1ed774cc1ffe529174510935ff59b9ee0845d7ed9149080f226409e868151986",
+      "method": "POST",
+      "name": "T-05.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-05",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "41eded5a4c2ff02e019d86da8bfdeffdea7ca771763a0de2e1e4db0c26885690",
+      "method": "POST",
+      "name": "T-05.prescore",
+      "path": "/prescore/T-05",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "9f278b57f22b70752a20894fa6dcb0d490dbd3d4c34b45126b9dbc140946be9b",
+      "method": "POST",
+      "name": "gate.define_to_measure",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "23f8885b94a0c9d829d49bf88aef9ccc6f0f353601d28f01f7a330f507afce16",
+      "method": "POST",
+      "name": "dataset.tickets_baseline.preview",
+      "path": "/project/eval-s1-helpdesk/datasets/preview",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "a2fd92db3a25f3e790999a92c911cae4852f93921d3e35c3baf8d6fe2daac6d9",
+      "method": "POST",
+      "name": "dataset.tickets_baseline.save",
+      "path": "/project/eval-s1-helpdesk/datasets",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "eea243775c32221638e326cf8bcee078fb418f6807d2c532c4a3c7a19228315b",
+      "method": "POST",
+      "name": "dataset.tickets_after.save",
+      "path": "/project/eval-s1-helpdesk/datasets",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "8f0355d305d65bcd09020bc90231ab116ee715f9e6eac9bb520dba68fbc26aef",
+      "method": "POST",
+      "name": "T-06.validate",
+      "path": "/artifacts/T-06/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "d5f32b638f6b0e91f9fce866071b46eb833ac16633b468f2083bdfc13be1dd6b",
+      "method": "POST",
+      "name": "T-06.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-06",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "1cfcab0ee69a744fc0834b4e0e5d4e7a853d77812b1980f847a0cbf5146fa447",
+      "method": "POST",
+      "name": "T-06.prescore",
+      "path": "/prescore/T-06",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "653bfb3e5c9ae0878fbf37423e0ddf748aaf7da654982b17baefb7caa6c783f7",
+      "method": "POST",
+      "name": "T-08.validate",
+      "path": "/artifacts/T-08/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "35152a11fdf72338f97f71c9d22d4e84276c5626c071515294d06c4bde3fdbc7",
+      "method": "POST",
+      "name": "T-08.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-08",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "0c95720ebb02a8d842b6ceb42a54db00d345bdf579ffb53b07b6950d76d92316",
+      "method": "POST",
+      "name": "T-08.prescore",
+      "path": "/prescore/T-08",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "f5c55205017056e7c30cc3068648464e1ed717c71d6a9756bf6f9bdf14f7e760",
+      "method": "POST",
+      "name": "T-08.to_dataset",
+      "path": "/project/eval-s1-helpdesk/check-sheet/s1-check-sheet/to-dataset",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "dc8a7822a1cefb20e0a82ec34c4039497c805457f239ae5ff4555caa5d656445",
+      "method": "POST",
+      "name": "T-14.pareto.delay_reasons",
+      "path": "/stats/pareto",
+      "status_code": 200,
+      "tool_ids": [
+        "T-14"
+      ]
+    },
+    {
+      "input_hash": "32a59f43dc8b7c1c93eb5b846f5a8bafa98c6c9c999c7f337d6a910c38dcf145",
+      "method": "POST",
+      "name": "T-11.validate",
+      "path": "/artifacts/T-11/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "99e5fd6d2020dc7212e3ba8ac6a3960a4b71fbdf38f0ad7ec30470db5eadf9b5",
+      "method": "POST",
+      "name": "T-11.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-11",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "0df9318e5fd817f534f0856b4635931c6f44039520b7fdf725d9be9f328b3a5a",
+      "method": "POST",
+      "name": "T-11.prescore",
+      "path": "/prescore/T-11",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "0764117fab1258510c25f95c03b5c32fc17383b7eeeb5df95f6889a59e6103de",
+      "method": "POST",
+      "name": "T-11.sample_size",
+      "path": "/stats/sample-size",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "ad1c467352efb1357b6068ff14ed3c4a0c862377f18ee979303dc2f1723b4a6d",
+      "method": "POST",
+      "name": "T-12.validate",
+      "path": "/artifacts/T-12/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "4913c4d441190ebbcec03e84422e755734168161a81d1882f5ea4fff092e719e",
+      "method": "POST",
+      "name": "T-12.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-12",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "c4180a4a16eddee56ac97814ac86f9cbbf2dd24bd856c7a468b96b68fb64dc6d",
+      "method": "POST",
+      "name": "T-12.prescore",
+      "path": "/prescore/T-12",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "d712b83be5c61d972677bb7025a9e6e970f3cc08233c057b9e87f554f4cbf352",
+      "method": "POST",
+      "name": "gate.measure_capability_language_requires_msa_pass",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "f5b1d5a2dcb8652b2e9093ede7ff430f5dfdb8bea7bb0c68659068d267270875",
+      "method": "POST",
+      "name": "T-13.baseline",
+      "path": "/stats/baseline",
+      "status_code": 200,
+      "tool_ids": [
+        "T-13"
+      ]
+    },
+    {
+      "input_hash": "f5b1d5a2dcb8652b2e9093ede7ff430f5dfdb8bea7bb0c68659068d267270875",
+      "method": "POST",
+      "name": "T-13.after_window",
+      "path": "/stats/baseline",
+      "status_code": 200,
+      "tool_ids": [
+        "T-13"
+      ]
+    },
+    {
+      "input_hash": "1fa63494576b47b873c619af6bf0de21cb0eb69836b6ad0e6076c642041db51b",
+      "method": "POST",
+      "name": "T-14.descriptive.baseline",
+      "path": "/stats/descriptive",
+      "status_code": 200,
+      "tool_ids": [
+        "T-14"
+      ]
+    },
+    {
+      "input_hash": "b9aa8a8b5e045fa6acccbaa52815c9dcd05f42cab8eb8a532903509436afe31b",
+      "method": "POST",
+      "name": "gate.measure_to_analyze",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "e0f89b42b1d9db774a370dcaa32c234112e0cab9ff3820467e5d2b9d2defede1",
+      "method": "POST",
+      "name": "T-15.validate",
+      "path": "/artifacts/T-15/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "109d9e7d7a639b2a83f7d127e71d860a8656bb306e238ba743b0aedcf43e449c",
+      "method": "POST",
+      "name": "T-15.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-15",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "304fcfe01be8d9a1ec27360cc5f687d3a1de35a14f1a6afd23a095b89667099f",
+      "method": "POST",
+      "name": "T-15.prescore",
+      "path": "/prescore/T-15",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "45cdf600cdf70812d0a0092dd4400139b839219dee59e7073243426c8fd06df4",
+      "method": "POST",
+      "name": "T-16.validate",
+      "path": "/artifacts/T-16/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "c66f0f1f748baaa1cfe6c2a111044bc2357445270a59f3664c92e2cdd666b1f1",
+      "method": "POST",
+      "name": "T-16.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-16",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "d86f91464ac5b0d4610a6bfaaeca3b3089b3ef1ea64cb3a16a843468362af76b",
+      "method": "POST",
+      "name": "T-16.prescore",
+      "path": "/prescore/T-16",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "e228069b29c43cc85bbd444056354b9ed5873a2c482a301aef3206de06f78ef5",
+      "method": "POST",
+      "name": "T-17.validate",
+      "path": "/artifacts/T-17/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "0d18a04e4e95a1a86dabda94463e20a964e05bcffad99754fc17cb3df7a6438a",
+      "method": "POST",
+      "name": "T-17.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-17",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "18544bc4bd85d7f3c116ad9183d42772e6efa84a7ae85c76c21865db120d93a6",
+      "method": "POST",
+      "name": "T-17.prescore",
+      "path": "/prescore/T-17",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "560c5dca9dd0e78526d09f059c8fe09214bc1ea51f4dcb202adc40630cc144b6",
+      "method": "POST",
+      "name": "gate.analyze_to_improve",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "d6c487248840ef2255ea90e1da8acb9a3dc07944e1193c2b8f0ec600eadbf94a",
+      "method": "POST",
+      "name": "T-18.validate",
+      "path": "/artifacts/T-18/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "adb8dac592795d2b49eca08b5ff810fdb0f4782f924113a34182fbcff20fc6ae",
+      "method": "POST",
+      "name": "T-18.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-18",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "8d8bc6d6e254bcd90b83765335cf544cc495bae4dc165328793b688acfc5163c",
+      "method": "POST",
+      "name": "T-18.prescore",
+      "path": "/prescore/T-18",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "7d8d4458aad1e87b653696fa9a845cdd6640cd08a67f5e35b5c7aabd591f6bc8",
+      "method": "POST",
+      "name": "T-19.exit10_probe",
+      "path": "/artifacts/T-19/validate",
+      "status_code": 422,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "99a0211d39ee3eef5843fc00b7f0045c0a8ec453561f05905541ffcb48b6198f",
+      "method": "POST",
+      "name": "T-19.validate",
+      "path": "/artifacts/T-19/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "3cf9cba37b7910cca5041ffdd327bde7ad210a0912700c1d9dd8e7251c37d7d1",
+      "method": "POST",
+      "name": "T-19.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "b148bc0781ff6d32f03d44073d9f58ba98c13fbb38ba7c2a57d9af68c51949c2",
+      "method": "POST",
+      "name": "T-19.prescore",
+      "path": "/prescore/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "55dda772abb2b0607cd957c75461830f7db80cf71c059ae455ea08b35fd991a0",
+      "method": "POST",
+      "name": "T-20.validate",
+      "path": "/artifacts/T-20/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "7db05f73c3921e319a89747486f19ac08bf8d48060b5f6f307bad4d69baf1646",
+      "method": "POST",
+      "name": "T-20.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "72815214802cafde29355ce40927726e76436ce74dd456a3f0347fe7b5693961",
+      "method": "POST",
+      "name": "T-20.prescore",
+      "path": "/prescore/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "b4d34a8d19936a83a0de2dfaed474bdc93b6ed1df19e80b1c71a988cd487a8fc",
+      "method": "POST",
+      "name": "gate.improve_to_control",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "af351aa47f818fb7c7c87cd4025f7591f422ef447263e9eb3113846ee5359f14",
+      "method": "POST",
+      "name": "T-21.validate",
+      "path": "/artifacts/T-21/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "78de411125b33c0a9a3a71d692d305e146c996451fa116eb26da69c8fedb6e3f",
+      "method": "POST",
+      "name": "T-21.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-21",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "d32f36601d6b0b141410ff77f20eac11726c7bdce45432acd900746595c01944",
+      "method": "POST",
+      "name": "T-21.prescore",
+      "path": "/prescore/T-21",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "59446566e0b10b7378f375f0f82d163620a55971a1988ce22729cc2465c1f057",
+      "method": "POST",
+      "name": "T-22.validate",
+      "path": "/artifacts/T-22/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "49ecb435c6e32be47a475bfea7532df54d507a6476ec1323cfcb4cecfa84ff4b",
+      "method": "POST",
+      "name": "T-22.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-22",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "930bdc1f0147c2292c00c15e3023f9e0004165744c5fccf2e1fd0204f7abee3c",
+      "method": "POST",
+      "name": "T-22.prescore",
+      "path": "/prescore/T-22",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "dd52f15445e26546f0bc58996e3a9e5e1496b25b9626e5cc9f09265617ea1c13",
+      "method": "POST",
+      "name": "T-24.validate",
+      "path": "/artifacts/T-24/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "da8c1732f326a536ced5de1a7cb917fb38a8e47e2fdf4d6deec414156f29b506",
+      "method": "POST",
+      "name": "T-24.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-24",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "72569fe057c057e192693fafb483dc20bf75a28fb41208f75bb019e513662f08",
+      "method": "POST",
+      "name": "T-24.prescore",
+      "path": "/prescore/T-24",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "94a9f8aa43f0095c731f914bb3702295d919791120c36b9d225b53508561d6b2",
+      "method": "POST",
+      "name": "gate.control_to_wrap",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "ca680d90d9dd9110a2d32aaa6fdc93bb730425d8af904073bbd07f0f3fda5b07",
+      "method": "POST",
+      "name": "T-25.validate",
+      "path": "/artifacts/T-25/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "3f97f75d0f68c398d470e60f5c1314877952c4310dd32436e24d183194276286",
+      "method": "POST",
+      "name": "T-25.save",
+      "path": "/project/eval-s1-helpdesk/artifacts/T-25",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "7d97352fce7ef3a1fd964cbfc483af9a78c0771819f15925b2979f3de83a32f8",
+      "method": "POST",
+      "name": "T-25.prescore",
+      "path": "/prescore/T-25",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    }
+  ]
+}

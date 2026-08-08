@@ -1,0 +1,998 @@
+{
+  "scenario_id": "coffee-bar",
+  "step_count": 101,
+  "steps": [
+    {
+      "input_hash": "5d7d4d81fd88cccf6fb869f691aefc62bbd14c3064d607e87186fab7429ef53c",
+      "method": "POST",
+      "name": "T-01.validate",
+      "path": "/artifacts/T-01/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "ce86207268744d1da5f010f9f6079de8ac4fd3479ac89778f32f02a78d6e40ed",
+      "method": "POST",
+      "name": "T-01.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-01",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "b889b30ff3a21c0e7db7f20d60a3b4f8937b2a02fdddc50542d4eab68c2feed1",
+      "method": "POST",
+      "name": "T-01.prescore",
+      "path": "/prescore/T-01",
+      "status_code": 200,
+      "tool_ids": [
+        "T-01"
+      ]
+    },
+    {
+      "input_hash": "39e54f50e0d95d983dbd4e2404941947041a1d3f700dc873d0a6346232070588",
+      "method": "POST",
+      "name": "gate.intake_picker_present",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "8bf884aeb2550058b9330cd9505e5f5d1befb81b8e1e1655297c81f6320ecd62",
+      "method": "POST",
+      "name": "gate.intake_picker_not_exit01",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "4b4937f6ce32c28508ebb57be55d3941b00af04191953e0c8f69510648663943",
+      "method": "POST",
+      "name": "T-02.validate",
+      "path": "/artifacts/T-02/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "1c70b0311fafd60c026c76fe87e7836be202138da49f183b66f821c919f7d9e4",
+      "method": "POST",
+      "name": "T-02.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "91d7ac51971a8961e070378c7d287cc29c90a2f7241f147c973d972674288cc2",
+      "method": "POST",
+      "name": "T-02.prescore",
+      "path": "/prescore/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "c78bede6dd8a3768797f0a727e598218b86f16732c8b4746e5110b7843e632ed",
+      "method": "POST",
+      "name": "T-03.flawed.validate",
+      "path": "/artifacts/T-03/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "767c03ae102259636da3417cf72bc9289c0a719fc342344d139dbb01aab05386",
+      "method": "POST",
+      "name": "T-03.flawed.prescore",
+      "path": "/prescore/T-03",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "f2fbf7415f05d48952c7a66b83d0fade4e278e98290b24b7e2048c1e4ae9d805",
+      "method": "POST",
+      "name": "T-03.validate",
+      "path": "/artifacts/T-03/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "537b13256044cc5272ac3c18dca3757b1ab51a97113cb54148865b90714b972e",
+      "method": "POST",
+      "name": "T-03.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-03",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "a17fed9223ba02be2de1cf805057f225da0bc8f8616e2a5dd084917e2a9fed67",
+      "method": "POST",
+      "name": "T-03.prescore",
+      "path": "/prescore/T-03",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "0fb3630114e7cafcd1fc301fb4941069db81c546c324a44e5167d34660d64d1e",
+      "method": "GET",
+      "name": "T-03.load",
+      "path": "/project/eval-coffee-bar/artifacts/coffee-charter",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "e4c773b45e3a6ffa7d0d32616896bf295dce2f053c9456c135b3cf4de3cc13fd",
+      "method": "GET",
+      "name": "T-03.versions",
+      "path": "/project/eval-coffee-bar/artifacts/coffee-charter/versions",
+      "status_code": 200,
+      "tool_ids": [
+        "T-03"
+      ]
+    },
+    {
+      "input_hash": "2c3e9cf7b238ced8d67697f925d1f54aa3e958a06c84ffdf0db1b226d330e65c",
+      "method": "POST",
+      "name": "T-04.validate",
+      "path": "/artifacts/T-04/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "cbec97ef6d8a4eaa3d9e66bc582ca8dc9ee1589b2a195ddb7f7e51e0e1fb4cb6",
+      "method": "POST",
+      "name": "T-04.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-04",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "73b1cf6f92965d5c5113fa315dce5cdd590436df6b5d1ddab76656b55f7b6b20",
+      "method": "POST",
+      "name": "T-04.prescore",
+      "path": "/prescore/T-04",
+      "status_code": 200,
+      "tool_ids": [
+        "T-04"
+      ]
+    },
+    {
+      "input_hash": "b00908743893d0b8926d5777c4e8f509ac47557d2b37479fc77f5829e7b5646e",
+      "method": "POST",
+      "name": "T-05.validate",
+      "path": "/artifacts/T-05/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "e2e5d0788a1ff54ee27095690cdd893a6843e22d766934bd4878fa4e53d74a33",
+      "method": "POST",
+      "name": "T-05.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-05",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "38aabd6efcc3946943f6d272cebc0e3120cbb427d887c0e9d1d2b9687e9c6fbe",
+      "method": "POST",
+      "name": "T-05.prescore",
+      "path": "/prescore/T-05",
+      "status_code": 200,
+      "tool_ids": [
+        "T-05"
+      ]
+    },
+    {
+      "input_hash": "60b81039ca8610186af1c90a5a494c2d30abd469960718ea35878c1c5ba66108",
+      "method": "POST",
+      "name": "gate.define_to_measure",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "9fda7c8d2826e6647edd305add15b982e1f49d21da6a5a17bb9212223cd7a090",
+      "method": "POST",
+      "name": "dataset.wait_times.preview",
+      "path": "/project/eval-coffee-bar/datasets/preview",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "aec6cf8b755b1ed06d25d023487fc7b5683bd5d12d8f05201475b02948a1d0b8",
+      "method": "POST",
+      "name": "dataset.wait_times.save",
+      "path": "/project/eval-coffee-bar/datasets",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "3987c79d3a4592fb69d8d60d1c7a632d4e6be55972c59b6ff6250b217c567a9c",
+      "method": "POST",
+      "name": "T-06.validate",
+      "path": "/artifacts/T-06/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "6b1b5ccfefe2d9cf5b74d7b324e424af53bfd3ee8df8f7d1fe68e9ffcb8fed8b",
+      "method": "POST",
+      "name": "T-06.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-06",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "c17f57c1dcaa137feec9ef0481f685ff976df063194006d2fb47c758b50c79fc",
+      "method": "POST",
+      "name": "T-06.prescore",
+      "path": "/prescore/T-06",
+      "status_code": 200,
+      "tool_ids": [
+        "T-06"
+      ]
+    },
+    {
+      "input_hash": "975dc920936f23de6a0d373496788d3ea37b2d88d4bde79a30dfbf4f9b1a883a",
+      "method": "POST",
+      "name": "floorplan.station.upload",
+      "path": "/project/eval-coffee-bar/floorplans",
+      "status_code": 200,
+      "tool_ids": [
+        "T-07"
+      ]
+    },
+    {
+      "input_hash": "734e7dd8aadc1a6e3c080acc353ba0935138a4ad577c25432d6a90688ed5faec",
+      "method": "POST",
+      "name": "T-07.validate",
+      "path": "/artifacts/T-07/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-07"
+      ]
+    },
+    {
+      "input_hash": "e503e83ba57f79ef830bc48a48fc0ef7580b0d9a947f47eac7f1beb0a7c26ee3",
+      "method": "POST",
+      "name": "T-07.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-07",
+      "status_code": 200,
+      "tool_ids": [
+        "T-07"
+      ]
+    },
+    {
+      "input_hash": "3f5639bbc6f8df636ca12fb48771412b8e29fa3c982c89f4c76083ae36a4870f",
+      "method": "POST",
+      "name": "T-07.prescore",
+      "path": "/prescore/T-07",
+      "status_code": 200,
+      "tool_ids": [
+        "T-07"
+      ]
+    },
+    {
+      "input_hash": "7674a2620c68a81b9577a7faed2beee4c01fff8807c137b184123454bc353299",
+      "method": "POST",
+      "name": "T-08.validate",
+      "path": "/artifacts/T-08/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "9fce1133d0051f47db2300f09971272d91903e386a2b03b31b1df3d3741b3af4",
+      "method": "POST",
+      "name": "T-08.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-08",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "9cf7c343121abd960bc00471533b8fa5d83e87ee1d722aa422b7f1cbb50feec8",
+      "method": "POST",
+      "name": "T-08.prescore",
+      "path": "/prescore/T-08",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "026198c06f0bb6c87019ff13af3ca9f2c1fbd6cb61f5cdf48fe582aa321441e7",
+      "method": "POST",
+      "name": "T-08.to_dataset",
+      "path": "/project/eval-coffee-bar/check-sheet/coffee-check-sheet/to-dataset",
+      "status_code": 200,
+      "tool_ids": [
+        "T-08"
+      ]
+    },
+    {
+      "input_hash": "2af4ef690245a6bafbcfaa18b432ab7da32cf88beb88df2c77ff61cb04d22082",
+      "method": "POST",
+      "name": "T-14.pareto.delay_reasons",
+      "path": "/stats/pareto",
+      "status_code": 200,
+      "tool_ids": [
+        "T-14"
+      ]
+    },
+    {
+      "input_hash": "b6cdf3b1cbcc7c7bea57f5e028179763987ef0d4cb0bba3c8de541826a692b8a",
+      "method": "POST",
+      "name": "T-09.validate",
+      "path": "/artifacts/T-09/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-09"
+      ]
+    },
+    {
+      "input_hash": "8ac612fea6ab333efca360b930116cc0e547e4df26cac7e895ab0a6741da86bb",
+      "method": "POST",
+      "name": "T-09.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-09",
+      "status_code": 200,
+      "tool_ids": [
+        "T-09"
+      ]
+    },
+    {
+      "input_hash": "1a75fdac81dd0043583ef4db140f18bba718fe72cc89870aa0f8e297e66484d8",
+      "method": "POST",
+      "name": "T-09.prescore",
+      "path": "/prescore/T-09",
+      "status_code": 200,
+      "tool_ids": [
+        "T-09"
+      ]
+    },
+    {
+      "input_hash": "a977496cf68f3bc4579ff2295aec5ce5e964573842b990e6a2bd239ace193496",
+      "method": "POST",
+      "name": "T-11.validate",
+      "path": "/artifacts/T-11/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "6cebea33a7e1cc53a7f23ab266ec56ca2c2417c2f04fc334d27b9b0d373ac6ea",
+      "method": "POST",
+      "name": "T-11.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-11",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "4f3973d2f379b89e601f19b3c84ec133334359259b653af856d0710d0863cba1",
+      "method": "POST",
+      "name": "T-11.prescore",
+      "path": "/prescore/T-11",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "dc80930a098b97bf88501db5c61ac54e7d561550cc7b1faa85ecd992b7193810",
+      "method": "POST",
+      "name": "T-11.sample_size",
+      "path": "/stats/sample-size",
+      "status_code": 200,
+      "tool_ids": [
+        "T-11"
+      ]
+    },
+    {
+      "input_hash": "d395f87fa6185de58074f05a0a2a13055da93c4ba89390dcfc86b4ed6004fbad",
+      "method": "POST",
+      "name": "T-12.validate",
+      "path": "/artifacts/T-12/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "374c7df49a1739b31f86a84bb7ab9304e89cee4dd81e5744899a10171d8ed5b0",
+      "method": "POST",
+      "name": "T-12.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-12",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "05bc3462d5855f532e8d9d901b5110afab04f0aaf4b7a032ba82e43b6013f139",
+      "method": "POST",
+      "name": "T-12.prescore",
+      "path": "/prescore/T-12",
+      "status_code": 200,
+      "tool_ids": [
+        "T-12"
+      ]
+    },
+    {
+      "input_hash": "90ad9b5dd17d298edfc192f0f4210f6516acf5c5327c71fb94ae2cf03bf56a7b",
+      "method": "POST",
+      "name": "gate.measure_capability_language_requires_msa_pass",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "9e914ef12cf0407be91a94dadbdd0ef329c4e9faaddb46ccd08b91474c088d78",
+      "method": "POST",
+      "name": "T-13.baseline",
+      "path": "/stats/baseline",
+      "status_code": 200,
+      "tool_ids": [
+        "T-13"
+      ]
+    },
+    {
+      "input_hash": "c2f2721d68ea4710815c2a0365acdae1689530328dddfba75cbde020293f385d",
+      "method": "POST",
+      "name": "T-14.descriptive.wait_times",
+      "path": "/stats/descriptive",
+      "status_code": 200,
+      "tool_ids": [
+        "T-14"
+      ]
+    },
+    {
+      "input_hash": "8b846df78b81bef7704d330725474201884c211a98ec81f8cbcfd36bff01863a",
+      "method": "POST",
+      "name": "gate.measure_to_analyze",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "376b8988f6ead9bbc3f89b62df7c6f9fd4f7c6f21c1ebd0b1291f8852bb05f8a",
+      "method": "POST",
+      "name": "T-15.validate",
+      "path": "/artifacts/T-15/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "d27bcfea433371505d7ca6f68a4c1dfe08488a32b9b162af2a88eca963aa109f",
+      "method": "POST",
+      "name": "T-15.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-15",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "9897b1aef7e1e82f5b2fa72027195cd8790914e42cf1e44c063ea11e64f06e20",
+      "method": "POST",
+      "name": "T-15.prescore",
+      "path": "/prescore/T-15",
+      "status_code": 200,
+      "tool_ids": [
+        "T-15"
+      ]
+    },
+    {
+      "input_hash": "5c3cbcd4c4df3f1ca462198fe95bac61ae9515cf916dac23eeb126edce37e55f",
+      "method": "POST",
+      "name": "T-16.validate",
+      "path": "/artifacts/T-16/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "ab556eca02a7c80d2b44c2793b7b88fcbb279b514207d0d89233657e08ee4131",
+      "method": "POST",
+      "name": "T-16.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-16",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "b64c1a5c3cd7c2f8975789f38f5db726863c767d083b5d783ddffb192a775c05",
+      "method": "POST",
+      "name": "T-16.prescore",
+      "path": "/prescore/T-16",
+      "status_code": 200,
+      "tool_ids": [
+        "T-16"
+      ]
+    },
+    {
+      "input_hash": "b39e553d8092c062da5819245f1433dc831ad9fa0f45992e9441647ac3890b68",
+      "method": "POST",
+      "name": "T-17.validate",
+      "path": "/artifacts/T-17/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "2e5b21308bb97e2c8c02f657465d41c7d085cdf8c890c938c350621390c4216d",
+      "method": "POST",
+      "name": "T-17.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-17",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "bce6145a17e9347cb7807cb0ba21ad83f490053993f1debdeeb99bf5380ca43c",
+      "method": "POST",
+      "name": "T-17.prescore",
+      "path": "/prescore/T-17",
+      "status_code": 200,
+      "tool_ids": [
+        "T-17"
+      ]
+    },
+    {
+      "input_hash": "44a3672695069a7a2eb1edc937f8b67b8f9b68310767526d45bf35088c9daebe",
+      "method": "POST",
+      "name": "gate.analyze_to_improve",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "485078adb69ed74809cd2a3d95b9b8be2d64f54293873cdf9d8fa1536b665b39",
+      "method": "POST",
+      "name": "T-18.validate",
+      "path": "/artifacts/T-18/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "d3b301206a67247f16410117fe77255af994dc1d749422d10071473e5a713706",
+      "method": "POST",
+      "name": "T-18.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-18",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "657b265329f36cbb540fc4f0d436e4c4f62490468a88c85f3049c60984ca7c85",
+      "method": "POST",
+      "name": "T-18.prescore",
+      "path": "/prescore/T-18",
+      "status_code": 200,
+      "tool_ids": [
+        "T-18"
+      ]
+    },
+    {
+      "input_hash": "65a2db53d227fb36db7c5b01f95792c1662de18274232d09216d35b8829e2634",
+      "method": "POST",
+      "name": "T-19.round1.exit10_probe",
+      "path": "/artifacts/T-19/validate",
+      "status_code": 422,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "efa89f5a719e3623038369bee61e61de56775d48d4268c626c3c8c92cba373de",
+      "method": "POST",
+      "name": "T-19.round1.validate",
+      "path": "/artifacts/T-19/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "e7c99eb75744cee0e86ba95a31fba20e3f5a48567439a5a15806a88302bb5509",
+      "method": "POST",
+      "name": "T-19.round1.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "6b83e1fd8f785436d3adf7f62da024a138cbdd7696bfbc0d5b583eb4223e3611",
+      "method": "POST",
+      "name": "T-19.round1.prescore",
+      "path": "/prescore/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "148fe67d0d5d2463c61c62ceef48d4e296537e281d43612cfd64dbb6a4a250a4",
+      "method": "POST",
+      "name": "T-20.round1.validate",
+      "path": "/artifacts/T-20/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "9207375296871851fa2244ccc8d1df5b4b4df1ebaa680eca9ef1ac2698f94977",
+      "method": "POST",
+      "name": "T-20.round1.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "dc80f2c24d2b1626ee0dfc3883db46f0a7bcbdd6cc1fe0644c8b7172ec7ced8d",
+      "method": "POST",
+      "name": "T-20.round1.prescore",
+      "path": "/prescore/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "06bb195345ce15d49c8ec90dfb7960ba4705e92877db9d8c6d3135e9512501fb",
+      "method": "POST",
+      "name": "T-19.round2.validate",
+      "path": "/artifacts/T-19/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "f11418ef46bb569f6d9e1d6a6a3a4c5d1f15b042fedce9e633edbc561309e4e1",
+      "method": "POST",
+      "name": "T-19.round2.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "3887f8ae2146d3eb1a6f69960104b3f27b08b3d1633adbca34c7e394edf6e05a",
+      "method": "POST",
+      "name": "T-19.round2.prescore",
+      "path": "/prescore/T-19",
+      "status_code": 200,
+      "tool_ids": [
+        "T-19"
+      ]
+    },
+    {
+      "input_hash": "2f6ce28d64da9f0d0443267121add55b06220381af384c85a81adf47023dae0b",
+      "method": "POST",
+      "name": "T-20.round2.validate",
+      "path": "/artifacts/T-20/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "101a669fb6ad1937098ffa09542b4a6a9ff6ebbe9ff8291315c0f2c36ce2f26a",
+      "method": "POST",
+      "name": "T-20.round2.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "21451d6c882b21fb28e7ea3ed15c712eef7787ab24bfb0436ab1ea40a570fea9",
+      "method": "POST",
+      "name": "T-20.round2.prescore",
+      "path": "/prescore/T-20",
+      "status_code": 200,
+      "tool_ids": [
+        "T-20"
+      ]
+    },
+    {
+      "input_hash": "880daf30959fb1edd3f9f5ba18eea5690bf18d2bb4851b8a81d99ca948ba26e5",
+      "method": "POST",
+      "name": "gate.improve_to_control",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "2c899162157ab445667af7de90b86fcc00f4a4c5928a0b1c5cd756a4dfb94dc4",
+      "method": "POST",
+      "name": "T-21.validate",
+      "path": "/artifacts/T-21/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "072a99ef2579f40d5019b9560f94f6a05cdbfd8a0c695c3132efec1b2e13aa70",
+      "method": "POST",
+      "name": "T-21.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-21",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "f8a69fc7f32781a9d47f223b2573a14b13848e1e421eeb189fabe7316eb8e36a",
+      "method": "POST",
+      "name": "T-21.prescore",
+      "path": "/prescore/T-21",
+      "status_code": 200,
+      "tool_ids": [
+        "T-21"
+      ]
+    },
+    {
+      "input_hash": "7230501fc6ca4eb4f1914627169f8d4803e7eb94d90203dc8c2695624434b185",
+      "method": "POST",
+      "name": "T-22.validate",
+      "path": "/artifacts/T-22/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "a61b986e7396e3e6f988490eabb696703c636b78fa7a4a7be469c416bc4e3d3a",
+      "method": "POST",
+      "name": "T-22.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-22",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "934f071030ddbf739c7f597948176a4d14bbf56a53d73fcd1e9221068307e677",
+      "method": "POST",
+      "name": "T-22.prescore",
+      "path": "/prescore/T-22",
+      "status_code": 200,
+      "tool_ids": [
+        "T-22"
+      ]
+    },
+    {
+      "input_hash": "d6735b24227291ee5628f6487ffd9f97528096ca95af40e015c4091ff2de8523",
+      "method": "POST",
+      "name": "floorplan.five_s_round1.upload",
+      "path": "/project/eval-coffee-bar/floorplans",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "d09bbaa88ca5006645f5174028e18c38794b5fb02fcc60c4e09a8595ea4b7f2b",
+      "method": "POST",
+      "name": "floorplan.five_s_round2.upload",
+      "path": "/project/eval-coffee-bar/floorplans",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "54c2bd1c5707698a021b4d65c036c02675988884b34ee799bd02a6005d5cd9eb",
+      "method": "POST",
+      "name": "floorplan.five_s_round3.upload",
+      "path": "/project/eval-coffee-bar/floorplans",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "990b12c6f4755d9c4ab1a1e27ffdb5be5e7c2d60357fb0f47cea879fb377b235",
+      "method": "POST",
+      "name": "T-23.validate",
+      "path": "/artifacts/T-23/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "dbff05011748c23780ea27e79a2449a7a39c73e29b7155fd96a82edd92783a7f",
+      "method": "POST",
+      "name": "T-23.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-23",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "75a143cc01b4297b2ed538d76571dbd391fab06ea36f77a23f204d7629dd81a3",
+      "method": "POST",
+      "name": "T-23.prescore",
+      "path": "/prescore/T-23",
+      "status_code": 200,
+      "tool_ids": [
+        "T-23"
+      ]
+    },
+    {
+      "input_hash": "5fd01170c9d9c6d2ac7c7c52fb76acd7202f4fd51533b75a9ed15d6309f5b4c2",
+      "method": "POST",
+      "name": "T-24.validate",
+      "path": "/artifacts/T-24/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "491d01dc68c5f436d9544524b94035d096b0fc036ff25800ade68c38b59845e7",
+      "method": "POST",
+      "name": "T-24.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-24",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "605117c28e94315791781ea8516abcdf35f5f0f6fcfff679105e2e089582eee6",
+      "method": "POST",
+      "name": "T-24.prescore",
+      "path": "/prescore/T-24",
+      "status_code": 200,
+      "tool_ids": [
+        "T-24"
+      ]
+    },
+    {
+      "input_hash": "db6ddea64f21b3a8789595ad43456352dcb529f675ca3d24d0ac15efe2031d9a",
+      "method": "POST",
+      "name": "gate.control_to_wrap",
+      "path": "/gates/check",
+      "status_code": 200,
+      "tool_ids": []
+    },
+    {
+      "input_hash": "b3627f1449240d7944d87c2d6434d085b163ed73c392c659ca3c94bdf0f7efe5",
+      "method": "POST",
+      "name": "T-02.wrap.validate",
+      "path": "/artifacts/T-02/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "6afc70adfe9dfd3a63b47f937f90a7801d4c2e1baf027d8611ce19d46c01f085",
+      "method": "POST",
+      "name": "T-02.wrap.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "2e86cfab6100ea18d87cdb17d6cba03a3067ecc778ba1ce9b3169fdea82229b5",
+      "method": "POST",
+      "name": "T-02.wrap.prescore",
+      "path": "/prescore/T-02",
+      "status_code": 200,
+      "tool_ids": [
+        "T-02"
+      ]
+    },
+    {
+      "input_hash": "88b981159d974c2cba7d6907e8e49be39c53aa14b40beafb4587515f01b34674",
+      "method": "POST",
+      "name": "T-25.validate",
+      "path": "/artifacts/T-25/validate",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "c1f78a1489da9c01383aa203321eebf713a92b5808c203be719c01db3812ae66",
+      "method": "POST",
+      "name": "T-25.save",
+      "path": "/project/eval-coffee-bar/artifacts/T-25",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "c238e8a112297922a37a47f27cada660bc50b516292ce553382ce9a007433e9e",
+      "method": "POST",
+      "name": "T-25.prescore",
+      "path": "/prescore/T-25",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "22aa84776115b3d5f759004a5da3491e8efa1dc45ccb36a8775763fc9dc8b0fb",
+      "method": "GET",
+      "name": "T-25.load",
+      "path": "/project/eval-coffee-bar/artifacts/coffee-a3",
+      "status_code": 200,
+      "tool_ids": [
+        "T-25"
+      ]
+    },
+    {
+      "input_hash": "629577ef37973fc4b2d59e58dae980fa741714c46e8277d22816e71f0dde5731",
+      "method": "GET",
+      "name": "project.info",
+      "path": "/project/eval-coffee-bar/info",
+      "status_code": 200,
+      "tool_ids": []
+    }
+  ]
+}

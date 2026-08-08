@@ -1,0 +1,32 @@
+[
+  {
+    "check_id": "branch_coverage_minimum",
+    "detail": "3/6 branches carry a cause -- fewer than 4, a single pre-decided path with decoration (rubric R-ANA-01 #4)",
+    "status": "flag",
+    "tool_id": "T-15"
+  },
+  {
+    "check_id": "cause_count_minimum",
+    "detail": "8 cause(s) on the board",
+    "status": "pass",
+    "tool_id": "T-15"
+  },
+  {
+    "check_id": "absent_solution_language",
+    "detail": "no cause reads as an absent solution",
+    "status": "pass",
+    "tool_id": "T-15"
+  },
+  {
+    "check_id": "verified_causes_have_evidence",
+    "detail": "every verified cause carries evidence (schema-guaranteed, rubric R-ANA-02's anchor item)",
+    "status": "pass",
+    "tool_id": "T-15"
+  },
+  {
+    "check_id": "ruled_out_causes_retained",
+    "detail": "2 ruled-out cause(s) retained on the board (status changed, never deleted)",
+    "status": "pass",
+    "tool_id": "T-15"
+  }
+]

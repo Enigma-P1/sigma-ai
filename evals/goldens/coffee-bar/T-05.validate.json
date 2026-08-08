@@ -1,0 +1,105 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-voc-ctq",
+    "charter_metric_link": "C1 is the charter's primary metric: average order-to-handoff time in minutes, weekday 7:00-10:00 peak -- same operational definition, same direction (lower is better), same target (5.0 minutes by 2026-10-31). C3 appears on the charter as the remake-rate guardrail.",
+    "created_at": "2026-07-09T15:40:00Z",
+    "ctqs": [
+      {
+        "critical_vs_easy_check": "Customer-critical: S1, S2, and S4 are all about the total wait itself -- customers time their stop against class start. Not chosen for convenience: the POS only stamps order time, so handoff needs a manual tally.",
+        "ctq_id": "C1",
+        "direction": "lower_is_better",
+        "measure": "Average order-to-handoff time, weekday 7:00-10:00 peak, in minutes",
+        "need_id": "N1",
+        "target": "5.0 minutes average (charter goal, from 8.4 baseline)"
+      },
+      {
+        "critical_vs_easy_check": "Customer-critical: S4 names five minutes as the walk-away line, so the share past that line matters, not just the average. Harder to measure than the average, not easier -- it needs the same per-order tally.",
+        "ctq_id": "C2",
+        "direction": "higher_is_better",
+        "measure": "Share of peak orders handed off within 5 minutes (%)",
+        "need_id": "N1",
+        "target": "90% of weekday-peak orders within 5 minutes"
+      },
+      {
+        "critical_vs_easy_check": "Customer-critical: S5 says the drink itself is why regulars come, so speeding up handoff must not trade away correctness. The waste sheet makes it easy to count, but it earns its place through S5, not through convenience -- it is the charter's guardrail metric.",
+        "ctq_id": "C3",
+        "direction": "lower_is_better",
+        "measure": "Drink remake rate, remakes per 100 orders",
+        "need_id": "N2",
+        "target": "No worse than the Q2 2026 level (about 3.6 per 100 orders)"
+      }
+    ],
+    "customers": [
+      {
+        "is_internal": false,
+        "role": "External - student buying coffee before class"
+      },
+      {
+        "is_internal": false,
+        "role": "External - faculty/staff regular"
+      }
+    ],
+    "needs": [
+      {
+        "need_id": "N1",
+        "statement_ids": [
+          "S1",
+          "S2",
+          "S3",
+          "S4"
+        ],
+        "text": "Get the drink in hand fast enough to make it to class or a meeting -- the whole wait, order to handoff."
+      },
+      {
+        "need_id": "N2",
+        "statement_ids": [
+          "S5"
+        ],
+        "text": "The drink is made right the first time -- speed must not cost correctness."
+      }
+    ],
+    "notes": "Statements gathered June 2026: pickup-counter intercepts (2 mornings), the comment-card box, and one direct observation during the June 12 morning watch.",
+    "primary_ctq_id": "C1",
+    "schema_version": 1,
+    "statements": [
+      {
+        "customer_role": "External - student buying coffee before class",
+        "source": "interview",
+        "source_detail": "Pickup-counter intercept, June 17 2026",
+        "statement_id": "S1",
+        "text": "I skip coffee before my 8am -- the line takes forever."
+      },
+      {
+        "customer_role": "External - student buying coffee before class",
+        "source": "complaint_log",
+        "source_detail": "Comment card, May 2026",
+        "statement_id": "S2",
+        "text": "I got charged and then waited so long I had to leave without my drink."
+      },
+      {
+        "customer_role": "External - student buying coffee before class",
+        "source": "direct_observation",
+        "source_detail": "Heard at the pickup counter during the June 12 morning observation",
+        "statement_id": "S3",
+        "text": "My latte was just sitting there going cold and nobody called my name."
+      },
+      {
+        "customer_role": "External - faculty/staff regular",
+        "source": "interview",
+        "source_detail": "Pickup-counter intercept, June 18 2026",
+        "statement_id": "S4",
+        "text": "If it's more than five minutes I just go to the vending machine."
+      },
+      {
+        "customer_role": "External - faculty/staff regular",
+        "source": "interview",
+        "source_detail": "Pickup-counter intercept, June 18 2026",
+        "statement_id": "S5",
+        "text": "The drink is great when I finally get it."
+      }
+    ],
+    "tool_id": "T-05",
+    "updated_at": "2026-07-09T15:40:00Z"
+  },
+  "valid": true
+}

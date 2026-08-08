@@ -1,0 +1,181 @@
+{
+  "artifact": {
+    "artifact_id": "s2-five-s",
+    "created_at": "2026-09-28T09:00:00Z",
+    "notes": "The fix's physical home: labeled sort shelves by range, cart staging lanes, exception-flag bin at the bench, the orphan pile dispositioned. Photos omitted for this eval fixture (schema allows an empty photos list per round).",
+    "rounds": [
+      {
+        "area": "Sorting room",
+        "date": "2026-09-28",
+        "improvement_action": "Label sort shelves by range and post the sorting standard",
+        "improvement_action_owner": "Ruth Delgado",
+        "lowest_category": "standardize",
+        "photos": [],
+        "round_id": "r1",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Standing orphan pile, no owner",
+            "score": 2
+          },
+          {
+            "category": "set_in_order",
+            "note": "No labeled sort shelves by range yet",
+            "score": 2
+          },
+          {
+            "category": "shine",
+            "note": "Swept daily but no inspection standard",
+            "score": 3
+          },
+          {
+            "category": "standardize",
+            "note": "Nothing posted",
+            "score": 1
+          },
+          {
+            "category": "sustain",
+            "note": "First audit ever",
+            "score": 3
+          }
+        ],
+        "total": 11
+      },
+      {
+        "area": "Sorting room",
+        "date": "2026-10-15",
+        "improvement_action": "Add the exception-flag bin at the sorting bench",
+        "improvement_action_owner": "Ruth Delgado",
+        "lowest_category": "shine",
+        "photos": [],
+        "round_id": "r2",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Orphan pile dispositioned",
+            "score": 3
+          },
+          {
+            "category": "set_in_order",
+            "note": "Labeled sort shelves and cart staging lanes in",
+            "score": 4
+          },
+          {
+            "category": "shine",
+            "note": "Unchanged",
+            "score": 3
+          },
+          {
+            "category": "standardize",
+            "note": "Posted standard on the wall",
+            "score": 3
+          },
+          {
+            "category": "sustain",
+            "note": "One on-schedule round behind it",
+            "score": 3
+          }
+        ],
+        "total": 16
+      },
+      {
+        "area": "Sorting room",
+        "date": "2026-11-04",
+        "improvement_action": "Fold the audit into the existing weekly staff meeting for structural sustain",
+        "improvement_action_owner": "Ruth Delgado",
+        "lowest_category": "sustain",
+        "photos": [],
+        "round_id": "r3",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Holding",
+            "score": 4
+          },
+          {
+            "category": "set_in_order",
+            "note": "Exception-flag bin in place",
+            "score": 4
+          },
+          {
+            "category": "shine",
+            "note": "Inspection standard now posted alongside sorting standard",
+            "score": 4
+          },
+          {
+            "category": "standardize",
+            "note": "Standard referenced on the T-24 SOP",
+            "score": 4
+          },
+          {
+            "category": "sustain",
+            "note": "Two consecutive on-schedule rounds",
+            "score": 3
+          }
+        ],
+        "total": 19
+      }
+    ],
+    "schedule": {
+      "cadence_note": "Biweekly through the pilot, monthly from November",
+      "next_round_due": "2026-12-04"
+    },
+    "schema_version": 1,
+    "tool_id": "T-23",
+    "trend": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "06a9a3b225da1f40ea41381d3d2c82370366d9712fc08b6681e0b193bb83ac31",
+        "method": "trend = audit rounds ordered by date then round_id, each point's total/per_category/lowest_category read straight off that round's own scores (rubric R-CTL-05 #3: recurrence made visible as a trend line)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "area": "Sorting room",
+          "date": "2026-09-28",
+          "lowest_category": "standardize",
+          "per_category": {
+            "set_in_order": 2,
+            "shine": 3,
+            "sort": 2,
+            "standardize": 1,
+            "sustain": 3
+          },
+          "round_id": "r1",
+          "total": 11
+        },
+        {
+          "area": "Sorting room",
+          "date": "2026-10-15",
+          "lowest_category": "shine",
+          "per_category": {
+            "set_in_order": 4,
+            "shine": 3,
+            "sort": 3,
+            "standardize": 3,
+            "sustain": 3
+          },
+          "round_id": "r2",
+          "total": 16
+        },
+        {
+          "area": "Sorting room",
+          "date": "2026-11-04",
+          "lowest_category": "sustain",
+          "per_category": {
+            "set_in_order": 4,
+            "shine": 4,
+            "sort": 4,
+            "standardize": 4,
+            "sustain": 3
+          },
+          "round_id": "r3",
+          "total": 19
+        }
+      ]
+    },
+    "updated_at": "2026-11-04T09:00:00Z"
+  },
+  "valid": true
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "check_id": "threshold_before_data_advisory",
+    "detail": "success threshold declared at 2026-09-03T09:00:00Z -- entry order only, not observation order (advisory: no linked pilot dataset to compare against yet; re-checked for real once T-20 runs)",
+    "status": "pass",
+    "tool_id": "T-19"
+  },
+  {
+    "check_id": "falsification_substance_heuristic",
+    "detail": "falsification line reads as substantive",
+    "status": "pass",
+    "tool_id": "T-19"
+  },
+  {
+    "check_id": "checklist_completeness",
+    "detail": "all five confounder notes are filled in",
+    "status": "pass",
+    "tool_id": "T-19"
+  },
+  {
+    "check_id": "package_declaration_quality",
+    "detail": "no declared package on this pilot -- ordinary single-change discipline applies (not applicable)",
+    "status": "pass",
+    "tool_id": "T-19"
+  }
+]

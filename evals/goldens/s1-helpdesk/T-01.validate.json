@@ -1,0 +1,32 @@
+{
+  "artifact": {
+    "artifact_id": "s1-picker",
+    "business_impact_plausible": {
+      "answer": true,
+      "detail": "Status-chase contacts, reopen rework, and late access grants put Q2 cost in the low five figures per quarter -- COPQ worksheet does the arithmetic."
+    },
+    "created_at": "2026-07-01T09:10:00Z",
+    "data_obtainable": {
+      "answer": true,
+      "detail": "The ticket system logs a timestamp at every stage; the July baseline extract already carries the element times a stopwatch study would re-collect."
+    },
+    "measurable_outcome": {
+      "answer": true,
+      "detail": "Resolution time in business hours, open to confirmed resolution, against the 8-hour service-catalog promise."
+    },
+    "notes": "Five intake criteria, all Yes; no single obvious fix (queue discipline, approvals, and channels all suspect) -- full DMAIC, not the PDCA quick path.",
+    "process_owner_engaged": {
+      "answer": true,
+      "detail": "Naomi Castillo, help desk lead, is named owner-in-waiting; IT manager Victor Braun sponsors after the Q2 employee survey named IT turnaround the top irritant."
+    },
+    "route": "full-DMAIC",
+    "schema_version": 1,
+    "scope_narrow": {
+      "answer": true,
+      "detail": "Routine (P3) help-desk tickets only -- password resets, software installs, access grants; P1/P2 incidents and project work are out of scope."
+    },
+    "tool_id": "T-01",
+    "updated_at": "2026-07-01T09:10:00Z"
+  },
+  "valid": true
+}

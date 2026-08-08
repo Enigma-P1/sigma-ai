@@ -1,0 +1,176 @@
+{
+  "artifact": {
+    "artifact_id": "s2-hyp-section",
+    "created_at": "2026-09-26T09:00:00Z",
+    "declared_primary": false,
+    "notes": "Declared before the section split was cut, as a screen -- not the primary comparison.",
+    "question": {
+      "col_labels": [
+        "adult",
+        "juvenile",
+        "nonfiction"
+      ],
+      "comparison_type": "association_categorical",
+      "comparisons_declared": 1,
+      "contingency_table": [
+        [
+          19,
+          46,
+          25
+        ],
+        [
+          534,
+          393,
+          362
+        ]
+      ],
+      "declared_data_type": "nominal_categorical",
+      "declared_primary": false,
+      "groups": [],
+      "measurements_per_unit": 1,
+      "paired_after": null,
+      "paired_after_label": "after",
+      "paired_before": null,
+      "paired_before_label": "before",
+      "question_intent": null,
+      "question_text": "Does the misshelved-vs-ok proportion differ by section (baseline window)?",
+      "row_labels": [
+        "misshelved",
+        "ok"
+      ],
+      "sample": null,
+      "sample_label": "sample",
+      "target": null,
+      "tests_run_including_this_one": 1,
+      "time_ordered": false,
+      "user_shape_concern": false
+    },
+    "refused": false,
+    "result": {
+      "provenance": {
+        "assumptions_checked": [
+          "Cochran's rule cleared (matrix §4a EXIT-07)"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "5740d0ef06a9b70af34df2f904f67f6b6877d76537be086a8fbf5420614bf8ba",
+        "method": "Pearson chi-square test of independence (Pearson 1900; no Yates continuity correction -- standard practice for r x c tables, applied uniformly here) + Cramer's V = sqrt(chi2/(n*(min(r,c)-1)))",
+        "warnings": []
+      },
+      "value": {
+        "alpha": 0.05,
+        "assumptions_checked": [
+          "Cochran's rule cleared before this test ran (matrix §4a EXIT-07): >= 80% of cells expected >= 5, no cell expected < 1",
+          "counts are independent observations (one per unit, not repeated measures)"
+        ],
+        "contingency": [
+          {
+            "col": "adult",
+            "expected": 36.09137055837564,
+            "observed": 19,
+            "row": "misshelved"
+          },
+          {
+            "col": "juvenile",
+            "expected": 28.651196519216825,
+            "observed": 46,
+            "row": "misshelved"
+          },
+          {
+            "col": "nonfiction",
+            "expected": 25.257432922407542,
+            "observed": 25,
+            "row": "misshelved"
+          },
+          {
+            "col": "adult",
+            "expected": 516.9086294416244,
+            "observed": 534,
+            "row": "ok"
+          },
+          {
+            "col": "juvenile",
+            "expected": 410.3488034807832,
+            "observed": 393,
+            "row": "ok"
+          },
+          {
+            "col": "nonfiction",
+            "expected": 361.74256707759247,
+            "observed": 362,
+            "row": "ok"
+          }
+        ],
+        "cramers_v": 0.1201285550351261,
+        "df": 2.0,
+        "df_between": null,
+        "df_within": null,
+        "effect_size_ci": null,
+        "effect_size_ci_method": "not computed -- no simple closed-form CI for Cramer's V (a bootstrap or noncentral-chi-square CI is out of scope for this v1 route); the point estimate is reported plainly.",
+        "effect_size_name": "Cramer's V",
+        "effect_size_value": 0.1201285550351261,
+        "equal_shape_caveat": null,
+        "exit13": null,
+        "groups": [],
+        "hodges_lehmann_ci": null,
+        "hodges_lehmann_ci_method": null,
+        "hodges_lehmann_shift": null,
+        "p_value": 4.772359242862867e-05,
+        "plain_language": {
+          "comparison_summary": "Tested whether the row categories (misshelved, ok) and column categories (adult, juvenile, nonfiction) are associated -- a 2x3 contingency table, n=1379, chi-square test of independence.",
+          "effect_size_in_words": "Cramer's V = 0.120 -- a weak association between the row and column categories (0 = no association, 1 = perfect association).",
+          "p_value_meaning": "p = 0.0000, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 0.0048% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+          "practical_significance_prompt": "Statistically detectable ≠ big enough to matter -- compare the effect size above against the goal."
+        },
+        "rank_biserial_r": null,
+        "risk_difference": null,
+        "risk_difference_ci": null,
+        "risk_difference_ci_method": null,
+        "significant": true,
+        "statistic": 19.900169364326874,
+        "statistic_name": "chi-square",
+        "test_name": "chi_square_independence",
+        "two_sided": true,
+        "warnings": []
+      }
+    },
+    "routing": {
+      "comparison_type": "association_categorical",
+      "decision_path": [
+        {
+          "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+          "branch": "one pre-declared primary comparison -- continue",
+          "question": "Is exactly one primary comparison declared, and does the test count stay within it?"
+        },
+        {
+          "answer": "declared_data_type='nominal_categorical'",
+          "branch": "not count/rate data -- continue",
+          "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?"
+        },
+        {
+          "answer": "measurements_per_unit=1",
+          "branch": "at most paired (<=2) -- continue",
+          "question": "How many related measurements per unit are there?"
+        },
+        {
+          "answer": "association_categorical",
+          "branch": "the association_categorical path",
+          "question": "What kind of comparison is this?"
+        },
+        {
+          "answer": "100% of cells have expected>=5 (need >=80%); smallest expected cell=25.26 (need >=1)",
+          "branch": "cleared -- compute",
+          "question": "Does the table clear Cochran's rule?"
+        }
+      ],
+      "exit": null,
+      "question": "Does the misshelved-vs-ok proportion differ by section (baseline window)?",
+      "recommend_nonparametric": false,
+      "route": "chi_square_independence",
+      "switch_reason": null
+    },
+    "schema_version": 1,
+    "tool_id": "T-17",
+    "updated_at": "2026-09-26T09:00:00Z"
+  },
+  "valid": true
+}

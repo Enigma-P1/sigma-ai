@@ -1,0 +1,56 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-collection-plan",
+    "bias_note": "Every-4th-order sampling stops us from timing only the easy orders; sampling runs the full two weeks (not one morning), both dayparts and both baristas every day. Known residual bias: the window is July summer session -- fall-semester demand shifts in late August, which the charter carries as a risk with daily order counts recorded as the like-for-like control.",
+    "charter_metric_id": "C1",
+    "created_at": "2026-07-16T14:10:00Z",
+    "data_type": "continuous",
+    "logistics": {
+      "planned_n": 120,
+      "sample_size_rationale": "Engine sample-size panel, mean calculator: planning SD 1.1 min (July 15 pre-study, 12 orders), margin of error 0.2 min at 95% confidence returns n = 117; rounded to 120 = 12 orders x 10 mornings so both dayparts and both baristas get coverage every day. Comfortably above the I-MR baseline rule of thumb (25 minimum, 30 recommended) and the 20-point floor for freezing control limits.",
+      "when_how_often": "Every 4th espresso order during the weekday 7:00-10:00 peak, 10 consecutive weekday mornings 2026-07-20 through 2026-07-31 -- 12 orders per morning, 6 per daypart",
+      "where_collected": "Campus coffee bar -- register ticket printer and pickup counter, same POS clock",
+      "who_collects": "Priya Shah (shift lead) owns the tally sheet; Marcus Webb or Riley logs the name-call time when Priya is on register"
+    },
+    "metric_name": "Average order-to-handoff time, weekday 7:00-10:00 peak",
+    "no_stratification_reason": "",
+    "notes": "Written before the first tally sheet went out (2026-07-20). The operational definition below is the one the charter's 8.4-minute magnitude was sampled under, tightened after the two-people check: Priya and Marcus timed the same 12 orders on July 15 and matched on all 12 once 'stops when' was pinned to the name call, not the customer picking the cup up.",
+    "operational_definition": {
+      "how_instrument": "POS register clock: order-paid timestamp from the POS ticket, handoff time written on the pickup-counter tally sheet by whoever calls the name, read off the same POS wall display. A phone stopwatch runs in parallel on every 10th sampled order to check the tally against the POS clock (drift check, not the recorded value).",
+      "precision_unit": "Tenths of a minute (0.1 min); the POS display shows seconds, recorded value is rounded to the nearest 0.1 min",
+      "starts_when": "The register prints the paid order ticket -- the POS order-paid timestamp",
+      "stops_when": "The barista calls the customer's name and sets the drink on the pickup counter -- the tally-sheet time at the name call, not when the customer collects the cup",
+      "two_people_confirmed": true,
+      "what_measured": "Elapsed order-to-handoff time for one espresso-drink order, in minutes"
+    },
+    "schema_version": 1,
+    "stratification_factors": [
+      {
+        "name": "daypart",
+        "values_expected": [
+          "early (7:00-8:30)",
+          "late (8:30-10:00)"
+        ]
+      },
+      {
+        "name": "drink_type",
+        "values_expected": [
+          "latte",
+          "cappuccino",
+          "americano",
+          "mocha"
+        ]
+      },
+      {
+        "name": "barista",
+        "values_expected": [
+          "Marcus",
+          "Riley"
+        ]
+      }
+    ],
+    "tool_id": "T-11",
+    "updated_at": "2026-07-16T14:10:00Z"
+  },
+  "valid": true
+}

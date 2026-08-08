@@ -1,0 +1,50 @@
+[
+  {
+    "check_id": "calibration_present",
+    "detail": "calibration line drawn with a stated real length",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "calibration_span_plausible",
+    "detail": "480.0px calibration line",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "route_count_minimum",
+    "detail": "4 route(s)",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "route_with_three_plus_points",
+    "detail": "4 route(s) with 3+ points",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "frequencies_present",
+    "detail": "all 4 route(s) carry a frequency_per_day > 0",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "operator_labels_non_placeholder",
+    "detail": "every operator has a real name",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "observation_window_stated",
+    "detail": "when/duration/shift all stated",
+    "status": "pass",
+    "tool_id": "T-07"
+  },
+  {
+    "check_id": "metrics_consistency",
+    "detail": "stored metrics match recomputed",
+    "status": "pass",
+    "tool_id": "T-07"
+  }
+]

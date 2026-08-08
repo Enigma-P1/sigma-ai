@@ -1,0 +1,70 @@
+{
+  "artifact": {
+    "analysis_plan": {
+      "expected_route": "two_proportion_z",
+      "rationale": "Two independent windows of pass/fail audit counts -- two-proportion z is the engine's proportions-comparison route."
+    },
+    "artifact_id": "s2-pilot",
+    "changes": [
+      {
+        "change_id": "chg-1",
+        "text": "Pre-sorted carts: returns are sorted into final shelf order in the sorting room against the posted standard, exception flags clipped at sort time; pages place at the shelf, they no longer sort there."
+      }
+    ],
+    "comparison_design": {
+      "description": "The frozen written-definition baseline (baseline-audit.csv, 21 days, p-bar 0.065265, stable) vs the measured after window.",
+      "kind": "before_period"
+    },
+    "confounder_checklist": {
+      "demand": {
+        "changed": true,
+        "note": "Same driver as season: higher return volume through the after window."
+      },
+      "measurement": {
+        "changed": false,
+        "note": "Same written definition and audit procedure as the baseline; T-12 round 2 still stands."
+      },
+      "other": {
+        "changed": false,
+        "note": "No other process change landed in the window."
+      },
+      "season": {
+        "changed": true,
+        "note": "Fall reading-program returns push shelving volume up through October -- can only push the rate up, never manufacture a win."
+      },
+      "staffing": {
+        "changed": false,
+        "note": "Same pages and rotation throughout."
+      }
+    },
+    "created_at": "2026-09-25T09:00:00Z",
+    "declared_package": null,
+    "falsification_line": "Two settled weeks above 4.0% audited rate -> revert to unsorted carts and take the next-ranked cause.",
+    "inclusion": {
+      "honesty_note": "One branch, one sorting room -- no randomization across sites.",
+      "how_selected": "Same rotating-range audit rule as the baseline",
+      "who_or_what": "All re-shelved returns across adult/juvenile/nonfiction, both shifts, the daily shelf-read audit's rotating ranges"
+    },
+    "notes": "One change only -- bundling the December training refresher into this pilot would be EXIT-10 territory; the refresher stays in the implementation plan instead.",
+    "package_attribution_note": null,
+    "schema_version": 1,
+    "status": "complete",
+    "success_threshold": {
+      "declared_at": "2026-09-25T09:00:00Z",
+      "direction": "lower_is_better",
+      "metric_ref": "audited misshelve rate (charter C1) -- settled-window rate",
+      "value": 0.04
+    },
+    "the_one_change": {
+      "linked_cause_ids": [
+        "c-sort-at-shelf",
+        "c-no-standard"
+      ],
+      "linked_solution_id": "sol-presort",
+      "statement": "Pre-sorted carts: returns are sorted into final shelf order in the sorting room against the posted standard, exception flags clipped at sort time; pages place at the shelf, they no longer sort there."
+    },
+    "tool_id": "T-19",
+    "updated_at": "2026-10-31T17:00:00Z"
+  },
+  "valid": true
+}

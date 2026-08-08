@@ -1,0 +1,63 @@
+{
+  "artifact": {
+    "artifact_id": "s1-sipoc",
+    "created_at": "2026-07-02T09:00:00Z",
+    "notes": "Boundaries match the charter scope.",
+    "output_customer_pairs": [
+      {
+        "customer": "Requester (staff/manager)",
+        "output": "Resolved ticket, requester-confirmed"
+      },
+      {
+        "customer": "IT manager (capacity and staffing decisions)",
+        "output": "Resolution-time record"
+      }
+    ],
+    "process_steps": [
+      {
+        "description": "Requester opens a ticket",
+        "step_number": 1
+      },
+      {
+        "description": "Ticket sits in the shared queue until morning triage",
+        "step_number": 2
+      },
+      {
+        "description": "Dispatcher assigns the ticket to a tech",
+        "step_number": 3
+      },
+      {
+        "description": "Tech requests manager approval (access grants only)",
+        "step_number": 4
+      },
+      {
+        "description": "Tech performs the work",
+        "step_number": 5
+      },
+      {
+        "description": "Requester confirms resolution (or auto-confirms at +2 business days)",
+        "step_number": 6
+      }
+    ],
+    "schema_version": 1,
+    "scope_end": "Requester confirms resolution (or auto-confirm)",
+    "scope_start": "Requester opens a ticket",
+    "supplier_input_pairs": [
+      {
+        "input": "Ticket request (password reset, software install, access grant)",
+        "supplier": "Requester (staff/manager)"
+      },
+      {
+        "input": "Approval decision",
+        "supplier": "Manager (access grants only)"
+      },
+      {
+        "input": "Timestamps at every stage",
+        "supplier": "Ticket system"
+      }
+    ],
+    "tool_id": "T-04",
+    "updated_at": "2026-07-02T09:00:00Z"
+  },
+  "valid": true
+}

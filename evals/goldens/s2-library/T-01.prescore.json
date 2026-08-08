@@ -1,0 +1,8 @@
+[
+  {
+    "check_id": "routing_consistency",
+    "detail": "route matches the five intake criteria per the frozen §4a rule",
+    "status": "pass",
+    "tool_id": "T-01"
+  }
+]

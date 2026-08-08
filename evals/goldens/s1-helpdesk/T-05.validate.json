@@ -1,0 +1,55 @@
+{
+  "artifact": {
+    "artifact_id": "s1-voc-ctq",
+    "charter_metric_link": "C1 is the charter's primary metric: mean resolution time in business hours, target 8.0 by 2026-10-31, lower is better -- turnaround-of-incident-tickets (P1/P2) is explicitly out of scope.",
+    "created_at": "2026-07-02T10:00:00Z",
+    "ctqs": [
+      {
+        "critical_vs_easy_check": "Customer-critical: both verbatims are about the total wait, not any one step; the ticket system already timestamps every stage, so this isn't chosen for measurement convenience.",
+        "ctq_id": "C1",
+        "direction": "lower_is_better",
+        "measure": "Elapsed business hours from ticket open to confirmed resolution",
+        "need_id": "N1",
+        "target": "8.0 business hours (the service-catalog promise)"
+      }
+    ],
+    "customers": [
+      {
+        "is_internal": true,
+        "role": "Internal -- staff/manager filing a routine ticket"
+      }
+    ],
+    "needs": [
+      {
+        "need_id": "N1",
+        "statement_ids": [
+          "S1",
+          "S2"
+        ],
+        "text": "Get a routine IT request resolved within the promised business day, without having to chase it personally."
+      }
+    ],
+    "notes": "Q2 employee survey plus walk-up complaints land on one CTQ.",
+    "primary_ctq_id": "C1",
+    "schema_version": 1,
+    "statements": [
+      {
+        "customer_role": "Internal -- staff/manager filing a routine ticket",
+        "source": "survey",
+        "source_detail": "Q2 2026 employee survey verbatim",
+        "statement_id": "S1",
+        "text": "I open a ticket and just walk to the desk anyway -- nothing happens otherwise."
+      },
+      {
+        "customer_role": "Internal -- staff/manager filing a routine ticket",
+        "source": "interview",
+        "source_detail": "Manager walk-up complaint, June 2026",
+        "statement_id": "S2",
+        "text": "New hires can't get their access for days; I end up emailing Naomi directly."
+      }
+    ],
+    "tool_id": "T-05",
+    "updated_at": "2026-07-02T10:00:00Z"
+  },
+  "valid": true
+}

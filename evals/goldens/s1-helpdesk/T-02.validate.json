@@ -1,0 +1,45 @@
+{
+  "artifact": {
+    "artifact_id": "s1-copq",
+    "created_at": "2026-07-01T10:00:00Z",
+    "notes": "Q2 2026 ingredients per the charter's cost case; the engine computes each row amount and the total. Late access for 9 new hires (avg 2.6 business days) is counted but not priced -- named, not included as a row, since idle-capability dollars could not be defended.",
+    "rows": [
+      {
+        "amount": 4974.200000000001,
+        "basis": "1,463 logged status-chase contacts, Q2 2026, averaging 6 minutes tech time each (146.3 tech-hours); loaded tech rate $34/hour",
+        "category": "custom",
+        "custom_label": "Status-chase contacts (tech time)",
+        "is_estimate": false,
+        "period": "Q2 2026",
+        "quantity": 146.3,
+        "rate": 34.0
+      },
+      {
+        "amount": 2767.6000000000004,
+        "basis": "74 reopened tickets, Q2 2026, averaging 1.1 hours rework each (81.4 tech-hours); loaded tech rate $34/hour",
+        "category": "rework",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "Q2 2026",
+        "quantity": 81.4,
+        "rate": 34.0
+      }
+    ],
+    "schema_version": 1,
+    "tool_id": "T-02",
+    "total": {
+      "provenance": {
+        "assumptions_checked": [
+          "each row's amount is quantity * rate, never hand-entered"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "01083c32a14a7e8fa415e8bae2a84ad016f3ad320a7f97654ec03bb13cd96bf9",
+        "method": "copq_total = sum(quantity * rate per row)",
+        "warnings": []
+      },
+      "value": 7741.800000000001
+    },
+    "updated_at": "2026-07-01T10:00:00Z"
+  },
+  "valid": true
+}

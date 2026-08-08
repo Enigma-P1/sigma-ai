@@ -1,0 +1,20 @@
+[
+  {
+    "check_id": "rty_only_claimed_in_series",
+    "detail": "steps_in_series=False, rty_result absent -- consistent",
+    "status": "pass",
+    "tool_id": "T-10"
+  },
+  {
+    "check_id": "dpmo_result_matches_recomputed",
+    "detail": "stored DPMO/sigma level matches a fresh recompute from defects/units/opportunities_per_unit",
+    "status": "pass",
+    "tool_id": "T-10"
+  },
+  {
+    "check_id": "opportunity_inflation_justified",
+    "detail": "opportunities_per_unit=1.0 -- no inflation risk, no justification needed",
+    "status": "pass",
+    "tool_id": "T-10"
+  }
+]

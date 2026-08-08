@@ -1,0 +1,417 @@
+{
+  "artifact": {
+    "after": {
+      "column": "misshelved_rate",
+      "dataset_id": "<normalized>",
+      "dataset_sha256": "407db59b789babcd308e172d22fbaf5c93c04b4715cf9b2aa54b7961b26412d1",
+      "values": [
+        0.05,
+        0.0,
+        0.015873015873015872,
+        0.03125,
+        0.015151515151515152,
+        0.04,
+        0.014492753623188406,
+        0.04477611940298507,
+        0.029850746268656716,
+        0.03333333333333333,
+        0.015384615384615385,
+        0.01818181818181818,
+        0.04838709677419355,
+        0.029850746268656716,
+        0.046153846153846156,
+        0.0,
+        0.041666666666666664,
+        0.0,
+        0.02857142857142857,
+        0.015625,
+        0.014705882352941176,
+        0.045454545454545456,
+        0.014705882352941176,
+        0.018867924528301886
+      ],
+      "weights": [
+        60.0,
+        67.0,
+        63.0,
+        64.0,
+        66.0,
+        50.0,
+        69.0,
+        67.0,
+        67.0,
+        60.0,
+        65.0,
+        55.0,
+        62.0,
+        67.0,
+        65.0,
+        64.0,
+        72.0,
+        54.0,
+        70.0,
+        64.0,
+        68.0,
+        66.0,
+        68.0,
+        53.0
+      ]
+    },
+    "after_baseline": {
+      "capability": null,
+      "descriptive": null,
+      "exits": [],
+      "gate_message": "at least one spec limit (USL or LSL) is required before a baseline can run",
+      "gate_ok": false,
+      "measurement_check": null,
+      "n": null,
+      "normality": null,
+      "observed_yield": null,
+      "percentile_capability": null,
+      "sigma": null,
+      "stability": null,
+      "stability_note": null,
+      "stable": null
+    },
+    "artifact_id": "s2-proof",
+    "before": {
+      "column": "misshelved_rate",
+      "dataset_id": "<normalized>",
+      "dataset_sha256": "642b1c227add71cbb352fc7bfee3980800129d405c2afa397f68c170358c99ca",
+      "values": [
+        0.08695652173913043,
+        0.046875,
+        0.07246376811594203,
+        0.06557377049180328,
+        0.029411764705882353,
+        0.018518518518518517,
+        0.0945945945945946,
+        0.11290322580645161,
+        0.04477611940298507,
+        0.11688311688311688,
+        0.05555555555555555,
+        0.05357142857142857,
+        0.05405405405405406,
+        0.0547945205479452,
+        0.06060606060606061,
+        0.06060606060606061,
+        0.06060606060606061,
+        0.11363636363636363,
+        0.04477611940298507,
+        0.03278688524590164,
+        0.08695652173913043
+      ],
+      "weights": [
+        69.0,
+        64.0,
+        69.0,
+        61.0,
+        68.0,
+        54.0,
+        74.0,
+        62.0,
+        67.0,
+        77.0,
+        72.0,
+        56.0,
+        74.0,
+        73.0,
+        66.0,
+        66.0,
+        66.0,
+        44.0,
+        67.0,
+        61.0,
+        69.0
+      ]
+    },
+    "before_baseline": {
+      "capability": null,
+      "descriptive": null,
+      "exits": [],
+      "gate_message": "at least one spec limit (USL or LSL) is required before a baseline can run",
+      "gate_ok": false,
+      "measurement_check": null,
+      "n": null,
+      "normality": null,
+      "observed_yield": null,
+      "percentile_capability": null,
+      "sigma": null,
+      "stability": null,
+      "stability_note": null,
+      "stable": null
+    },
+    "charter_baseline_value": 0.06526468455402465,
+    "charter_goal_direction": "lower_is_better",
+    "charter_goal_value": 0.032632342277012324,
+    "charter_ref": "s2-charter",
+    "confounders": {
+      "demand": {
+        "changed": true,
+        "note": "Same driver as season."
+      },
+      "measurement": {
+        "changed": false,
+        "note": "Same written definition and audit procedure as the baseline."
+      },
+      "other": {
+        "changed": false,
+        "note": "No other process change landed in the window."
+      },
+      "season": {
+        "changed": true,
+        "note": "Fall reading-program returns pushed shelving volume up through October -- direction stated: can only push the rate up, never manufacture a win."
+      },
+      "staffing": {
+        "changed": false,
+        "note": "Same pages and rotation throughout."
+      }
+    },
+    "created_at": "2026-10-31T17:30:00Z",
+    "declared_package": null,
+    "declared_threshold": {
+      "declared_at": "2026-09-25T09:00:00Z",
+      "direction": "lower_is_better",
+      "metric_ref": "audited misshelve rate (charter C1) -- settled-window rate",
+      "value": 0.04
+    },
+    "gap": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "968c51f76ef52a605ac35c2aae19f8cb7c1cb499e3148b3eb1f13512b6edf4ad",
+        "method": "gap = |goal - baseline| directionally; recovered = |after - baseline| directionally; remaining = gap - recovered; goal_met = remaining <= 0 (PLAN §4.1 Improve-loop gap arithmetic, rubric R-IMP-04, BoK IV.C.1)",
+        "warnings": []
+      },
+      "value": {
+        "after_value": 0.025557011795543906,
+        "charter_baseline_value": 0.06526468455402465,
+        "charter_goal_value": 0.032632342277012324,
+        "direction": "lower_is_better",
+        "goal_met": true,
+        "loop_verdict": "Goal met -- route to Control.",
+        "next_cause_ref": {
+          "cause_id": "c-unwritten-conventions",
+          "cause_text": "Series/exception shelving conventions were unwritten until 2026-08-28",
+          "rank": 2,
+          "via_solution_id": "sol-retrain",
+          "via_solution_name": "Retrain-everyone workshop (rides the posted standard)"
+        },
+        "original_gap": 0.032632342277012324,
+        "recovered": 0.03970767275848074,
+        "recovered_pct": 121.68195718654434,
+        "remaining": -0.007075330481468418
+      }
+    },
+    "guardrail_report": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "7f91ecc7e26436067786cbb6083a988c50fe449ad6237804bf7094a8ed7bc24a",
+        "method": "direction-aware before/after compare per guardrail; material_worsening = worse AND |pct_change| >= 5% of the before value (engine convention, not a published quantity -- rubric R-IMP-03 #5)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "after_value": 33.6,
+          "before_value": 34.2,
+          "direction": "higher_is_better",
+          "material_worsening": false,
+          "metric_ref": "shelving throughput (items/staff-hour, guardrail)",
+          "moved": "worse",
+          "pct_change": -0.017543859649122848
+        },
+        {
+          "after_value": 2.3,
+          "before_value": 5.1,
+          "direction": "lower_is_better",
+          "material_worsening": false,
+          "metric_ref": "holds cancelled as missing per week (consequential)",
+          "moved": "improved",
+          "pct_change": -0.5490196078431373
+        }
+      ]
+    },
+    "guardrails": [
+      {
+        "after_value": 33.6,
+        "before_value": 34.2,
+        "direction": "higher_is_better",
+        "metric_ref": "shelving throughput (items/staff-hour, guardrail)"
+      },
+      {
+        "after_value": 2.3,
+        "before_value": 5.1,
+        "direction": "lower_is_better",
+        "metric_ref": "holds cancelled as missing per week (consequential)"
+      }
+    ],
+    "lsl": null,
+    "measurement_system_ref": "s2-msa",
+    "metric_ref": "audited misshelve rate (charter C1)",
+    "next_cause_ref": {
+      "cause_id": "c-unwritten-conventions",
+      "cause_text": "Series/exception shelving conventions were unwritten until 2026-08-28",
+      "rank": 2,
+      "via_solution_id": "sol-retrain",
+      "via_solution_name": "Retrain-everyone workshop (rides the posted standard)"
+    },
+    "notes": "Measured after window 2026-10-05 to 2026-10-31 (24 service days); the 2026-09-28..10-03 bedding-in week excluded by declaration. before/after values are DAILY proportions weighted by that day's audited count, so the weighted mean reproduces the pooled rate exactly.",
+    "operational_definition_ok": true,
+    "operational_definition_ref": "s2-collection-plan",
+    "pilot_ref": "s2-pilot",
+    "schema_version": 1,
+    "test_result": {
+      "question_text": "Did the pilot change 'audited misshelve rate (charter C1)' between the before and after periods?",
+      "refused": false,
+      "result": {
+        "provenance": {
+          "assumptions_checked": [
+            "n >= 8 per sample",
+            "independent groups"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "5772d01954fa8d0d1ec73e5e5e94a390d0718bf9a66b9cb1bff78736cb7f89e6",
+          "method": "Welch's two-sample t-test (scipy.stats.ttest_ind, equal_var=False; NIST/SEMATECH §7.3.1 unequal-variance form + Welch-Satterthwaite df) + Cohen's d on the unweighted-average SD (Delacre, Lakens & Leys 2017)",
+          "warnings": []
+        },
+        "value": {
+          "alpha": 0.05,
+          "assumptions_checked": [
+            "n >= 8 per sample cleared (matrix §4a EXIT-06); groups independent"
+          ],
+          "contingency": null,
+          "cramers_v": null,
+          "df": 30.815838171429792,
+          "df_between": null,
+          "df_within": null,
+          "effect_size_ci": [
+            1.0660169962903465,
+            2.4435825660452344
+          ],
+          "effect_size_ci_method": "Hedges & Olkin (1985) large-sample approximate SE -- not an exact noncentral-t CI",
+          "effect_size_name": "Cohen's d (Welch/unequal-variance form)",
+          "effect_size_value": 1.7547997811677905,
+          "equal_shape_caveat": null,
+          "exit13": null,
+          "groups": [
+            {
+              "label": "before",
+              "mean": 0.06509076337285574,
+              "median": null,
+              "n": 21,
+              "proportion": null,
+              "sd": 0.02771363529174746,
+              "successes": null
+            },
+            {
+              "label": "after",
+              "mean": 0.02551178901427706,
+              "median": null,
+              "n": 24,
+              "proportion": null,
+              "sd": 0.01579186430202765,
+              "successes": null
+            }
+          ],
+          "hodges_lehmann_ci": null,
+          "hodges_lehmann_ci_method": null,
+          "hodges_lehmann_shift": null,
+          "p_value": 2.378056097160714e-06,
+          "plain_language": {
+            "comparison_summary": "Compared before (n=21, mean=0.06509) against after (n=24, mean=0.02551) using Welch's two-sample t-test (unequal variances assumed by default -- no equal-variance check to trip on).",
+            "effect_size_in_words": "Cohen's d = 1.75 -- a large difference (Cohen 1988 conventional bands: negligible<0.2, small<0.5, medium<0.8, large>=0.8).",
+            "p_value_meaning": "p = 0.0000, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 0.00024% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+            "practical_significance_prompt": "Statistically detectable ≠ big enough to matter -- compare the effect size above against the goal."
+          },
+          "rank_biserial_r": null,
+          "risk_difference": null,
+          "risk_difference_ci": null,
+          "risk_difference_ci_method": null,
+          "significant": true,
+          "statistic": 5.7753648181520685,
+          "statistic_name": "t",
+          "test_name": "welch_two_sample_t",
+          "two_sided": true,
+          "warnings": []
+        }
+      },
+      "routing": {
+        "comparison_type": "two_independent",
+        "decision_path": [
+          {
+            "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+            "branch": "one pre-declared primary comparison -- continue",
+            "question": "Is exactly one primary comparison declared, and does the test count stay within it?"
+          },
+          {
+            "answer": "declared_data_type='continuous'",
+            "branch": "not count/rate data -- continue",
+            "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?"
+          },
+          {
+            "answer": "measurements_per_unit=1",
+            "branch": "at most paired (<=2) -- continue",
+            "question": "How many related measurements per unit are there?"
+          },
+          {
+            "answer": "two_independent",
+            "branch": "the two_independent path",
+            "question": "What kind of comparison is this?"
+          },
+          {
+            "answer": "no (time_ordered=False)",
+            "branch": "EXIT-09 not applicable -- continue",
+            "question": "Is this data time-ordered?"
+          },
+          {
+            "answer": "before: n=21 >= 15; after: n=24 >= 15",
+            "branch": "use the parametric default (Welch t)",
+            "question": "Does either group have n<15 with a declared-ordinal, shape-concern, or advisory-normality flag?"
+          },
+          {
+            "answer": "welch_two_sample_t",
+            "branch": "route=welch_two_sample_t",
+            "question": "Which test fits two independent continuous/ordinal samples?"
+          },
+          {
+            "answer": "before n=21, after n=24 (need >=8 per sample)",
+            "branch": "floor cleared -- compute",
+            "question": "Does each sample clear the EXIT-06 floor (n>=8 per sample)?"
+          }
+        ],
+        "exit": null,
+        "question": "Did the pilot change 'audited misshelve rate (charter C1)' between the before and after periods?",
+        "recommend_nonparametric": false,
+        "route": "welch_two_sample_t",
+        "switch_reason": null
+      }
+    },
+    "tool_id": "T-20",
+    "updated_at": "2026-10-31T17:30:00Z",
+    "usl": null,
+    "verdict": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "da0ab495316b33786a21fe72fa8a381b0e517b5c6c166f8bd8faa415204cf6e9",
+        "method": "threshold check AS DECLARED (met|not_met, never reworded) + package attribution (declared-package pilots only, rubric R-IMP-02) + confounder echo (any changed=true weakens) + stability tempering (met-but-unstable) + guardrail tradeoff sentence (rubric R-IMP-03)",
+        "warnings": []
+      },
+      "value": {
+        "confounder_notes": [
+          "season: Fall reading-program returns pushed shelving volume up through October -- direction stated: can only push the rate up, never manufacture a win.",
+          "demand: Same driver as season."
+        ],
+        "guardrail_tradeoff": null,
+        "headline": "Threshold met, as declared: audited misshelve rate (charter C1) = 0.025557 vs 0.04 (lower_is_better). Improvement shown, but a reported confounder weakens this proof: season: Fall reading-program returns pushed shelving volume up through October -- direction stated: can only push the rate up, never manufacture a win.; demand: Same driver as season..",
+        "package_attribution": null,
+        "proof_form": "inferential",
+        "stability_caveat": null,
+        "threshold_verdict": "met",
+        "weakened": true
+      }
+    }
+  },
+  "valid": true
+}

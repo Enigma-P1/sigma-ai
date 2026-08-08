@@ -1,0 +1,192 @@
+{
+  "artifact": {
+    "artifact_id": "s1-solution-matrix",
+    "created_at": "2026-08-08T09:00:00Z",
+    "criteria": [
+      {
+        "criterion_id": "crit-gap-impact",
+        "declared_at": "2026-08-08T09:00:00Z",
+        "name": "Gap impact (5 = attacks the largest verified block)",
+        "weight": 0.5
+      },
+      {
+        "criterion_id": "crit-effort",
+        "declared_at": "2026-08-08T09:00:00Z",
+        "name": "Effort/speed to implement (5 = startable within a week)",
+        "weight": 0.25
+      },
+      {
+        "criterion_id": "crit-cost",
+        "declared_at": "2026-08-08T09:00:00Z",
+        "name": "Cost (5 = near-zero spend, 1 = major recurring cost)",
+        "weight": 0.25
+      }
+    ],
+    "notes": "Weights declared before scores. Dispatch rule ranks first (highest impact-per-effort on the #1 cause); access matrix second (queued, not rejected); the hire ranks last -- capacity was never the verified cause.",
+    "ranked_fix_list": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "8379f74514168f8bdccb8817eb847dd7a64509bd75dd28bad86e9e00ab637995",
+        "method": "ranked = linked solutions (linked_cause_ids non-empty) ordered by weighted_total desc when present, else impact desc / effort asc, tie-broken by solution_id; unlinked solutions never enter the ranked list -- listed separately, each flagged (PLAN §4.1's ranked fix list, rubric R-IMP-01)",
+        "warnings": []
+      },
+      "value": {
+        "ranked": [
+          {
+            "effort": 2,
+            "impact": 5,
+            "linked_cause_ids": [
+              "c-triage-batch",
+              "c-scheduled-event"
+            ],
+            "name": "Assign-on-arrival dispatch rule",
+            "quadrant": "quick_win",
+            "rank": 1,
+            "solution_id": "sol-dispatch-rule",
+            "weighted_total": 4.75
+          },
+          {
+            "effort": 3,
+            "impact": 4,
+            "linked_cause_ids": [
+              "c-approval-wait"
+            ],
+            "name": "Pre-approved access matrix for standard roles",
+            "quadrant": "major_project",
+            "rank": 2,
+            "solution_id": "sol-access-matrix",
+            "weighted_total": 3.0
+          },
+          {
+            "effort": 1,
+            "impact": 2,
+            "linked_cause_ids": [
+              "c-tech-capacity"
+            ],
+            "name": "Hire a fourth tech (~$68k/yr)",
+            "quadrant": "fill_in",
+            "rank": 3,
+            "solution_id": "sol-hire-tech",
+            "weighted_total": 1.0
+          }
+        ],
+        "unlinked": []
+      }
+    },
+    "schema_version": 1,
+    "scores": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "141a92b31659d52072d9a14d1d12b75562b14e493713e59874997ef3cdd0cbe0",
+        "method": "quadrant = impact/effort each split at the 1-5 scale's midpoint (>=3 high, <3 low); weighted_total = sum(score * weight) over criterion_scores when a solution has scored every declared criterion, else None (nothing to weight yet -- schema guarantees criterion_scores is all-or-nothing per solution)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "quadrant": "quick_win",
+          "solution_id": "sol-dispatch-rule",
+          "weighted_total": 4.75
+        },
+        {
+          "quadrant": "major_project",
+          "solution_id": "sol-access-matrix",
+          "weighted_total": 3.0
+        },
+        {
+          "quadrant": "fill_in",
+          "solution_id": "sol-hire-tech",
+          "weighted_total": 1.0
+        }
+      ]
+    },
+    "solutions": [
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 5,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 4,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 5,
+            "scored_at": "2026-08-08T11:00:00Z"
+          }
+        ],
+        "description": "Kill the once-a-day triage batch; each new routine ticket is assigned within the hour by a rotating dispatcher-of-the-day. $0, method change, attacks the #1 verified cause directly.",
+        "effort": 2,
+        "impact": 5,
+        "linked_cause_ids": [
+          "c-triage-batch",
+          "c-scheduled-event"
+        ],
+        "name": "Assign-on-arrival dispatch rule",
+        "solution_id": "sol-dispatch-rule"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 3,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 2,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 4,
+            "scored_at": "2026-08-08T11:00:00Z"
+          }
+        ],
+        "description": "Policy change removing the manager-approval wait for standard, pre-defined role/access pairs. Needs Braun + department sign-offs before it can pilot.",
+        "effort": 3,
+        "impact": 4,
+        "linked_cause_ids": [
+          "c-approval-wait"
+        ],
+        "name": "Pre-approved access matrix for standard roles",
+        "solution_id": "sol-access-matrix"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 1,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 1,
+            "scored_at": "2026-08-08T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 1,
+            "scored_at": "2026-08-08T11:00:00Z"
+          }
+        ],
+        "description": "Capacity fix. Ranked as the honest loser: capacity was never the verified cause (hands-on work is only 1.9h of the 26.7h cycle).",
+        "effort": 1,
+        "impact": 2,
+        "linked_cause_ids": [
+          "c-tech-capacity"
+        ],
+        "name": "Hire a fourth tech (~$68k/yr)",
+        "solution_id": "sol-hire-tech"
+      }
+    ],
+    "tool_id": "T-18",
+    "updated_at": "2026-08-08T11:00:00Z"
+  },
+  "valid": true
+}

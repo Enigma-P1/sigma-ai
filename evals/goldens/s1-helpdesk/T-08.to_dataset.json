@@ -1,0 +1,77 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "category",
+      "sample_values": [
+        "Waiting on manager approval",
+        "Sat unassigned in triage queue > 4h",
+        "Reassigned between techs",
+        "License/stock wait",
+        "Sat unassigned in triage queue > 4h"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "timestamp",
+      "sample_values": [
+        "2026-07-06T17:00:00",
+        "2026-07-06T17:00:00",
+        "2026-07-06T17:00:00",
+        "2026-07-06T17:00:00",
+        "2026-07-06T17:00:00"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "note",
+      "sample_values": [
+        "HD-0706-01",
+        "HD-0706-02",
+        "HD-0706-03",
+        "HD-0706-04",
+        "HD-0706-05"
+      ],
+      "type": "text"
+    }
+  ],
+  "created_at": "2026-07-31T17:05:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-s1-helpdesk",
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "category": 0,
+      "date": 0,
+      "note": 0,
+      "timestamp": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "category": 0,
+      "date": 0,
+      "note": 0,
+      "timestamp": 0
+    },
+    "row_count": 127
+  },
+  "row_count": 127,
+  "schema_version": 1,
+  "sha256": "5b289ba8d59be61cf629f2cdf7e8f8b525fbc02cb0382cd46ec62d71dfe1a8aa",
+  "source_artifact_id": "s1-check-sheet",
+  "source_filename": "s1-check-sheet-check-sheet.csv",
+  "source_tool_id": "T-08"
+}

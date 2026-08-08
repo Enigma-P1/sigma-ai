@@ -1,0 +1,192 @@
+{
+  "artifact": {
+    "artifact_id": "s2-solution-matrix",
+    "created_at": "2026-09-27T09:00:00Z",
+    "criteria": [
+      {
+        "criterion_id": "crit-gap-impact",
+        "declared_at": "2026-09-27T09:00:00Z",
+        "name": "Gap impact (5 = attacks the largest verified block)",
+        "weight": 0.5
+      },
+      {
+        "criterion_id": "crit-effort",
+        "declared_at": "2026-09-27T09:00:00Z",
+        "name": "Effort/speed to implement",
+        "weight": 0.25
+      },
+      {
+        "criterion_id": "crit-cost",
+        "declared_at": "2026-09-27T09:00:00Z",
+        "name": "Cost (5 = near-zero spend)",
+        "weight": 0.25
+      }
+    ],
+    "notes": "Pre-sort ranks first -- it moves sorting to a bench with both hands free and the standard on the wall, directly at the verified root.",
+    "ranked_fix_list": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "92f109d5c0666a0cd9cce2e650fae2e172d11f96ac949d09d147fbf351f397cc",
+        "method": "ranked = linked solutions (linked_cause_ids non-empty) ordered by weighted_total desc when present, else impact desc / effort asc, tie-broken by solution_id; unlinked solutions never enter the ranked list -- listed separately, each flagged (PLAN §4.1's ranked fix list, rubric R-IMP-01)",
+        "warnings": []
+      },
+      "value": {
+        "ranked": [
+          {
+            "effort": 3,
+            "impact": 5,
+            "linked_cause_ids": [
+              "c-sort-at-shelf",
+              "c-no-standard"
+            ],
+            "name": "Pre-sorted carts + posted sorting standard",
+            "quadrant": "major_project",
+            "rank": 1,
+            "solution_id": "sol-presort",
+            "weighted_total": 4.5
+          },
+          {
+            "effort": 2,
+            "impact": 2,
+            "linked_cause_ids": [
+              "c-unwritten-conventions"
+            ],
+            "name": "Retrain-everyone workshop",
+            "quadrant": "fill_in",
+            "rank": 2,
+            "solution_id": "sol-retrain",
+            "weighted_total": 2.75
+          },
+          {
+            "effort": 1,
+            "impact": 3,
+            "linked_cause_ids": [
+              "c-sort-at-shelf"
+            ],
+            "name": "Double-check every cart at the shelf",
+            "quadrant": "quick_win",
+            "rank": 3,
+            "solution_id": "sol-double-check",
+            "weighted_total": 1.5
+          }
+        ],
+        "unlinked": []
+      }
+    },
+    "schema_version": 1,
+    "scores": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "4a2adb163b35747f89e6443e7b7475328ad6674ceb27f6920b3ebc2de0c1e75e",
+        "method": "quadrant = impact/effort each split at the 1-5 scale's midpoint (>=3 high, <3 low); weighted_total = sum(score * weight) over criterion_scores when a solution has scored every declared criterion, else None (nothing to weight yet -- schema guarantees criterion_scores is all-or-nothing per solution)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "quadrant": "major_project",
+          "solution_id": "sol-presort",
+          "weighted_total": 4.5
+        },
+        {
+          "quadrant": "quick_win",
+          "solution_id": "sol-double-check",
+          "weighted_total": 1.5
+        },
+        {
+          "quadrant": "fill_in",
+          "solution_id": "sol-retrain",
+          "weighted_total": 2.75
+        }
+      ]
+    },
+    "solutions": [
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 5,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 3,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 5,
+            "scored_at": "2026-09-27T11:00:00Z"
+          }
+        ],
+        "description": "Returns sorted into final shelf order in the sorting room against the posted standard, exception flags clipped at sort time -- pages place at the shelf, they no longer sort there. ~$60 in dividers and flags.",
+        "effort": 3,
+        "impact": 5,
+        "linked_cause_ids": [
+          "c-sort-at-shelf",
+          "c-no-standard"
+        ],
+        "name": "Pre-sorted carts + posted sorting standard",
+        "solution_id": "sol-presort"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 2,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 1,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 1,
+            "scored_at": "2026-09-27T11:00:00Z"
+          }
+        ],
+        "description": "A second person re-checks placement at the shelf -- permanent added labor, addresses the symptom not the root.",
+        "effort": 1,
+        "impact": 3,
+        "linked_cause_ids": [
+          "c-sort-at-shelf"
+        ],
+        "name": "Double-check every cart at the shelf",
+        "solution_id": "sol-double-check"
+      },
+      {
+        "criterion_scores": [
+          {
+            "criterion_id": "crit-gap-impact",
+            "score": 2,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-effort",
+            "score": 3,
+            "scored_at": "2026-09-27T11:00:00Z"
+          },
+          {
+            "criterion_id": "crit-cost",
+            "score": 4,
+            "scored_at": "2026-09-27T11:00:00Z"
+          }
+        ],
+        "description": "Fades without a standard to retrain to -- the training content should ride the posted standard rather than replace it.",
+        "effort": 2,
+        "impact": 2,
+        "linked_cause_ids": [
+          "c-unwritten-conventions"
+        ],
+        "name": "Retrain-everyone workshop",
+        "solution_id": "sol-retrain"
+      }
+    ],
+    "tool_id": "T-18",
+    "updated_at": "2026-09-27T11:00:00Z"
+  },
+  "valid": true
+}

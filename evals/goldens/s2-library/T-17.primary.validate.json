@@ -1,0 +1,168 @@
+{
+  "artifact": {
+    "artifact_id": "s2-hyp-primary",
+    "created_at": "2026-10-17T17:00:00Z",
+    "declared_primary": true,
+    "notes": "The pre-declared primary: baseline vs the settled-weeks slice of the after window (2026-10-05 to 2026-10-17).",
+    "question": {
+      "col_labels": null,
+      "comparison_type": "proportions",
+      "comparisons_declared": 1,
+      "contingency_table": null,
+      "declared_data_type": "nominal_categorical",
+      "declared_primary": true,
+      "groups": [
+        {
+          "label": "baseline",
+          "n": 1379,
+          "successes": 90,
+          "values": null
+        },
+        {
+          "label": "settled_weeks",
+          "n": 753,
+          "successes": 19,
+          "values": null
+        }
+      ],
+      "measurements_per_unit": 1,
+      "paired_after": null,
+      "paired_after_label": "after",
+      "paired_before": null,
+      "paired_before_label": "before",
+      "question_intent": null,
+      "question_text": "Did the audited misshelve rate drop between the baseline window and the settled post-pilot weeks?",
+      "row_labels": null,
+      "sample": null,
+      "sample_label": "sample",
+      "target": null,
+      "tests_run_including_this_one": 1,
+      "time_ordered": false,
+      "user_shape_concern": false
+    },
+    "refused": false,
+    "result": {
+      "provenance": {
+        "assumptions_checked": [
+          "n*phat>=5 and n*(1-phat)>=5 per sample"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "d40f882f6c2cc8f1ed32dad5048e628421baf351fdc7a816507dd118b66d7aca",
+        "method": "two-proportion pooled z-test (NIST/SEMATECH §7.3.3, Case 1) + Newcombe (1998) method-10 risk-difference CI",
+        "warnings": []
+      },
+      "value": {
+        "alpha": 0.05,
+        "assumptions_checked": [
+          "n*phat >= 5 and n*(1-phat) >= 5 per sample cleared (matrix §4a EXIT-06)"
+        ],
+        "contingency": null,
+        "cramers_v": null,
+        "df": null,
+        "df_between": null,
+        "df_within": null,
+        "effect_size_ci": [
+          0.021801859064682287,
+          0.05692399313933638
+        ],
+        "effect_size_ci_method": "Newcombe (1998) method 10, built from per-sample Wilson score intervals",
+        "effect_size_name": "risk difference (p1 - p2)",
+        "effect_size_value": 0.040032280835565155,
+        "equal_shape_caveat": null,
+        "exit13": null,
+        "groups": [
+          {
+            "label": "baseline",
+            "mean": null,
+            "median": null,
+            "n": 1379,
+            "proportion": 0.06526468455402465,
+            "sd": null,
+            "successes": 90
+          },
+          {
+            "label": "settled_weeks",
+            "mean": null,
+            "median": null,
+            "n": 753,
+            "proportion": 0.025232403718459494,
+            "sd": null,
+            "successes": 19
+          }
+        ],
+        "hodges_lehmann_ci": null,
+        "hodges_lehmann_ci_method": null,
+        "hodges_lehmann_shift": null,
+        "p_value": 6.041551770863407e-05,
+        "plain_language": {
+          "comparison_summary": "Compared the proportion for baseline (90/1379 = 6.5%) against settled_weeks (19/753 = 2.5%) using a two-proportion z-test.",
+          "effect_size_in_words": "Risk difference = +4.0% (baseline minus settled_weeks), 95% CI [+2.2%, +5.7%] (Newcombe's method).",
+          "p_value_meaning": "p = 0.0001, below the alpha=0.05 threshold: if there were truly no difference, a result at least this far from 'no difference' would turn up by chance alone only about 0.006% of the time. That makes the difference statistically detectable here -- it does not mean the null hypothesis is false with that probability, and it says nothing yet about whether the difference is big enough to matter.",
+          "practical_significance_prompt": "Statistically detectable ≠ big enough to matter -- compare the effect size above against the goal."
+        },
+        "rank_biserial_r": null,
+        "risk_difference": 0.040032280835565155,
+        "risk_difference_ci": [
+          0.021801859064682287,
+          0.05692399313933638
+        ],
+        "risk_difference_ci_method": "Newcombe (1998) method 10",
+        "significant": true,
+        "statistic": 4.011181981223829,
+        "statistic_name": "z",
+        "test_name": "two_proportion_z",
+        "two_sided": true,
+        "warnings": []
+      }
+    },
+    "routing": {
+      "comparison_type": "proportions",
+      "decision_path": [
+        {
+          "answer": "comparisons_declared=1, tests_run_including_this_one=1",
+          "branch": "one pre-declared primary comparison -- continue",
+          "question": "Is exactly one primary comparison declared, and does the test count stay within it?"
+        },
+        {
+          "answer": "declared_data_type='nominal_categorical'",
+          "branch": "not count/rate data -- continue",
+          "question": "Is the outcome a rate-with-exposure or a defect count per unit/area?"
+        },
+        {
+          "answer": "measurements_per_unit=1",
+          "branch": "at most paired (<=2) -- continue",
+          "question": "How many related measurements per unit are there?"
+        },
+        {
+          "answer": "proportions",
+          "branch": "the proportions path",
+          "question": "What kind of comparison is this?"
+        },
+        {
+          "answer": "2",
+          "branch": "two-proportion",
+          "question": "How many samples for the proportions comparison?"
+        },
+        {
+          "answer": "two_proportion_z",
+          "branch": "route=two_proportion_z",
+          "question": "Which test fits this proportions comparison?"
+        },
+        {
+          "answer": "baseline: n*phat=90.00, n*(1-phat)=1289.00; settled_weeks: n*phat=19.00, n*(1-phat)=734.00 (each needs >=5)",
+          "branch": "floor cleared -- compute",
+          "question": "Does each sample clear the EXIT-06 floor (n*phat>=5 and n*(1-phat)>=5)?"
+        }
+      ],
+      "exit": null,
+      "question": "Did the audited misshelve rate drop between the baseline window and the settled post-pilot weeks?",
+      "recommend_nonparametric": false,
+      "route": "two_proportion_z",
+      "switch_reason": null
+    },
+    "schema_version": 1,
+    "tool_id": "T-17",
+    "updated_at": "2026-10-17T17:00:00Z"
+  },
+  "valid": true
+}

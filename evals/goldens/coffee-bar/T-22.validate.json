@@ -1,0 +1,258 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-control-plan",
+    "as_of": "2026-10-09T17:00:00Z",
+    "check_in_schedule": {
+      "cadence": {
+        "interval": 1,
+        "unit": "weeks"
+      },
+      "completed": [
+        {
+          "check_in_id": "ci-1",
+          "completed_at": "2026-09-28T17:30:00Z",
+          "due_date": "2026-09-28",
+          "entered": {
+            "dataset_id": null,
+            "kind": "manual",
+            "subgroup": null,
+            "values": [
+              4.6,
+              5.2,
+              4.9,
+              5.6,
+              4.3,
+              5.0,
+              4.7,
+              5.4
+            ]
+          },
+          "label": "week 1: is the fix holding? enter this week's numbers",
+          "note": "First and last sampled order of each of the week's 4 service mornings (Sep 22-25); quiet week, no chart signals",
+          "result": {
+            "provenance": {
+              "assumptions_checked": [
+                "limits are the FROZEN baseline carried on this plan, never recomputed from the check-in's own values"
+              ],
+              "engine_version": "0.1.0",
+              "input_hash": "f6f63bbcb4a88eed2f1084cad05a57200b4a1b07577118e4c2819c05b5674a44",
+              "method": "check-in pass/fail = entered value(s) tested against the LINKED CONTROL CHART'S FROZEN limits (p-chart limits re-derived per this check-in's own subgroup n via p_chart_limits, since a p-chart's band breathes with n) -- the check-in's own few points are never treated as a fresh signal search",
+              "warnings": []
+            },
+            "value": {
+              "detail": "all 8 entered value(s) hold inside the frozen band [3.029, 6.77]",
+              "verdict": "pass"
+            }
+          }
+        },
+        {
+          "check_in_id": "ci-2",
+          "completed_at": "2026-10-05T17:30:00Z",
+          "due_date": "2026-10-05",
+          "entered": {
+            "dataset_id": null,
+            "kind": "manual",
+            "subgroup": null,
+            "values": [
+              5.1,
+              4.4,
+              4.8,
+              5.3,
+              4.6,
+              5.7,
+              4.2,
+              4.9,
+              5.0,
+              4.5
+            ]
+          },
+          "label": "week 2: is the fix holding? enter this week's numbers",
+          "note": "First and last sampled order of each of 5 mornings (Sep 28-Oct 2); grinder card shows one mid-peak standby swap on Sep 30 -- method held, no signal",
+          "result": {
+            "provenance": {
+              "assumptions_checked": [
+                "limits are the FROZEN baseline carried on this plan, never recomputed from the check-in's own values"
+              ],
+              "engine_version": "0.1.0",
+              "input_hash": "843458822a8dfb636de69645cbe681263233d817d25511095a26ecd702f98e5b",
+              "method": "check-in pass/fail = entered value(s) tested against the LINKED CONTROL CHART'S FROZEN limits (p-chart limits re-derived per this check-in's own subgroup n via p_chart_limits, since a p-chart's band breathes with n) -- the check-in's own few points are never treated as a fresh signal search",
+              "warnings": []
+            },
+            "value": {
+              "detail": "all 10 entered value(s) hold inside the frozen band [3.029, 6.77]",
+              "verdict": "pass"
+            }
+          }
+        }
+      ],
+      "control_chart_ref": "coffee-control-chart",
+      "frozen_limits": {
+        "center": 4.899166666666667,
+        "chart_type": "imr",
+        "control_chart_artifact_id": "coffee-control-chart",
+        "frozen_at": "2026-09-22T09:00:00Z",
+        "lcl": 3.0285247928958836,
+        "p_bar": null,
+        "ucl": 6.769808540437451
+      },
+      "next_due": {
+        "provenance": {
+          "assumptions_checked": [],
+          "engine_version": "0.1.0",
+          "input_hash": "5c989a3df8ba8a9e613042e5e882de7eca1d54711380f0afd62f2bf5c4b81275",
+          "method": "next_due = start_date advanced by (count of completed check-ins) whole cadence steps -- a sequential schedule, never a hand-typed date",
+          "warnings": []
+        },
+        "value": "2026-10-12"
+      },
+      "start_date": "2026-09-28"
+    },
+    "created_at": "2026-09-22T15:00:00Z",
+    "monitored_items": [
+      {
+        "characteristic": "Order-to-handoff time (handoff_minutes -- charter C1, the primary CTQ)",
+        "frequency": "Daily during the weekday 7:00-10:00 peak, entered at close of peak",
+        "frequency_reason": "~55 orders flow per semester peak and the July baseline showed a shift can show up inside a single morning (the Aug class-break pileups); daily entry against the frozen band catches drift within a day or two instead of three weeks late, and it reuses the sampling the limits were frozen from",
+        "how_measured": "Register order-paid timestamp to name call, tenths of a minute, every 4th espresso order (12 per peak) -- the T-11 operational definition the whole project has used, unchanged",
+        "is_improve_change": false,
+        "is_primary_ctq": true,
+        "item_id": "mi-handoff",
+        "operational_definition_ref": "coffee-collection-plan",
+        "owner_accepted": true,
+        "owner_name": "Priya Shah",
+        "per_shift_owners": [],
+        "where": "Register POS + pickup-counter tally sheet, campus coffee bar"
+      },
+      {
+        "characteristic": "Drink remake rate (remakes per 100 orders) -- the charter's consequential guardrail",
+        "frequency": "Weekly roll-up, each Friday at close",
+        "frequency_reason": "At the improved rate (~2.3 per 100) a single morning's 55 orders sees one remake on a good day -- daily rates are too noisy to act on; a Friday roll-up over ~275 peak orders gives a rate worth reading, and a bad week still surfaces within five service days",
+        "how_measured": "Barista waste-sheet remake tally divided by the POS order count, x100, rolled up weekly -- same waste sheet the Q2 COPQ priced",
+        "is_improve_change": false,
+        "is_primary_ctq": false,
+        "item_id": "mi-remake",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Marcus Webb",
+        "per_shift_owners": [],
+        "where": "Espresso-station waste sheet + POS daily count export"
+      },
+      {
+        "characteristic": "Improve-change adherence: batch milk steaming + marked-cup sequencing, and the pre-peak grinder dial-in / standby-swap routine, done to standard",
+        "frequency": "Twice weekly, unannounced (one early-week, one Friday)",
+        "frequency_reason": "Method backsliding is the failure mode the chart cannot see directly and it grows in days, not months -- twice-weekly catches a lapse inside a week while staying light enough that it actually keeps happening",
+        "how_measured": "Five-point spot-check against SOP coffee-standard-work v1's changed-from-prior steps (pair scan done, ticket order held, front-of-rail grab, dial-in logged before 7:00, refill re-dial logged), pass/fail per point, unannounced",
+        "is_improve_change": true,
+        "is_primary_ctq": false,
+        "item_id": "mi-method",
+        "operational_definition_ref": "",
+        "owner_accepted": true,
+        "owner_name": "Priya Shah",
+        "per_shift_owners": [],
+        "where": "Espresso station during the live peak"
+      }
+    ],
+    "notes": "What keeps the fix alive after the project ends, written the day the limits froze and kept current through the check-ins (as_of 2026-10-09). Three monitored items: the primary CTQ (handoff minutes, judged against coffee-control-chart's frozen band), the charter's remake-rate guardrail, and the changed method itself -- the fix is monitored, not just the outcome, because when the number drifts you need to know whether the method lapsed or stopped working. Every item has a named owner who accepted the role on the 2026-09-22 handoff walk (Priya and Marcus signed the plan sheet; both are charter team), a frequency with a stated reason, and an OCAP whose first response is always investigate-the-method before touching anything -- the investigate-then-respond steps name the two changed methods (batch-steam/sequencing and the grinder dial-in/swap) because those are the two things that can silently lapse. Training rows point at the T-24 SOP (coffee-standard-work v1) by artifact id and every row carries a verification that would actually verify (observed demonstration or a run of the spot-check, signed off) -- told-about-it is not on the list. Weekly check-ins are the chase this phase is famous for skipping: two are due so far, both answered on their due dates with the week's spot-pair entries scored by the engine against the FROZEN band (both pass, all entries inside 3.029-6.770); next_due is engine-computed, never typed. Check-in entries are the first and last sampled order of each service morning that week (2 x 4 mornings in the short week of Sep 22, 2 x 5 after) -- the full 12-a-day stream lives on the chart itself; the check-in is the weekly is-it-holding roll-up.",
+    "ocap_entries": [
+      {
+        "acting_owner": "Priya Shah",
+        "action_steps": [
+          "First response -- investigate before adjusting: check the two changed methods for that morning -- was the batch-steam/sequencing followed (pair scan, ticket order, front-of-rail grab) and was the grinder dial-in done and logged before 7:00? Run mi-method's five-point check on the spot and re-time the next three sampled orders.",
+          "Containment: if the queue is backing up, move the second barista onto cup-sequencing and milk while the signal morning runs out, limit batching to same-milk pairs only, and log the morning's order count -- a demand surge is a possible special cause, not a reason to widen limits.",
+          "Never adjust the process on a single inside-the-band wiggle -- that is common cause, and chasing it adds variation (tampering)."
+        ],
+        "escalation_contact": "Dana Ellis (cafe manager, sponsor)",
+        "escalation_trigger": "Two signals inside one rolling week, or any single morning mean above 6.77",
+        "monitored_item_id": "mi-handoff",
+        "ocap_id": "ocap-handoff",
+        "trigger_signal": "Any point beyond the frozen band (3.029 / 6.770) or a rule-4 run of 8 consecutive points one side of the 4.899 center on the daily entries"
+      },
+      {
+        "acting_owner": "Marcus Webb",
+        "action_steps": [
+          "First response -- read the waste sheet's reason column before changing anything: if re-pulls dominate, audit the grinder card for skipped morning dial-ins or hopper refills without a re-dial (the round-2 method lapsing); if wrong-drink remakes dominate, audit the pair scan and ticket-order discipline (the round-1 method lapsing).",
+          "Containment: swap to the standby grinder and re-dial the primary off-peak; if wrong-drink remakes are the driver, drop to single-drink build for the rest of the week and re-train the pair scan before batching resumes."
+        ],
+        "escalation_contact": "Dana Ellis (cafe manager, sponsor)",
+        "escalation_trigger": "Rate above 3.6 per 100 two consecutive weekly roll-ups",
+        "monitored_item_id": "mi-remake",
+        "ocap_id": "ocap-remake",
+        "trigger_signal": "Weekly remake rate above 3.6 per 100 -- the Q2 baseline level, the guardrail's no-worse line"
+      },
+      {
+        "acting_owner": "Priya Shah",
+        "action_steps": [
+          "First response: same-day refresh with the barista on the failed step, walked against the SOP's written standard for that step (coffee-standard-work v1), not from memory.",
+          "Containment: laminated SOP card goes back up at the station and Priya works the rail alongside the next peak until a clean five-point check passes."
+        ],
+        "escalation_contact": "Dana Ellis (cafe manager, sponsor)",
+        "escalation_trigger": "The same step failing again after a refresh",
+        "monitored_item_id": "mi-method",
+        "ocap_id": "ocap-method",
+        "trigger_signal": "Any spot-check point failed on two consecutive checks, or a week passing with fewer than two checks done"
+      }
+    ],
+    "plan_health": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "c492f346d274872f48d7ab98a8e4943abe0c5e6da4fdafa1c8b5bf051f53fb55",
+        "method": "plan_health = ownerless monitored items (is_theater -- R-CTL-03's Fail line) + items whose named owner hasn't accepted + whether the schedule's next_due has passed as_of (PLAN §4.1)",
+        "warnings": []
+      },
+      "value": {
+        "check_in_overdue": false,
+        "check_in_overdue_detail": "next check-in due 2026-10-12, not yet due as of 2026-10-09T17:00:00Z",
+        "is_theater": false,
+        "ownerless_item_ids": [],
+        "unaccepted_owner_item_ids": []
+      }
+    },
+    "schema_version": 1,
+    "tool_id": "T-22",
+    "training_rows": [
+      {
+        "by_when": "2026-09-25",
+        "by_whom": "Priya Shah",
+        "done": true,
+        "row_id": "tr-marcus",
+        "sop_ref": "coffee-standard-work",
+        "verified_at": "2026-09-24",
+        "verified_how": "Observed demonstration during a live peak: a full build sequence to SOP standard including a batched same-milk pair and a logged pre-peak dial-in; sign-off on the SOP sheet",
+        "who": "Marcus Webb (barista, espresso station)"
+      },
+      {
+        "by_when": "2026-09-30",
+        "by_whom": "Marcus Webb",
+        "done": true,
+        "row_id": "tr-riley",
+        "sop_ref": "coffee-standard-work",
+        "verified_at": "2026-09-29",
+        "verified_how": "Observed demonstration of the changed-from-prior steps (pair scan, ticket-order rail, dial-in and standby swap) during a live peak, watched and signed off by Priya Shah",
+        "who": "Riley (barista, morning shift -- the second regular the charter's turnover mitigation cross-trained)"
+      },
+      {
+        "by_when": "2026-09-25",
+        "by_whom": "Marcus Webb",
+        "done": true,
+        "row_id": "tr-priya",
+        "sop_ref": "coffee-standard-work",
+        "verified_at": "2026-09-25",
+        "verified_how": "Runs the five-point method spot-check against the SOP unaided and demonstrates the batched build herself; cross-signed on the SOP sheet",
+        "who": "Priya Shah (morning shift lead -- process owner, runs the method spot-check and relief coverage)"
+      },
+      {
+        "by_when": "2026-10-02",
+        "by_whom": "Priya Shah",
+        "done": true,
+        "row_id": "tr-dana",
+        "sop_ref": "coffee-standard-work",
+        "verified_at": "2026-10-01",
+        "verified_how": "Walkthrough of the OCAPs and the frozen-limit card plus an observed grinder dial-in; sign-off on the control-plan sheet",
+        "who": "Dana Ellis (cafe manager, sponsor -- OCAP escalation recipient and weekend relief)"
+      }
+    ],
+    "updated_at": "2026-10-09T17:00:00Z"
+  },
+  "valid": true
+}

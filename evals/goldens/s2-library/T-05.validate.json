@@ -1,0 +1,47 @@
+{
+  "artifact": {
+    "artifact_id": "s2-voc-ctq",
+    "charter_metric_link": "C1 is the charter's primary metric: audited misshelve proportion, target 0.0326 by 2026-11-30 -- hold-cancellation churn (C2) is a consequential metric, not a second primary.",
+    "created_at": "2026-08-02T10:00:00Z",
+    "ctqs": [
+      {
+        "critical_vs_easy_check": "Customer-critical: S1 is literally about findability, not shelving speed or tidiness.",
+        "ctq_id": "C1",
+        "direction": "lower_is_better",
+        "measure": "Re-shelved book found where the call-number walk finds it (pass/fail per the four written rules)",
+        "need_id": "N1",
+        "target": "Audited misshelve proportion <= 0.0326 by 2026-11-30"
+      }
+    ],
+    "customers": [
+      {
+        "is_internal": false,
+        "role": "External -- patron searching by catalog call number"
+      }
+    ],
+    "needs": [
+      {
+        "need_id": "N1",
+        "statement_ids": [
+          "S1"
+        ],
+        "text": "Find the book exactly where the catalog's call-number order says it should be."
+      }
+    ],
+    "notes": "Binary CTQ: found-where-the-catalog-points, pass/fail per the four written rules.",
+    "primary_ctq_id": "C1",
+    "schema_version": 1,
+    "statements": [
+      {
+        "customer_role": "External -- patron searching by catalog call number",
+        "source": "complaint_log",
+        "source_detail": "Recurring desk complaint, logged daily since early August 2026",
+        "statement_id": "S1",
+        "text": "The catalog says it's on the shelf, and it isn't there."
+      }
+    ],
+    "tool_id": "T-05",
+    "updated_at": "2026-08-02T10:00:00Z"
+  },
+  "valid": true
+}

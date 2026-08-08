@@ -1,0 +1,1565 @@
+{
+  "artifact": {
+    "artifact_id": "s1-check-sheet",
+    "categories": [
+      {
+        "category_id": "sat_unassigned",
+        "label": "Sat unassigned in triage queue > 4h"
+      },
+      {
+        "category_id": "mgr_approval",
+        "label": "Waiting on manager approval"
+      },
+      {
+        "category_id": "requester_reply",
+        "label": "Waiting on requester reply"
+      },
+      {
+        "category_id": "reassigned",
+        "label": "Reassigned between techs"
+      },
+      {
+        "category_id": "license_stock",
+        "label": "License/stock wait"
+      }
+    ],
+    "created_at": "2026-07-06T08:00:00Z",
+    "entries": [
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E001",
+        "entry_mode": "tap",
+        "note": "HD-0706-01",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E002",
+        "entry_mode": "tap",
+        "note": "HD-0706-02",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E003",
+        "entry_mode": "tap",
+        "note": "HD-0706-03",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E004",
+        "entry_mode": "tap",
+        "note": "HD-0706-04",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E005",
+        "entry_mode": "tap",
+        "note": "HD-0706-05",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E006",
+        "entry_mode": "tap",
+        "note": "HD-0706-06",
+        "strata": {
+          "date": "2026-07-06"
+        },
+        "timestamp": "2026-07-06T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E007",
+        "entry_mode": "tap",
+        "note": "HD-0707-01",
+        "strata": {
+          "date": "2026-07-07"
+        },
+        "timestamp": "2026-07-07T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E008",
+        "entry_mode": "tap",
+        "note": "HD-0707-02",
+        "strata": {
+          "date": "2026-07-07"
+        },
+        "timestamp": "2026-07-07T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E009",
+        "entry_mode": "tap",
+        "note": "HD-0707-03",
+        "strata": {
+          "date": "2026-07-07"
+        },
+        "timestamp": "2026-07-07T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E010",
+        "entry_mode": "tap",
+        "note": "HD-0707-04",
+        "strata": {
+          "date": "2026-07-07"
+        },
+        "timestamp": "2026-07-07T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E011",
+        "entry_mode": "tap",
+        "note": "HD-0707-05",
+        "strata": {
+          "date": "2026-07-07"
+        },
+        "timestamp": "2026-07-07T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E012",
+        "entry_mode": "tap",
+        "note": "HD-0708-01",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E013",
+        "entry_mode": "tap",
+        "note": "HD-0708-02",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E014",
+        "entry_mode": "tap",
+        "note": "HD-0708-03",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E015",
+        "entry_mode": "tap",
+        "note": "HD-0708-04",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E016",
+        "entry_mode": "tap",
+        "note": "HD-0708-05",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E017",
+        "entry_mode": "tap",
+        "note": "HD-0708-06",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E018",
+        "entry_mode": "tap",
+        "note": "HD-0708-07",
+        "strata": {
+          "date": "2026-07-08"
+        },
+        "timestamp": "2026-07-08T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E019",
+        "entry_mode": "tap",
+        "note": "HD-0709-01",
+        "strata": {
+          "date": "2026-07-09"
+        },
+        "timestamp": "2026-07-09T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E020",
+        "entry_mode": "tap",
+        "note": "HD-0709-02",
+        "strata": {
+          "date": "2026-07-09"
+        },
+        "timestamp": "2026-07-09T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E021",
+        "entry_mode": "tap",
+        "note": "HD-0709-03",
+        "strata": {
+          "date": "2026-07-09"
+        },
+        "timestamp": "2026-07-09T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E022",
+        "entry_mode": "tap",
+        "note": "HD-0709-04",
+        "strata": {
+          "date": "2026-07-09"
+        },
+        "timestamp": "2026-07-09T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E023",
+        "entry_mode": "tap",
+        "note": "HD-0709-05",
+        "strata": {
+          "date": "2026-07-09"
+        },
+        "timestamp": "2026-07-09T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E024",
+        "entry_mode": "tap",
+        "note": "HD-0710-01",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E025",
+        "entry_mode": "tap",
+        "note": "HD-0710-02",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E026",
+        "entry_mode": "tap",
+        "note": "HD-0710-03",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E027",
+        "entry_mode": "tap",
+        "note": "HD-0710-04",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E028",
+        "entry_mode": "tap",
+        "note": "HD-0710-05",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E029",
+        "entry_mode": "tap",
+        "note": "HD-0710-06",
+        "strata": {
+          "date": "2026-07-10"
+        },
+        "timestamp": "2026-07-10T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E030",
+        "entry_mode": "tap",
+        "note": "HD-0713-01",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E031",
+        "entry_mode": "tap",
+        "note": "HD-0713-02",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E032",
+        "entry_mode": "tap",
+        "note": "HD-0713-03",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E033",
+        "entry_mode": "tap",
+        "note": "HD-0713-04",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E034",
+        "entry_mode": "tap",
+        "note": "HD-0713-05",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E035",
+        "entry_mode": "tap",
+        "note": "HD-0713-06",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E036",
+        "entry_mode": "tap",
+        "note": "HD-0713-07",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E037",
+        "entry_mode": "tap",
+        "note": "HD-0713-08",
+        "strata": {
+          "date": "2026-07-13"
+        },
+        "timestamp": "2026-07-13T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E038",
+        "entry_mode": "tap",
+        "note": "HD-0714-01",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E039",
+        "entry_mode": "tap",
+        "note": "HD-0714-02",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E040",
+        "entry_mode": "tap",
+        "note": "HD-0714-03",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E041",
+        "entry_mode": "tap",
+        "note": "HD-0714-04",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E042",
+        "entry_mode": "tap",
+        "note": "HD-0714-05",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E043",
+        "entry_mode": "tap",
+        "note": "HD-0714-06",
+        "strata": {
+          "date": "2026-07-14"
+        },
+        "timestamp": "2026-07-14T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E044",
+        "entry_mode": "tap",
+        "note": "HD-0715-01",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E045",
+        "entry_mode": "tap",
+        "note": "HD-0715-02",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E046",
+        "entry_mode": "tap",
+        "note": "HD-0715-03",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E047",
+        "entry_mode": "tap",
+        "note": "HD-0715-04",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E048",
+        "entry_mode": "tap",
+        "note": "HD-0715-05",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E049",
+        "entry_mode": "tap",
+        "note": "HD-0715-06",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E050",
+        "entry_mode": "tap",
+        "note": "HD-0715-07",
+        "strata": {
+          "date": "2026-07-15"
+        },
+        "timestamp": "2026-07-15T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E051",
+        "entry_mode": "tap",
+        "note": "HD-0716-01",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E052",
+        "entry_mode": "tap",
+        "note": "HD-0716-02",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E053",
+        "entry_mode": "tap",
+        "note": "HD-0716-03",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E054",
+        "entry_mode": "tap",
+        "note": "HD-0716-04",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E055",
+        "entry_mode": "tap",
+        "note": "HD-0716-05",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E056",
+        "entry_mode": "tap",
+        "note": "HD-0716-06",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E057",
+        "entry_mode": "tap",
+        "note": "HD-0716-07",
+        "strata": {
+          "date": "2026-07-16"
+        },
+        "timestamp": "2026-07-16T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E058",
+        "entry_mode": "tap",
+        "note": "HD-0717-01",
+        "strata": {
+          "date": "2026-07-17"
+        },
+        "timestamp": "2026-07-17T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E059",
+        "entry_mode": "tap",
+        "note": "HD-0717-02",
+        "strata": {
+          "date": "2026-07-17"
+        },
+        "timestamp": "2026-07-17T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E060",
+        "entry_mode": "tap",
+        "note": "HD-0717-03",
+        "strata": {
+          "date": "2026-07-17"
+        },
+        "timestamp": "2026-07-17T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E061",
+        "entry_mode": "tap",
+        "note": "HD-0717-04",
+        "strata": {
+          "date": "2026-07-17"
+        },
+        "timestamp": "2026-07-17T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E062",
+        "entry_mode": "tap",
+        "note": "HD-0717-05",
+        "strata": {
+          "date": "2026-07-17"
+        },
+        "timestamp": "2026-07-17T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E063",
+        "entry_mode": "tap",
+        "note": "HD-0720-01",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E064",
+        "entry_mode": "tap",
+        "note": "HD-0720-02",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E065",
+        "entry_mode": "tap",
+        "note": "HD-0720-03",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E066",
+        "entry_mode": "tap",
+        "note": "HD-0720-04",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E067",
+        "entry_mode": "tap",
+        "note": "HD-0720-05",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E068",
+        "entry_mode": "tap",
+        "note": "HD-0720-06",
+        "strata": {
+          "date": "2026-07-20"
+        },
+        "timestamp": "2026-07-20T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E069",
+        "entry_mode": "tap",
+        "note": "HD-0721-01",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E070",
+        "entry_mode": "tap",
+        "note": "HD-0721-02",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E071",
+        "entry_mode": "tap",
+        "note": "HD-0721-03",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E072",
+        "entry_mode": "tap",
+        "note": "HD-0721-04",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E073",
+        "entry_mode": "tap",
+        "note": "HD-0721-05",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E074",
+        "entry_mode": "tap",
+        "note": "HD-0721-06",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E075",
+        "entry_mode": "tap",
+        "note": "HD-0721-07",
+        "strata": {
+          "date": "2026-07-21"
+        },
+        "timestamp": "2026-07-21T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E076",
+        "entry_mode": "tap",
+        "note": "HD-0722-01",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E077",
+        "entry_mode": "tap",
+        "note": "HD-0722-02",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E078",
+        "entry_mode": "tap",
+        "note": "HD-0722-03",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E079",
+        "entry_mode": "tap",
+        "note": "HD-0722-04",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E080",
+        "entry_mode": "tap",
+        "note": "HD-0722-05",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E081",
+        "entry_mode": "tap",
+        "note": "HD-0722-06",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E082",
+        "entry_mode": "tap",
+        "note": "HD-0722-07",
+        "strata": {
+          "date": "2026-07-22"
+        },
+        "timestamp": "2026-07-22T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E083",
+        "entry_mode": "tap",
+        "note": "HD-0723-01",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E084",
+        "entry_mode": "tap",
+        "note": "HD-0723-02",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E085",
+        "entry_mode": "tap",
+        "note": "HD-0723-03",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E086",
+        "entry_mode": "tap",
+        "note": "HD-0723-04",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E087",
+        "entry_mode": "tap",
+        "note": "HD-0723-05",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E088",
+        "entry_mode": "tap",
+        "note": "HD-0723-06",
+        "strata": {
+          "date": "2026-07-23"
+        },
+        "timestamp": "2026-07-23T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E089",
+        "entry_mode": "tap",
+        "note": "HD-0724-01",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E090",
+        "entry_mode": "tap",
+        "note": "HD-0724-02",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E091",
+        "entry_mode": "tap",
+        "note": "HD-0724-03",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E092",
+        "entry_mode": "tap",
+        "note": "HD-0724-04",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E093",
+        "entry_mode": "tap",
+        "note": "HD-0724-05",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E094",
+        "entry_mode": "tap",
+        "note": "HD-0724-06",
+        "strata": {
+          "date": "2026-07-24"
+        },
+        "timestamp": "2026-07-24T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E095",
+        "entry_mode": "tap",
+        "note": "HD-0727-01",
+        "strata": {
+          "date": "2026-07-27"
+        },
+        "timestamp": "2026-07-27T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E096",
+        "entry_mode": "tap",
+        "note": "HD-0727-02",
+        "strata": {
+          "date": "2026-07-27"
+        },
+        "timestamp": "2026-07-27T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E097",
+        "entry_mode": "tap",
+        "note": "HD-0727-03",
+        "strata": {
+          "date": "2026-07-27"
+        },
+        "timestamp": "2026-07-27T17:00:00"
+      },
+      {
+        "category_id": "reassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E098",
+        "entry_mode": "tap",
+        "note": "HD-0727-04",
+        "strata": {
+          "date": "2026-07-27"
+        },
+        "timestamp": "2026-07-27T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E099",
+        "entry_mode": "tap",
+        "note": "HD-0727-05",
+        "strata": {
+          "date": "2026-07-27"
+        },
+        "timestamp": "2026-07-27T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E100",
+        "entry_mode": "tap",
+        "note": "HD-0728-01",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E101",
+        "entry_mode": "tap",
+        "note": "HD-0728-02",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E102",
+        "entry_mode": "tap",
+        "note": "HD-0728-03",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E103",
+        "entry_mode": "tap",
+        "note": "HD-0728-04",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E104",
+        "entry_mode": "tap",
+        "note": "HD-0728-05",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E105",
+        "entry_mode": "tap",
+        "note": "HD-0728-06",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E106",
+        "entry_mode": "tap",
+        "note": "HD-0728-07",
+        "strata": {
+          "date": "2026-07-28"
+        },
+        "timestamp": "2026-07-28T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E107",
+        "entry_mode": "tap",
+        "note": "HD-0729-01",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E108",
+        "entry_mode": "tap",
+        "note": "HD-0729-02",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E109",
+        "entry_mode": "tap",
+        "note": "HD-0729-03",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E110",
+        "entry_mode": "tap",
+        "note": "HD-0729-04",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E111",
+        "entry_mode": "tap",
+        "note": "HD-0729-05",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E112",
+        "entry_mode": "tap",
+        "note": "HD-0729-06",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E113",
+        "entry_mode": "tap",
+        "note": "HD-0729-07",
+        "strata": {
+          "date": "2026-07-29"
+        },
+        "timestamp": "2026-07-29T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E114",
+        "entry_mode": "tap",
+        "note": "HD-0730-01",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E115",
+        "entry_mode": "tap",
+        "note": "HD-0730-02",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E116",
+        "entry_mode": "tap",
+        "note": "HD-0730-03",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E117",
+        "entry_mode": "tap",
+        "note": "HD-0730-04",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E118",
+        "entry_mode": "tap",
+        "note": "HD-0730-05",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "requester_reply",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E119",
+        "entry_mode": "tap",
+        "note": "HD-0730-06",
+        "strata": {
+          "date": "2026-07-30"
+        },
+        "timestamp": "2026-07-30T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E120",
+        "entry_mode": "tap",
+        "note": "HD-0731-01",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E121",
+        "entry_mode": "tap",
+        "note": "HD-0731-02",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E122",
+        "entry_mode": "tap",
+        "note": "HD-0731-03",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E123",
+        "entry_mode": "tap",
+        "note": "HD-0731-04",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "license_stock",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E124",
+        "entry_mode": "tap",
+        "note": "HD-0731-05",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "mgr_approval",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E125",
+        "entry_mode": "tap",
+        "note": "HD-0731-06",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E126",
+        "entry_mode": "tap",
+        "note": "HD-0731-07",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      },
+      {
+        "category_id": "sat_unassigned",
+        "count": 1,
+        "deleted": null,
+        "entry_id": "E127",
+        "entry_mode": "tap",
+        "note": "HD-0731-08",
+        "strata": {
+          "date": "2026-07-31"
+        },
+        "timestamp": "2026-07-31T17:00:00"
+      }
+    ],
+    "notes": "One mark per baseline ticket that blew the 8.0-hour promise (all 127), tagged with the largest wait segment in its event log.",
+    "schema_version": 1,
+    "strata_fields": [
+      {
+        "key": "date",
+        "label": "Date"
+      }
+    ],
+    "tool_id": "T-08",
+    "updated_at": "2026-07-31T17:00:00Z"
+  },
+  "valid": true
+}

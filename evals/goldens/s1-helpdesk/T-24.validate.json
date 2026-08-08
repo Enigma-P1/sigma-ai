@@ -1,0 +1,63 @@
+{
+  "artifact": {
+    "artifact_id": "s1-standard-work",
+    "change_log": [
+      {
+        "at": "2026-10-09T19:00:00Z",
+        "note": "v1 effective: dispatch-on-arrival written as the one standard method.",
+        "version": 1
+      }
+    ],
+    "created_at": "2026-10-09T19:00:00Z",
+    "effective_date": "2026-09-07",
+    "linked_control_plan_id": "s1-control-plan",
+    "notes": "The dispatch rule as standard work.",
+    "owner": "Naomi Castillo",
+    "schema_version": 1,
+    "seeded_from_process_map_id": "s1-process-map",
+    "steps": [
+      {
+        "action": "Watch the shared queue continuously (rotating dispatcher-of-the-day)",
+        "changed_from_prior": true,
+        "note": "Replaces the once-a-day 8:30 triage block",
+        "order": 1,
+        "source_step_ref": "s1",
+        "standard": "No ticket sits unassigned more than one business hour",
+        "step_id": "st-1"
+      },
+      {
+        "action": "Assign the ticket to a tech within the hour",
+        "changed_from_prior": true,
+        "note": "",
+        "order": 2,
+        "source_step_ref": "s2",
+        "standard": "Assignment timestamp - created timestamp <= 1 business hour",
+        "step_id": "st-2"
+      },
+      {
+        "action": "For access grants, fire the approval request at assignment, naming the exact scope requested",
+        "changed_from_prior": true,
+        "note": "FMEA action r-wrong-scope folded in",
+        "order": 3,
+        "source_step_ref": "s3",
+        "standard": "Approval request sent the same hour as assignment, scope named",
+        "step_id": "st-3"
+      },
+      {
+        "action": "Perform the work and mark resolved",
+        "changed_from_prior": false,
+        "note": "",
+        "order": 4,
+        "source_step_ref": "s4",
+        "standard": "Unchanged from prior practice",
+        "step_id": "st-4"
+      }
+    ],
+    "supersedes": "The once-a-day morning triage batch",
+    "title": "Routine-ticket dispatch (assign-on-arrival)",
+    "tool_id": "T-24",
+    "updated_at": "2026-10-09T19:00:00Z",
+    "version": 1
+  },
+  "valid": true
+}

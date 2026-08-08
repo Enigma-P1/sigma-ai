@@ -1,0 +1,143 @@
+{
+  "artifact": {
+    "artifact_id": "s1-msa",
+    "attribute_items": [],
+    "continuous_items": [
+      {
+        "item_id": "HD-0706-02",
+        "readings": [
+          10.6,
+          10.6
+        ]
+      },
+      {
+        "item_id": "HD-0730-03",
+        "readings": [
+          18.0,
+          17.9
+        ]
+      },
+      {
+        "item_id": "HD-0714-04",
+        "readings": [
+          21.8,
+          21.9
+        ]
+      },
+      {
+        "item_id": "HD-0721-05",
+        "readings": [
+          23.3,
+          23.5
+        ]
+      },
+      {
+        "item_id": "HD-0707-01",
+        "readings": [
+          24.8,
+          24.8
+        ]
+      },
+      {
+        "item_id": "HD-0730-02",
+        "readings": [
+          25.3,
+          25.3
+        ]
+      },
+      {
+        "item_id": "HD-0716-06",
+        "readings": [
+          27.8,
+          27.8
+        ]
+      },
+      {
+        "item_id": "HD-0710-06",
+        "readings": [
+          28.6,
+          28.6
+        ]
+      },
+      {
+        "item_id": "HD-0717-04",
+        "readings": [
+          30.2,
+          30.2
+        ]
+      },
+      {
+        "item_id": "HD-0723-02",
+        "readings": [
+          33.0,
+          33.1
+        ]
+      },
+      {
+        "item_id": "HD-0722-03",
+        "readings": [
+          34.7,
+          34.6
+        ]
+      },
+      {
+        "item_id": "HD-0715-02",
+        "readings": [
+          42.9,
+          43.5
+        ]
+      }
+    ],
+    "created_at": "2026-08-01T09:00:00Z",
+    "data_type": "continuous",
+    "gauge_increment": 0.1,
+    "gauge_name": "Ticket-system event log, re-extracted by hand",
+    "lsl": null,
+    "notes": "12 baseline tickets spanning the observed range, each re-extracted blind from the event log five days after the first pass, same person.",
+    "operator": "Naomi Castillo",
+    "result": {
+      "attribute_agreement": null,
+      "caveat": "Repeatability-only: a full multi-operator gauge study was not done here. The 10% / 30% bands above are borrowed from full-gauge-study convention, so passing them on repeatability alone is the lenient side -- a full study could only read worse, not better.",
+      "data_type": "continuous",
+      "exit02": null,
+      "repeatability": {
+        "provenance": {
+          "assumptions_checked": [
+            ">= 2 valid repeats per included item"
+          ],
+          "engine_version": "0.1.0",
+          "input_hash": "5f8fbc2e07287d884294c25322a169d69932b37669e6b0c219f114f499d3fccf",
+          "method": "repeatability_percent = 6*s_repeat/denominator*100; s_repeat = pooled within-item SD (NIST §7.4.3.1 SSE/MSE construction); denominator=study_variation (matrix §4a EXIT-02 continuous)",
+          "warnings": [
+            "Repeatability-only: a full multi-operator gauge study was not done here. The 10% / 30% bands above are borrowed from full-gauge-study convention, so passing them on repeatability alone is the lenient side -- a full study could only read worse, not better."
+          ]
+        },
+        "value": {
+          "denominator": "study_variation",
+          "denominator_value": 49.05237662105591,
+          "exclusion_reasons": [],
+          "items_excluded": [],
+          "items_used": 12,
+          "repeatability_percent": 1.6561966950952391,
+          "s_repeat": 0.1354006400772663,
+          "verdict": "acceptable"
+        }
+      },
+      "resolution_check": {
+        "distinct_value_count": 18,
+        "gauge_increment": 0.1,
+        "increment_to_span_ratio": 0.0030395136778115506,
+        "passed": true,
+        "reasons": [],
+        "span": 32.9,
+        "span_basis": "observed_spread"
+      },
+      "verdict": "acceptable"
+    },
+    "schema_version": 1,
+    "tool_id": "T-12",
+    "updated_at": "2026-08-01T09:00:00Z",
+    "usl": 8.0
+  },
+  "valid": true
+}

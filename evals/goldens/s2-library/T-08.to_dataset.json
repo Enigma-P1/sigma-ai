@@ -1,0 +1,85 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "category",
+      "sample_values": [
+        "out-of-order within bay",
+        "series shelved by author",
+        "out-of-order within bay",
+        "out-of-order within bay",
+        "oversize/flat exception"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "timestamp",
+      "sample_values": [
+        "2026-08-31T17:00:00",
+        "2026-08-31T17:00:00",
+        "2026-08-31T17:00:00",
+        "2026-08-31T17:00:00",
+        "2026-08-31T17:00:00"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-08-31",
+        "2026-08-31",
+        "2026-08-31",
+        "2026-08-31",
+        "2026-08-31"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "section",
+      "sample_values": [
+        "juvenile",
+        "juvenile",
+        "juvenile",
+        "juvenile",
+        "nonfiction"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "note",
+      "sample_values": [],
+      "type": "text"
+    }
+  ],
+  "created_at": "2026-09-24T17:05:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-s2-library",
+  "quality": {
+    "duplicate_row_count": 20,
+    "missing_values": {
+      "category": 0,
+      "date": 0,
+      "note": 90,
+      "section": 0,
+      "timestamp": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "category": 0,
+      "date": 0,
+      "note": 0,
+      "section": 0,
+      "timestamp": 0
+    },
+    "row_count": 90
+  },
+  "row_count": 90,
+  "schema_version": 1,
+  "sha256": "f811613acc8ef33490fe422aeb66ba0851996192a4e313b8bb0aca6e962cbac5",
+  "source_artifact_id": "s2-check-sheet",
+  "source_filename": "s2-check-sheet-check-sheet.csv",
+  "source_tool_id": "T-08"
+}

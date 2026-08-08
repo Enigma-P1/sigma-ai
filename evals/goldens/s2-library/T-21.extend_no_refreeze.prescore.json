@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "family_matches_data",
+    "detail": "chart_type='p' matches the selector (data_shape='attribute')",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "frozen_limits_present_before_signals",
+    "detail": "limits frozen at 2026-09-25T09:00:00Z",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "frozen_baseline_matches_window",
+    "detail": "stored p_bar=0.0652647 and every subgroup's UCL/LCL match a fresh recompute off frozen_window_subgroups",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "never_armed",
+    "detail": "monitoring is armed (armed.monitoring_started=true)",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "signal_acknowledgment_completeness",
+    "detail": "1 of 1 fired signal(s) are not yet acknowledged",
+    "status": "flag",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "recalculation_log_has_reasons",
+    "detail": "1 log entry(ies), every reason non-blank",
+    "status": "pass",
+    "tool_id": "T-21"
+  }
+]

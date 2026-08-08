@@ -1,0 +1,51 @@
+{
+  "artifact": {
+    "artifact_id": "s2-sipoc",
+    "created_at": "2026-08-02T09:00:00Z",
+    "notes": "Boundaries match the charter scope.",
+    "output_customer_pairs": [
+      {
+        "customer": "Patron (catalog-guided search)",
+        "output": "Correctly shelved item, findable by call number"
+      },
+      {
+        "customer": "Circulation supervisor (process monitoring)",
+        "output": "Audit record"
+      }
+    ],
+    "process_steps": [
+      {
+        "description": "Item returned and check-in scanned",
+        "step_number": 1
+      },
+      {
+        "description": "Item rough-sorted onto a sorting-room cart",
+        "step_number": 2
+      },
+      {
+        "description": "Page sorts and shelves the item at the shelf",
+        "step_number": 3
+      },
+      {
+        "description": "Daily shelf-read audit checks a sample of shelved items",
+        "step_number": 4
+      }
+    ],
+    "schema_version": 1,
+    "scope_end": "Item audited on the shelf",
+    "scope_start": "Check-in scan",
+    "supplier_input_pairs": [
+      {
+        "input": "Returned item",
+        "supplier": "Patron"
+      },
+      {
+        "input": "Scanned return, rough-sorted onto a cart",
+        "supplier": "Check-in desk"
+      }
+    ],
+    "tool_id": "T-04",
+    "updated_at": "2026-08-02T09:00:00Z"
+  },
+  "valid": true
+}

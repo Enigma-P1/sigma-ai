@@ -1,0 +1,205 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-five-s",
+    "created_at": "2026-09-23T09:00:00Z",
+    "notes": "Espresso-station 5S, tied to the spaghetti finding that earned it a place on this project: Marcus walks ~796 m per peak in the current layout, and route R2 alone -- espresso to grinder and back -- runs 52 round trips per peak, so the station's physical order is part of how the morning runs, not housekeeping for the binder. Three rounds so far (biweekly while the habit forms, then monthly per the schedule), each with a photo the scores can be checked against (photos are the demo's stdlib-rendered stand-ins, same convention as measure/floorplan.png -- plain zlib/struct PNG writing, placement seeded with random.Random(23); the generation run is recorded in control-run.md). The trend is the honest line: 10 to 15 to 18 of 25, improving because the photos changed, not because scoring relaxed -- and nothing is a 5 yet: Sustain has two on-schedule rounds behind it and no more, and Standardize still has a migrating home (the dial-in log). Set-in-order moves land directly on named waste: the pitcher rack beside the wand kills the cross-walkway reach, the grinder shadow board and staged cups shorten the R2 dosing trips, and the cleared walkway removes the crossing where the July 28 rush pileup happened. Every round's lowest category carries an action with an owner; the round-2 low (Sustain) is exactly the category this phase's 6% statistic predicts, and the fix was to chain the audit to an existing Friday routine rather than to good intentions.",
+    "rounds": [
+      {
+        "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+        "date": "2026-09-23",
+        "improvement_action": "Set in order (lowest, 1): move steam pitchers to a rack beside the wand, stage cups at the marking station, hang dosing tools on a shadow board at the grinder, and clear the walkway -- aimed squarely at R2's 52 trips and the crossing where the July 28 rush pileup happened. Due 2026-10-06.",
+        "improvement_action_owner": "Marcus Webb",
+        "lowest_category": "set_in_order",
+        "photos": [
+          {
+            "height_px": 400,
+            "image_id": "<normalized>",
+            "sha256": "bddce8c10ba51419d9d352057ee25a43c626ad62bef348f74230637fea557198",
+            "source_filename": "five-s-round1.png",
+            "width_px": 560
+          }
+        ],
+        "round_id": "r1",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Live tools mostly needed, but dead stock shares the station: a broken tamper, two unused flavor-pump boxes under the back counter, and off-menu syrups on the working rail",
+            "score": 3
+          },
+          {
+            "category": "set_in_order",
+            "note": "The finding the spaghetti predicted: steam pitchers live on the FRONT counter across the walkway, dosing tools scatter around the grinder, cup stacks sit behind the barista (the fishbone's turn-and-reach candidate c-cup-placement) -- photo shows the walkway strewn",
+            "score": 1
+          },
+          {
+            "category": "shine",
+            "note": "Wand and rail wiped to food standard every close; grinder bench wears a coffee-dust layer that hides the dose scatter it should reveal",
+            "score": 3
+          },
+          {
+            "category": "standardize",
+            "note": "Nothing labeled, no home positions marked -- where things live is crew memory, which is why they migrate",
+            "score": 1
+          },
+          {
+            "category": "sustain",
+            "note": "First audit ever; the only standing habit is the close-of-shift clean. Scored 2, not 0, for the clean that does reliably happen",
+            "score": 2
+          }
+        ],
+        "total": 10
+      },
+      {
+        "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+        "date": "2026-10-07",
+        "improvement_action": "Sustain (lowest, 2): chain the 5S check to the existing Friday close-of-week routine, same clipboard as the remake roll-up, so the audit rides a habit that already happens -- Priya owns the calendar and the chase. Due 2026-10-16.",
+        "improvement_action_owner": "Priya Shah",
+        "lowest_category": "sustain",
+        "photos": [
+          {
+            "height_px": 400,
+            "image_id": "<normalized>",
+            "sha256": "802b463e994e5950658712c33471bc362145ed62d928fe4f3c004fd1d3b0d078",
+            "source_filename": "five-s-round2.png",
+            "width_px": 560
+          }
+        ],
+        "round_id": "r2",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Dead stock cleared to dining-services storage; one judgment item left (the retired single pitcher, kept as steam-wand spare)",
+            "score": 4
+          },
+          {
+            "category": "set_in_order",
+            "note": "Pitcher rack and shadow board in, cups staged at marking -- but backup cup sleeves still live across the aisle and the dial-in log wanders the counter; photo shows the two stragglers",
+            "score": 3
+          },
+          {
+            "category": "shine",
+            "note": "Same close-of-shift standard; grinder bench now wiped at the pre-peak dial-in, but the mid-peak dust layer still builds",
+            "score": 3
+          },
+          {
+            "category": "standardize",
+            "note": "Rail labels and taped pitcher-rack home in place; no marked homes yet for the sleeves or the log",
+            "score": 3
+          },
+          {
+            "category": "sustain",
+            "note": "The honest low: round 2 happened only after a calendar chase, and one planned mid-cycle mini-check was skipped in week 2",
+            "score": 2
+          }
+        ],
+        "total": 15
+      },
+      {
+        "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+        "date": "2026-10-21",
+        "improvement_action": "Standardize (lowest, 3): fix the dial-in/refill log to a clipboard hook at the grinder -- one marked home, named on the SOP's dial-in step so the method and the 5S agree. Due 2026-11-02.",
+        "improvement_action_owner": "Marcus Webb",
+        "lowest_category": "standardize",
+        "photos": [
+          {
+            "height_px": 400,
+            "image_id": "<normalized>",
+            "sha256": "67ffe81bba83345f636746ee894f721269497d7f2723111685259029724629a1",
+            "source_filename": "five-s-round3.png",
+            "width_px": 560
+          }
+        ],
+        "round_id": "r3",
+        "scores": [
+          {
+            "category": "sort",
+            "note": "Holding; nothing new accumulated in two weeks -- the walkway stayed clear through a full semester rush week",
+            "score": 4
+          },
+          {
+            "category": "set_in_order",
+            "note": "Sleeves moved under the marking station; everything at the station has a home within one step except the dial-in log",
+            "score": 4
+          },
+          {
+            "category": "shine",
+            "note": "Dial-in wipe now on the grinder card, so the bench shows dose scatter again -- clean-to-inspect, not just clean-to-look-at",
+            "score": 4
+          },
+          {
+            "category": "standardize",
+            "note": "The remaining gap: taped homes and labels everywhere except the dial-in/refill log, which still migrates between grinder and machine -- visible mid-move in the photo",
+            "score": 3
+          },
+          {
+            "category": "sustain",
+            "note": "Two consecutive on-schedule rounds, Friday chain holding; scored 3 because two points is a start, not a habit",
+            "score": 3
+          }
+        ],
+        "total": 18
+      }
+    ],
+    "schedule": {
+      "cadence_note": "Biweekly for the first three rounds while the habit formed; monthly from November (first Monday), chained to the Friday close-of-week clipboard so the chase is structural, not personal",
+      "next_round_due": "2026-11-02"
+    },
+    "schema_version": 1,
+    "tool_id": "T-23",
+    "trend": {
+      "provenance": {
+        "assumptions_checked": [],
+        "engine_version": "0.1.0",
+        "input_hash": "776365f4eb453c010db8fb7f81fb6daea831334174a3bc0d3e57a86e97d004c4",
+        "method": "trend = audit rounds ordered by date then round_id, each point's total/per_category/lowest_category read straight off that round's own scores (rubric R-CTL-05 #3: recurrence made visible as a trend line)",
+        "warnings": []
+      },
+      "value": [
+        {
+          "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+          "date": "2026-09-23",
+          "lowest_category": "set_in_order",
+          "per_category": {
+            "set_in_order": 1,
+            "shine": 3,
+            "sort": 3,
+            "standardize": 1,
+            "sustain": 2
+          },
+          "round_id": "r1",
+          "total": 10
+        },
+        {
+          "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+          "date": "2026-10-07",
+          "lowest_category": "sustain",
+          "per_category": {
+            "set_in_order": 3,
+            "shine": 3,
+            "sort": 4,
+            "standardize": 3,
+            "sustain": 2
+          },
+          "round_id": "r2",
+          "total": 15
+        },
+        {
+          "area": "Espresso station + back counter (grinder rail, pitcher and cup staging) + front-counter walkway",
+          "date": "2026-10-21",
+          "lowest_category": "standardize",
+          "per_category": {
+            "set_in_order": 4,
+            "shine": 4,
+            "sort": 4,
+            "standardize": 3,
+            "sustain": 3
+          },
+          "round_id": "r3",
+          "total": 18
+        }
+      ]
+    },
+    "updated_at": "2026-10-21T09:30:00Z"
+  },
+  "valid": true
+}

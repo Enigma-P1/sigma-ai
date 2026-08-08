@@ -1,0 +1,65 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-copq",
+    "created_at": "2026-07-07T13:30:00Z",
+    "notes": "The engine computes each row amount (quantity x rate) and the total; nothing here is hand-typed. Q2 2026 total feeds the charter's business-impact field: $4,021 x 4 = $16,084 per year, basis stated on the charter.",
+    "rows": [
+      {
+        "amount": 352.0,
+        "basis": "Remade drinks counted on the barista waste sheet, Q2 2026; per-remake ingredient and cup cost from supplier invoices",
+        "category": "rework",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "Q2 2026",
+        "quantity": 320.0,
+        "rate": 1.1
+      },
+      {
+        "amount": 1008.0,
+        "basis": "POS comp log, Q2 2026, reason code 'wait'; rate is the average comped-drink price",
+        "category": "custom",
+        "custom_label": "Comped drinks (long-wait apologies)",
+        "is_estimate": false,
+        "period": "Q2 2026",
+        "quantity": 210.0,
+        "rate": 4.8
+      },
+      {
+        "amount": 1984.5,
+        "basis": "Estimate: 10-morning walk-away tally in June 2026 averaged 6 per morning, extrapolated to 63 Q2 weekday mornings; average ticket from the POS",
+        "category": "lost_business",
+        "custom_label": null,
+        "is_estimate": true,
+        "period": "Q2 2026",
+        "quantity": 378.0,
+        "rate": 5.25
+      },
+      {
+        "amount": 676.5,
+        "basis": "Time-clock export, Q2 2026, morning-shift overtime code -- extra time to clear the peak backlog",
+        "category": "overtime",
+        "custom_label": null,
+        "is_estimate": false,
+        "period": "Q2 2026",
+        "quantity": 41.0,
+        "rate": 16.5
+      }
+    ],
+    "schema_version": 1,
+    "tool_id": "T-02",
+    "total": {
+      "provenance": {
+        "assumptions_checked": [
+          "each row's amount is quantity * rate, never hand-entered"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "de7a6024acafc736a7bc64d098cdcb09af5bf4be2033cb6ed2a5ee6c0e00965e",
+        "method": "copq_total = sum(quantity * rate per row)",
+        "warnings": []
+      },
+      "value": 4021.0
+    },
+    "updated_at": "2026-07-07T13:30:00Z"
+  },
+  "valid": true
+}

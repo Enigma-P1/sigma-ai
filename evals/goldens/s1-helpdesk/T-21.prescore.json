@@ -1,0 +1,38 @@
+[
+  {
+    "check_id": "family_matches_data",
+    "detail": "chart_type='imr' matches the selector (data_shape='continuous')",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "frozen_limits_present_before_signals",
+    "detail": "limits frozen at 2026-10-09T18:00:00Z",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "frozen_baseline_matches_window",
+    "detail": "stored center/limits (xbar=7.21694, sigma=2.20334, UCL=13.827, LCL=0.60692) and its 0 window signal(s) (rule2_enabled=False, rule3_enabled=False) match a fresh recompute off frozen_window_values",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "never_armed",
+    "detail": "monitoring is armed (armed.monitoring_started=true)",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "signal_acknowledgment_completeness",
+    "detail": "no signals fired yet",
+    "status": "pass",
+    "tool_id": "T-21"
+  },
+  {
+    "check_id": "recalculation_log_has_reasons",
+    "detail": "1 log entry(ies), every reason non-blank",
+    "status": "pass",
+    "tool_id": "T-21"
+  }
+]

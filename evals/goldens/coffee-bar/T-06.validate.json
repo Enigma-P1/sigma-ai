@@ -1,0 +1,197 @@
+{
+  "artifact": {
+    "artifact_id": "coffee-process-map",
+    "connectors": [
+      {
+        "from_step": "s1",
+        "label": "ticket printed, cup marked",
+        "to_step": "s2"
+      },
+      {
+        "from_step": "s2",
+        "label": null,
+        "to_step": "s3"
+      },
+      {
+        "from_step": "s3",
+        "label": null,
+        "to_step": "s4"
+      },
+      {
+        "from_step": "s4",
+        "label": "drink to pickup counter",
+        "to_step": "s5"
+      }
+    ],
+    "constraint_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "pace is arithmetic on two fields (available time / demand), not full takt/line-balancing (T-32, v1.1)",
+          "only value_add/enabling steps are eligible -- a non_value_add (wait) step is excluded by construction"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "710f2bb46d9e78fde06156b3bacafac2e1b24801611d3b7f1f06f60cb4188bd3",
+        "method": "constraint_step = argmax(step.time_minutes) over PROCESSING steps only (step_type value_add or enabling) -- a pure-wait non_value_add step cannot be the constraint (matrix §5a A-7, fidelity fix); pace_minutes_per_unit = available_time_minutes / demand_units; meets_pace judged on this step",
+        "warnings": []
+      },
+      "value": {
+        "meets_pace": true,
+        "pace_minutes_per_unit": 3.75,
+        "step_id": "s3",
+        "step_name": "Prepare drink at espresso station",
+        "time_minutes": 2.0
+      }
+    },
+    "created_at": "2026-07-21T14:30:00Z",
+    "demand": {
+      "available_time_minutes": 180.0,
+      "demand_units": 48.0
+    },
+    "lanes": [
+      {
+        "lane_id": "front-counter",
+        "name": "Front counter (register + pickup)",
+        "owner": "Priya Shah"
+      },
+      {
+        "lane_id": "espresso-station",
+        "name": "Espresso station",
+        "owner": "Marcus Webb"
+      }
+    ],
+    "layout": {
+      "s1": {
+        "x": 60.0,
+        "y": 40.0
+      },
+      "s2": {
+        "x": 240.0,
+        "y": 180.0
+      },
+      "s3": {
+        "x": 420.0,
+        "y": 180.0
+      },
+      "s4": {
+        "x": 600.0,
+        "y": 180.0
+      },
+      "s5": {
+        "x": 780.0,
+        "y": 40.0
+      }
+    },
+    "longest_step": {
+      "provenance": {
+        "assumptions_checked": [
+          "no step_type filter -- a pure wait is eligible here even though it can't be the constraint_step"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "e12280ceffa1612a12bc6a16cd64a1de04e404a488d7a5b758ce967ab770b7b1",
+        "method": "longest_step = argmax(step.time_minutes) over ALL timed steps, any step_type (waits included)",
+        "warnings": []
+      },
+      "value": {
+        "step_id": "s2",
+        "step_name": "Cup waits in drink queue",
+        "step_type": "non_value_add",
+        "time_minutes": 4.5
+      }
+    },
+    "notes": "Swimlane walk of the SIPOC's register-to-handoff segment, first drawn July 21, step times filled in August 3 from the time study's element medians (typical cycle, robust to the flagged July 28 rush outlier -- the sum of element medians, a typical cycle, not the mean total; the eight timed cycles average 8.8): 0.8 + 4.5 + 2.0 + 0.6 + 0.5 = 8.4 minutes -- the charter baseline. Demand block: weekday 7:00-10:00 peak (180 min, the peak window every other artifact in this demo uses); 48 espresso orders per peak (July tally, same count the spaghetti observation logged) -- pace 3.75 min per order. The engine's constraint readout (processing steps only -- value_add/enabling, matrix A-7 fidelity fix) names s3, Prepare drink at espresso station, 2.0 min, as the constraint -- it meets the 3.75 pace; the espresso-station lane carries 2.6 min of processing work across s3 and s4 (2.0 + 0.6). The engine's longest-step readout (any type, waits included) names s2, Cup waits in drink queue, 4.5 min -- honestly exceeding the 3.75 pace, but a pure wait can never be named the constraint: it sits downstream of the constraint, its consequence, not its cause.",
+    "schema_version": 1,
+    "steps": [
+      {
+        "defect_point": false,
+        "lane_id": "front-counter",
+        "name": "Take order and payment at register",
+        "order": 1,
+        "reason": "Order and payment must be captured, but the customer is buying the drink, not the transaction",
+        "step_id": "s1",
+        "step_type": "enabling",
+        "strata": [],
+        "time_minutes": 0.8,
+        "wastes": []
+      },
+      {
+        "defect_point": false,
+        "lane_id": "espresso-station",
+        "name": "Cup waits in drink queue",
+        "order": 2,
+        "reason": "Pure queue time -- nothing happens to the drink; more than half of the 8.4-minute total",
+        "step_id": "s2",
+        "step_type": "non_value_add",
+        "strata": [
+          "daypart"
+        ],
+        "time_minutes": 4.5,
+        "wastes": [
+          {
+            "note": "Cups sit a median 4.5 min untouched (time study el-queue) -- the largest single block of the order-to-handoff total",
+            "waste_id": "waiting"
+          },
+          {
+            "note": "Marked cups are WIP between register and machine -- nine deep during the July 28 8:12 rush",
+            "waste_id": "inventory"
+          }
+        ]
+      },
+      {
+        "defect_point": true,
+        "lane_id": "espresso-station",
+        "name": "Prepare drink at espresso station",
+        "order": 3,
+        "reason": "The transformation the customer pays for: dose, pull, steam, build",
+        "step_id": "s3",
+        "step_type": "value_add",
+        "strata": [
+          "drink_type",
+          "barista"
+        ],
+        "time_minutes": 2.0,
+        "wastes": [
+          {
+            "note": "Grinder rework: 10 of the 40 tallied delays were re-pulls after sour or channelled shots (check sheet)",
+            "waste_id": "defects"
+          },
+          {
+            "note": "A grinder round trip per drink -- the grinder sits 2.3 m from the machine at the far end of the back counter (spaghetti route R2, 52 trips per peak)",
+            "waste_id": "motion"
+          }
+        ]
+      },
+      {
+        "defect_point": false,
+        "lane_id": "espresso-station",
+        "name": "Finish drink (syrup, lid, sleeve)",
+        "order": 4,
+        "reason": "Completes the sellable drink -- the syrup, lid, and sleeve the customer ordered",
+        "step_id": "s4",
+        "step_type": "value_add",
+        "strata": [],
+        "time_minutes": 0.6,
+        "wastes": []
+      },
+      {
+        "defect_point": false,
+        "lane_id": "front-counter",
+        "name": "Call name and hand off at pickup counter",
+        "order": 5,
+        "reason": "Required delivery moment, no transformation -- SIPOC steps 5-6, timed as one element in the study",
+        "step_id": "s5",
+        "step_type": "enabling",
+        "strata": [],
+        "time_minutes": 0.5,
+        "wastes": [
+          {
+            "note": "Finished drinks sit while the name call waits for a gap -- VoC S3: 'nobody called my name'",
+            "waste_id": "waiting"
+          }
+        ]
+      }
+    ],
+    "tool_id": "T-06",
+    "updated_at": "2026-08-03T16:20:00Z"
+  },
+  "valid": true
+}

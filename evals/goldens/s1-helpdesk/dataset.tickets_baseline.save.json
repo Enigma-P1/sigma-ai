@@ -1,0 +1,105 @@
+{
+  "columns": [
+    {
+      "inferred_type": "text",
+      "name": "ticket_id",
+      "sample_values": [
+        "HD-0706-01",
+        "HD-0706-02",
+        "HD-0706-03",
+        "HD-0706-04",
+        "HD-0706-05"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "date",
+      "sample_values": [
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06",
+        "2026-07-06"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "request_type",
+      "sample_values": [
+        "access_grant",
+        "password_reset",
+        "access_grant",
+        "access_grant",
+        "access_grant"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "channel",
+      "sample_values": [
+        "portal",
+        "portal",
+        "portal",
+        "portal",
+        "email"
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "text",
+      "name": "tech",
+      "sample_values": [
+        "M.D.",
+        "M.D.",
+        "B.O.",
+        "B.O.",
+        "B.O."
+      ],
+      "type": "text"
+    },
+    {
+      "inferred_type": "numeric",
+      "name": "resolution_hours",
+      "sample_values": [
+        "32.1",
+        "10.6",
+        "28.0",
+        "28.6",
+        "22.1"
+      ],
+      "type": "numeric"
+    }
+  ],
+  "created_at": "2026-07-31T17:00:00Z",
+  "dataset_id": "<normalized>",
+  "project_id": "eval-s1-helpdesk",
+  "quality": {
+    "duplicate_row_count": 0,
+    "missing_values": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "non_numeric_in_numeric_columns": {
+      "channel": 0,
+      "date": 0,
+      "request_type": 0,
+      "resolution_hours": 0,
+      "tech": 0,
+      "ticket_id": 0
+    },
+    "row_count": 127
+  },
+  "row_count": 127,
+  "schema_version": 1,
+  "sha256": "46ba763d4c4691e926b357b65dd22b9fe277b160aaadca24f31d1201ceb5002f",
+  "source_artifact_id": null,
+  "source_filename": "tickets-baseline.csv",
+  "source_tool_id": null
+}
