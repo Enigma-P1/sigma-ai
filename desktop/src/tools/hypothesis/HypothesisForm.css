@@ -1,0 +1,63 @@
+.sigma-hyp-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+  align-items: flex-end;
+}
+.sigma-hyp-row > * {
+  flex: 1;
+  min-width: 11rem;
+}
+
+.sigma-hyp-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.sigma-hyp-advanced {
+  margin: var(--space-3) 0;
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+.sigma-hyp-advanced summary {
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-hyp-array-source {
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+}
+
+.sigma-hyp-hint {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.sigma-hyp-contingency__table {
+  border-collapse: collapse;
+  margin-bottom: var(--space-3);
+}
+.sigma-hyp-contingency__table th,
+.sigma-hyp-contingency__table td {
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width) solid var(--color-border);
+}
+.sigma-hyp-contingency__remove {
+  background: none;
+  border: none;
+  color: var(--color-fail);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  margin-left: var(--space-1);
+}
+
+/* Decision tree + result rendering: split into HypothesisResults.css to
+ * keep each source file within this codebase's per-file size discipline. */

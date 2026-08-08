@@ -46,7 +46,7 @@ export const TOOLS: ToolDef[] = [
   // Analyze
   { id: "T-15", name: "Fishbone (6M) + 5 Whys", phase: "Analyze", live: false, hasForm: false },
   { id: "T-16", name: "FMEA (process)", phase: "Analyze", live: false, hasForm: false },
-  { id: "T-17", name: "Hypothesis Testing (guided selector)", phase: "Analyze", live: false, hasForm: false },
+  { id: "T-17", name: "Hypothesis Testing (guided selector)", phase: "Analyze", live: true, hasForm: true },
 
   // Improve
   { id: "T-18", name: "Solution Selection Matrix", phase: "Improve", live: false, hasForm: false },

@@ -1057,3 +1057,211 @@ export interface DataCollectionPlanArtifact extends ArtifactBase {
   logistics: CollectionLogistics;
   bias_note: string;
 }
+
+// ---- Stats: Hypothesis Testing (engine/sigma_engine/stats/hypothesis_*.py) — T-17 ----
+// Mirrored field-for-field from hypothesis_common.py / hypothesis_selector.py --
+// the printed decision tree and the result numbers are both rendered
+// straight off these shapes, nothing recomputed client-side (build brief).
+
+export type HypComparisonType =
+  | "two_independent"
+  | "paired"
+  | "multi_group"
+  | "one_sample_vs_target"
+  | "proportions"
+  | "association_categorical"
+  | "relationship_continuous";
+
+export const HYP_COMPARISON_TYPES: { value: HypComparisonType; label: string }[] = [
+  { value: "two_independent", label: "Two groups (independent)" },
+  { value: "paired", label: "Before/after pairs (same units, measured twice)" },
+  { value: "multi_group", label: "Three or more groups" },
+  { value: "one_sample_vs_target", label: "One group vs. a target value" },
+  { value: "proportions", label: "Two proportions (pass/fail rates)" },
+  { value: "association_categorical", label: "Counts in categories (association)" },
+  { value: "relationship_continuous", label: "Two continuous variables (relationship)" },
+];
+
+export type HypDeclaredDataType = "continuous" | "ordinal" | "nominal_categorical" | "count_rate";
+export type HypQuestionIntent = "omnibus_any_group_differs" | "which_groups_differ";
+export type HypRouteName =
+  | "welch_two_sample_t"
+  | "paired_t"
+  | "one_sample_t"
+  | "one_way_anova"
+  | "one_proportion"
+  | "two_proportion_z"
+  | "chi_square_independence"
+  | "mann_whitney_u"
+  | "wilcoxon_signed_rank";
+export type HypExitId = "EXIT-06" | "EXIT-07" | "EXIT-08" | "EXIT-09" | "EXIT-11" | "EXIT-12" | "EXIT-14" | "EXIT-15";
+
+export interface HypGroupInput {
+  label: string;
+  values?: number[] | null;
+  successes?: number | null;
+  n?: number | null;
+}
+
+/** The routing input contract (hypothesis_common.HypothesisQuestion) --
+ * every field an EXIT-06..15 check needs is detectable from this object
+ * alone, never inferred and never silent (module docstring). */
+export interface HypothesisQuestion {
+  question_text: string;
+  comparison_type: HypComparisonType;
+  declared_data_type: HypDeclaredDataType;
+  groups: HypGroupInput[];
+  paired_before?: number[] | null;
+  paired_after?: number[] | null;
+  paired_before_label: string;
+  paired_after_label: string;
+  sample?: number[] | null;
+  sample_label: string;
+  target?: number | null;
+  contingency_table?: number[][] | null;
+  row_labels?: string[] | null;
+  col_labels?: string[] | null;
+  time_ordered: boolean;
+  user_shape_concern: boolean;
+  measurements_per_unit: number;
+  question_intent?: HypQuestionIntent | null;
+  comparisons_declared: number;
+  tests_run_including_this_one: number;
+  declared_primary: boolean;
+}
+
+export interface HypDecisionNode {
+  question: string;
+  answer: string;
+  branch: string;
+}
+
+/** matrix §4 registry row this selector raised -- message/routes_to are
+ * the engine's own words (_EXIT_REGISTRY in hypothesis_selector.py),
+ * rendered verbatim rather than re-typed client-side. */
+export interface HypExitPayload {
+  exit_id: HypExitId;
+  message: string;
+  routes_to: string;
+  detail: string;
+}
+
+export interface HypRoutingDecision {
+  question: string;
+  comparison_type: string;
+  decision_path: HypDecisionNode[];
+  route: HypRouteName | null;
+  exit: HypExitPayload | null;
+  switch_reason: string | null;
+  recommend_nonparametric: boolean;
+}
+
+/** dataset_provenance is a *list* here (routes/hypothesis.py), unlike
+ * baseline's single DatasetProvenance -- T-17's question shape can pull
+ * more than one column at once (two groups, a before/after pair, ...). */
+export interface HypothesisRouteResponse extends HypRoutingDecision {
+  dataset_provenance?: DatasetProvenance[];
+}
+
+export interface HypGroupSummary {
+  label: string;
+  n: number;
+  mean?: number | null;
+  sd?: number | null;
+  median?: number | null;
+  successes?: number | null;
+  proportion?: number | null;
+}
+
+export interface HypContingencyCell {
+  row: string;
+  col: string;
+  observed: number;
+  expected: number;
+}
+
+/** Rendered verbatim by the UI (build brief): what was compared, what the
+ * p-value does/doesn't mean here, effect size in words, and the
+ * practical-significance prompt. */
+export interface HypPlainLanguageBlock {
+  comparison_summary: string;
+  p_value_meaning: string;
+  effect_size_in_words: string;
+  practical_significance_prompt: string;
+}
+
+/** matrix §4 EXIT-13: ANOVA-significant canned next step + the honest
+ * interim read -- attached to a *successful* result, never a routing
+ * refusal (hypothesis_common.RouteName's module note). */
+export interface HypExit13Payload {
+  exit_id: "EXIT-13";
+  message: string;
+  interim_read: HypGroupSummary[];
+  largest_vs_smallest: string;
+  routes_to: string;
+}
+
+/** The one result shape every T-17 route produces (hypothesis_common
+ * module docstring) -- family-specific numbers (Cramer's V, Hodges-Lehmann
+ * shift, risk difference, ...) stay null on the routes that don't produce
+ * them. */
+export interface HypothesisTestResult {
+  test_name: HypRouteName;
+  statistic_name: string;
+  statistic: number;
+  df?: number | null;
+  df_between?: number | null;
+  df_within?: number | null;
+  p_value: number;
+  alpha: number;
+  two_sided: boolean;
+  significant: boolean;
+
+  effect_size_name: string;
+  effect_size_value: number;
+  effect_size_ci?: [number, number] | null;
+  effect_size_ci_method?: string | null;
+
+  groups: HypGroupSummary[];
+  contingency?: HypContingencyCell[] | null;
+  cramers_v?: number | null;
+  hodges_lehmann_shift?: number | null;
+  hodges_lehmann_ci?: [number, number] | null;
+  hodges_lehmann_ci_method?: string | null;
+  rank_biserial_r?: number | null;
+  risk_difference?: number | null;
+  risk_difference_ci?: [number, number] | null;
+  risk_difference_ci_method?: string | null;
+  equal_shape_caveat?: string | null;
+
+  assumptions_checked: string[];
+  warnings: string[];
+  plain_language: HypPlainLanguageBlock;
+  exit13?: HypExit13Payload | null;
+}
+
+/** T-17's /run contract: route + compute in one call. `result` stays null
+ * and `refused` is true whenever the selector raised an exit -- no test
+ * math ever ran past that point (hypothesis_runner module docstring). */
+export interface HypothesisRunResult {
+  question_text: string;
+  routing: HypRoutingDecision;
+  result: Computed<HypothesisTestResult> | null;
+  refused: boolean;
+  dataset_provenance?: DatasetProvenance[];
+}
+
+// ---- T-17 Hypothesis Testing artifact (artifacts/hypothesis.py) ----
+// THIN by design (build brief): stores the question as stated and the
+// declared-primary flag; routing/result are always server-recomputed from
+// the stored question on validate/save (never hand-typed, same contract as
+// MsaArtifact.result) -- see that module's docstring.
+
+export interface HypothesisRunArtifact extends ArtifactBase {
+  tool_id: "T-17";
+  question: HypothesisQuestion;
+  declared_primary: boolean;
+  routing?: HypRoutingDecision | null;
+  result?: Computed<HypothesisTestResult> | null;
+  refused: boolean;
+}

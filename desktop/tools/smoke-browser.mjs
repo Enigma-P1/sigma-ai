@@ -893,6 +893,91 @@ async function main() {
       const cycle2Deleted = await page.locator('[data-testid="timestudy-cycle-2-deleted"]').count();
       assert(cycle2Deleted === 0, "expected cycle 2 to remain un-deleted after the refused empty-reason attempt");
     });
+
+    // ---- Milestone-3 addition: T-17 Hypothesis Testing (guided selector).
+    // A real two-group Welch comparison sourced from the coffee-bar fixture
+    // already imported via T-11 above -- wait_seconds split by its shift
+    // column into morning/afternoon. There is no server-side "split one
+    // column by another" support (routes/hypothesis.py's dataset-column
+    // refs pull a whole column only), so this filters client-side and
+    // sends raw values, same honest path hypothesisRequestBuilder.ts takes
+    // for a split source. Then a deliberately tiny two-group paste (n=3,
+    // the engine's own EXIT-06 fixture values) to exercise the refusal. ----
+
+    await step("open T-17 Hypothesis Testing and state the question", async () => {
+      await page.locator('[data-testid="nav-tool-T-17"]').click();
+      await page.locator('[data-testid="hyp-question-text"]').waitFor();
+      await page.locator('[data-testid="hyp-question-text"]').fill("Is the afternoon shift's wait time different from the morning shift's?");
+    });
+
+    await step("source both groups from the coffee-bar dataset, split by shift", async () => {
+      await page.locator('[data-testid="hyp-group-0-label"]').fill("Morning");
+      await page.locator('[data-testid="hyp-group-0-mode"]').selectOption("dataset");
+      await page.locator('[data-testid="hyp-group-0-dataset"]').selectOption({ label: FIXTURE_LABEL });
+      await page.locator('[data-testid="hyp-group-0-column"]').selectOption("wait_seconds");
+      await page.locator('[data-testid="hyp-group-0-split-column"]').selectOption("shift");
+      // <option> elements never report Playwright-"visible" (no box geometry
+      // of their own) -- wait for "attached" instead, the correct signal
+      // that the split-value dropdown finished loading its distinct values.
+      await page.locator('[data-testid="hyp-group-0-split-value"] option[value="morning"]').waitFor({ state: "attached" });
+      await page.locator('[data-testid="hyp-group-0-split-value"]').selectOption("morning");
+
+      await page.locator('[data-testid="hyp-group-1-label"]').fill("Afternoon");
+      await page.locator('[data-testid="hyp-group-1-mode"]').selectOption("dataset");
+      await page.locator('[data-testid="hyp-group-1-dataset"]').selectOption({ label: FIXTURE_LABEL });
+      await page.locator('[data-testid="hyp-group-1-column"]').selectOption("wait_seconds");
+      await page.locator('[data-testid="hyp-group-1-split-column"]').selectOption("shift");
+      await page.locator('[data-testid="hyp-group-1-split-value"] option[value="afternoon"]').waitFor({ state: "attached" });
+      await page.locator('[data-testid="hyp-group-1-split-value"]').selectOption("afternoon");
+
+      assert(await page.locator('[data-testid="hyp-preview"]').isEnabled(), "Preview button should be enabled once both groups are sourced");
+    });
+
+    await step("preview the decision tree and assert it renders at least 3 real nodes", async () => {
+      await page.locator('[data-testid="hyp-preview"]').click();
+      await page.locator('[data-testid="hyp-tree"]').waitFor();
+      const nodeCount = await page.locator('[data-testid^="hyp-tree-node-"]').count();
+      assert(nodeCount >= 3, `expected the decision tree to render >=3 nodes, got ${nodeCount}`);
+      const declaredNodeCount = Number(await page.locator('[data-testid="hyp-tree"]').getAttribute("data-node-count"));
+      assert(declaredNodeCount === nodeCount, `expected the tree's own node-count attribute (${declaredNodeCount}) to match what rendered (${nodeCount})`);
+    });
+
+    await step("run the Welch test and assert the plain-language headline renders", async () => {
+      await page.locator('[data-testid="hyp-run"]').click();
+      await page.locator('[data-testid="hyp-plain-language-headline"]').waitFor();
+      const headline = await page.locator('[data-testid="hyp-plain-language-headline"] .sigma-verdict__headline').textContent();
+      assert(
+        headline?.toLowerCase().includes("welch") && headline?.includes("Morning") && headline?.includes("Afternoon"),
+        `expected the plain-language headline to name Welch's test and both groups, got ${JSON.stringify(headline)}`,
+      );
+    });
+
+    await step("write the reflection and save the hypothesis-test artifact", async () => {
+      await page.locator('[data-testid="hyp-reflection"]').fill("Wait time really does differ by shift -- worth digging into afternoon staffing next.");
+      await page.locator('[data-testid="hyp-save"]').click();
+      await page.locator('[data-testid="hyp-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="hyp-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected version badge to show v1, got ${JSON.stringify(badge)}`);
+    });
+
+    await step("switch both groups to a deliberately tiny paste (n=3) and preview again", async () => {
+      await page.locator('[data-testid="hyp-question-text"]').fill("Does group A differ from group B? (tiny sample, on purpose)");
+      await page.locator('[data-testid="hyp-group-0-mode"]').selectOption("paste");
+      await page.locator('[data-testid="hyp-group-0-paste"]').fill("1, 2, 3");
+      await page.locator('[data-testid="hyp-group-1-mode"]').selectOption("paste");
+      await page.locator('[data-testid="hyp-group-1-paste"]').fill("4, 5, 6");
+      await page.locator('[data-testid="hyp-preview"]').click();
+      await page.locator('[data-testid="hyp-exit-panel"]').waitFor();
+    });
+
+    await step("assert the EXIT-06 refusal panel renders with no statistics", async () => {
+      const headline = await page.locator('[data-testid="hyp-exit-panel"] .sigma-verdict__headline').textContent();
+      assert(headline?.includes("EXIT-06"), `expected the exit panel to name EXIT-06, got ${JSON.stringify(headline)}`);
+      const resultViewCount = await page.locator('[data-testid="hyp-result-view"]').count();
+      assert(resultViewCount === 0, "expected no result view (no statistics) to render alongside the EXIT-06 refusal");
+      const pValueCount = await page.locator('[data-testid="hyp-p-value"]').count();
+      assert(pValueCount === 0, "expected no p-value to render for a refused test");
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;
