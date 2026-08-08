@@ -1,10 +1,12 @@
-import { Button, Field, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { Button, Field, Panel, SelectInput, StatusPill, TextInput, VerdictBanner } from "../../design/components";
 import { BaselineResultView } from "./BaselineResultView";
 import { useBaselineForm } from "./useBaselineForm";
+import type { ProjectMetadata } from "../../api/types";
 import "./BaselineForm.css";
 
 export interface BaselineFormProps {
   projectId: string;
+  project: ProjectMetadata;
   /** T-09's "send to baseline" deep link (ToolRouter's DatasetPreset) --
    * preselects the dataset (and its first numeric column) once it loads. */
   initialDatasetId?: string;
@@ -13,8 +15,8 @@ export interface BaselineFormProps {
 /** T-13: pick dataset + column, enter spec limits, confirm the
  * operational definition — in that visible order — then run. Renders
  * BaselineResult faithfully; nothing here is computed client-side. */
-export function BaselineForm({ projectId, initialDatasetId }: BaselineFormProps) {
-  const f = useBaselineForm(projectId, initialDatasetId);
+export function BaselineForm({ projectId, project, initialDatasetId }: BaselineFormProps) {
+  const f = useBaselineForm(projectId, project, initialDatasetId);
 
   return (
     <Panel title="Baseline: Stability then Capability">
@@ -75,6 +77,15 @@ export function BaselineForm({ projectId, initialDatasetId }: BaselineFormProps)
           />
           Two different people measuring this the same way would get the same answer.
         </label>
+        {f.collectionPlanEntry && (
+          <div className="sigma-baseline-collection-plan-link" data-testid="baseline-collection-plan-chip">
+            <StatusPill
+              tone="accent" dot={false}
+              label={`Linked: Data Collection Plan v${f.collectionPlanEntry.latest_version}`}
+              title="From T-11 -- this project already has an operational definition on record there (display only)."
+            />
+          </div>
+        )}
       </div>
 
       <details className="sigma-baseline-section">

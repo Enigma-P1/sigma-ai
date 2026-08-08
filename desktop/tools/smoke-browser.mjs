@@ -757,6 +757,120 @@ async function main() {
       await page.locator('[data-testid="baseline-run"]').click();
       await page.locator('[data-testid="baseline-stability-verdict"]').waitFor();
     });
+
+    // ---- Milestone-2 rubric-alignment additions: T-11's Collection Plan
+    // tab (rubric R-MEA-05), and T-09's logged-reason cycle delete (rubric
+    // R-MEA-04, generalized to a Modal + soft delete). ----
+
+    await step("open T-11 and switch to the Collection Plan tab", async () => {
+      await page.locator('[data-testid="nav-tool-T-11"]').click();
+      await page.locator('[data-testid="t11-tab-plan"]').click();
+      await page.locator('[data-testid="dcp-save"]').waitFor();
+    });
+
+    await step("fill the operational definition, confirm the two-people test, declare a stratum, and fill logistics", async () => {
+      await page.locator('[data-testid="dcp-metric-name"]').fill("order-to-handoff minutes");
+      await page.locator('[data-testid="dcp-what-measured"]').fill("Minutes from order placed to order handed to customer");
+      await page.locator('[data-testid="dcp-how-instrument"]').fill("POS timestamp minus order timestamp, read from the register log");
+      await page.locator('[data-testid="dcp-precision-unit"]').fill("minutes, to the nearest 0.1");
+      await page.locator('[data-testid="dcp-starts-when"]').fill("Order is placed at the register");
+      await page.locator('[data-testid="dcp-stops-when"]').fill("Drink is handed across the counter");
+      await page.locator('[data-testid="dcp-two-people-confirmed"]').check();
+      await page.locator('[data-testid="dcp-data-type"]').selectOption("continuous");
+
+      await page.getByRole("button", { name: "+ Add stratification factor" }).click();
+      await page.locator('[data-testid="dcp-factor-0-name"]').fill("shift");
+      await page.locator('[data-testid="dcp-factor-0-values"]').fill("morning, afternoon");
+
+      await page.locator('[data-testid="dcp-who-collects"]').fill("Shift lead, via the POS export");
+      await page.locator('[data-testid="dcp-where-collected"]').fill("Front counter register");
+      await page.locator('[data-testid="dcp-when-how-often"]').fill("Continuously; exported weekly");
+      await page.locator('[data-testid="dcp-planned-n"]').fill("30");
+      await page.locator('[data-testid="dcp-sample-size-rationale"]').fill("I-MR baseline rule of thumb: 25-30 points");
+
+      assert(await page.locator('[data-testid="dcp-save"]').isEnabled(), "Collection Plan save button should be enabled once required rows have names");
+    });
+
+    await step("save the Collection Plan and assert every R-MEA-05 prescore check passes", async () => {
+      await page.locator('[data-testid="dcp-save"]').click();
+      await page.locator('[data-testid="dcp-version-badge"]').waitFor();
+
+      const checkIds = [
+        "operational_definition_complete", "two_people_confirmed", "data_type_declared",
+        "stratification_or_reason", "logistics_complete", "planned_n_with_rationale",
+      ];
+      for (const checkId of checkIds) {
+        const pill = page.locator(`[data-testid="prescore-check-${checkId}"]`);
+        await pill.waitFor();
+        const status = await pill.getAttribute("data-status");
+        assert(status === "pass", `expected Collection Plan check "${checkId}" to read pass, got ${JSON.stringify(status)}`);
+      }
+    });
+
+    await step("open T-13 and confirm it shows a display-only link chip to the saved Collection Plan", async () => {
+      await page.locator('[data-testid="nav-tool-T-13"]').click();
+      const chip = page.locator('[data-testid="baseline-collection-plan-chip"]');
+      await chip.waitFor();
+      const chipText = await chip.textContent();
+      assert(
+        chipText?.includes("Collection Plan") && chipText?.includes("v1"),
+        `expected T-13's link chip to name the linked Collection Plan and its version, got ${JSON.stringify(chipText)}`,
+      );
+    });
+
+    await step("open T-09, delete cycle 1 with a logged reason, and confirm it's accepted", async () => {
+      await page.locator('[data-testid="nav-tool-T-09"]').click();
+      await page.locator('[data-testid="timestudy-cycle-1-delete"]').click();
+      await page.locator('[data-testid="timestudy-delete-reason-confirm"]').waitFor();
+      assert(
+        !(await page.locator('[data-testid="timestudy-delete-reason-confirm"]').isEnabled()),
+        "expected the delete-confirm button to start disabled with no reason typed yet",
+      );
+
+      await page.locator('[data-testid="timestudy-delete-reason-input"]').fill("Stopwatch mis-started, redone as cycle 6");
+      await page.locator('[data-testid="timestudy-delete-reason-confirm"]').click();
+      await page.locator('[data-testid="timestudy-cycle-1-deleted"]').waitFor();
+    });
+
+    await step("save T-09 again and assert the mean shifted and cycle 1 renders struck-through with its reason on hover", async () => {
+      await page.locator('[data-testid="timestudy-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="timestudy-version-badge"]')?.textContent?.includes("v2"));
+      await page.locator('[data-testid="timestudy-stats-panel"]').waitFor();
+
+      // steam-milk cycles were [9, 8, 40, 10, 9]; excluding cycle 1's 9s
+      // leaves [8, 40, 10, 9] -- mean = 67/4 = 16.75, hand-computable and
+      // distinct from both the original 15.2 and any coincidental match.
+      const meanText = await page.locator('[data-testid="timestudy-stats-0-mean"]').textContent();
+      assert(numeric(meanText) === 16.75, `expected the recomputed mean to be 16.75 with the deleted cycle excluded, got ${JSON.stringify(meanText)}`);
+
+      const row = page.locator('[data-testid="timestudy-cycle-1"]');
+      const rowClass = await row.getAttribute("class");
+      assert(rowClass?.includes("--deleted"), `expected cycle 1's row to carry the deleted styling class, got ${JSON.stringify(rowClass)}`);
+      const rowTitle = await row.getAttribute("title");
+      assert(
+        rowTitle?.includes("Stopwatch mis-started"),
+        `expected cycle 1's row to carry its deletion reason as a hover title, got ${JSON.stringify(rowTitle)}`,
+      );
+    });
+
+    await step("attempt to delete cycle 2 with an empty reason and confirm it's refused", async () => {
+      await page.locator('[data-testid="timestudy-cycle-2-delete"]').click();
+      await page.locator('[data-testid="timestudy-delete-reason-confirm"]').waitFor();
+      assert(
+        !(await page.locator('[data-testid="timestudy-delete-reason-confirm"]').isEnabled()),
+        "expected the delete-confirm button to be disabled with an empty reason",
+      );
+
+      await page.locator('[data-testid="timestudy-delete-reason-input"]').fill("   ");
+      assert(
+        !(await page.locator('[data-testid="timestudy-delete-reason-confirm"]').isEnabled()),
+        "expected the delete-confirm button to stay disabled with a whitespace-only reason",
+      );
+
+      await page.locator('[data-testid="modal-close"]').click();
+      const cycle2Deleted = await page.locator('[data-testid="timestudy-cycle-2-deleted"]').count();
+      assert(cycle2Deleted === 0, "expected cycle 2 to remain un-deleted after the refused empty-reason attempt");
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;

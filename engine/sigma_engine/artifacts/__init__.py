@@ -1,6 +1,6 @@
 """Pydantic v2 artifact models for the Define/Intake tools (T-01..T-05)."""
 
-from .base import ArtifactBase
+from .base import ArtifactBase, DeletionInfo
 from .charter import (
     BusinessImpact,
     CharterArtifact,
@@ -21,6 +21,13 @@ from .check_sheet import (
     check_sheet_export_rows,
 )
 from .copq import CopqArtifact, CopqRow, compute_copq_total
+from .data_collection_plan import (
+    CollectionLogistics,
+    DataCollectionDataType,
+    DataCollectionPlanArtifact,
+    OperationalDefinition,
+    StratificationFactor,
+)
 from .msa import AttributeJudgmentRow, ContinuousItemRow, MsaArtifact
 from .picker import IntakeCriterion, PickerArtifact, Route, route_is_consistent
 from .process_map import (
@@ -72,6 +79,7 @@ from .voc_ctq import Ctq, Customer, CustomerNeed, VocCtqArtifact, VocStatement
 
 __all__ = [
     "ArtifactBase",
+    "DeletionInfo",
     "BusinessImpact",
     "CharterArtifact",
     "Magnitude",
@@ -90,6 +98,11 @@ __all__ = [
     "CopqArtifact",
     "CopqRow",
     "compute_copq_total",
+    "CollectionLogistics",
+    "DataCollectionDataType",
+    "DataCollectionPlanArtifact",
+    "OperationalDefinition",
+    "StratificationFactor",
     "AttributeJudgmentRow",
     "ContinuousItemRow",
     "MsaArtifact",

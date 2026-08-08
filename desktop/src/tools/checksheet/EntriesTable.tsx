@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Panel, TextInput } from "../../design/components";
+import { DeleteReasonModal } from "../DeleteReasonModal";
 import type { CheckSheetCategory, CheckSheetEntry, StrataFieldDef } from "../../api/types";
 
 export interface EntriesTableProps {
@@ -7,24 +8,16 @@ export interface EntriesTableProps {
   categories: CheckSheetCategory[];
   strataFields: StrataFieldDef[];
   onUpdateNote: (entryId: string, note: string) => void;
-  onRemove: (entryId: string) => void;
+  onDeleteEntry: (entryId: string, reason: string) => void;
 }
 
-/** The captured-so-far log: editable notes, delete with a two-click
- * confirm (no native browser dialog -- keeps this reliably driveable from
- * the smoke test and any future component test). */
-export function EntriesTable({ entries, categories, strataFields, onUpdateNote, onRemove }: EntriesTableProps) {
-  const [confirmingId, setConfirmingId] = useState<string | null>(null);
+/** The captured-so-far log: editable notes, delete asks for a logged
+ * reason (DeleteReasonModal, rubric R-MEA-04 generalized to T-08) --
+ * the entry is never removed, just struck through with the reason
+ * visible on hover. */
+export function EntriesTable({ entries, categories, strataFields, onUpdateNote, onDeleteEntry }: EntriesTableProps) {
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const labelById = Object.fromEntries(categories.map((c) => [c.category_id, c.label]));
-
-  function handleDeleteClick(entryId: string) {
-    if (confirmingId === entryId) {
-      onRemove(entryId);
-      setConfirmingId(null);
-    } else {
-      setConfirmingId(entryId);
-    }
-  }
 
   if (entries.length === 0) {
     return (
@@ -39,27 +32,52 @@ export function EntriesTable({ entries, categories, strataFields, onUpdateNote, 
   return (
     <Panel title="Entries" subtitle={`${entries.length} tallied`}>
       <div className="sigma-checksheet-entries" data-testid="checksheet-entries-table">
-        {sorted.map((e) => (
-          <div className="sigma-checksheet-entries__row" key={e.entry_id} data-testid={`checksheet-entry-${e.entry_id}`}>
-            <span className="sigma-checksheet-entries__category">{labelById[e.category_id] ?? e.category_id}</span>
-            <span className="sigma-checksheet-entries__timestamp">{e.timestamp}</span>
-            <span className="sigma-checksheet-entries__strata">
-              {strataFields.map((f) => e.strata[f.key]).filter(Boolean).join(", ") || "—"}
-            </span>
-            <TextInput
-              placeholder="Note…" value={e.note} data-testid={`checksheet-entry-${e.entry_id}-note`}
-              onChange={(ev) => onUpdateNote(e.entry_id, ev.target.value)}
-            />
-            <button
-              type="button" className={`sigma-checksheet-entries__delete ${confirmingId === e.entry_id ? "sigma-checksheet-entries__delete--confirm" : ""}`}
-              data-testid={`checksheet-entry-${e.entry_id}-delete`} onClick={() => handleDeleteClick(e.entry_id)}
-              onBlur={() => setConfirmingId((id) => (id === e.entry_id ? null : id))}
+        {sorted.map((e) => {
+          const isDeleted = e.deleted != null;
+          return (
+            <div
+              className={`sigma-checksheet-entries__row ${isDeleted ? "sigma-checksheet-entries__row--deleted" : ""}`}
+              key={e.entry_id} data-testid={`checksheet-entry-${e.entry_id}`}
+              title={isDeleted ? `Deleted: ${e.deleted!.reason}` : undefined}
             >
-              {confirmingId === e.entry_id ? "Confirm?" : "Delete"}
-            </button>
-          </div>
-        ))}
+              <span className="sigma-checksheet-entries__category">{labelById[e.category_id] ?? e.category_id}</span>
+              <span className="sigma-checksheet-entries__timestamp">{e.timestamp}</span>
+              <span className="sigma-checksheet-entries__strata">
+                {strataFields.map((f) => e.strata[f.key]).filter(Boolean).join(", ") || "—"}
+              </span>
+              <TextInput
+                placeholder="Note…" value={e.note} disabled={isDeleted} data-testid={`checksheet-entry-${e.entry_id}-note`}
+                onChange={(ev) => onUpdateNote(e.entry_id, ev.target.value)}
+              />
+              {isDeleted ? (
+                <span className="sigma-checksheet-entries__deleted-badge" data-testid={`checksheet-entry-${e.entry_id}-deleted`}>
+                  Deleted
+                </span>
+              ) : (
+                <button
+                  type="button" className="sigma-checksheet-entries__delete"
+                  data-testid={`checksheet-entry-${e.entry_id}-delete`} onClick={() => setPendingDeleteId(e.entry_id)}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {pendingDeleteId != null && (
+        <DeleteReasonModal
+          title="Delete this entry?"
+          bodyText="The entry stays on the record, struck through, with this reason visible on hover -- it's excluded from the exported dataset, never erased (rubric R-MEA-04)."
+          testIdPrefix="checksheet-delete-reason"
+          onClose={() => setPendingDeleteId(null)}
+          onConfirm={(reason) => {
+            onDeleteEntry(pendingDeleteId, reason);
+            setPendingDeleteId(null);
+          }}
+        />
+      )}
     </Panel>
   );
 }

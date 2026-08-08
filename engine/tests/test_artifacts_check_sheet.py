@@ -102,3 +102,42 @@ def test_export_csv_bytes_round_trip_through_the_stdlib_csv_reader():
     assert len(rows) == 3
     assert rows[0]["category"] == "Scratch"
     assert rows[0]["shift"] == "morning"
+
+
+# --- Soft delete (CheckSheetEntry.deleted, rubric R-MEA-04 generalized to T-08) ---
+
+
+def test_deleted_entry_excluded_from_export_but_stays_on_the_artifact():
+    entries = make_check_sheet_entries()
+    entries[1] = {**entries[1], "deleted": {"reason": "double-tapped by accident", "at": "2026-08-07T08:06:00"}}
+    artifact = CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))
+
+    _, rows = check_sheet_export_rows(artifact)
+    assert len(rows) == 2
+    assert all(r["timestamp"] != "2026-08-07T08:05:00" for r in rows)
+
+    assert len(artifact.entries) == 3  # soft delete: still on the artifact
+    deleted_entry = next(e for e in artifact.entries if e.entry_id == "e2")
+    assert deleted_entry.deleted is not None
+    assert deleted_entry.deleted.reason == "double-tapped by accident"
+
+
+def test_export_refuses_when_every_entry_is_deleted():
+    entries = [{**e, "deleted": {"reason": "re-tallied by hand", "at": "2026-08-07T09:00:00"}} for e in make_check_sheet_entries()]
+    artifact = CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))
+    with pytest.raises(ValueError, match="no entries"):
+        check_sheet_export_rows(artifact)
+
+
+def test_deletion_without_a_reason_is_rejected():
+    entries = make_check_sheet_entries()
+    entries[1] = {**entries[1], "deleted": {"reason": "", "at": "2026-08-07T08:06:00"}}
+    with pytest.raises(ValidationError):
+        CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))
+
+
+def test_deletion_with_an_invalid_timestamp_is_rejected():
+    entries = make_check_sheet_entries()
+    entries[1] = {**entries[1], "deleted": {"reason": "double-tapped", "at": "not-a-date"}}
+    with pytest.raises(ValidationError, match="ISO8601"):
+        CheckSheetArtifact.model_validate(make_check_sheet(entries=entries))

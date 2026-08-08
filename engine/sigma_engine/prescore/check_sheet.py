@@ -1,7 +1,10 @@
 """T-08 prescore: rubric R-MEA-06's rule-checkable lines -- strata declared,
 entries carry validated timestamps (schema-enforced, confirmed here),
 strata actually recorded on the rows once declared, and an honest nudge
-when a declared category has never been tallied."""
+when a declared category has never been tallied. A soft-deleted entry
+(entry.deleted, rubric R-MEA-04's logged-reason rule) is excluded from
+every check below, the same "row stays, doesn't count" contract as the
+exported dataset check_sheet_export_rows builds."""
 
 from __future__ import annotations
 
@@ -11,6 +14,7 @@ from .common import PrescoreResult
 
 def run_check_sheet_prescore(artifact: CheckSheetArtifact) -> list[PrescoreResult]:
     results: list[PrescoreResult] = []
+    live_entries = [e for e in artifact.entries if e.deleted is None]
 
     results.append(PrescoreResult(
         check_id="strata_declared", tool_id="T-08",
@@ -24,14 +28,14 @@ def run_check_sheet_prescore(artifact: CheckSheetArtifact) -> list[PrescoreResul
 
     results.append(PrescoreResult(
         check_id="entries_present", tool_id="T-08",
-        status="pass" if artifact.entries else "flag",
-        detail=f"{len(artifact.entries)} entries recorded, each with a validated ISO8601 timestamp"
-        if artifact.entries else "no entries tallied yet",
+        status="pass" if live_entries else "flag",
+        detail=f"{len(live_entries)} entries recorded, each with a validated ISO8601 timestamp"
+        if live_entries else "no entries tallied yet",
     ))
 
     if artifact.strata_fields:
         declared_keys = {f.key for f in artifact.strata_fields}
-        incomplete = [e.entry_id for e in artifact.entries if set(e.strata) != declared_keys]
+        incomplete = [e.entry_id for e in live_entries if set(e.strata) != declared_keys]
         results.append(PrescoreResult(
             check_id="entries_carry_full_strata", tool_id="T-08",
             status="pass" if not incomplete else "flag",
@@ -39,8 +43,8 @@ def run_check_sheet_prescore(artifact: CheckSheetArtifact) -> list[PrescoreResul
             else f"entries missing one or more declared strata values: {incomplete}",
         ))
 
-    if artifact.entries:
-        tallied = {e.category_id for e in artifact.entries}
+    if live_entries:
+        tallied = {e.category_id for e in live_entries}
         untouched = [c.label for c in artifact.categories if c.category_id not in tallied]
         results.append(PrescoreResult(
             check_id="category_coverage", tool_id="T-08",

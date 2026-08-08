@@ -5,7 +5,7 @@ import { useSaveState } from "../../app/SaveStateContext";
 import type { CheckSheetArtifact, CheckSheetCategory, CheckSheetEntry, DatasetMeta, PrescoreResult, ProjectMetadata, StrataFieldDef } from "../../api/types";
 import {
   buildCheckSheetBody, canSaveCheckSheet, checkSheetStateFromArtifact, deriveStrataOptions,
-  emptyCategory, emptyStrataField, makeTallyEntry, removeCategoryCascade, removeStrataFieldCascade,
+  emptyCategory, emptyStrataField, makeTallyEntry, markEntryDeleted, removeCategoryCascade, removeStrataFieldCascade,
 } from "./checkSheetLogic";
 
 const ARTIFACT_ID = "checksheet";
@@ -115,8 +115,8 @@ export function useCheckSheetForm(projectId: string, project: ProjectMetadata, o
     setEntries((p) => p.map((e) => (e.entry_id === entryId ? { ...e, note } : e)));
     dirty();
   }
-  function removeEntry(entryId: string) {
-    setEntries((p) => p.filter((e) => e.entry_id !== entryId));
+  function deleteEntry(entryId: string, reason: string) {
+    setEntries((p) => markEntryDeleted(p, entryId, reason, new Date().toISOString()));
     dirty();
   }
 
@@ -165,7 +165,7 @@ export function useCheckSheetForm(projectId: string, project: ProjectMetadata, o
     categories, addCategory, updateCategory, removeCategory,
     strataFields, addStrataField, updateStrataField, removeStrataField,
     activeStrata, strataOptions, setActiveStratumValue, addStrataOption,
-    entries, tap, updateEntryNote, removeEntry, tallyByCategory: entries,
+    entries, tap, updateEntryNote, deleteEntry, tallyByCategory: entries,
     version, saving, canSave: canSaveCheckSheet(categories) && !saving,
     generalError, prescore, serverArtifact, handleSave,
     dataset, sendingToPareto, sendError, handleSendToPareto,

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Panel, TextInput } from "../../design/components";
+import { DeleteReasonModal } from "../DeleteReasonModal";
 import type { TimeStudyCycle, WorkElement } from "../../api/types";
 
 export interface CyclesTableProps {
@@ -8,27 +9,18 @@ export interface CyclesTableProps {
   onAddCycle: () => void;
   onUpdateSeconds: (cycleNumber: number, elementId: string, seconds: number) => void;
   onUpdateNote: (cycleNumber: number, note: string) => void;
-  onRemove: (cycleNumber: number) => void;
+  onDeleteCycle: (cycleNumber: number, reason: string) => void;
 }
 
 /** Every recorded cycle, fully editable: a finished-cycle stopwatch row
  * lands here, and every cell can also be typed/corrected directly (an
  * outlier's note affordance points back at this table's note column) or
- * added from scratch with "+ Add cycle manually." Delete uses the same
- * two-click confirm as EntriesTable, no native dialog. */
-export function CyclesTable({ elements, cycles, onAddCycle, onUpdateSeconds, onUpdateNote, onRemove }: CyclesTableProps) {
-  const [confirmingCycle, setConfirmingCycle] = useState<number | null>(null);
+ * added from scratch with "+ Add cycle manually." Delete asks for a
+ * logged reason (DeleteReasonModal, rubric R-MEA-04) -- the row is never
+ * removed, just struck through, with the reason visible on hover. */
+export function CyclesTable({ elements, cycles, onAddCycle, onUpdateSeconds, onUpdateNote, onDeleteCycle }: CyclesTableProps) {
+  const [pendingDeleteCycle, setPendingDeleteCycle] = useState<number | null>(null);
   const gridStyle = { gridTemplateColumns: `4rem repeat(${elements.length}, 1fr) 2fr auto` };
-
-  function handleDeleteClick(cycleNumber: number) {
-    if (confirmingCycle === cycleNumber) {
-      onRemove(cycleNumber);
-      setConfirmingCycle(null);
-    } else {
-      setConfirmingCycle(cycleNumber);
-    }
-  }
-
   const sorted = [...cycles].sort((a, b) => a.cycle_number - b.cycle_number);
 
   return (
@@ -42,40 +34,65 @@ export function CyclesTable({ elements, cycles, onAddCycle, onUpdateSeconds, onU
           <span>Note</span>
           <span />
         </div>
-        {sorted.map((c) => (
-          <div className="sigma-timestudy-cycles__row" key={c.cycle_number} data-testid={`timestudy-cycle-${c.cycle_number}`} style={gridStyle}>
-            <span>{c.cycle_number}</span>
-            {elements.map((e, elemIndex) => {
-              const et = c.element_times.find((x) => x.element_id === e.element_id);
-              // Index-based testid (elements array order is stable) --
-              // e.element_id is an opaque generated id, unpredictable to
-              // anything outside this session (same reasoning as
-              // TallyView's tap buttons).
-              return (
-                <TextInput
-                  key={e.element_id} type="number" step="0.1" value={et ? et.seconds : ""} placeholder="—"
-                  data-testid={`timestudy-cycle-${c.cycle_number}-elem-${elemIndex}`}
-                  onChange={(ev) => onUpdateSeconds(c.cycle_number, e.element_id, Number(ev.target.value))}
-                />
-              );
-            })}
-            <TextInput
-              value={c.observer_note} data-testid={`timestudy-cycle-${c.cycle_number}-note`}
-              onChange={(ev) => onUpdateNote(c.cycle_number, ev.target.value)}
-            />
-            <button
-              type="button" onClick={() => handleDeleteClick(c.cycle_number)} data-testid={`timestudy-cycle-${c.cycle_number}-delete`}
-              className={`sigma-timestudy-cycles__delete ${confirmingCycle === c.cycle_number ? "sigma-timestudy-cycles__delete--confirm" : ""}`}
-              onBlur={() => setConfirmingCycle((n) => (n === c.cycle_number ? null : n))}
+        {sorted.map((c) => {
+          const isDeleted = c.deleted != null;
+          return (
+            <div
+              className={`sigma-timestudy-cycles__row ${isDeleted ? "sigma-timestudy-cycles__row--deleted" : ""}`}
+              key={c.cycle_number} data-testid={`timestudy-cycle-${c.cycle_number}`} style={gridStyle}
+              title={isDeleted ? `Deleted: ${c.deleted!.reason}` : undefined}
             >
-              {confirmingCycle === c.cycle_number ? "Confirm?" : "Delete"}
-            </button>
-          </div>
-        ))}
+              <span>{c.cycle_number}</span>
+              {elements.map((e, elemIndex) => {
+                const et = c.element_times.find((x) => x.element_id === e.element_id);
+                // Index-based testid (elements array order is stable) --
+                // e.element_id is an opaque generated id, unpredictable to
+                // anything outside this session (same reasoning as
+                // TallyView's tap buttons).
+                return (
+                  <TextInput
+                    key={e.element_id} type="number" step="0.1" value={et ? et.seconds : ""} placeholder="—"
+                    disabled={isDeleted} data-testid={`timestudy-cycle-${c.cycle_number}-elem-${elemIndex}`}
+                    onChange={(ev) => onUpdateSeconds(c.cycle_number, e.element_id, Number(ev.target.value))}
+                  />
+                );
+              })}
+              <TextInput
+                value={c.observer_note} disabled={isDeleted} data-testid={`timestudy-cycle-${c.cycle_number}-note`}
+                onChange={(ev) => onUpdateNote(c.cycle_number, ev.target.value)}
+              />
+              {isDeleted ? (
+                <span className="sigma-timestudy-cycles__deleted-badge" data-testid={`timestudy-cycle-${c.cycle_number}-deleted`}>
+                  Deleted
+                </span>
+              ) : (
+                <button
+                  type="button" onClick={() => setPendingDeleteCycle(c.cycle_number)} data-testid={`timestudy-cycle-${c.cycle_number}-delete`}
+                  className="sigma-timestudy-cycles__delete"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
       <Button variant="ghost" size="sm" type="button" onClick={onAddCycle} data-testid="timestudy-add-cycle">
         + Add cycle manually
       </Button>
+
+      {pendingDeleteCycle != null && (
+        <DeleteReasonModal
+          title={`Delete cycle ${pendingDeleteCycle}?`}
+          bodyText="The cycle stays on the record, struck through, with this reason visible on hover -- it's excluded from the computed stats, never erased (rubric R-MEA-04)."
+          testIdPrefix="timestudy-delete-reason"
+          onClose={() => setPendingDeleteCycle(null)}
+          onConfirm={(reason) => {
+            onDeleteCycle(pendingDeleteCycle, reason);
+            setPendingDeleteCycle(null);
+          }}
+        />
+      )}
     </Panel>
   );
 }

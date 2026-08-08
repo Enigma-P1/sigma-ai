@@ -39,7 +39,7 @@ export function CheckSheetForm({ projectId, project, onSaved, onNavigateToDatase
         tallyCounts={tallyCounts(f.entries)} onTap={f.tap}
       />
 
-      <EntriesTable entries={f.entries} categories={f.categories} strataFields={f.strataFields} onUpdateNote={f.updateEntryNote} onRemove={f.removeEntry} />
+      <EntriesTable entries={f.entries} categories={f.categories} strataFields={f.strataFields} onUpdateNote={f.updateEntryNote} onDeleteEntry={f.deleteEntry} />
 
       {f.generalError && <VerdictBanner tone="fail" headline={f.generalError} />}
 

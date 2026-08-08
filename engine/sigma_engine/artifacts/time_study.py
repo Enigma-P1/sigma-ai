@@ -5,6 +5,10 @@ computed here -- never hand-typed, same "server recomputes unconditionally"
 contract as MsaArtifact.result / SpaghettiArtifact.metrics. Outliers are
 flagged, never dropped: an element's descriptive stats are always computed
 over ALL of its recorded times (rubric R-MEA-04: "never silently deleted").
+A cycle can still be struck from the record, but only with a logged,
+non-empty reason (Cycle.deleted, an artifacts/base.py DeletionInfo) -- that
+is a soft delete, not a silent one: the cycle stays on the artifact, and
+only the computed stats/exports below stop counting it.
 An optional work-sampling mode (interval observations tagged
 working/waiting/moving/other) gets its own computed share-per-category.
 """
@@ -21,7 +25,7 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 from ..provenance import Computed, compute
 from ..stats.constants import TIME_STUDY_IQR_FENCE_MULTIPLIER, TIME_STUDY_MIN_CYCLES_GUIDANCE
 from ..stats.descriptive import DescriptiveStats, mean, median, quartiles, sample_sd
-from .base import ArtifactBase, validate_iso8601
+from .base import ArtifactBase, DeletionInfo, validate_iso8601
 
 WorkSamplingCategory = Literal["working", "waiting", "moving", "other"]
 WORK_SAMPLING_CATEGORIES: tuple[WorkSamplingCategory, ...] = ("working", "waiting", "moving", "other")
@@ -42,11 +46,17 @@ class Cycle(BaseModel):
     """One timed repetition: >=1 element time (a cycle with none timed is
     not a cycle) plus an observer note -- the note is also where a flagged
     outlier's explanation lives (ElementStats.outliers points back at
-    cycle_number, never a separate free-floating reason field)."""
+    cycle_number, never a separate free-floating reason field).
+
+    `deleted` is a soft-delete marker (rubric R-MEA-04): a mis-timed cycle
+    stays on the artifact for the record, struck through in the UI, but is
+    excluded from every computed stat below -- see _element_times_for's
+    `c.deleted is None` filter. Never a hard removal from `cycles`."""
 
     cycle_number: int = Field(ge=1)
     element_times: list[ElementTime] = Field(min_length=1)
     observer_note: str = ""
+    deleted: DeletionInfo | None = None
 
     @model_validator(mode="after")
     def _unique_element_ids_within_cycle(self) -> "Cycle":
@@ -112,10 +122,14 @@ def _cycle_count_note(n: int) -> str:
 
 
 def _element_times_for(element_id: str, cycles: list[Cycle]) -> list[tuple[int, float]]:
-    """[(cycle_number, seconds), ...] for one element, cycle-number order."""
+    """[(cycle_number, seconds), ...] for one element, cycle-number order --
+    a soft-deleted cycle (rubric R-MEA-04) is excluded here so it never
+    enters n/mean/median/SD/IQR/outliers, even though it still exists on
+    `cycles` itself (soft delete: the row stays, the stats don't see it)."""
     return [
         (c.cycle_number, et.seconds)
         for c in sorted(cycles, key=lambda c: c.cycle_number)
+        if c.deleted is None
         for et in c.element_times
         if et.element_id == element_id
     ]
@@ -205,12 +219,16 @@ def compute_work_sampling_summary(observations: list[IntervalObservation]) -> Co
 def element_cycle_export_rows(artifact: "TimeStudyArtifact", element_id: str) -> tuple[list[str], list[dict[str, str]]]:
     """(header, rows) for one element's `to_dataset` action -- every
     recorded cycle time for this element, outliers included (flagged, never
-    dropped, so T-13's own I-MR/normality reads see the real data)."""
+    dropped, so T-13's own I-MR/normality reads see the real data). A
+    soft-deleted cycle (rubric R-MEA-04) is excluded, same as
+    _element_times_for -- the exported dataset stays consistent with the
+    stats panel, never re-including a row the study owner struck out."""
     if element_id not in {e.element_id for e in artifact.elements}:
         raise ValueError(f"unknown element_id {element_id!r}")
     pairs = [
         (c.cycle_number, et.seconds, c.observer_note)
         for c in sorted(artifact.cycles, key=lambda c: c.cycle_number)
+        if c.deleted is None
         for et in c.element_times
         if et.element_id == element_id
     ]

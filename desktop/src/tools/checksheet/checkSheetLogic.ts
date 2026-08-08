@@ -20,20 +20,32 @@ export function canSaveCheckSheet(categories: CheckSheetCategory[]): boolean {
   return categories.length > 0 && categories.every((c) => c.label.trim() !== "");
 }
 
-/** Client-side display tally only -- a plain count of already-loaded
- * entries, the same "not a computed result" distinction processMapLogic's
- * wasteTally draws (no provenance, nothing the engine needs to stamp).
- * The graded Pareto counts always come from /stats/pareto after
- * to_dataset, never from this. */
+/** Client-side display tally only -- a plain count of already-loaded,
+ * LIVE entries (a soft-deleted one is excluded, same as the engine's own
+ * check_sheet_export_rows), the same "not a computed result" distinction
+ * processMapLogic's wasteTally draws (no provenance, nothing the engine
+ * needs to stamp). The graded Pareto counts always come from
+ * /stats/pareto after to_dataset, never from this. */
 export function tallyCounts(entries: CheckSheetEntry[]): Record<string, number> {
   const out: Record<string, number> = {};
-  for (const e of entries) out[e.category_id] = (out[e.category_id] ?? 0) + 1;
+  for (const e of entries) {
+    if (e.deleted) continue;
+    out[e.category_id] = (out[e.category_id] ?? 0) + 1;
+  }
   return out;
 }
 
 export function makeTallyEntry(categoryId: string, strata: Record<string, string>): CheckSheetEntry {
   const activeOnly = Object.fromEntries(Object.entries(strata).filter(([, v]) => v.trim() !== ""));
   return { entry_id: genId("entry"), category_id: categoryId, timestamp: new Date().toISOString(), strata: activeOnly, note: "" };
+}
+
+/** Soft delete (rubric R-MEA-04, generalized to T-08): the entry stays in
+ * the array, struck through in EntriesTable, excluded from tallyCounts
+ * above and from the engine's exported dataset -- never a hard
+ * .filter() removal. */
+export function markEntryDeleted(entries: CheckSheetEntry[], entryId: string, reason: string, at: string): CheckSheetEntry[] {
+  return entries.map((e) => (e.entry_id === entryId ? { ...e, deleted: { reason, at } } : e));
 }
 
 export function buildCheckSheetBody(input: {

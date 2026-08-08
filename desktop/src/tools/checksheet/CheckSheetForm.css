@@ -126,10 +126,16 @@
   padding: var(--space-1) var(--space-2);
 }
 
-.sigma-checksheet-entries__delete--confirm {
-  background: var(--color-fail-soft);
-  border-color: var(--color-fail-border);
+.sigma-checksheet-entries__row--deleted {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.sigma-checksheet-entries__deleted-badge {
+  font-size: var(--text-xs);
   color: var(--color-fail);
+  text-decoration: none;
+  text-align: center;
 }
 
 .sigma-checksheet-export {

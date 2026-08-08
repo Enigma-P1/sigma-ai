@@ -9,7 +9,7 @@ import pytest
 from pydantic import ValidationError
 
 from factories import make_time_study, make_time_study_cycles, make_time_study_elements
-from sigma_engine.artifacts.time_study import TimeStudyArtifact, compute_element_stats
+from sigma_engine.artifacts.time_study import TimeStudyArtifact, compute_element_stats, element_cycle_export_rows
 
 
 def test_accepts_a_complete_time_study():
@@ -173,3 +173,60 @@ def test_work_sampling_share_per_category_hand_computed():
     assert shares["moving"].count == 1
     assert shares["other"].count == 0  # zero-filled, not omitted
     assert shares["other"].share == pytest.approx(0.0)
+
+
+# --- Soft delete (Cycle.deleted, rubric R-MEA-04: "deletions carry a logged reason") ---
+
+
+def test_deleted_cycle_excluded_from_element_stats_but_stays_on_the_artifact():
+    # Delete cycle 3 -- steam-milk's 40s outlier -- with a reason. Remaining
+    # times [9, 8, 10, 9]: mean=9.0, and nothing left to flag as an outlier
+    # (Q1=8.75, Q3=9.25, IQR=0.5, fences=[8.0, 10.0] -- wait, use the tool's
+    # own math via the assertion below rather than a second hand-derivation;
+    # the load-bearing claim is simply "not 15.2," "n=4," "cycle 3 gone from
+    # the stats but still in artifact.cycles.")
+    cycles = make_time_study_cycles()
+    cycles[2] = {**cycles[2], "deleted": {"reason": "milk pitcher slipped -- timer kept running", "at": "2026-08-07T09:00:00"}}
+    artifact = TimeStudyArtifact.model_validate(make_time_study(cycles=cycles))
+    steam = {s.element_id: s for s in artifact.element_stats.value}["steam-milk"]
+
+    assert steam.n == 4
+    assert steam.descriptive.mean == pytest.approx(9.0)
+    assert steam.descriptive.mean != pytest.approx(15.2)  # the un-deleted mean from the hand-computed test above
+    assert all(o.cycle_number != 3 for o in steam.outliers)
+
+    # Soft delete: the row survives on the artifact, struck out, not erased.
+    assert len(artifact.cycles) == 5
+    deleted_cycle = next(c for c in artifact.cycles if c.cycle_number == 3)
+    assert deleted_cycle.deleted is not None
+    assert deleted_cycle.deleted.reason == "milk pitcher slipped -- timer kept running"
+
+
+def test_deleted_cycle_excluded_from_the_per_element_dataset_export():
+    cycles = make_time_study_cycles()
+    cycles[2] = {**cycles[2], "deleted": {"reason": "mis-timed", "at": "2026-08-07T09:00:00"}}
+    artifact = TimeStudyArtifact.model_validate(make_time_study(cycles=cycles))
+    _, rows = element_cycle_export_rows(artifact, "steam-milk")
+    assert len(rows) == 4
+    assert all(r["cycle_number"] != "3" for r in rows)
+
+
+def test_deletion_without_a_reason_is_rejected():
+    cycles = make_time_study_cycles()
+    cycles[2] = {**cycles[2], "deleted": {"reason": "", "at": "2026-08-07T09:00:00"}}
+    with pytest.raises(ValidationError):
+        TimeStudyArtifact.model_validate(make_time_study(cycles=cycles))
+
+
+def test_deletion_with_no_reason_key_at_all_is_rejected():
+    cycles = make_time_study_cycles()
+    cycles[2] = {**cycles[2], "deleted": {"at": "2026-08-07T09:00:00"}}
+    with pytest.raises(ValidationError):
+        TimeStudyArtifact.model_validate(make_time_study(cycles=cycles))
+
+
+def test_deletion_with_an_invalid_timestamp_is_rejected():
+    cycles = make_time_study_cycles()
+    cycles[2] = {**cycles[2], "deleted": {"reason": "mis-timed", "at": "not-a-date"}}
+    with pytest.raises(ValidationError, match="ISO8601"):
+        TimeStudyArtifact.model_validate(make_time_study(cycles=cycles))
