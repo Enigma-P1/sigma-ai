@@ -8,6 +8,12 @@ traceability-matrix.md §4a for the frozen thresholds enforced throughout.
 from .baseline import BaselineResult, ObservedYieldResult, PercentileCapabilityResult, run_baseline
 from .capability import CapabilityResult, compute_capability
 from .descriptive import DescriptiveStats, compute_descriptive_stats
+from .hypothesis_categorical import chi_square_independence, cochran_preflight, one_proportion_exact, two_proportion_z
+from .hypothesis_common import GroupInput, HypothesisQuestion, HypothesisTestResult
+from .hypothesis_nonparametric import mann_whitney_u, wilcoxon_signed_rank
+from .hypothesis_parametric import one_sample_t, one_way_anova, paired_t, welch_two_sample_t
+from .hypothesis_runner import HypothesisRunResult, run_hypothesis
+from .hypothesis_selector import RoutingDecision, route_hypothesis
 from .imr import ImrChartResult, Signal, compute_imr_chart
 from .msa import (
     AttributeAgreementResult,
@@ -47,6 +53,23 @@ __all__ = [
     "compute_capability",
     "DescriptiveStats",
     "compute_descriptive_stats",
+    "chi_square_independence",
+    "cochran_preflight",
+    "one_proportion_exact",
+    "two_proportion_z",
+    "GroupInput",
+    "HypothesisQuestion",
+    "HypothesisTestResult",
+    "mann_whitney_u",
+    "wilcoxon_signed_rank",
+    "one_sample_t",
+    "one_way_anova",
+    "paired_t",
+    "welch_two_sample_t",
+    "HypothesisRunResult",
+    "run_hypothesis",
+    "RoutingDecision",
+    "route_hypothesis",
     "ImrChartResult",
     "Signal",
     "compute_imr_chart",

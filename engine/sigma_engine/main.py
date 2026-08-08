@@ -23,6 +23,7 @@ from .routes import datasets as datasets_routes
 from .routes import export as export_routes
 from .routes import floorplans as floorplans_routes
 from .routes import gates as gates_routes
+from .routes import hypothesis as hypothesis_routes
 from .routes import prescore as prescore_routes
 from .routes import projects as projects_routes
 from .routes import stats as stats_routes
@@ -37,6 +38,7 @@ app.include_router(prescore_routes.router)
 app.include_router(gates_routes.router)
 app.include_router(export_routes.router)
 app.include_router(stats_routes.router)
+app.include_router(hypothesis_routes.router)
 app.include_router(datasets_routes.router)
 app.include_router(floorplans_routes.router)
 app.include_router(check_sheet_routes.router)

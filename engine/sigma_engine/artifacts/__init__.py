@@ -29,6 +29,7 @@ from .data_collection_plan import (
     OperationalDefinition,
     StratificationFactor,
 )
+from .hypothesis import HypothesisRunArtifact
 from .msa import AttributeJudgmentRow, ContinuousItemRow, MsaArtifact
 from .picker import IntakeCriterion, PickerArtifact, Route, route_is_consistent
 from .process_map import (
@@ -107,6 +108,7 @@ __all__ = [
     "DataCollectionPlanArtifact",
     "OperationalDefinition",
     "StratificationFactor",
+    "HypothesisRunArtifact",
     "AttributeJudgmentRow",
     "ContinuousItemRow",
     "MsaArtifact",

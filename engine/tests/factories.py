@@ -419,6 +419,32 @@ def make_data_collection_plan(**overrides: Any) -> dict[str, Any]:
     return base
 
 
+def make_hypothesis(**overrides: Any) -> dict[str, Any]:
+    """A complete, routable T-17 HypothesisRunArtifact -- defaults to the
+    NIST §7.3.1 two-independent-samples worked example (welch_two_sample_t,
+    clears every floor), so most tests mutate one `question` field off
+    this base rather than re-typing a full question per test."""
+    question = overrides.pop("question") if "question" in overrides else {
+        "question_text": "Is process 2 faster than process 1?",
+        "comparison_type": "two_independent",
+        "groups": [
+            {"label": "Process 1 (Old)", "values": [32, 37, 35, 28, 41, 44, 35, 31, 34, 38, 42]},
+            {"label": "Process 2 (New)", "values": [36, 31, 30, 31, 34, 36, 29, 32, 31]},
+        ],
+    }
+    base = {
+        "schema_version": 1,
+        "artifact_id": "hyp-001",
+        "tool_id": "T-17",
+        "created_at": TS,
+        "updated_at": TS,
+        "question": question,
+        "declared_primary": True,
+    }
+    base.update(overrides)
+    return base
+
+
 def make_time_study(**overrides: Any) -> dict[str, Any]:
     elements = overrides.pop("elements") if "elements" in overrides else make_time_study_elements()
     cycles = overrides.pop("cycles") if "cycles" in overrides else make_time_study_cycles()
