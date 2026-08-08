@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-collection-plan",
+  "tool_id": "T-11",
+  "created_at": "2026-06-24T17:00:00Z",
+  "updated_at": "2026-06-27T20:00:00Z",
+  "notes": "Written before the baseline window opened (2026-06-29), and tightened once in between: v1's ink and trim wording is what round 1 of the measurement check caught as ambiguous (kappa 0.61, marginal); the arm's-length and exactly-2mm rules below are the round-2 fix, and two_people_confirmed is checked on the strength of that round-2 kappa (0.86, acceptable) -- the 'two people' in this plan's check are the two raters of print-msa.",
+  "metric_name": "First-presentation defect rate: daily proportion of orders rejected at the QC desk, both shifts",
+  "charter_metric_id": "C1",
+  "operational_definition": {
+    "what_measured": "Whether one produced order passes first presentation: all four named checks pass = accept (reject_any = 0); any check fails = reject (reject_any = 1). The daily metric is rejects / orders presented, one subgroup per service day.",
+    "how_instrument": "QC desk check at the handoff shelf, against the order ticket: (1) paper stock -- ream/SKU label matches the ticket; (2) trim -- within 2 mm of ticket dimensions, desk steel rule, top/middle/bottom sheet (exactly 2 mm passes); (3) ink -- no smudge, streak, or banding visible at arm's length (~60 cm) under the desk lamp on the top sheet or either pull sheet; (4) quantity -- full recount at or under 50 pieces, counting-scale weigh count above 50. Each failed check is one tally mark in the reject log, so an order failing two checks carries two marks but is one rejected order.",
+    "precision_unit": "Binary per order; daily proportion reported to 4 decimal places",
+    "starts_when": "The order is staged at the QC desk with its ticket attached",
+    "stops_when": "Pass: shelved for pickup and the day's presented-count incremented. Fail: red-tagged with the failed check(s) circled in the log, routed to reprint -- logged by whoever found it, at find time, never reconstructed at close",
+    "two_people_confirmed": true
+  },
+  "data_type": "attribute_defective",
+  "stratification_factors": [
+    {
+      "name": "shift",
+      "values_expected": [
+        "day (07:30-16:00)",
+        "evening (16:00-21:00)"
+      ]
+    },
+    {
+      "name": "order_type",
+      "values_expected": [
+        "course-packet",
+        "flyer-poster",
+        "program-booklet",
+        "other"
+      ]
+    }
+  ],
+  "no_stratification_reason": "",
+  "logistics": {
+    "who_collects": "Tessa Nguyen owns the QC desk log on day shift, Omar Haddad on evening; Jordan Pike confirms intake specs on the ticket so the check has something unambiguous to check against",
+    "where_collected": "QC desk at the handoff shelf, main production room",
+    "when_how_often": "Every produced order, both shifts, 21 consecutive service days (Mon-Sat), 2026-06-29 through 2026-07-22 -- a census of the window, not a sample",
+    "planned_n": 1500,
+    "sample_size_rationale": "Proportions need a different n arithmetic than means: the engine's sample-size panel (proportion calculator, planning p 0.09 from the Q2 reject log, +/-1.5 percentage points at 95%) returns n = 1399 -- around twelve times the coffee-bar's continuous n=120, which is the teaching point. ~75 orders/day x 21 service days ~= 1,550 clears it, and 21 daily subgroups clears the >=20-subgroup floor for freezing p-chart limits. Checking every order costs 30-60 seconds at handoff, so a census beats sampling here."
+  },
+  "bias_note": "A census of the window removes pick-the-easy-orders bias, so the residual risks are definitional and seasonal: the definition risk is handled by the two-rater kappa rounds (marginal, then acceptable after the definition fix); the seasonal risk is that this is a summer-session window -- fall-term order mix runs heavier on rush jobs -- so daily counts and order_type are recorded on every row for a like-for-like fall comparison, and the charter carries term start as a named risk."
+}

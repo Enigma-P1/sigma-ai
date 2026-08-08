@@ -1,0 +1,994 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-check-sheet",
+  "tool_id": "T-08",
+  "created_at": "2026-06-29T16:05:00Z",
+  "updated_at": "2026-07-22T21:10:00Z",
+  "notes": "Defect-type tally for the baseline window, transcribed daily from the QC desk reject log (paper, both shifts) -- entry_mode 'transcribed' with count carrying that shift's tally marks for that check, which is the honest path for a paper tally and is excluded from the burst-entry heuristic by design. Tally rule from the collection plan: ONE MARK PER FAILED CHECK, so an order failing two checks carries two marks -- the window holds 139 marks on 135 rejected orders (4 orders failed two checks). Categories are exactly the four named checks; the export feeds the engine Pareto with zero re-typing (to-dataset), and the same table cut by the shift stratum is the chi-square screen's input.",
+  "categories": [
+    {
+      "category_id": "trim_misalign",
+      "label": "Trim misalignment"
+    },
+    {
+      "category_id": "wrong_paper",
+      "label": "Wrong paper stock"
+    },
+    {
+      "category_id": "ink_smudge",
+      "label": "Ink smudge / banding"
+    },
+    {
+      "category_id": "wrong_quantity",
+      "label": "Wrong quantity"
+    }
+  ],
+  "strata_fields": [
+    {
+      "key": "shift",
+      "label": "Shift"
+    }
+  ],
+  "entries": [
+    {
+      "entry_id": "E001",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-06-29T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E002",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-06-29T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E003",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-06-29T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E004",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-06-29T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E005",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-06-29T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E006",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-06-30T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E007",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-06-30T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 5,
+      "deleted": null
+    },
+    {
+      "entry_id": "E008",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-06-30T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E009",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-01T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E010",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-01T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E011",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-01T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E012",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-01T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E013",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-02T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E014",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-02T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E015",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-03T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E016",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-03T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E017",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-03T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E018",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-03T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E019",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-04T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E020",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-04T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E021",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-06T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E022",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-06T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E023",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-06T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E024",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-07T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 4,
+      "deleted": null
+    },
+    {
+      "entry_id": "E025",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-07T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E026",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-07T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E027",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-07T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E028",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-08T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E029",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-08T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E030",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-08T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E031",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-08T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E032",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-08T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E033",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-09T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E034",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-09T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E035",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-09T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E036",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-10T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E037",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-10T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E038",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-10T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E039",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-10T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E040",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-11T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E041",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-11T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E042",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-11T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E043",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-13T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E044",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-13T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E045",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-13T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E046",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-13T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E047",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-13T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E048",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-13T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E049",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-13T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E050",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-14T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E051",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-14T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E052",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-14T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E053",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-15T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E054",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-15T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E055",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-15T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E056",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-15T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E057",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-15T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E058",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-16T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E059",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-16T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E060",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-16T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E061",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-17T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E062",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-17T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E063",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-17T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E064",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-17T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E065",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-18T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E066",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-18T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E067",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-20T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 4,
+      "deleted": null
+    },
+    {
+      "entry_id": "E068",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-20T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E069",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-20T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E070",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-20T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E071",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-20T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E072",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-20T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E073",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-21T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E074",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-21T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    },
+    {
+      "entry_id": "E075",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-21T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E076",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-22T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E077",
+      "category_id": "wrong_paper",
+      "timestamp": "2026-07-22T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 3,
+      "deleted": null
+    },
+    {
+      "entry_id": "E078",
+      "category_id": "wrong_quantity",
+      "timestamp": "2026-07-22T16:05:00",
+      "strata": {
+        "shift": "day"
+      },
+      "note": "QC desk reject log, day-shift column, transcribed at shift close (Tessa Nguyen's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E079",
+      "category_id": "trim_misalign",
+      "timestamp": "2026-07-22T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 1,
+      "deleted": null
+    },
+    {
+      "entry_id": "E080",
+      "category_id": "ink_smudge",
+      "timestamp": "2026-07-22T21:05:00",
+      "strata": {
+        "shift": "evening"
+      },
+      "note": "QC desk reject log, evening-shift column, transcribed at shift close (Omar Haddad's hand)",
+      "entry_mode": "transcribed",
+      "count": 2,
+      "deleted": null
+    }
+  ]
+}

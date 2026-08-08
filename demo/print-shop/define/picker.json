@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-picker",
+  "tool_id": "T-01",
+  "created_at": "2026-06-23T16:20:00Z",
+  "updated_at": "2026-06-23T16:20:00Z",
+  "notes": "Routing note: all five criteria are Yes, and this is not a PDCA-sized problem -- there is no single obvious fix (intake spec errors, prepress file problems, press smudge, and finishing trim all put orders on the reprint shelf), the metric is a defect rate that needs a real baseline window before anyone can claim improvement, and the money case rests on a quarter of reprint records. Route: full DMAIC.",
+  "scope_narrow": {
+    "answer": true,
+    "detail": "First-presentation rejects on produced print orders at the campus print shop, both shifts (day and evening), Monday-Saturday -- not the self-serve copiers, not the mail room, not jobs brokered to the off-campus vendor."
+  },
+  "measurable_outcome": {
+    "answer": true,
+    "detail": "Binary per order at the QC desk -- accepted or rejected at first presentation against four named checks (paper stock, trim, ink, quantity) -- tracked as a daily proportion defective. Lower is better; attribute data, so the baseline is a p-chart, not an I-MR chart."
+  },
+  "data_obtainable": {
+    "answer": true,
+    "detail": "The QC desk already keeps a reject log (it is how the ~9% figure was noticed), job travelers carry per-step initials and rework marks, and a late-June pre-study week confirmed the log can be tallied daily by shift without slowing handoff."
+  },
+  "process_owner_engaged": {
+    "answer": true,
+    "detail": "Tessa Nguyen, day-shift lead, runs the QC desk and asked for the project after a 90-packet course order came back for crooked trim in June; Elaine Foster, campus print services manager, sponsors it."
+  },
+  "business_impact_plausible": {
+    "answer": true,
+    "detail": "Q2 2026 records put reprint materials, press and operator time on reprints, rush courier runs, and customer credits near $6,000 for the quarter -- roughly $24,000 a year if nothing changes."
+  },
+  "route": "full-DMAIC"
+}

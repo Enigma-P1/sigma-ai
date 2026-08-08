@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-yield",
+  "tool_id": "T-10",
+  "created_at": "2026-07-23T15:00:00Z",
+  "updated_at": "2026-07-23T15:40:00Z",
+  "notes": "Steps table: window totals from the job travelers, 21 service days 2026-06-29 -> 2026-07-22, every produced order. units_in is the orders that entered the step in the window; first_pass_correct is the orders that cleared it with no rework marks -- a re-plated prepress file, a re-run press pass, a recut all count against first-pass even when the shop caught them and the customer never saw them. That is the point: these four counts see the HIDDEN factory, while the QC desk's four checks see only the escapes. DPMO block: defects = the reject log's 139 failed-check marks (defects, not defective orders -- 135 orders carried them); units = 1566 orders presented; opportunities justified below as exactly the four named checks. The first draft of this block claimed 8 opportunities justified as 'various' -- the prescore hard-flagged it by name (opportunity-inflation guard, rubric R-MEA-09) and the count was corrected to the 4 the checks actually define; the draft and the flag are quoted in print-shop-run.md.",
+  "steps": [
+    {
+      "name": "order entry",
+      "units_in": 1566.0,
+      "first_pass_correct": 1517.0,
+      "defects_at_step": 49.0,
+      "dpu_at_step": 0.031289910600255426,
+      "fpy_at_step": 0.9691945525680828
+    },
+    {
+      "name": "prepress",
+      "units_in": 1566.0,
+      "first_pass_correct": 1492.0,
+      "defects_at_step": 74.0,
+      "dpu_at_step": 0.04725415070242656,
+      "fpy_at_step": 0.95384494641897
+    },
+    {
+      "name": "print",
+      "units_in": 1566.0,
+      "first_pass_correct": 1484.0,
+      "defects_at_step": 82.0,
+      "dpu_at_step": 0.05236270753512133,
+      "fpy_at_step": 0.9489846005473415
+    },
+    {
+      "name": "trim/finish",
+      "units_in": 1566.0,
+      "first_pass_correct": 1503.0,
+      "defects_at_step": 63.0,
+      "dpu_at_step": 0.040229885057471264,
+      "fpy_at_step": 0.9605685934024274
+    }
+  ],
+  "steps_in_series": true,
+  "dpmo_block": {
+    "defects": 139.0,
+    "units": 1566.0,
+    "opportunities_per_unit": 4.0,
+    "opportunity_justification": "Four named first-presentation checks, one opportunity per order each: wrong paper stock, trim misalignment, ink smudge/banding, wrong quantity -- the same four checks the charter, collection plan, check sheet, and p-chart carry; the count is fixed for every order and every re-run.",
+    "apply_sigma_shift": true
+  },
+  "rty_result": {
+    "value": 0.8427064064897711,
+    "provenance": {
+      "input_hash": "f7d8a9a3a843ecfd415a36e045a01e21c389e9af5a6d03c63bc94f732892c94b",
+      "method": "RTY = product(FPY_i for i in steps), FPY_i = e^-DPU_i, DPU_i = defects_at_step_i / units_in_i (stats/sigma_level.py's rty()/fpy_from_dpu()/dpu(), reused verbatim) -- computed only under the artifact's explicit steps_in_series=true",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "steps_in_series is true on this artifact -- RTY is a serial-line rollup and is never computed or claimed otherwise (matrix II.E.1)",
+        "each step's FPY is computed from its own entering units only, independent of neighboring steps -- a step's units_in is not constrained against the prior step's output, since real lines rework/scrap units between steps"
+      ],
+      "warnings": []
+    }
+  },
+  "dpmo_result": {
+    "value": {
+      "dpmo": 22190.29374201788,
+      "sigma_level": 3.5104783299758164,
+      "convention": "with 1.5\u03c3 shift"
+    },
+    "provenance": {
+      "input_hash": "98719666dfc629e004f73dcfe9f85a3fd67060c3fb7064841dbc6ae047871e64",
+      "method": "sigma_level = Phi^-1(1 - dpmo/1e6) + 1.5 (shift applied)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "1.5-sigma shift is reporting convention, not physics (matrix III.F.4)"
+      ],
+      "warnings": []
+    }
+  }
+}

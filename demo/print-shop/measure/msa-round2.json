@@ -1,0 +1,294 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-msa",
+  "tool_id": "T-12",
+  "created_at": "2026-06-25T20:30:00Z",
+  "updated_at": "2026-06-27T19:15:00Z",
+  "notes": "Round 2 -- after the definition fix, same 50 orders re-presented in a fresh shuffled order two days later, both raters again independent and blind (round-1 sheets sealed in the project folder). What changed between rounds is written into the collection plan's operational definition, not anyone's memory: ink fails on any smudge, streak, or banding VISIBLE AT ARM'S LENGTH (~60 cm) under the QC desk lamp on the top sheet or either pull sheet -- closer-than-arm's-length flaws are recorded as press notes, not rejects; trim fails at greater than 2 mm from ticket dimensions measured with the desk steel rule at top, middle, bottom -- at exactly 2 mm it passes. The two remaining splits are both genuine coin-flip cases the definition documents (one faint corner scuff, one single-pass gray band); logged for the next definition review, not argued into agreement. Engine verdict below: kappa acceptable -- the baseline window may open, and the reject calls in orders.csv are made under exactly this definition.",
+  "data_type": "attribute",
+  "operator": "Tessa Nguyen (rater A) / Omar Haddad (rater B) -- independent, blind to each other's judgments",
+  "gauge_name": null,
+  "gauge_increment": null,
+  "usl": null,
+  "lsl": null,
+  "continuous_items": [],
+  "attribute_items": [
+    {
+      "item_id": "PO-0619-001",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0619-012",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0619-016",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0619-020",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0619-068",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0619-071",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0619-074",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0619-084",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0620-002",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0620-017",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0620-054",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0620-061",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0620-070",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0622-032",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-034",
+      "rater_a": false,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-054",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-068",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-072",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-078",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-082",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-083",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0622-088",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-006",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-008",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-021",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-051",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-054",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-076",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-082",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0623-088",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-003",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-013",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-018",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-020",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0624-028",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-031",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-036",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-041",
+      "rater_a": true,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0624-047",
+      "rater_a": false,
+      "rater_b": false
+    },
+    {
+      "item_id": "PO-0624-048",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-060",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0624-067",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0625-004",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0625-007",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0625-045",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0625-066",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0625-081",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0626-072",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0626-073",
+      "rater_a": true,
+      "rater_b": true
+    },
+    {
+      "item_id": "PO-0626-077",
+      "rater_a": true,
+      "rater_b": true
+    }
+  ],
+  "result": {
+    "data_type": "attribute",
+    "verdict": "acceptable",
+    "resolution_check": null,
+    "repeatability": null,
+    "attribute_agreement": {
+      "value": {
+        "n": 50,
+        "percent_agreement": 96.0,
+        "kappa": 0.8644986449864498,
+        "p_observed": 0.96,
+        "p_expected": 0.7047999999999999,
+        "verdict": "acceptable"
+      },
+      "provenance": {
+        "input_hash": "f9802da7529bf48754689cb41902297f704b9c4160b6d77b7ba3f81d7ab9b619",
+        "method": "Cohen's kappa (Cohen 1960) = (p_o - p_e)/(1 - p_e), two-rater binary pass/fail; % agreement reported alongside per matrix \u00a74a EXIT-02 (attribute), never alone",
+        "engine_version": "0.1.0",
+        "assumptions_checked": [
+          "two raters, binary (pass/fail) judgment per item"
+        ],
+        "warnings": []
+      }
+    },
+    "caveat": null,
+    "exit02": null
+  }
+}

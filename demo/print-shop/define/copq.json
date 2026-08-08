@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "artifact_id": "print-copq",
+  "tool_id": "T-02",
+  "created_at": "2026-06-26T14:40:00Z",
+  "updated_at": "2026-06-26T14:40:00Z",
+  "notes": "The engine computes each row amount (quantity x rate) and the total; nothing here is hand-typed. Q2 2026 total feeds the charter's business-impact field: $5,930.15 x 4 = $23,720.60 per year, basis stated on the charter. Q2 context for the rates: 5,430 orders, 468 first-presentation rejects (8.6%) per the QC desk reject log.",
+  "rows": [
+    {
+      "category": "rework",
+      "custom_label": null,
+      "quantity": 468.0,
+      "rate": 3.3,
+      "period": "Q2 2026",
+      "basis": "Reprinted orders counted in the QC desk reject log, Q2 2026; per-reprint paper, toner, and click charges from the April-June supplier and service invoices",
+      "is_estimate": false,
+      "amount": 1544.3999999999999
+    },
+    {
+      "category": "custom",
+      "custom_label": "Press and operator time on reprints",
+      "quantity": 164.0,
+      "rate": 21.0,
+      "period": "Q2 2026",
+      "basis": "Estimate: 0.35 h average per reprint from a 40-traveler timestamp sample, x 468 reprints = 164 h; loaded operator + press rate from the services cost sheet",
+      "is_estimate": true,
+      "amount": 3444.0
+    },
+    {
+      "category": "expediting",
+      "custom_label": null,
+      "quantity": 27.0,
+      "rate": 18.5,
+      "period": "Q2 2026",
+      "basis": "Rush courier runs to deliver late reprints, Q2 2026 courier invoices, job number cross-referenced to a reject-log entry",
+      "is_estimate": false,
+      "amount": 499.5
+    },
+    {
+      "category": "custom",
+      "custom_label": "Credits and waived invoices on rejected orders",
+      "quantity": 61.0,
+      "rate": 7.25,
+      "period": "Q2 2026",
+      "basis": "Billing export, Q2 2026, credit reason code 'quality'; rate is the average credited amount",
+      "is_estimate": false,
+      "amount": 442.25
+    }
+  ],
+  "total": {
+    "value": 5930.15,
+    "provenance": {
+      "input_hash": "82d963d917b3736dfce9c5ed9b2ef35a42d67f0453c2c01c19d02bac6411c395",
+      "method": "copq_total = sum(quantity * rate per row)",
+      "engine_version": "0.1.0",
+      "assumptions_checked": [
+        "each row's amount is quantity * rate, never hand-entered"
+      ],
+      "warnings": []
+    }
+  }
+}
