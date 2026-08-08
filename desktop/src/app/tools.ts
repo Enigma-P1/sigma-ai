@@ -49,8 +49,8 @@ export const TOOLS: ToolDef[] = [
   { id: "T-17", name: "Hypothesis Testing (guided selector)", phase: "Analyze", live: true, hasForm: true },
 
   // Improve
-  { id: "T-18", name: "Solution Selection Matrix", phase: "Improve", live: false, hasForm: false },
-  { id: "T-19", name: "Pilot Plan", phase: "Improve", live: false, hasForm: false },
+  { id: "T-18", name: "Solution Selection Matrix", phase: "Improve", live: true, hasForm: true },
+  { id: "T-19", name: "Pilot Plan", phase: "Improve", live: true, hasForm: true },
   { id: "T-20", name: "Before/After Proof + Remaining-Gap Check", phase: "Improve", live: false, hasForm: false },
 
   // Control

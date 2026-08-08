@@ -32,6 +32,8 @@ import { FishboneForm } from "./fishbone/FishboneForm";
 import { fishboneHelperContent } from "./fishbone/fishboneContent";
 import { FmeaForm } from "./fmea/FmeaForm";
 import { fmeaHelperContent } from "./fmea/fmeaContent";
+import { SolutionMatrixForm } from "./solutionmatrix/SolutionMatrixForm";
+import { PilotPlanForm } from "./pilotplan/PilotPlanForm";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -199,6 +201,26 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     return (
       <ToolScreen {...screenProps} helperContent={hypothesisHelperContent}>
         <HypothesisForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-18/T-19 (M4): real engine-backed forms, helper content left an
+  // honest PLACEHOLDER this milestone (task brief) -- the five-part
+  // content unit ships with a later content pass, same as every other
+  // tool that's engine-live before its helper text is written.
+  if (toolId === "T-18") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <SolutionMatrixForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-19") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(toolId, tool.name)}>
+        <PilotPlanForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

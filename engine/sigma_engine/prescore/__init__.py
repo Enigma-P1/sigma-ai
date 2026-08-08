@@ -10,8 +10,10 @@ from .fmea import run_fmea_prescore
 from .hypothesis import run_hypothesis_prescore
 from .msa import run_msa_prescore
 from .picker import run_picker_prescore
+from .pilot_plan import run_pilot_plan_prescore
 from .process_map import run_process_map_prescore
 from .sipoc import run_sipoc_prescore
+from .solution_matrix import run_solution_matrix_prescore
 from .spaghetti import run_spaghetti_prescore
 from .time_study import run_time_study_prescore
 from .voc_ctq import run_voc_ctq_prescore
@@ -27,8 +29,10 @@ __all__ = [
     "run_hypothesis_prescore",
     "run_msa_prescore",
     "run_picker_prescore",
+    "run_pilot_plan_prescore",
     "run_process_map_prescore",
     "run_sipoc_prescore",
+    "run_solution_matrix_prescore",
     "run_spaghetti_prescore",
     "run_time_study_prescore",
     "run_voc_ctq_prescore",

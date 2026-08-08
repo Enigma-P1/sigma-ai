@@ -1405,3 +1405,148 @@ export interface FmeaArtifact extends ArtifactBase {
    * RPN limitation: severity-first, RPN alone can't outrank it). */
   sorted_view?: Computed<string[]> | null;
 }
+
+// ---- T-18 Solution Selection Matrix (artifacts/solution_matrix.py) ----
+
+export type Quadrant = "quick_win" | "major_project" | "fill_in" | "thankless_task";
+
+export interface SolutionCriterion {
+  criterion_id: string;
+  name: string;
+  weight: number;
+  declared_at: string;
+}
+
+export interface SolutionCriterionScore {
+  criterion_id: string;
+  score: number;
+  scored_at: string;
+}
+
+export interface Solution {
+  solution_id: string;
+  name: string;
+  description: string;
+  /** Unchecked cross-reference into T-15's verified causes -- [] is the
+   * legal "pending linkage" state (prescore flags it; the ranked list
+   * excludes it into its own section). */
+  linked_cause_ids: string[];
+  impact: number;
+  effort: number;
+  criterion_scores: SolutionCriterionScore[];
+}
+
+/** Per-solution computed view -- present once the engine has echoed the
+ * artifact back (FmeaRow.rpn's "server-computed, never hand-typed"
+ * contract, at the artifact level since weighted_total needs `criteria` too). */
+export interface SolutionScore {
+  solution_id: string;
+  quadrant: Quadrant;
+  weighted_total: number | null;
+}
+
+export interface RankedEntry {
+  rank: number;
+  solution_id: string;
+  name: string;
+  quadrant: Quadrant;
+  weighted_total: number | null;
+  impact: number;
+  effort: number;
+  linked_cause_ids: string[];
+}
+
+export interface UnlinkedSolution {
+  solution_id: string;
+  name: string;
+  reason: string;
+}
+
+/** The artifact's headline output (PLAN §4.1): the queue the Improve loop
+ * works through. */
+export interface RankedFixList {
+  ranked: RankedEntry[];
+  unlinked: UnlinkedSolution[];
+}
+
+export interface SolutionMatrixArtifact extends ArtifactBase {
+  tool_id: "T-18";
+  solutions: Solution[];
+  criteria: SolutionCriterion[];
+  /** Server-computed, never hand-typed -- present once the engine has
+   * echoed the artifact back. */
+  scores?: Computed<SolutionScore[]> | null;
+  ranked_fix_list?: Computed<RankedFixList> | null;
+}
+
+// ---- T-19 Pilot Plan (artifacts/pilot_plan.py) ----
+
+export type ComparisonKind = "before_period" | "parallel_group";
+export type PilotDirection = "higher_is_better" | "lower_is_better";
+export type PilotStatus = "designed" | "running" | "complete";
+export const PILOT_STATUSES: PilotStatus[] = ["designed", "running", "complete"];
+
+/** One entry in the append-only `changes` list -- the structural EXIT-10
+ * trigger (artifacts/pilot_plan.py): capped at length 1 server-side, a
+ * second entry raises EXIT-10 by name on save. */
+export interface PilotChange {
+  change_id: string;
+  text: string;
+}
+
+export interface PilotTheOneChange {
+  statement: string;
+  linked_solution_id?: string | null;
+  linked_cause_ids: string[];
+}
+
+export interface PilotComparisonDesign {
+  kind: ComparisonKind;
+  description: string;
+}
+
+export interface PilotInclusion {
+  who_or_what: string;
+  how_selected: string;
+  honesty_note: string;
+}
+
+export interface PilotSuccessThreshold {
+  metric_ref: string;
+  direction: PilotDirection;
+  value: number;
+  /** Pre-declaration timestamp, stamped client-side at save (rubric
+   * R-IMP-02 #3) -- entry order only, never observation order. */
+  declared_at: string;
+}
+
+export interface PilotAnalysisPlan {
+  expected_route: string;
+  rationale: string;
+}
+
+export interface PilotConfounderAnswer {
+  changed: boolean;
+  note: string;
+}
+
+export interface PilotConfounderChecklist {
+  staffing: PilotConfounderAnswer;
+  season: PilotConfounderAnswer;
+  demand: PilotConfounderAnswer;
+  measurement: PilotConfounderAnswer;
+  other: PilotConfounderAnswer;
+}
+
+export interface PilotPlanArtifact extends ArtifactBase {
+  tool_id: "T-19";
+  the_one_change: PilotTheOneChange;
+  changes: PilotChange[];
+  comparison_design: PilotComparisonDesign;
+  inclusion: PilotInclusion;
+  success_threshold: PilotSuccessThreshold;
+  analysis_plan: PilotAnalysisPlan;
+  falsification_line: string;
+  confounder_checklist: PilotConfounderChecklist;
+  status: PilotStatus;
+}

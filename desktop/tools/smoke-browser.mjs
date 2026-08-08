@@ -1103,7 +1103,13 @@ async function main() {
       await page.locator('[data-testid="fmea-save"]').click();
       await page.locator('[data-testid="fmea-version-badge"]').waitFor();
 
-      const bannerText = await page.locator('[data-testid="fmea-blocking-banner"]').textContent();
+      // useFmeaForm's post-save reload (the thing that actually populates
+      // blocking_flags) runs AFTER the version badge already renders, so
+      // waiting on the badge alone races the reload -- wait for the
+      // banner's own VerdictBanner to mount before reading its text.
+      const banner = page.locator('[data-testid="fmea-blocking-banner"]');
+      await banner.locator(".sigma-verdict").waitFor();
+      const bannerText = await banner.textContent();
       assert(
         bannerText?.includes("Short pour incomplete fill"),
         `expected the blocking banner to name row 1's failure mode, got ${JSON.stringify(bannerText)}`,
@@ -1133,6 +1139,124 @@ async function main() {
       assert(
         firstMode === "Wrong label applied",
         `expected the RPN-sort toggle to put row 2 (rpn 60 > 54) first, got ${JSON.stringify(firstMode)}`,
+      );
+    });
+    // ---- Milestone-4 addition: T-18 Solution Selection Matrix. Reuses the
+    // verified fixture-alignment cause T-15 already saved earlier in this
+    // same project as the causes picker's source (task brief: "reuse the
+    // demo fishbone via project load"). Solution 1 is linked + rated
+    // quick_win; solution 2 is deliberately left unlinked -- the
+    // ranked-list/unlinked-flag fixture. Causes are matched by visible
+    // text, same trick the T-15/T-06 sections above use for generated ids. ----
+
+    await step("open T-18 Solution Matrix and add a linked, high-impact/low-effort solution", async () => {
+      await page.locator('[data-testid="nav-tool-T-18"]').click();
+      await page.locator('[data-testid="solmatrix-save"]').waitFor();
+      await page.locator('[data-testid="solmatrix-add-solution"]').click();
+
+      await page.locator('[data-testid="solmatrix-0-name"]').fill("Add fixture alignment checklist");
+      await page
+        .locator(".sigma-solmatrix-cause-option", { hasText: "Fixture alignment not checked" })
+        .locator('input[type="checkbox"]')
+        .check();
+      await page.locator('[data-testid="solmatrix-0-impact"]').selectOption("5");
+      await page.locator('[data-testid="solmatrix-0-effort"]').selectOption("1");
+
+      const quadrantText = await page.locator('[data-testid="solmatrix-0-quadrant"]').textContent();
+      assert(
+        quadrantText?.includes("Quick win") && quadrantText?.includes("draft"),
+        `expected the live draft quadrant to read Quick win (draft), got ${JSON.stringify(quadrantText)}`,
+      );
+    });
+
+    await step("add a second, deliberately unlinked solution", async () => {
+      await page.locator('[data-testid="solmatrix-add-solution"]').click();
+      await page.locator('[data-testid="solmatrix-1-name"]').fill("Unlinked brainstorm idea");
+      // linked_cause_ids stays empty on purpose -- no checkbox checked, no manual id typed.
+    });
+
+    await step("save T-18 and assert the ranked fix list + unlinked flag both render", async () => {
+      await page.locator('[data-testid="solmatrix-save"]').click();
+      await page.locator('[data-testid="solmatrix-version-badge"]').waitFor();
+
+      const rankedText = await page.locator('[data-testid="solmatrix-ranked-list"]').textContent();
+      assert(
+        rankedText?.includes("#1") && rankedText?.includes("Add fixture alignment checklist") &&
+          rankedText?.includes("Quick win") && rankedText?.includes("impact 5") && rankedText?.includes("effort 1"),
+        `expected the ranked fix list to show the linked solution at #1 as Quick win (impact 5 / effort 1), got ${JSON.stringify(rankedText)}`,
+      );
+
+      const unlinkedText = await page.locator('[data-testid="solmatrix-unlinked-list"]').textContent();
+      assert(
+        unlinkedText?.includes("Unlinked brainstorm idea") && unlinkedText?.includes("not yet linked"),
+        `expected the unlinked-solutions banner to flag the second solution, got ${JSON.stringify(unlinkedText)}`,
+      );
+
+      const pill = page.locator('[data-testid="prescore-check-unlinked_solution_flags"]');
+      await pill.waitFor();
+      assert((await pill.getAttribute("data-status")) === "flag", "expected the unlinked_solution_flags prescore check to read flag");
+    });
+
+    // ---- Milestone-4 addition: T-19 Pilot Plan. The one-change statement
+    // pre-fills from T-18's top-ranked fix list entry saved just above
+    // (task brief: "top-ranked pre-selected") -- confirmed live rather
+    // than re-typed. A second change is then added on purpose to trigger
+    // the engine's EXIT-10 refusal (rendered, not silently swallowed),
+    // then removed so the plan saves clean. ----
+
+    await step("open T-19 Pilot Plan and confirm the one-change statement pre-fills from T-18's top pick", async () => {
+      await page.locator('[data-testid="nav-tool-T-19"]').click();
+      await page.locator('[data-testid="pilot-save"]').waitFor();
+      const statement = await page.locator('[data-testid="pilot-statement"]').inputValue();
+      assert(
+        statement.includes("Add fixture alignment checklist"),
+        `expected the one-change statement to prefill from T-18's top-ranked solution, got ${JSON.stringify(statement)}`,
+      );
+    });
+
+    await step("fill the rest of the guided flow", async () => {
+      await page.locator('[data-testid="pilot-comparison-description"]').fill("Prior 4 weeks of Line-2 scrap-rate data before the checklist starts.");
+      await page.locator('[data-testid="pilot-inclusion-who"]').fill("Line 2, all three shifts");
+      await page.locator('[data-testid="pilot-inclusion-how"]').fill("Line 2 is the only line with the fixture-alignment issue.");
+      await page.locator('[data-testid="pilot-inclusion-honesty"]').fill("Not randomized -- Line 2 was picked because it's the only line affected.");
+      await page.locator('[data-testid="pilot-metric-ref"]').fill("line-2 scrap rate");
+      await page.locator('[data-testid="pilot-threshold-value"]').fill("4.5");
+      await page.locator('[data-testid="pilot-route-rationale"]').fill("Two independent time windows of continuous scrap-rate data.");
+      await page
+        .locator('[data-testid="pilot-falsification"]')
+        .fill("If scrap rate stays above 4.5% for two full weeks after rollout, the checklist did not fix it.");
+      for (const key of ["staffing", "season", "demand", "measurement", "other"]) {
+        await page.locator(`[data-testid="pilot-confounder-${key}-note"]`).fill("No change expected during the pilot window.");
+      }
+      assert(await page.locator('[data-testid="pilot-save"]').isEnabled(), "Save button should be enabled once the guided flow is filled in");
+    });
+
+    await step("add a second change and assert the engine refuses with EXIT-10", async () => {
+      await page.locator('[data-testid="pilot-add-another-change"]').click();
+      await page.locator('[data-testid="pilot-extra-change-0"]').fill("Also replace the injector at the same time");
+      await page.locator('[data-testid="pilot-save"]').click();
+
+      const banner = page.locator('[data-testid="pilot-exit10-banner"]');
+      await banner.waitFor();
+      const bannerText = await banner.textContent();
+      assert(bannerText?.includes("EXIT-10"), `expected the EXIT-10 refusal to render, got ${JSON.stringify(bannerText)}`);
+      assert(
+        (await page.locator('[data-testid="pilot-version-badge"]').count()) === 0,
+        "expected no version badge -- the save should have been refused, not silently accepted",
+      );
+    });
+
+    await step("remove the extra change and save clean", async () => {
+      await page.locator('[data-testid="pilot-remove-extra-change-0"]').click();
+      await page.locator('[data-testid="pilot-save"]').click();
+      await page.locator('[data-testid="pilot-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="pilot-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected version badge to show v1 after saving clean, got ${JSON.stringify(badge)}`);
+
+      const declaredNote = await page.locator('[data-testid="pilot-declared-at-note"]').textContent();
+      assert(
+        declaredNote?.includes("Declared before data collection") && declaredNote?.includes("entry order"),
+        `expected the declared-at honesty note to render post-save, got ${JSON.stringify(declaredNote)}`,
       );
     });
   } catch (err) {
