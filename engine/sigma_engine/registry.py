@@ -7,13 +7,16 @@ from __future__ import annotations
 from typing import Callable
 
 from .artifacts import (
+    A3Artifact,
     ArtifactBase,
     CharterArtifact,
     CheckSheetArtifact,
     ControlChartArtifact,
+    ControlPlanArtifact,
     CopqArtifact,
     DataCollectionPlanArtifact,
     FishboneArtifact,
+    FiveSArtifact,
     FmeaArtifact,
     HypothesisRunArtifact,
     MsaArtifact,
@@ -24,17 +27,21 @@ from .artifacts import (
     SipocArtifact,
     SolutionMatrixArtifact,
     SpaghettiArtifact,
+    StandardWorkArtifact,
     TimeStudyArtifact,
     VocCtqArtifact,
 )
 from .prescore import (
     PrescoreResult,
+    run_a3_prescore,
     run_charter_prescore,
     run_check_sheet_prescore,
     run_control_chart_prescore,
+    run_control_plan_prescore,
     run_copq_prescore,
     run_data_collection_plan_prescore,
     run_fishbone_prescore,
+    run_five_s_prescore,
     run_fmea_prescore,
     run_hypothesis_prescore,
     run_msa_prescore,
@@ -45,6 +52,7 @@ from .prescore import (
     run_sipoc_prescore,
     run_solution_matrix_prescore,
     run_spaghetti_prescore,
+    run_standard_work_prescore,
     run_time_study_prescore,
     run_voc_ctq_prescore,
 )
@@ -68,6 +76,10 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-19": PilotPlanArtifact,
     "T-20": ProofArtifact,
     "T-21": ControlChartArtifact,
+    "T-22": ControlPlanArtifact,
+    "T-23": FiveSArtifact,
+    "T-24": StandardWorkArtifact,
+    "T-25": A3Artifact,
 }
 
 PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
@@ -89,4 +101,8 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-19": run_pilot_plan_prescore,
     "T-20": run_proof_prescore,
     "T-21": run_control_chart_prescore,
+    "T-22": run_control_plan_prescore,
+    "T-23": run_five_s_prescore,
+    "T-24": run_standard_work_prescore,
+    "T-25": run_a3_prescore,
 }

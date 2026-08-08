@@ -1418,6 +1418,208 @@ async function main() {
         `expected the next-cause card to name the injector cause, got ${JSON.stringify(cardText)}`,
       );
     });
+
+    // ---- Milestone-4 Control-tools addition: T-22 Control Plan + OCAP +
+    // Scheduled Check-ins. The frozen coffee-bar IMR limits already exist
+    // on "control-chart" (T-21, frozen above) -- check-ins are judged
+    // against them live. ----
+
+    await step("open T-22, set an owner + accept it, and save", async () => {
+      await page.locator('[data-testid="nav-tool-T-22"]').click();
+      await page.locator('[data-testid="controlplan-save"]').waitFor();
+      const row = page.locator('[data-testid="controlplan-items-table"] tbody tr').nth(0);
+      await row.locator('[data-testid$="-characteristic"]').fill("order-to-handoff wait time");
+      await row.locator('[data-testid$="-how"]').fill("POS timestamp minus order timestamp");
+      await row.locator('[data-testid$="-where"]').fill("front counter register");
+      await row.locator('[data-testid$="-frequency"]').fill("weekly");
+      await row.locator('[data-testid$="-reason"]').fill("matches order volume and the check-in cadence");
+      await row.locator('[data-testid$="-owner"]').fill("Maria Ortiz");
+      await row.locator('[data-testid$="-accepted"]').check();
+      await page.locator('[data-testid="controlplan-save"]').click();
+      await page.locator('[data-testid="controlplan-version-badge"]').waitFor();
+      const banner = await page.locator('[data-testid="controlplan-theater-banner"]').textContent();
+      assert(
+        banner?.includes("Every monitored item has a named owner"),
+        `expected no theater flag once the owner is named and accepted, got ${JSON.stringify(banner)}`,
+      );
+    });
+
+    await step("enter a check-in against the frozen coffee-bar limits and confirm it passes", async () => {
+      await page.locator('[data-testid="controlplan-frozen-limits-context"]').waitFor();
+      await page.locator('[data-testid="controlplan-checkin-value"]').fill("95");
+      await page.locator('[data-testid="controlplan-checkin-note"]').fill("week 1 -- holding steady");
+      await page.locator('[data-testid="controlplan-checkin-enter"]').click();
+      await page.locator('[data-testid="controlplan-save"]').click();
+      // Scoped to <li> (the checked-in list rows) -- the entry form's own
+      // value/note/enter controls share the same testid prefix but are
+      // not <li> elements, and an <input>'s textContent is always empty.
+      await page.waitForFunction(() => {
+        const el = document.querySelector('li[data-testid^="controlplan-checkin-"]');
+        return Boolean(el && el.textContent && el.textContent.toLowerCase().includes("pass"));
+      });
+    });
+
+    await step("add an ownerless monitored item and confirm the theater flag renders", async () => {
+      await page.locator('[data-testid="controlplan-add-item"]').click();
+      const newRow = page.locator('[data-testid="controlplan-items-table"] tbody tr').nth(1);
+      await newRow.locator('[data-testid$="-characteristic"]').fill("throughput");
+      await newRow.locator('[data-testid$="-how"]').fill("orders per hour, POS count");
+      await newRow.locator('[data-testid$="-where"]').fill("front counter");
+      await newRow.locator('[data-testid$="-frequency"]').fill("daily");
+      await page.locator('[data-testid="controlplan-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="controlplan-version-badge"]')?.textContent?.includes("v3"));
+      const banner = await page.locator('[data-testid="controlplan-theater-banner"]').textContent();
+      assert(
+        banner?.toLowerCase().includes("theater"),
+        `expected the ownerless-item theater flag to render, got ${JSON.stringify(banner)}`,
+      );
+    });
+
+    // ---- T-23 5S Audit (scored): one round, photo, action, trend chart. ----
+
+    await step("open T-23, score one 5S round with a photo and an action, then save", async () => {
+      await page.locator('[data-testid="nav-tool-T-23"]').click();
+      await page.locator('[data-testid="fives-save"]').waitFor();
+      const round = page.locator('[data-testid^="fives-round-"]').first();
+      await round.locator('[data-testid$="-area"]').fill("front counter");
+      await round.locator('[data-testid$="-sort-score"]').fill("4");
+      await round.locator('[data-testid$="-set_in_order-score"]').fill("3");
+      await round.locator('[data-testid$="-shine-score"]').fill("4");
+      await round.locator('[data-testid$="-standardize-score"]').fill("3");
+      await round.locator('[data-testid$="-sustain-score"]').fill("2");
+      await round.locator('[data-testid$="-photo-input"]').setInputFiles(FIXTURE_PNG_PATH);
+      await round.locator('[data-testid$="-photo-count"]').waitFor();
+      await round.locator('[data-testid$="-action"]').fill("Label the syrup shelf and retrain on the layout");
+      await page.locator('[data-testid="fives-save"]').click();
+      await page.locator('[data-testid="fives-version-badge"]').waitFor();
+      await page.locator('[data-testid="fives-trend-chart"]').waitFor();
+    });
+
+    // ---- T-24 Standard Work / SOP: steps seeded from the T-06 process map. ----
+
+    await step("open T-24 and seed steps from the process map", async () => {
+      await page.locator('[data-testid="nav-tool-T-24"]').click();
+      await page.locator('[data-testid="standardwork-save"]').waitFor();
+      await page.locator('[data-testid="standardwork-title"]').fill("Coffee Bar Fixture Alignment SOP");
+      await page.locator('[data-testid="standardwork-owner"]').fill("Maria Ortiz");
+      await page.locator('[data-testid="standardwork-seed-from-process-map"]').click();
+      // Direct children only -- every field inside a row also carries the
+      // "standardwork-step-<id>" testid prefix (action/standard/changed),
+      // so a descendant-combinator match would over-count and later break
+      // the per-row .fill() loop below.
+      const steps = page.locator('[data-testid="standardwork-steps-editor"] > div[data-testid^="standardwork-step-"]');
+      const n = await steps.count();
+      assert(n >= 3, `expected steps seeded from the process map, got ${n}`);
+      for (let i = 0; i < n; i++) {
+        await steps.nth(i).locator('[data-testid$="-standard"]').fill(`Standard for step ${i + 1}: matches the checklist, confirmed before the first order.`);
+      }
+      await page.locator('[data-testid="standardwork-save"]').click();
+      await page.locator('[data-testid="standardwork-version-badge"]').waitFor();
+    });
+
+    // ---- T-25 A3 Final Report + Tollgate Checklists: panels seeded from
+    // real artifacts, then the close panel -- blocked by the T-16 sev-9
+    // row left unaddressed earlier in this run, clearing once actioned. ----
+
+    const A3_SEED_PANELS = ["background", "goal", "analysis", "countermeasures", "results", "follow_up_control", "lessons"];
+
+    await step("open T-25 and seed panels from their real source artifacts", async () => {
+      await page.locator('[data-testid="nav-tool-T-25"]').click();
+      await page.locator('[data-testid="a3-save"]').waitFor();
+
+      for (const panel of A3_SEED_PANELS) {
+        await page.locator(`[data-testid="a3-rail-${panel}"]`).click();
+        await page.locator(`[data-testid="a3-reseed-${panel}"]`).click();
+        await page.waitForFunction((p) => {
+          const el = document.querySelector(`[data-testid="a3-narrative-${p}"]`);
+          return Boolean(el && el.value && el.value.trim().length > 0);
+        }, panel);
+      }
+
+      // Only the active panel's editor is mounted (panel-by-panel builder)
+      // -- the loop above leaves "lessons" active, so re-select "background"
+      // before reading its narrative back.
+      await page.locator('[data-testid="a3-rail-background"]').click();
+      const backgroundNarrative = await page.locator('[data-testid="a3-narrative-background"]').inputValue();
+      assert(
+        backgroundNarrative.includes("Train the operators"),
+        `expected the background panel to seed from the real saved charter, got ${JSON.stringify(backgroundNarrative)}`,
+      );
+
+      // current_condition has no engine-backed source artifact (T-13 isn't
+      // a saved artifact) -- hand-typed, the same as a real author would.
+      await page.locator('[data-testid="a3-rail-current_condition"]').click();
+      await page.locator('[data-testid="a3-narrative-current_condition"]').fill(
+        "Order-to-handoff wait time averaged ~94.5s across 24 mornings, stable (I-MR, no signal).",
+      );
+    });
+
+    await step("fill realized benefits and save the A3 as an open draft", async () => {
+      await page.locator('[data-testid="a3-rail-results"]').click();
+      await page.locator('[data-testid="a3-rb-copq-ref"]').fill("copq");
+      await page.locator('[data-testid="a3-rb-window"]').fill("6 weeks post-rollout");
+      await page.locator('[data-testid="a3-save"]').click();
+      await page.locator('[data-testid="a3-version-badge"]').waitFor();
+      const badge = await page.locator('[data-testid="a3-version-badge"]').textContent();
+      assert(badge?.includes("v1"), `expected the first A3 save to land as v1, got ${JSON.stringify(badge)}`);
+    });
+
+    await step("load the FMEA close-check and confirm the unaddressed sev-9 row blocks closure", async () => {
+      await page.locator('[data-testid="a3-load-fmea-check"]').click();
+      // close_check is a server-computed field (a no-save /validate
+      // preview, not synchronous local state) -- the banner already
+      // exists from the prior save's "not blocked" default, so wait for
+      // its TEXT to actually change, not merely for the element to exist.
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("may NOT close"));
+      const text = await page.locator('[data-testid="a3-close-check-banner"]').textContent();
+      assert(
+        text?.includes("may NOT close") && text?.includes("Short pour incomplete fill"),
+        `expected the close check to block and name the FMEA row, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    await step("marking the project closed while blocked is refused", async () => {
+      await page.locator('[data-testid="a3-project-status-closed"]').check();
+      await page.locator('[data-testid="a3-save"]').click();
+      const err = page.locator('[data-testid="a3-close-blocked-error"]');
+      await err.waitFor();
+      const errText = await err.textContent();
+      assert(errText?.includes("R-WRAP-03"), `expected the close-blocked refusal to render, got ${JSON.stringify(errText)}`);
+      await page.locator('[data-testid="a3-project-status-closed"]').uncheck();
+    });
+
+    await step("go back to T-16 and add an action to the severity-9 row to clear the FMEA block", async () => {
+      await page.locator('[data-testid="nav-tool-T-16"]').click();
+      await page.locator('[data-testid="fmea-save"]').waitFor();
+      const row1 = page.locator('[data-testid="fmea-table"] tbody tr').nth(0);
+      await row1.locator('[data-testid$="-action"]').fill("Add a second injector-pressure check before mold");
+      await row1.locator('[data-testid$="-owner"]').fill("Sam Lee");
+      await page.locator('[data-testid="fmea-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="fmea-version-badge"]')?.textContent?.includes("v2"));
+      const bannerText = await page.locator('[data-testid="fmea-blocking-banner"]').textContent();
+      assert(
+        bannerText?.trim() === "",
+        `expected the FMEA blocking banner to clear once the sev-9 row has an action, got ${JSON.stringify(bannerText)}`,
+      );
+    });
+
+    await step("back on T-25, the close check clears and the project closes cleanly", async () => {
+      await page.locator('[data-testid="nav-tool-T-25"]').click();
+      await page.locator('[data-testid="a3-save"]').waitFor();
+      await page.locator('[data-testid="a3-load-fmea-check"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("No FMEA block on closure"));
+      const text = await page.locator('[data-testid="a3-close-check-banner"]').textContent();
+      assert(
+        text?.includes("No FMEA block on closure"),
+        `expected the close check to clear once the FMEA row is actioned, got ${JSON.stringify(text)}`,
+      );
+
+      await page.locator('[data-testid="a3-project-status-closed"]').check();
+      await page.locator('[data-testid="a3-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v2"));
+      const noErr = await page.locator('[data-testid="a3-close-blocked-error"]').count();
+      assert(noErr === 0, "expected no close-blocked error once the FMEA block cleared");
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;
