@@ -1,0 +1,45 @@
+.sigma-pilot-extra-changes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.sigma-pilot-extra-change-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.sigma-pilot-extra-change-row .sigma-input {
+  flex: 1;
+}
+
+.sigma-pilot-threshold-row {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.sigma-pilot-threshold-row > * {
+  min-width: 200px;
+}
+
+.sigma-pilot-confounder-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sigma-pilot-confounder-row .sigma-input {
+  flex: 1;
+}
+
+.sigma-pilot-save-row {
+  margin-top: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.sigma-pilot-status-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}

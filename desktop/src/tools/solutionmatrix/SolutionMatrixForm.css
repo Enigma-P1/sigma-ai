@@ -1,0 +1,125 @@
+.sigma-solmatrix-row {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.sigma-solmatrix-causes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-2);
+}
+.sigma-solmatrix-cause-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.sigma-solmatrix-manual-cause {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.sigma-solmatrix-linked-ids {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  list-style: none;
+  padding: 0;
+  margin: var(--space-1) 0 0;
+}
+.sigma-solmatrix-linked-ids li {
+  background: var(--color-accent-soft);
+  border-radius: var(--radius-sm);
+  padding: 0 var(--space-2);
+  font-size: var(--text-sm);
+}
+.sigma-solmatrix-linked-ids button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-faint);
+}
+
+.sigma-solmatrix-ratings {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.sigma-solmatrix-quadrant {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+}
+.sigma-solmatrix-weighted {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.sigma-solmatrix-criteria-scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.sigma-solmatrix-criterion-score {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+}
+
+.sigma-solmatrix-criteria-builder {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.sigma-solmatrix-criteria-empty {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.sigma-solmatrix-criterion-row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.sigma-solmatrix-save-row {
+  margin-top: var(--space-4);
+}
+
+.sigma-solmatrix-row-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.sigma-solmatrix-ranked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+}
+.sigma-solmatrix-ranked li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.sigma-solmatrix-rank-number {
+  font-weight: var(--weight-semibold);
+  min-width: 2ch;
+}
+.sigma-solmatrix-rank-name {
+  font-weight: var(--weight-semibold);
+}
+.sigma-solmatrix-rank-detail {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}

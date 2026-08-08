@@ -547,3 +547,99 @@ def make_time_study(**overrides: Any) -> dict[str, Any]:
     }
     base.update(overrides)
     return base
+
+
+# Hand-checkable weighted-matrix fixture (task brief): criteria cost(w=2)/
+# speed(w=3). s-1 scores cost=4,speed=5 -> weighted_total = 4*2 + 5*3 = 23.
+# s-2 scores cost=5,speed=2 -> weighted_total = 5*2 + 2*3 = 16. s-1 outranks
+# s-2 (23 > 16) despite s-2's higher impact/effort ratings -- weighted
+# total wins whenever a solution has one. s-3 is deliberately unlinked
+# (linked_cause_ids=[]) and unscored: the ranked-list/unlinked-flag fixture.
+def make_solution_matrix_criteria() -> list[dict[str, Any]]:
+    return [
+        {"criterion_id": "cost", "name": "Cost to implement", "weight": 2.0, "declared_at": TS},
+        {"criterion_id": "speed", "name": "Speed to roll out", "weight": 3.0, "declared_at": TS},
+    ]
+
+
+def make_solution_matrix_solutions() -> list[dict[str, Any]]:
+    return [
+        {
+            "solution_id": "s-1", "name": "Add fixture alignment checklist", "description": "Pre-shift checklist at the fixture station.",
+            "linked_cause_ids": ["c-1"], "impact": 4, "effort": 2,
+            "criterion_scores": [{"criterion_id": "cost", "score": 4, "scored_at": TS}, {"criterion_id": "speed", "score": 5, "scored_at": TS}],
+        },
+        {
+            "solution_id": "s-2", "name": "Replace the injector", "description": "Swap the drifting injector for a new unit.",
+            "linked_cause_ids": ["c-2"], "impact": 5, "effort": 5,
+            "criterion_scores": [{"criterion_id": "cost", "score": 5, "scored_at": TS}, {"criterion_id": "speed", "score": 2, "scored_at": TS}],
+        },
+        {
+            "solution_id": "s-3", "name": "Unlinked brainstorm idea", "description": "Not yet tied to a verified cause.",
+            "linked_cause_ids": [], "impact": 3, "effort": 3, "criterion_scores": [],
+        },
+    ]
+
+
+def make_solution_matrix(**overrides: Any) -> dict[str, Any]:
+    solutions = overrides.pop("solutions") if "solutions" in overrides else make_solution_matrix_solutions()
+    criteria = overrides.pop("criteria") if "criteria" in overrides else make_solution_matrix_criteria()
+    base = {
+        "schema_version": 1, "artifact_id": "solmatrix-001", "tool_id": "T-18",
+        "created_at": TS, "updated_at": TS, "solutions": solutions, "criteria": criteria,
+    }
+    base.update(overrides)
+    return base
+
+
+# Hand-checkable UNWEIGHTED fixture (no criteria -- impact-desc/effort-asc
+# fallback): s-a and s-b tie impact=5; s-a's lower effort (2 < 4) ranks it
+# first. s-c's impact=2 is lowest, so it ranks last regardless of effort.
+# Expected order: s-a, s-b, s-c.
+def make_unweighted_solutions() -> list[dict[str, Any]]:
+    return [
+        {"solution_id": "s-a", "name": "Quick label fix", "description": "", "linked_cause_ids": ["c-1"], "impact": 5, "effort": 2, "criterion_scores": []},
+        {"solution_id": "s-b", "name": "Bigger rework", "description": "", "linked_cause_ids": ["c-1"], "impact": 5, "effort": 4, "criterion_scores": []},
+        {"solution_id": "s-c", "name": "Low-value tweak", "description": "", "linked_cause_ids": ["c-2"], "impact": 2, "effort": 1, "criterion_scores": []},
+    ]
+
+
+def make_pilot_plan_confounder_checklist(**overrides: Any) -> dict[str, Any]:
+    base = {
+        "staffing": {"changed": False, "note": "No staffing changes planned during the pilot window."},
+        "season": {"changed": False, "note": "No seasonal demand shift expected in this window."},
+        "demand": {"changed": False, "note": "Order volume has been steady for six weeks."},
+        "measurement": {"changed": False, "note": "Same QC log, same operational definition as baseline."},
+        "other": {"changed": False, "note": "No other process changes planned."},
+    }
+    base.update(overrides)
+    return base
+
+
+def make_pilot_plan(**overrides: Any) -> dict[str, Any]:
+    """A complete, prescore-clean T-19 Pilot Plan -- one declared change,
+    matching the single entry in `changes` (the EXIT-10 trigger fixture is
+    built by appending a second entry to `changes` off this base, task
+    brief's own hand-checkable case)."""
+    statement = "Add a fixture alignment checklist before each shift"
+    changes = overrides.pop("changes") if "changes" in overrides else [{"change_id": "ch-1", "text": statement}]
+    confounder_checklist = overrides.pop("confounder_checklist") if "confounder_checklist" in overrides else make_pilot_plan_confounder_checklist()
+    base = {
+        "schema_version": 1, "artifact_id": "pilot-001", "tool_id": "T-19",
+        "created_at": TS, "updated_at": TS,
+        "the_one_change": {"statement": statement, "linked_solution_id": "s-1", "linked_cause_ids": ["c-1"]},
+        "changes": changes,
+        "comparison_design": {"kind": "before_period", "description": "Prior 4 weeks of Line-2 scrap-rate data before the checklist starts."},
+        "inclusion": {
+            "who_or_what": "Line 2, all three shifts",
+            "how_selected": "Line 2 is the only line with the fixture-alignment issue.",
+            "honesty_note": "Not randomized -- Line 2 was picked because it's the only line affected.",
+        },
+        "success_threshold": {"metric_ref": "line-2 scrap rate", "direction": "lower_is_better", "value": 4.5, "declared_at": TS},
+        "analysis_plan": {"expected_route": "welch_two_sample_t", "rationale": "Two independent time windows of continuous scrap-rate data."},
+        "falsification_line": "If scrap rate stays above 4.5% for two full weeks after rollout, the checklist did not fix it.",
+        "confounder_checklist": confounder_checklist,
+        "status": "designed",
+    }
+    base.update(overrides)
+    return base

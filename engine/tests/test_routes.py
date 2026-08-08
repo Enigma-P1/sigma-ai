@@ -5,7 +5,17 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from factories import make_charter, make_fishbone, make_fmea, make_picker, make_process_map, make_sipoc, make_voc_ctq
+from factories import (
+    make_charter,
+    make_fishbone,
+    make_fmea,
+    make_picker,
+    make_pilot_plan,
+    make_process_map,
+    make_sipoc,
+    make_solution_matrix,
+    make_voc_ctq,
+)
 from sigma_engine.main import app
 
 
@@ -257,6 +267,65 @@ def test_fmea_crud_and_prescore_via_registry(client):
     statuses = {r["check_id"]: r["status"] for r in prescore.json()}
     assert statuses["high_severity_without_action"] == "hard_flag"
     assert statuses["ratings_in_range"] == "pass"
+
+
+def test_solution_matrix_crud_and_prescore_via_registry(client):
+    """T-18 end-to-end through the generic registry-driven routes: the
+    ranked fix list and per-solution scores are computed server-side on
+    save, and the unlinked solution surfaces as a prescore flag."""
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    body = make_solution_matrix()
+    validated = client.post("/artifacts/T-18/validate", json=body)
+    assert validated.status_code == 200, validated.text
+    artifact = validated.json()["artifact"]
+    assert [r["solution_id"] for r in artifact["ranked_fix_list"]["value"]["ranked"]] == ["s-1", "s-2"]
+    assert artifact["ranked_fix_list"]["value"]["unlinked"][0]["solution_id"] == "s-3"
+
+    saved = client.post("/project/proj-1/artifacts/T-18", json=body)
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {"artifact_id": "solmatrix-001", "tool_id": "T-18", "version": 1}
+
+    loaded = client.get("/project/proj-1/artifacts/solmatrix-001")
+    assert loaded.json()["scores"]["value"][0]["weighted_total"] == 23.0
+
+    prescore = client.post("/prescore/T-18", json=body)
+    assert prescore.status_code == 200, prescore.text
+    statuses = {r["check_id"]: r["status"] for r in prescore.json()}
+    assert statuses["unlinked_solution_flags"] == "flag"
+    assert statuses["ranked_list_exists"] == "pass"
+
+
+def test_pilot_plan_crud_and_prescore_via_registry(client):
+    """T-19 end-to-end through the generic registry-driven routes, plus the
+    EXIT-10 refusal surfacing as a 422 at the /validate boundary -- the
+    same "engine refusal rendered" the desktop smoke asserts on."""
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    body = make_pilot_plan()
+    validated = client.post("/artifacts/T-19/validate", json=body)
+    assert validated.status_code == 200, validated.text
+
+    two_changes = make_pilot_plan(changes=[
+        {"change_id": "ch-1", "text": "Add a fixture alignment checklist before each shift"},
+        {"change_id": "ch-2", "text": "Also replace the injector at the same time"},
+    ])
+    refused = client.post("/artifacts/T-19/validate", json=two_changes)
+    assert refused.status_code == 422
+    assert "EXIT-10" in str(refused.json()["detail"])
+
+    saved = client.post("/project/proj-1/artifacts/T-19", json=body)
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {"artifact_id": "pilot-001", "tool_id": "T-19", "version": 1}
+
+    loaded = client.get("/project/proj-1/artifacts/pilot-001")
+    assert loaded.json()["the_one_change"]["statement"] == body["the_one_change"]["statement"]
+
+    prescore = client.post("/prescore/T-19", json=body)
+    assert prescore.status_code == 200, prescore.text
+    statuses = {r["check_id"]: r["status"] for r in prescore.json()}
+    assert statuses["checklist_completeness"] == "pass"
+    assert statuses["falsification_substance_heuristic"] == "pass"
 
 
 def test_gates_hard_block_and_override_refused(client):
