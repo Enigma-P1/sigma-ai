@@ -80,15 +80,29 @@ def _escape_attr(value: str) -> str:
     return value.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _defang_tag_literals(text: str) -> str:
+    # M5 exit red-team fix: a payload containing the literal tag text could
+    # otherwise END the untrusted region early and pose what follows as
+    # trusted (tag breakout). The angle bracket of any embedded
+    # open/close tag literal becomes its entity form -- content still
+    # readable, breakout syntactically impossible. Case-insensitive so
+    # </ARTIFACT_CONTENT> variants can't slip through.
+    return _TAG_LITERAL_RE.sub(lambda m: m.group(0).replace("<", "&lt;"), text)
+
+
+_TAG_LITERAL_RE = re.compile(r"</?artifact_content\b", re.IGNORECASE)
+
+
 def wrap_untrusted(content_id: str, text: str) -> str:
     """Wrap one piece of user-authored or imported content. `content_id`
-    is an attribute value (escaped), never interpreted as markup; `text` is
-    placed verbatim between open and close tags -- nothing about this
-    function tries to neutralize `text` itself (the wrapping IS the
-    defense: the system frame instructs the model to treat everything
-    between these tags as data, never instructions, regardless of its
-    contents)."""
-    return f'<artifact_content id="{_escape_attr(content_id)}" trust="{_UNTRUSTED_TRUST_LABEL}">\n{text}\n</artifact_content>'
+    is an attribute value (escaped), never interpreted as markup; `text`
+    keeps its content verbatim EXCEPT that embedded artifact_content tag
+    literals are defanged (angle bracket entity-escaped) so the payload can
+    never close its own region and pose following text as trusted -- the
+    wrapping plus that one substitution IS the defense: the system frame
+    instructs the model to treat everything between these tags as data,
+    never instructions, regardless of its contents."""
+    return f'<artifact_content id="{_escape_attr(content_id)}" trust="{_UNTRUSTED_TRUST_LABEL}">\n{_defang_tag_literals(text)}\n</artifact_content>'
 
 
 # ---- System prompt frame ----

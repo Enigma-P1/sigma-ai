@@ -231,13 +231,21 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
     except AdvisorCallFailed as exc:
         raise HTTPException(status_code=_CALL_FAILED_STATUS_CODE, detail=f"The Anthropic API call failed: {exc}") from exc
 
+    # M5 exit red-team fix: only surface REQUEST_ARTIFACT ids that actually
+    # exist in this project. The model's answer text can echo hostile
+    # artifact content (which may plant fake REQUEST_ARTIFACT lines), and
+    # the UI's confirm prompt must never offer an id the project doesn't
+    # hold -- filtering here keeps the confirm-first loop honest.
+    known_ids = set(store.load_project(body.project_id).artifact_index)
+    requested = [rid for rid in parse_requested_artifact_ids(answer_text) if rid in known_ids]
+
     return AdvisorAskResponse(
         mode=body.mode,
         answer=answer_text,
         structured=structured,
         unstructured_fallback=unstructured_fallback,
         budget_report=assembled.budget_report,
-        requested_artifact_ids=parse_requested_artifact_ids(answer_text),
+        requested_artifact_ids=requested,
     )
 
 
