@@ -1,10 +1,10 @@
-"""POST /advisor/ask, GET/PUT /advisor/settings, POST /advisor/status
-(PLAN §5, M5 unit 1 plumbing + M5 unit 2's five modes). The advisor is
-Layer 2 and strictly optional: every response here is a clean typed
-result even with no API key configured (client.py's AdvisorUnavailable
-renders as a 409, never a 500) -- and no other router in this engine ever
-imports from `advisor/`, so Layer 1 is unaffected regardless of what
-happens here.
+"""POST /advisor/ask, GET/PUT /advisor/settings, POST /advisor/status,
+POST /advisor/validate (PLAN §5, M5 unit 1 plumbing + M5 unit 2's five
+modes + M5 unit 3's validator pass). The advisor is Layer 2 and strictly
+optional: every response here is a clean typed result even with no API key
+configured (client.py's AdvisorUnavailable renders as a 409, never a 500)
+-- and no other router in this engine ever imports from `advisor/`, so
+Layer 1 is unaffected regardless of what happens here.
 
 M5 unit 2 adds mode-aware dispatch through advisor/modes.py's
 MODE_REGISTRY: every mode (including "generic", re-registered there so
@@ -14,6 +14,13 @@ whose output_parser (a Pydantic model, or None for a prose-only mode)
 decides whether the wire call goes through structured.run_structured_mode
 (one retry on a malformed response, never a 500 -- see that module) or
 the plain single client.ask() call every mode used before this unit.
+
+M5 unit 3 adds POST /advisor/validate (PLAN §5.3.6, anti-hallucination
+layer 6): the SAME "resolve config or 409" gate as /advisor/ask
+(_require_configured, unchanged, reused as-is) in front of
+advisor/validator.py's run_validator -- a second, cheaper-model call that
+flags free-text claims it can't trace to project data. It never blocks a
+save (validator.py's own module docstring); this route only ever reads.
 """
 
 from __future__ import annotations
@@ -21,7 +28,7 @@ from __future__ import annotations
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 from ..advisor import modes as modes_module
 from ..advisor.client import AdvisorCallFailed, AdvisorConfigured, AdvisorUnavailable
@@ -31,6 +38,7 @@ from ..advisor.context import AssembledContext, BudgetReport, parse_requested_ar
 from ..advisor.modes import AdvisorFocusRef, ModeSpec
 from ..advisor.settings_store import AdvisorSettings, AdvisorSettingsStore, mask_api_key
 from ..advisor.structured import run_structured_mode
+from ..advisor.validator import ValidatorReport, run_validator
 from ..artifacts.a3 import TollgatePhase
 from ..project_store import ProjectStore
 from .deps import get_store
@@ -222,6 +230,38 @@ def ask(body: AdvisorAskRequest, store: ProjectStore = Depends(get_store)) -> Ad
         budget_report=assembled.budget_report,
         requested_artifact_ids=parse_requested_artifact_ids(answer_text),
     )
+
+
+# ---- POST /advisor/validate (PLAN §5.3.6, M5 unit 3) ----
+
+
+class AdvisorValidateRequest(BaseModel):
+    project_id: str = Field(min_length=1)
+    tool_id: str = Field(min_length=1)
+    # The pre-save artifact body -- whatever the desktop would otherwise
+    # POST to /project/{project_id}/artifacts/{tool_id}. Untrusted like any
+    # other artifact content (validator.py wraps it, never this route).
+    body: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/validate", response_model=ValidatorReport)
+def validate(request: AdvisorValidateRequest, store: ProjectStore = Depends(get_store)) -> ValidatorReport:
+    """Same unavailable-when-no-key contract as POST /advisor/ask (409,
+    plain message) -- _require_configured is reused unchanged, not forked.
+    Never blocks a save: this route only reads and reports; nothing here
+    ever calls store.save_artifact. A tool_id not in ARTIFACT_REGISTRY, or
+    a project_id that doesn't exist, is a 404 (run_validator raises
+    FileNotFoundError for both -- see that function's docstring), matching
+    routes/artifacts.py's own "unknown tool_id" convention. A malformed
+    request body (missing project_id/tool_id) is a plain 422 from
+    AdvisorValidateRequest's own schema, no extra handling needed."""
+    config = _require_configured(store)
+    try:
+        return run_validator(request.project_id, request.tool_id, request.body, store, config=config)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except AdvisorCallFailed as exc:
+        raise HTTPException(status_code=_CALL_FAILED_STATUS_CODE, detail=f"The Anthropic API call failed: {exc}") from exc
 
 
 # ---- GET/PUT /advisor/settings ----

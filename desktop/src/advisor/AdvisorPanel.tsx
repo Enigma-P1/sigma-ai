@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import type { PillTone } from "../design/components";
 import { Button, Field, Panel, SelectInput, StatusPill, TextArea, TextInput, VerdictBanner } from "../design/components";
-import { askAdvisor, getAdvisorStatus } from "../api/client";
+import { askAdvisor, getAdvisorStatus, loadArtifact, validateAdvisor } from "../api/client";
 import { ApiError } from "../api/errors";
 import type {
   AdvisorAskRequest,
@@ -11,6 +12,8 @@ import type {
   AdvisorReviewCriterion,
   AdvisorTollgateAction,
   TollgatePhase,
+  ValidatorFlag,
+  ValidatorReport,
 } from "../api/types";
 import { TOLLGATE_PHASES } from "../api/types";
 import "./AdvisorPanel.css";
@@ -40,6 +43,21 @@ type AskState =
   | { phase: "idle" }
   | { phase: "asking" }
   | { phase: "answered"; response: AdvisorAskResponse }
+  | { phase: "error"; message: string };
+
+/** "Check my claims" (PLAN §5.3.6's validator pass, M5 unit 3) checks the
+ * last SAVED version of this tool's artifact, not necessarily whatever is
+ * currently unsaved in the form below it -- there is no single shared save
+ * path across the 24 tool forms (each builds its own save body inline; see
+ * the build report), so this reuses the same "current artifact" concept
+ * review/help_me_think/explain already read off `artifactId`, rather than
+ * threading live draft state through every tool screen. In practice this
+ * is rarely far from what's about to be saved. */
+type ValidateState =
+  | { phase: "idle" }
+  | { phase: "checking" }
+  | { phase: "checked"; report: ValidatorReport }
+  | { phase: "no_artifact" }
   | { phase: "error"; message: string };
 
 const MODE_LABELS: Record<AdvisorMode, string> = {
@@ -137,6 +155,7 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
   const [constraints, setConstraints] = useState(""); // remedy
   const [ask, setAsk] = useState<AskState>({ phase: "idle" });
   const [followUpPending, setFollowUpPending] = useState<string[]>([]);
+  const [validateState, setValidateState] = useState<ValidateState>({ phase: "idle" });
 
   useEffect(() => {
     let cancelled = false;
@@ -186,6 +205,32 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
     } catch (err) {
       setAsk({ phase: "error", message: err instanceof ApiError ? err.message : "The advisor call failed." });
       setFollowUpPending([]);
+    }
+  }
+
+  /** Loads this tool's last-saved artifact (same id review/help_me_think/
+   * explain already use) and sends it to POST /advisor/validate. A 404
+   * from the load means nothing has been saved for this tool yet -- an
+   * honest, distinct state from a real error. */
+  async function checkClaims() {
+    if (!artifactId) return;
+    setValidateState({ phase: "checking" });
+    let body: Record<string, unknown>;
+    try {
+      body = await loadArtifact(projectId, artifactId);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 404) {
+        setValidateState({ phase: "no_artifact" });
+      } else {
+        setValidateState({ phase: "error", message: err instanceof ApiError ? err.message : "Could not load the saved artifact." });
+      }
+      return;
+    }
+    try {
+      const report = await validateAdvisor({ project_id: projectId, tool_id: toolId, body });
+      setValidateState({ phase: "checked", report });
+    } catch (err) {
+      setValidateState({ phase: "error", message: err instanceof ApiError ? err.message : "The validator call failed." });
     }
   }
 
@@ -342,6 +387,37 @@ export function AdvisorPanel({ projectId, toolId, artifactId, onOpenSettings }: 
                   <Button variant="ghost" size="sm" onClick={() => setFollowUpPending([])}>
                     No thanks
                   </Button>
+                </div>
+              )}
+
+              {artifactId && (
+                <div className="sigma-advisor-panel__validator" data-testid="advisor-validator-section">
+                  <p className="sigma-advisor-panel__muted">
+                    Check the saved {toolId} artifact&apos;s free-text claims against your project data.
+                  </p>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={checkClaims}
+                    disabled={validateState.phase === "checking"}
+                    data-testid="advisor-check-claims-button"
+                  >
+                    {validateState.phase === "checking" ? "Checking…" : "Check my claims"}
+                  </Button>
+
+                  {validateState.phase === "no_artifact" && (
+                    <p className="sigma-advisor-panel__muted" data-testid="advisor-validator-no-artifact">
+                      Save this artifact at least once, then check its claims.
+                    </p>
+                  )}
+
+                  {validateState.phase === "error" && (
+                    <VerdictBanner tone="fail" headline="The validator call failed" detail={validateState.message} />
+                  )}
+
+                  {validateState.phase === "checked" && (
+                    <ValidatorResult report={validateState.report} onDismiss={() => setValidateState({ phase: "idle" })} />
+                  )}
                 </div>
               )}
             </div>
@@ -531,6 +607,65 @@ function RemedyResult({ remedies, toolId }: { remedies: AdvisorRemedyCandidate[]
           </li>
         ))}
       </ol>
+    </div>
+  );
+}
+
+const SEVERITY_LABEL: Record<ValidatorFlag["severity"], string> = {
+  cant_trace: "Can't trace",
+  contradicts: "Contradicts",
+};
+const SEVERITY_TONE: Record<ValidatorFlag["severity"], PillTone> = {
+  cant_trace: "flag",
+  contradicts: "fail",
+};
+
+/** The validator pass's result (PLAN §5.3.6, M5 unit 3): a dismissible
+ * flags list plus the fixed disclaimer, rendered from the report exactly
+ * as the engine sent it -- ValidatorReport.disclaimer, never UI copy of
+ * our own, so this can never drift from what the architecture doc
+ * promises. Zero flags is shown as a plain, unexcited line, not a "pass" —
+ * the whole point of the disclaimer is that a clean read here is not a
+ * guarantee. */
+function ValidatorResult({ report, onDismiss }: { report: ValidatorReport; onDismiss: () => void }) {
+  return (
+    <div className="sigma-advisor-panel__validator-result" data-testid="advisor-validator-result">
+      {report.unstructured_fallback && (
+        <VerdictBanner
+          tone="flag"
+          headline="The validator returned unstructured output"
+          detail="Saving is never blocked by this -- you can still save as-is."
+        />
+      )}
+
+      {!report.unstructured_fallback && report.flags.length === 0 && (
+        <p className="sigma-advisor-panel__muted" data-testid="advisor-validator-empty">
+          No claims flagged out of {report.checked_field_count} field(s) checked.
+        </p>
+      )}
+
+      {!report.unstructured_fallback && report.flags.length > 0 && (
+        <ul className="sigma-advisor-panel__validator-flags" data-testid="advisor-validator-flags-list">
+          {report.flags.map((f, i) => (
+            <li key={i} className="sigma-advisor-panel__validator-flag" data-testid={`advisor-validator-flag-${i}`}>
+              <div className="sigma-advisor-panel__validator-flag-head">
+                <StatusPill label={SEVERITY_LABEL[f.severity]} tone={SEVERITY_TONE[f.severity]} />
+                <span className="sigma-advisor-panel__validator-flag-field">{f.field_path}</span>
+              </div>
+              <p>&quot;{f.claim_text}&quot;</p>
+              <p className="sigma-advisor-panel__muted">{f.why_flagged}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <p className="sigma-advisor-panel__muted" data-testid="advisor-validator-disclaimer">
+        {report.disclaimer}
+      </p>
+
+      <Button variant="ghost" size="sm" onClick={onDismiss} data-testid="advisor-validator-dismiss">
+        Dismiss
+      </Button>
     </div>
   );
 }

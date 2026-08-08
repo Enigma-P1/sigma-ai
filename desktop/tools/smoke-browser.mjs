@@ -19,8 +19,11 @@
 // anywhere in this script. -> M5 unit 2: the five advisor modes' input
 // UI (mode picker, tollgate's phase picker, remedy's constraints box, and
 // that switching to review still shows the honest unconfigured state) --
-// still no live API call anywhere in this script. Fails on any uncaught
-// page error.
+// still no live API call anywhere in this script. -> M5 unit 3: the
+// validator pass's "Check my claims" surface is absent (not nagging) with
+// no key configured, same as every other advisor affordance here -- still
+// no live API call anywhere in this script. Fails on any uncaught page
+// error.
 //
 // Usage: node tools/smoke-browser.mjs
 // Env:   APP_URL (default http://localhost:1420)
@@ -1869,6 +1872,22 @@ async function main() {
       assert(
         (await page.locator('[data-testid="advisor-configured"]').count()) === 0,
         "must not show the configured ask box with no key in the test env",
+      );
+    });
+
+    // ---- M5 unit 3 (the validator pass, PLAN §5.3.6): "Check my claims"
+    // only renders inside the configured block (AdvisorPanel.tsx) -- with
+    // no key configured anywhere in this test's environment, it must not
+    // render at all, no nagging, same as the ask-submit button above. ----
+
+    await step("no key: the validator's \"Check my claims\" surface is absent, not nagging", async () => {
+      assert(
+        (await page.locator('[data-testid="advisor-check-claims-button"]').count()) === 0,
+        "must not show a Check my claims button while unconfigured",
+      );
+      assert(
+        (await page.locator('[data-testid="advisor-validator-section"]').count()) === 0,
+        "must not show any validator section at all while unconfigured",
       );
     });
 

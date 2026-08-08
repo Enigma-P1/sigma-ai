@@ -438,3 +438,132 @@ def test_ask_remedy_mode_with_no_fishbone_is_honest_not_a_500(client):
     resp = client.post("/advisor/ask", json={"project_id": "proj-1", "mode": "remedy"})
     assert resp.status_code == 200, resp.text
     assert resp.json()["structured"]["remedies"] == []
+
+
+# ---- POST /advisor/validate (M5 unit 3, PLAN §5.3.6): same unavailable/404
+# contract as /advisor/ask, reused via the same _require_configured -- these
+# only add what's specific to this route (its own request shape, and that a
+# save is never triggered). validator.py's own module-level tests
+# (test_advisor_validator.py) cover context assembly, the retry/fallback
+# contract, the disclaimer, and injection defense in depth. ----
+
+
+def test_validate_with_no_key_is_a_clean_409_not_a_500(client):
+    resp = client.post("/advisor/validate", json={"project_id": "whatever", "tool_id": "T-02", "body": {}})
+    assert resp.status_code == 409
+    assert resp.status_code != 500
+    assert "API key" in resp.json()["detail"]
+
+
+def test_validate_when_disabled_is_a_clean_409(client):
+    client.put("/advisor/settings", json={"api_key": "sk-ant-real1234", "enabled": False})
+    resp = client.post("/advisor/validate", json={"project_id": "whatever", "tool_id": "T-02", "body": {}})
+    assert resp.status_code == 409
+
+
+def test_validate_missing_fields_is_422(client):
+    _fully_configure(client)
+    assert client.post("/advisor/validate", json={"tool_id": "T-02", "body": {}}).status_code == 422
+    assert client.post("/advisor/validate", json={"project_id": "proj-1", "body": {}}).status_code == 422
+    # `body` itself is optional (defaults to {}) -- omitting it is not
+    # malformed, only the wrong TYPE for it is.
+    assert client.post("/advisor/validate", json={"project_id": "proj-1", "tool_id": "T-02", "body": "not-a-dict"}).status_code == 422
+
+
+def test_validate_missing_project_is_404_once_configured(client):
+    _fully_configure(client)
+    resp = client.post(
+        "/advisor/validate", json={"project_id": "no-such-project", "tool_id": "T-02", "body": make_copq()}
+    )
+    assert resp.status_code == 404
+
+
+def test_validate_unknown_tool_id_is_404_once_configured(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+    resp = client.post("/advisor/validate", json={"project_id": "proj-1", "tool_id": "T-99", "body": {}})
+    assert resp.status_code == 404
+    assert "T-99" in resp.json()["detail"]
+
+
+@respx.mock
+def test_validate_wire_call_happy_path_and_response_shape(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    flag_json = (
+        '```json\n{"flags": [{"field_path": "notes", "claim_text": "Scrap is the worst it has ever been.", '
+        '"why_flagged": "No historical baseline is given anywhere to compare against.", '
+        '"severity": "cant_trace"}], "checked_field_count": 2}\n```'
+    )
+    route = respx.post(ANTHROPIC_MESSAGES_URL).mock(return_value=_canned_message(flag_json))
+
+    resp = client.post(
+        "/advisor/validate",
+        json={"project_id": "proj-1", "tool_id": "T-02", "body": make_copq(notes="Scrap is the worst it has ever been.")},
+    )
+    assert resp.status_code == 200, resp.text
+    body = resp.json()
+    assert body["checked_field_count"] == 2
+    assert len(body["flags"]) == 1
+    assert body["flags"][0]["severity"] == "cant_trace"
+    assert body["unstructured_fallback"] is False
+    # The fixed disclaimer is a real response field, present on every call.
+    assert "not a guarantee" in body["disclaimer"]
+    assert "layers 1-5" in body["disclaimer"]
+
+    assert route.call_count == 1
+    wire_body = json.loads(route.calls[0].request.content)
+    assert wire_body["model"] == "claude-haiku-4-5-20251001"  # the cheap tier, not the advisor's main model
+    assert "sk-ant-real1234" not in json.dumps(wire_body)
+
+
+@respx.mock
+def test_validate_malformed_body_never_blocks_a_response_never_a_500(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    route = respx.post(ANTHROPIC_MESSAGES_URL).mock(
+        side_effect=[_canned_message("not json"), _canned_message("still not json")]
+    )
+    resp = client.post("/advisor/validate", json={"project_id": "proj-1", "tool_id": "T-02", "body": make_copq()})
+    assert resp.status_code == 200, resp.text  # never a 500
+    body = resp.json()
+    assert body["unstructured_fallback"] is True
+    assert body["flags"] == []
+    assert "not a guarantee" in body["disclaimer"]
+    assert route.call_count == 2
+
+
+@respx.mock
+def test_validate_maps_a_failed_upstream_call_to_502_not_500(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+
+    respx.post(ANTHROPIC_MESSAGES_URL).mock(
+        return_value=httpx.Response(
+            401, json={"type": "error", "error": {"type": "authentication_error", "message": "invalid x-api-key"}}
+        )
+    )
+    resp = client.post("/advisor/validate", json={"project_id": "proj-1", "tool_id": "T-02", "body": make_copq()})
+    assert resp.status_code == 502
+    assert resp.status_code != 500
+    assert "sk-ant-real1234" not in resp.text
+
+
+@respx.mock
+def test_validate_never_creates_or_changes_a_saved_artifact(client):
+    _fully_configure(client)
+    _create_project_and_copq(client)
+    before = client.get("/project/proj-1/info").json()["artifact_index"]
+
+    empty_flags_json = '```json\n{"flags": [], "checked_field_count": 1}\n```'
+    respx.post(ANTHROPIC_MESSAGES_URL).mock(return_value=_canned_message(empty_flags_json))
+    resp = client.post(
+        "/advisor/validate",
+        json={"project_id": "proj-1", "tool_id": "T-02", "body": make_copq(notes="A claim to check, not to save.")},
+    )
+    assert resp.status_code == 200, resp.text
+
+    after = client.get("/project/proj-1/info").json()["artifact_index"]
+    assert after == before  # the validator call saved nothing and changed nothing

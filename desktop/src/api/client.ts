@@ -12,6 +12,7 @@ import type {
   AdvisorSettingsResponse,
   AdvisorSettingsUpdateRequest,
   AdvisorStatusResponse,
+  AdvisorValidateRequest,
   ArtifactIndexEntry,
   BaselineResponse,
   Computed,
@@ -33,6 +34,7 @@ import type {
   ProjectMetadata,
   SampleSizeResponse,
   SmokeResponse,
+  ValidatorReport,
 } from "./types";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -390,6 +392,16 @@ export function putAdvisorSettings(body: AdvisorSettingsUpdateRequest): Promise<
  * route takes no request body, unlike every other POST in this file. */
 export function getAdvisorStatus(): Promise<AdvisorStatusResponse> {
   return request<AdvisorStatusResponse>("/advisor/status", { method: "POST" });
+}
+
+/** The validator pass (PLAN §5.3.6, anti-hallucination layer 6): a second,
+ * cheaper-model call that reads `body` against the project's own data and
+ * flags free-text claims it can't trace. Same 409-when-unconfigured
+ * contract as askAdvisor. Never blocks a save — this never saves anything
+ * itself; it's a separate, opt-in check the caller runs before its own
+ * save call. */
+export function validateAdvisor(body: AdvisorValidateRequest): Promise<ValidatorReport> {
+  return request<ValidatorReport>("/advisor/validate", postJson(body));
 }
 
 // ---- diagnostics (main.py) ----

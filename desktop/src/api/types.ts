@@ -2294,3 +2294,45 @@ export interface AdvisorStatusResponse {
   configured: boolean;
   model: string;
 }
+
+// ---- Validator pass (PLAN §5.3.6, anti-hallucination layer 6,
+// engine/sigma_engine/advisor/validator.py + routes/advisor.py's
+// POST /advisor/validate) -- a second, cheaper-model call that reads one
+// artifact's body against the project's own data and flags free-text
+// claims it can't trace. Never blocks a save: this is a separate, opt-in
+// check the UI calls before a save, not part of the save call itself. ----
+
+export type ValidatorSeverity = "cant_trace" | "contradicts";
+
+export interface ValidatorFlag {
+  field_path: string;
+  claim_text: string;
+  why_flagged: string;
+  severity: ValidatorSeverity;
+}
+
+export interface AdvisorValidateRequest {
+  project_id: string;
+  tool_id: string;
+  /** The artifact body to check -- whatever would otherwise be POSTed to
+   * /project/{project_id}/artifacts/{tool_id}. */
+  body: Record<string, unknown>;
+}
+
+export interface ValidatorReport {
+  flags: ValidatorFlag[];
+  /** The model's own count of how many free-text fields it examined --
+   * self-reported, not engine-computed. */
+  checked_field_count: number;
+  /** True exactly when the model's response failed to parse even after its
+   * one retry -- `flags` is [] in that case, not a reliable "nothing to
+   * flag" reading. */
+  unstructured_fallback: boolean;
+  /** The last attempt's raw answer text, always present. */
+  raw_answer: string;
+  /** Fixed disclaimer text (routes/advisor.py: same string on every call,
+   * flags or not) -- render this, don't write your own copy for it: "a
+   * heuristic reviewer, not a guarantee; zero flags does not mean this
+   * artifact is error-free." */
+  disclaimer: string;
+}
