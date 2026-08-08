@@ -617,6 +617,146 @@ async function main() {
       await toggle.click(); // pause
       assert(await toggle.getAttribute("data-playing") === "false", "expected the playback toggle to report data-playing=\"false\" after clicking Pause");
     });
+
+    // ---- M2 addition: T-08 Check Sheet / Tally -- 3 categories, 5 taps
+    // across 2 strata values, then to_dataset -> T-14 Pareto with zero
+    // re-entry. Fixture: Scratch x4, Crack x1 (Short pour declared but
+    // never tallied, an honest "flag" state prescore names, not exercised
+    // here) -- Scratch alone crosses the 80% vital-few line (4/5 = 80%),
+    // so the Pareto headline names Scratch cleanly with no tie. ----
+
+    await step("open T-08 and define 3 categories + 1 strata field", async () => {
+      await page.locator('[data-testid="nav-tool-T-08"]').click();
+      await page.locator('[data-testid="checksheet-save"]').waitFor();
+      await page.locator('[data-testid="checksheet-add-category"]').click();
+      await page.locator('[data-testid="checksheet-add-category"]').click();
+      await page.locator('[data-testid="checksheet-category-0-label"]').fill("Scratch");
+      await page.locator('[data-testid="checksheet-category-1-label"]').fill("Crack");
+      await page.locator('[data-testid="checksheet-category-2-label"]').fill("Short pour");
+      await page.locator('[data-testid="checksheet-add-strata"]').click();
+      await page.locator('[data-testid="checksheet-strata-0-label"]').fill("Shift");
+    });
+
+    await step("tally 5 taps across 2 strata values (morning: 3, afternoon: 2)", async () => {
+      await page.locator('[data-testid="checksheet-strata-add-0-input"]').fill("morning");
+      await page.locator('[data-testid="checksheet-strata-add-0-button"]').click();
+      await page.locator('[data-testid="checksheet-tap-0"]').click(); // Scratch
+      await page.locator('[data-testid="checksheet-tap-0"]').click(); // Scratch
+      await page.locator('[data-testid="checksheet-tap-1"]').click(); // Crack
+
+      await page.locator('[data-testid="checksheet-strata-add-0-input"]').fill("afternoon");
+      await page.locator('[data-testid="checksheet-strata-add-0-button"]').click();
+      await page.locator('[data-testid="checksheet-tap-0"]').click(); // Scratch
+      await page.locator('[data-testid="checksheet-tap-0"]').click(); // Scratch
+
+      const scratchCount = await page.locator('[data-testid="checksheet-count-0"]').textContent();
+      assert(numeric(scratchCount) === 4, `expected Scratch's tally to read 4, got ${JSON.stringify(scratchCount)}`);
+      const crackCount = await page.locator('[data-testid="checksheet-count-1"]').textContent();
+      assert(numeric(crackCount) === 1, `expected Crack's tally to read 1, got ${JSON.stringify(crackCount)}`);
+    });
+
+    await step("save T-08 and send it to Pareto (to_dataset, zero re-entry)", async () => {
+      await page.locator('[data-testid="checksheet-save"]').click();
+      await page.locator('[data-testid="checksheet-version-badge"]').waitFor();
+      await page.locator('[data-testid="checksheet-send-to-pareto"]').click();
+      await page.locator('[data-testid="checksheet-dataset-ready"]').waitFor();
+      const readyText = await page.locator('[data-testid="checksheet-dataset-ready"]').textContent();
+      assert(readyText?.includes("Exported 5 rows"), `expected the export confirmation to mention 5 rows, got ${JSON.stringify(readyText)}`);
+    });
+
+    await step("open in Pareto (T-14) and assert the right top category renders, with no re-typing", async () => {
+      await page.locator('[data-testid="checksheet-go-to-pareto"]').click();
+      await page.locator('[data-testid="chartset-pareto-column"]').waitFor();
+      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("category");
+
+      const headline = page.locator('[data-testid="chartset-pareto"] .sigma-verdict__headline');
+      await headline.waitFor();
+      const text = await headline.textContent();
+      assert(
+        text?.toLowerCase().includes("vital few") && text?.includes("Scratch"),
+        `expected the Pareto verdict headline to name Scratch as the vital few, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    // ---- M2 addition: T-09 Guided Time Study / Work Sampling. Brief note
+    // (doc conflict, disclosed): the task brief asked for "3 cycles with a
+    // hand-computable outlier" -- at n=3 the 1.5xIQR fence can never flag
+    // any point (proven: with sorted [a,b,c], Q1=(a+b)/2 and Q3=(b+c)/2 by
+    // construction always sit close enough to a/c that neither extreme can
+    // clear its own fence). Used n=5 instead -- the smallest n where every
+    // quartile lands on an exact array index (no interpolation) -- so the
+    // outlier badge assertion below is real, not fabricated. The stopwatch
+    // itself is still exercised (start/split/cancel) to prove it works;
+    // the 5 exact cycle times are entered/edited directly in the cycles
+    // table so the hand-computable assertions don't depend on wall-clock
+    // timing. Fixture is engine tests/test_artifacts_time_study.py's own
+    // 5-cycle set: steam-milk = [9, 8, 40, 10, 9]s (cycle 3 is the
+    // outlier), pull-shot = [11, 12, 12, 13, 13]s (clean). ----
+
+    await step("open T-09 and define 2 elements", async () => {
+      await page.locator('[data-testid="nav-tool-T-09"]').click();
+      await page.locator('[data-testid="timestudy-save"]').waitFor();
+      await page.locator('[data-testid="timestudy-add-element"]').click();
+      await page.locator('[data-testid="timestudy-element-0-name"]').fill("Steam milk");
+      await page.locator('[data-testid="timestudy-element-1-name"]').fill("Pull shot");
+    });
+
+    await step("exercise the stopwatch (start, one split, cancel) with no page errors", async () => {
+      await page.locator('[data-testid="timestudy-stopwatch-start"]').click();
+      await page.waitForTimeout(150);
+      await page.locator('[data-testid^="timestudy-split-"]').first().click();
+      await page.locator('[data-testid="timestudy-stopwatch-cancel"]').click();
+      // Cancelled, not finished -- no cycle committed, so it doesn't
+      // interfere with the exact hand-computable fixture entered next.
+      const rows = page.locator('[data-testid^="timestudy-cycle-"][data-testid$="-delete"]');
+      assert((await rows.count()) === 0, "expected the cancelled stopwatch cycle to leave zero committed cycles");
+    });
+
+    await step("enter the 5-cycle hand-computable fixture directly in the cycles table", async () => {
+      const steamTimes = [9, 8, 40, 10, 9];
+      const shotTimes = [11, 12, 12, 13, 13];
+      for (let i = 0; i < 5; i++) {
+        const cycleNumber = i + 1;
+        await page.locator('[data-testid="timestudy-add-cycle"]').click();
+        await page.locator(`[data-testid="timestudy-cycle-${cycleNumber}-elem-0"]`).fill(String(steamTimes[i]));
+        await page.locator(`[data-testid="timestudy-cycle-${cycleNumber}-elem-1"]`).fill(String(shotTimes[i]));
+      }
+      await page.locator('[data-testid="timestudy-cycle-3-note"]').fill("milk pitcher slipped, redone");
+    });
+
+    await step("save T-09 and assert the engine's exact mean + outlier badge render", async () => {
+      await page.locator('[data-testid="timestudy-save"]').click();
+      await page.locator('[data-testid="timestudy-version-badge"]').waitFor();
+      await page.locator('[data-testid="timestudy-stats-panel"]').waitFor();
+
+      const meanText = await page.locator('[data-testid="timestudy-stats-0-mean"]').textContent();
+      assert(numeric(meanText) === 15.2, `expected Steam milk's engine-computed mean to read 15.2s exactly, got ${JSON.stringify(meanText)}`);
+
+      const outlierBadge = page.locator('[data-testid="timestudy-outlier-0-3"]');
+      await outlierBadge.waitFor();
+      const badgeText = await outlierBadge.textContent();
+      assert(
+        badgeText?.includes("cycle 3") && badgeText?.includes("40.0s"),
+        `expected the outlier badge to name cycle 3 at 40.0s, got ${JSON.stringify(badgeText)}`,
+      );
+    });
+
+    await step("send Steam milk to baseline (to_dataset, zero re-entry) and confirm T-13 accepted it", async () => {
+      await page.locator('[data-testid="timestudy-send-to-baseline-0"]').click();
+      await page.locator('[data-testid="timestudy-dataset-ready-0"]').waitFor();
+      await page.locator('[data-testid="timestudy-go-to-baseline-0"]').click();
+
+      await page.locator('[data-testid="baseline-column-select"]').waitFor();
+      await page.waitForFunction(() => document.querySelector('[data-testid="baseline-column-select"]')?.value === "seconds");
+      const datasetLabel = await page.locator('[data-testid="baseline-dataset-select"]').locator("option:checked").textContent();
+      assert(datasetLabel?.includes("steam-milk"), `expected the preselected dataset to be Steam milk's export, got ${JSON.stringify(datasetLabel)}`);
+
+      await page.locator('[data-testid="baseline-usl-input"]').fill("30");
+      await page.locator('[data-testid="baseline-lsl-input"]').fill("0");
+      await page.locator('[data-testid="baseline-op-def-checkbox"]').check();
+      await page.locator('[data-testid="baseline-run"]').click();
+      await page.locator('[data-testid="baseline-stability-verdict"]').waitFor();
+    });
   } catch (err) {
     await finish(browser, false, err);
     return;

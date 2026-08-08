@@ -8,6 +8,7 @@ import { toolById } from "./tools";
 import { openProject } from "../api/client";
 import { ApiError } from "../api/errors";
 import { ToolRouter } from "../tools/ToolRouter";
+import type { DatasetPreset } from "../tools/ToolRouter";
 import type { Phase, ProjectMetadata } from "../api/types";
 import "./ProjectWorkspace.css";
 
@@ -27,6 +28,7 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
   const [activePhase, setActivePhase] = useState<Phase>("Intake");
   const [activeToolId, setActiveToolId] = useState<string | null>("T-01");
   const [refreshKey, setRefreshKey] = useState(0);
+  const [presetDataset, setPresetDataset] = useState<DatasetPreset | null>(null);
 
   const refresh = useCallback(() => {
     openProject(projectId)
@@ -53,11 +55,24 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
   function handleSelectTool(phase: Phase, toolId: string) {
     setActivePhase(phase);
     setActiveToolId(toolId);
+    setPresetDataset(null); // a normal rail navigation always clears any stale deep-link preset
   }
 
   function handleStuckNavigate(toolId: string) {
     const tool = toolById(toolId);
     if (tool) handleSelectTool(tool.phase, toolId);
+  }
+
+  /** T-08/T-09's "send to Pareto/baseline" deep link: jump straight to the
+   * target tool with the freshly-exported dataset preselected (M2 brief:
+   * "a simple navigation param") -- unlike handleSelectTool, this is the
+   * one path that's allowed to set presetDataset. */
+  function handleNavigateToDataset(toolId: string, datasetId: string) {
+    const tool = toolById(toolId);
+    if (!tool) return;
+    setActivePhase(tool.phase);
+    setActiveToolId(toolId);
+    setPresetDataset({ toolId, datasetId });
   }
 
   if (loadError) {
@@ -98,6 +113,8 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics }: Pro
                 gate={byPhase[activePhase]}
                 onGateOverridden={() => setRefreshKey((k) => k + 1)}
                 onSaved={handleSaved}
+                presetDataset={presetDataset}
+                onNavigateToDataset={handleNavigateToDataset}
               />
             ) : (
               <p className="sigma-workspace__empty">Pick a tool from the rail to get started.</p>

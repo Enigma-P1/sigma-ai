@@ -5,13 +5,16 @@ import "./BaselineForm.css";
 
 export interface BaselineFormProps {
   projectId: string;
+  /** T-09's "send to baseline" deep link (ToolRouter's DatasetPreset) --
+   * preselects the dataset (and its first numeric column) once it loads. */
+  initialDatasetId?: string;
 }
 
 /** T-13: pick dataset + column, enter spec limits, confirm the
  * operational definition — in that visible order — then run. Renders
  * BaselineResult faithfully; nothing here is computed client-side. */
-export function BaselineForm({ projectId }: BaselineFormProps) {
-  const f = useBaselineForm(projectId);
+export function BaselineForm({ projectId, initialDatasetId }: BaselineFormProps) {
+  const f = useBaselineForm(projectId, initialDatasetId);
 
   return (
     <Panel title="Baseline: Stability then Capability">

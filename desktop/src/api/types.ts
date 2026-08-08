@@ -436,6 +436,11 @@ export interface DatasetMeta {
   row_count: number;
   columns: ColumnInfo[];
   quality: QualityScanResult;
+  /** Provenance the other direction (T-08/T-09's zero-re-entry contract,
+   * rubric R-MEA-06 #3): which in-app artifact this dataset was
+   * materialized from. null for an ordinary CSV/XLSX upload. */
+  source_artifact_id?: string | null;
+  source_tool_id?: string | null;
 }
 
 export interface DatasetDetail {
@@ -863,4 +868,104 @@ export interface FloorPlanImageMeta {
 export interface FloorPlanDetail {
   meta: FloorPlanImageMeta;
   content_base64: string;
+}
+
+// ---- T-08 Check Sheet / Tally (artifacts/check_sheet.py) ----
+
+export interface CheckSheetCategory {
+  category_id: string;
+  label: string;
+}
+
+export interface StrataFieldDef {
+  key: string;
+  label: string;
+}
+
+export interface CheckSheetEntry {
+  entry_id: string;
+  category_id: string;
+  timestamp: string;
+  strata: Record<string, string>;
+  note: string;
+}
+
+export interface CheckSheetArtifact extends ArtifactBase {
+  tool_id: "T-08";
+  categories: CheckSheetCategory[];
+  strata_fields: StrataFieldDef[];
+  entries: CheckSheetEntry[];
+}
+
+// ---- T-09 Guided Time Study / Work Sampling (artifacts/time_study.py) ----
+
+export interface WorkElement {
+  element_id: string;
+  name: string;
+  description: string;
+}
+
+export interface ElementTime {
+  element_id: string;
+  seconds: number;
+}
+
+export interface TimeStudyCycle {
+  cycle_number: number;
+  element_times: ElementTime[];
+  observer_note: string;
+}
+
+export type WorkSamplingCategory = "working" | "waiting" | "moving" | "other";
+export const WORK_SAMPLING_CATEGORIES: WorkSamplingCategory[] = ["working", "waiting", "moving", "other"];
+
+export interface IntervalObservation {
+  observation_id: string;
+  timestamp: string;
+  category: WorkSamplingCategory;
+  note: string;
+}
+
+export interface WorkSamplingShare {
+  category: WorkSamplingCategory;
+  count: number;
+  share: number;
+}
+
+export interface WorkSamplingSummary {
+  total_observations: number;
+  shares: WorkSamplingShare[];
+}
+
+export type OutlierDirection = "low" | "high";
+
+export interface OutlierFlag {
+  cycle_number: number;
+  seconds: number;
+  direction: OutlierDirection;
+  fence_value: number;
+  reason: string;
+}
+
+export interface ElementStats {
+  element_id: string;
+  element_name: string;
+  n: number;
+  /** null below n=2 -- sample SD needs at least 2 observations. */
+  descriptive: DescriptiveStats | null;
+  outliers: OutlierFlag[];
+  below_recommended_cycles: boolean;
+  cycle_count_note: string;
+}
+
+export interface TimeStudyArtifact extends ArtifactBase {
+  tool_id: "T-09";
+  elements: WorkElement[];
+  cycles: TimeStudyCycle[];
+  interval_observations: IntervalObservation[];
+  /** Server-computed, never hand-typed -- present once the engine has
+   * echoed the artifact back (validate/save/load). */
+  element_stats?: Computed<ElementStats[]> | null;
+  /** null when there are no interval observations yet. */
+  work_sampling_summary?: Computed<WorkSamplingSummary> | null;
 }

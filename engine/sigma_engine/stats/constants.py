@@ -171,3 +171,21 @@ IMR_BASELINE_RECOMMENDED_N_CONVENTION = 30
 #   https://www.itl.nist.gov/div898/handbook/prc/section2/prc221.htm
 #   https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm
 SAMPLE_SIZE_DEFAULT_CONFIDENCE_LEVEL = 0.95
+
+# --- T-09 Guided Time Study / Work Sampling (artifacts/time_study.py) ------
+# Outlier fence: NIST/SEMATECH e-Handbook §7.1.6 "What are outliers in the
+# data?" -- "A point beyond an inner fence on either side is considered a
+# mild outlier," inner fences = Q1 - 1.5*IQR / Q3 + 1.5*IQR (same 1.5xIQR
+# convention as Tukey (1977), Exploratory Data Analysis, the origin of the
+# boxplot whisker rule):
+#   https://www.itl.nist.gov/div898/handbook/prc/section1/prc16.htm
+# Verified live 2026-08-08. Outliers found this way are flagged, never
+# dropped from the descriptive stats (rubric R-MEA-04: "never silently
+# deleted") -- see artifacts/time_study.py's compute_element_stats.
+TIME_STUDY_IQR_FENCE_MULTIPLIER = 1.5
+
+# Cycle-count guidance floor -- advisory (prescore flag), never a hard
+# block (PLAN §4.2's soft/hard split; a study can run smaller, it just
+# names the shortfall, matching rubric R-MEA-04's own worked example: "6
+# cycles; tool recommends 10 -- treat spread as rough").
+TIME_STUDY_MIN_CYCLES_GUIDANCE = 10

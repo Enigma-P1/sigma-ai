@@ -313,3 +313,85 @@ def make_charter(**overrides: Any) -> dict[str, Any]:
     }
     base.update(overrides)
     return base
+
+
+def make_check_sheet_categories() -> list[dict[str, Any]]:
+    return [
+        {"category_id": "cat-scratch", "label": "Scratch"},
+        {"category_id": "cat-crack", "label": "Crack"},
+        {"category_id": "cat-short-pour", "label": "Short pour"},
+    ]
+
+
+def make_check_sheet_entries() -> list[dict[str, Any]]:
+    return [
+        {"entry_id": "e1", "category_id": "cat-scratch", "timestamp": "2026-08-07T08:00:00", "strata": {"shift": "morning"}, "note": ""},
+        {"entry_id": "e2", "category_id": "cat-scratch", "timestamp": "2026-08-07T08:05:00", "strata": {"shift": "morning"}, "note": ""},
+        {"entry_id": "e3", "category_id": "cat-crack", "timestamp": "2026-08-07T13:00:00", "strata": {"shift": "afternoon"}, "note": "chipped on drop"},
+    ]
+
+
+def make_check_sheet(**overrides: Any) -> dict[str, Any]:
+    categories = overrides.pop("categories") if "categories" in overrides else make_check_sheet_categories()
+    strata_fields = overrides.pop("strata_fields") if "strata_fields" in overrides else [{"key": "shift", "label": "Shift"}]
+    entries = overrides.pop("entries") if "entries" in overrides else make_check_sheet_entries()
+    base = {
+        "schema_version": 1,
+        "artifact_id": "checksheet-001",
+        "tool_id": "T-08",
+        "created_at": TS,
+        "updated_at": TS,
+        "categories": categories,
+        "strata_fields": strata_fields,
+        "entries": entries,
+    }
+    base.update(overrides)
+    return base
+
+
+# Hand-computable 5-cycle fixture (task brief): element "steam-milk"'s times
+# [9, 8, 40, 10, 9] sort to [8, 9, 9, 10, 40] -- n=5 makes every quartile an
+# exact array index (no interpolation): Q1 = sorted[1] = 9, Q3 = sorted[3] =
+# 10, IQR = 1, fences = (9 - 1.5*1, 10 + 1.5*1) = (7.5, 11.5) -- cycle 3's
+# 40s is the one obvious outlier. Element "pull-shot" is a clean control:
+# [11, 12, 12, 13, 13] -> Q1=12, Q3=13, IQR=1, fences=(10.5, 14.5), nothing
+# flagged.
+def make_time_study_elements() -> list[dict[str, Any]]:
+    return [
+        {"element_id": "steam-milk", "name": "Steam milk", "description": "From pitcher-down to pitcher-up."},
+        {"element_id": "pull-shot", "name": "Pull shot", "description": "Grinder start to cup full."},
+    ]
+
+
+def make_time_study_cycles() -> list[dict[str, Any]]:
+    steam_times = [9, 8, 40, 10, 9]
+    shot_times = [11, 12, 12, 13, 13]
+    return [
+        {
+            "cycle_number": i + 1,
+            "element_times": [
+                {"element_id": "steam-milk", "seconds": steam_times[i]},
+                {"element_id": "pull-shot", "seconds": shot_times[i]},
+            ],
+            "observer_note": "milk pitcher slipped, redone" if i == 2 else "",
+        }
+        for i in range(5)
+    ]
+
+
+def make_time_study(**overrides: Any) -> dict[str, Any]:
+    elements = overrides.pop("elements") if "elements" in overrides else make_time_study_elements()
+    cycles = overrides.pop("cycles") if "cycles" in overrides else make_time_study_cycles()
+    interval_observations = overrides.pop("interval_observations") if "interval_observations" in overrides else []
+    base = {
+        "schema_version": 1,
+        "artifact_id": "timestudy-001",
+        "tool_id": "T-09",
+        "created_at": TS,
+        "updated_at": TS,
+        "elements": elements,
+        "cycles": cycles,
+        "interval_observations": interval_observations,
+    }
+    base.update(overrides)
+    return base

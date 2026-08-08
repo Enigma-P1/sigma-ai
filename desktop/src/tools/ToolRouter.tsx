@@ -15,12 +15,24 @@ import { SampleSizePanel } from "./samplesize/SampleSizePanel";
 import { MsaForm } from "./msa/MsaForm";
 import { ProcessMapForm } from "./processmap/ProcessMapForm";
 import { SpaghettiForm } from "./spaghetti/SpaghettiForm";
+import { CheckSheetForm } from "./checksheet/CheckSheetForm";
+import { TimeStudyForm } from "./timestudy/TimeStudyForm";
 import { BaselineForm } from "./baseline/BaselineForm";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
 import type { Phase, ProjectMetadata } from "../api/types";
+
+/** Deep-link param (M2 brief: "a simple navigation param"): set by
+ * CheckSheetForm/TimeStudyForm's "send to Pareto/baseline" once a
+ * to_dataset export succeeds, consumed by ChartSetScreen/BaselineForm to
+ * preselect that dataset -- ProjectWorkspace owns the state, clears it
+ * whenever the rail is used to navigate normally. */
+export interface DatasetPreset {
+  toolId: string;
+  datasetId: string;
+}
 
 export interface ToolRouterProps {
   toolId: string;
@@ -30,14 +42,17 @@ export interface ToolRouterProps {
   gate: CombinedGate | undefined;
   onGateOverridden: () => void;
   onSaved: () => void;
+  presetDataset?: DatasetPreset | null;
+  onNavigateToDataset?: (toolId: string, datasetId: string) => void;
 }
 
 /** Dispatches the active tool id to its real form (T-01..T-05, the whole
  * Intake+Define set this milestone completes) or an honest placeholder
  * (everything else), always inside the generic ToolScreen scaffold. */
-export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOverridden, onSaved }: ToolRouterProps) {
+export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOverridden, onSaved, presetDataset, onNavigateToDataset }: ToolRouterProps) {
   const tool = toolById(toolId);
   if (!tool) return null;
+  const presetFor = (id: string) => (presetDataset?.toolId === id ? presetDataset.datasetId : undefined);
 
   const screenProps = { toolId, toolName: tool.name, phase, projectId, gate, onGateOverridden };
 
@@ -100,6 +115,22 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
+  if (toolId === "T-08") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <CheckSheetForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToDataset={onNavigateToDataset} />
+      </ToolScreen>
+    );
+  }
+
+  if (toolId === "T-09") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <TimeStudyForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToDataset={onNavigateToDataset} />
+      </ToolScreen>
+    );
+  }
+
   if (toolId === "T-11") {
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
@@ -120,7 +151,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
   if (toolId === "T-13") {
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
-        <BaselineForm projectId={projectId} />
+        <BaselineForm projectId={projectId} initialDatasetId={presetFor("T-13")} />
       </ToolScreen>
     );
   }
@@ -128,7 +159,7 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
   if (toolId === "T-14") {
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
-        <ChartSetScreen projectId={projectId} />
+        <ChartSetScreen projectId={projectId} initialDatasetId={presetFor("T-14")} />
       </ToolScreen>
     );
   }
