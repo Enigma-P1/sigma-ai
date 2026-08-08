@@ -18,6 +18,7 @@ from pydantic import BaseModel
 
 from . import __version__
 from .routes import artifacts as artifacts_routes
+from .routes import check_sheet as check_sheet_routes
 from .routes import datasets as datasets_routes
 from .routes import export as export_routes
 from .routes import floorplans as floorplans_routes
@@ -25,6 +26,7 @@ from .routes import gates as gates_routes
 from .routes import prescore as prescore_routes
 from .routes import projects as projects_routes
 from .routes import stats as stats_routes
+from .routes import time_study as time_study_routes
 from .smoke import compute_smoke_result
 
 app = FastAPI(title="Sigma AI Engine", version=__version__)
@@ -37,6 +39,8 @@ app.include_router(export_routes.router)
 app.include_router(stats_routes.router)
 app.include_router(datasets_routes.router)
 app.include_router(floorplans_routes.router)
+app.include_router(check_sheet_routes.router)
+app.include_router(time_study_routes.router)
 
 # Must match the port the Tauri sidecar passes via --port (desktop/src-tauri/src/lib.rs).
 DEFAULT_PORT = 8756

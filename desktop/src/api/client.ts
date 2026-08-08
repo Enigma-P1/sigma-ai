@@ -285,6 +285,38 @@ export function getFloorPlan(projectId: string, imageId: string): Promise<FloorP
   return request<FloorPlanDetail>(`/project/${encodeURIComponent(projectId)}/floorplans/${encodeURIComponent(imageId)}`);
 }
 
+// ---- Check sheet (routes/check_sheet.py) — T-08 to_dataset action ----
+
+export interface ToDatasetRequestBody {
+  created_at: string;
+}
+
+/** Materializes a saved CheckSheetArtifact's entries as a stored project
+ * dataset (rubric R-MEA-06 #3: zero re-entry) -- the artifact must already
+ * be saved; this operates on the persisted version, not a client draft. */
+export function checkSheetToDataset(projectId: string, artifactId: string, body: ToDatasetRequestBody): Promise<DatasetMeta> {
+  return request<DatasetMeta>(
+    `/project/${encodeURIComponent(projectId)}/check-sheet/${encodeURIComponent(artifactId)}/to-dataset`,
+    postJson(body),
+  );
+}
+
+// ---- Time study (routes/time_study.py) — T-09 to_dataset action ----
+
+export interface TimeStudyToDatasetRequestBody {
+  element_id: string;
+  created_at: string;
+}
+
+/** Materializes one work element's recorded cycle times as a stored
+ * project dataset, feeding T-13 baseline with no re-typed copy. */
+export function timeStudyToDataset(projectId: string, artifactId: string, body: TimeStudyToDatasetRequestBody): Promise<DatasetMeta> {
+  return request<DatasetMeta>(
+    `/project/${encodeURIComponent(projectId)}/time-study/${encodeURIComponent(artifactId)}/to-dataset`,
+    postJson(body),
+  );
+}
+
 // ---- diagnostics (main.py) ----
 
 export function getHealth(): Promise<HealthResponse> {

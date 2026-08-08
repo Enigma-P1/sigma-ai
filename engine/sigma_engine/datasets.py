@@ -87,6 +87,14 @@ class DatasetMeta(BaseModel):
     row_count: int
     columns: list[ColumnInfo]
     quality: QualityScanResult
+    # Provenance the other direction (T-08/T-09's zero-re-entry contract,
+    # rubric R-MEA-06 #3): which in-app artifact this dataset was
+    # materialized from, if any. None for an ordinary CSV/XLSX upload --
+    # only a tool's own to_dataset action sets these (routes/check_sheet.py,
+    # routes/time_study.py). Optional with a default so every dataset saved
+    # before this field existed still loads unchanged.
+    source_artifact_id: str | None = None
+    source_tool_id: str | None = None
 
 
 # --- Parsing: CSV (stdlib) / XLSX (openpyxl) -> one common (header, rows) shape ---
@@ -263,6 +271,7 @@ class DatasetStore:
     def save_dataset(
         self, project_id: str, source_filename: str, content: bytes,
         type_overrides: dict[str, str] | None, created_at: str,
+        source_artifact_id: str | None = None, source_tool_id: str | None = None,
     ) -> DatasetMeta:
         self.projects.load_project(project_id)  # FileNotFoundError -> 404 at the route layer
         header, rows = parse_upload(content, source_filename)
@@ -273,6 +282,7 @@ class DatasetStore:
             dataset_id=uuid.uuid4().hex, project_id=project_id, source_filename=source_filename,
             created_at=created_at, sha256=hashlib.sha256(csv_bytes).hexdigest(),
             row_count=len(rows), columns=columns, quality=quality,
+            source_artifact_id=source_artifact_id, source_tool_id=source_tool_id,
         )
         d = self._dataset_dir(project_id, meta.dataset_id)
         _atomic_write(d / "v1.csv", csv_bytes)

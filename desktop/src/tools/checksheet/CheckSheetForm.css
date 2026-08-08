@@ -1,0 +1,137 @@
+.sigma-checksheet-setup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.sigma-checksheet-setup__title {
+  font-weight: var(--weight-semibold);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-checksheet-setup__row {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-checksheet-setup__row > *:first-child {
+  flex: 1;
+}
+
+.sigma-checksheet-setup__remove {
+  background: none;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  height: 2.25rem;
+  width: 2.25rem;
+}
+
+.sigma-checksheet-tally__strata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-checksheet-strata__label {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-1);
+}
+
+.sigma-checksheet-strata__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-checksheet-chip {
+  border: var(--border-width) solid var(--color-border-strong);
+  background: var(--color-surface);
+  border-radius: var(--radius-pill);
+  padding: var(--space-1) var(--space-3);
+  cursor: pointer;
+  font-size: var(--text-sm);
+}
+
+.sigma-checksheet-chip--active {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-accent-hover);
+  font-weight: var(--weight-semibold);
+}
+
+.sigma-checksheet-strata__add {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.sigma-checksheet-tally__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.sigma-checksheet-tally__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 5.5rem;
+  border: 2px solid var(--color-accent-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--motion-fast);
+}
+
+.sigma-checksheet-tally__button:active {
+  background: var(--color-accent-soft);
+}
+
+.sigma-checksheet-tally__label {
+  font-weight: var(--weight-medium);
+  text-align: center;
+}
+
+.sigma-checksheet-tally__count {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}
+
+.sigma-checksheet-entries__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 2fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2) 0;
+  border-bottom: var(--border-width) solid var(--color-border);
+  font-size: var(--text-sm);
+}
+
+.sigma-checksheet-entries__delete {
+  background: none;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  padding: var(--space-1) var(--space-2);
+}
+
+.sigma-checksheet-entries__delete--confirm {
+  background: var(--color-fail-soft);
+  border-color: var(--color-fail-border);
+  color: var(--color-fail);
+}
+
+.sigma-checksheet-export {
+  margin-top: var(--space-5);
+}

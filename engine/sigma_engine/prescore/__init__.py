@@ -1,6 +1,7 @@
 """Rule-based rubric pre-score checks, one module per Define/Intake tool."""
 
 from .charter import run_charter_prescore
+from .check_sheet import run_check_sheet_prescore
 from .common import PrescoreResult
 from .copq import run_copq_prescore
 from .msa import run_msa_prescore
@@ -8,16 +9,19 @@ from .picker import run_picker_prescore
 from .process_map import run_process_map_prescore
 from .sipoc import run_sipoc_prescore
 from .spaghetti import run_spaghetti_prescore
+from .time_study import run_time_study_prescore
 from .voc_ctq import run_voc_ctq_prescore
 
 __all__ = [
     "PrescoreResult",
     "run_charter_prescore",
+    "run_check_sheet_prescore",
     "run_copq_prescore",
     "run_msa_prescore",
     "run_picker_prescore",
     "run_process_map_prescore",
     "run_sipoc_prescore",
     "run_spaghetti_prescore",
+    "run_time_study_prescore",
     "run_voc_ctq_prescore",
 ]

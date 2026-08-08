@@ -7,10 +7,18 @@ import { parseSpecLimit } from "./baselineLogic";
 /** T-13's state + engine wiring. The enforced order (spec limits +
  * operational definition before anything runs) is a UI-layout concern
  * (BaselineForm.tsx renders the sections in that order and gates Run on
- * it) — this hook just holds the values and makes the one call. */
-export function useBaselineForm(projectId: string) {
+ * it) — this hook just holds the values and makes the one call.
+ * `initialDatasetId` is the T-08/T-09 deep-link preset (ToolRouter's
+ * DatasetPreset): applied once, the first time it appears in the fetched
+ * dataset list, so a manual re-selection afterward isn't fought. */
+export function useBaselineForm(projectId: string, initialDatasetId?: string) {
   const [datasets, setDatasets] = useState<DatasetMeta[]>([]);
-  const [datasetId, setDatasetId] = useState<string>("");
+  const [datasetId, setDatasetIdRaw] = useState<string>("");
+  const [presetApplied, setPresetApplied] = useState(false);
+  function setDatasetId(id: string) {
+    setPresetApplied(true); // a manual pick always counts as "handled," even if it matches the preset
+    setDatasetIdRaw(id);
+  }
   const [column, setColumn] = useState<string>("");
   const [uslText, setUslText] = useState("");
   const [lslText, setLslText] = useState("");
@@ -30,6 +38,21 @@ export function useBaselineForm(projectId: string) {
         /* an empty picker is still an honest state -- T-11 hasn't been used yet */
       });
   }, [projectId]);
+
+  useEffect(() => {
+    if (presetApplied || !initialDatasetId) return;
+    const preset = datasets.find((d) => d.dataset_id === initialDatasetId);
+    if (!preset) return; // not loaded yet -- try again once `datasets` updates
+    setPresetApplied(true);
+    setDatasetIdRaw(preset.dataset_id);
+    const numericCols = preset.columns.filter((c) => c.type === "numeric");
+    // T-09's per-element export (routes/time_study.py) carries both
+    // cycle_number and seconds as numeric columns -- prefer the one
+    // actually named "seconds" (that tool's documented export contract)
+    // over whichever numeric column happens to come first in the CSV.
+    const preferred = numericCols.find((c) => c.name === "seconds") ?? numericCols[0];
+    if (preferred) setColumn(preferred.name);
+  }, [datasets, initialDatasetId, presetApplied]);
 
   const selectedDataset = datasets.find((d) => d.dataset_id === datasetId) ?? null;
   const numericColumns = selectedDataset?.columns.filter((c) => c.type === "numeric") ?? [];
