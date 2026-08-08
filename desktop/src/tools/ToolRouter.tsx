@@ -13,6 +13,7 @@ import { vocCtqHelperContent } from "./voc_ctq/vocCtqContent";
 import { DataImportForm } from "./dataimport/DataImportForm";
 import { SampleSizePanel } from "./samplesize/SampleSizePanel";
 import { MsaForm } from "./msa/MsaForm";
+import { ProcessMapForm } from "./processmap/ProcessMapForm";
 import { BaselineForm } from "./baseline/BaselineForm";
 import { ChartSetScreen } from "./chartset/ChartSetScreen";
 import { placeholderHelperContent } from "./helperFrameTypes";
@@ -79,9 +80,17 @@ export function ToolRouter({ toolId, phase, projectId, project, gate, onGateOver
     );
   }
 
-  // T-11/T-12/T-13/T-14 (M2): real engine-backed forms, but helper-frame
-  // content stays PLACEHOLDER this milestone -- a content unit follows,
-  // same as every not-yet-content-written tool.
+  // T-06/T-11/T-12/T-13/T-14 (M2): real engine-backed forms, but
+  // helper-frame content stays PLACEHOLDER this milestone -- a content
+  // unit follows, same as every not-yet-content-written tool.
+  if (toolId === "T-06") {
+    return (
+      <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>
+        <ProcessMapForm projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
   if (toolId === "T-11") {
     return (
       <ToolScreen {...screenProps} helperContent={placeholderHelperContent(tool.id, tool.name)}>

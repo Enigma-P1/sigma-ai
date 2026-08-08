@@ -31,7 +31,7 @@ export const TOOLS: ToolDef[] = [
   { id: "T-05", name: "VoC → CTQ Tree", phase: "Define", live: true, hasForm: true },
 
   // Measure
-  { id: "T-06", name: "Process Map (swimlane) + Waste Walk", phase: "Measure", live: false, hasForm: false },
+  { id: "T-06", name: "Process Map (swimlane) + Waste Walk", phase: "Measure", live: true, hasForm: true },
   { id: "T-07", name: "Spaghetti Diagram (interactive)", phase: "Measure", live: false, hasForm: false },
   { id: "T-08", name: "Check Sheet / Tally", phase: "Measure", live: false, hasForm: false },
   { id: "T-09", name: "Guided Time Study / Work Sampling", phase: "Measure", live: false, hasForm: false },

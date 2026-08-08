@@ -235,6 +235,98 @@ export interface SipocArtifact extends ArtifactBase {
   scope_end: string;
 }
 
+// ---- T-06 Process Map (swimlane) + Waste Walk (artifacts/process_map.py) ----
+
+export type StepType = "value_add" | "non_value_add" | "enabling";
+export const STEP_TYPES: StepType[] = ["value_add", "non_value_add", "enabling"];
+
+// The 8 canonical lean wastes (DOWNTIME) -- matrix §3a 1.4.4: "T-06 waste
+// walk uses the 8-waste superset."
+export type WasteId =
+  | "defects"
+  | "overproduction"
+  | "waiting"
+  | "non_utilized_talent"
+  | "transportation"
+  | "inventory"
+  | "motion"
+  | "extra_processing";
+
+export const WASTE_IDS: WasteId[] = [
+  "defects",
+  "overproduction",
+  "waiting",
+  "non_utilized_talent",
+  "transportation",
+  "inventory",
+  "motion",
+  "extra_processing",
+];
+
+export interface ProcessMapLane {
+  lane_id: string;
+  name: string;
+  owner: string;
+}
+
+export interface WasteEntry {
+  waste_id: WasteId;
+  note: string;
+}
+
+export interface ProcessMapStep {
+  step_id: string;
+  lane_id: string;
+  name: string;
+  order: number;
+  step_type: StepType;
+  reason: string;
+  time_minutes?: number | null;
+  defect_point: boolean;
+  strata: string[];
+  wastes: WasteEntry[];
+}
+
+export interface ProcessMapConnector {
+  from_step: string;
+  to_step: string;
+  label?: string | null;
+}
+
+export interface StepPosition {
+  x: number;
+  y: number;
+}
+
+export interface DemandBlock {
+  available_time_minutes?: number | null;
+  demand_units?: number | null;
+}
+
+export interface BottleneckResult {
+  bottleneck_step_id: string;
+  bottleneck_step_name: string;
+  bottleneck_time_minutes: number;
+  pace_minutes_per_unit: number;
+  meets_pace: boolean;
+}
+
+export interface ProcessMapArtifact extends ArtifactBase {
+  tool_id: "T-06";
+  lanes: ProcessMapLane[];
+  steps: ProcessMapStep[];
+  connectors: ProcessMapConnector[];
+  demand?: DemandBlock | null;
+  /** Keyed by step_id -- opaque display data, round-tripped, never
+   * interpreted by the engine (M2 brief). */
+  layout: Record<string, StepPosition>;
+  /** Server-computed (matrix §5a A-7), never hand-typed -- present once the
+   * engine has echoed the artifact back (validate/save/load). Null means
+   * "nothing to name yet" (demand incomplete, or no step has a time), not
+   * an error. */
+  bottleneck?: Computed<BottleneckResult> | null;
+}
+
 // ---- T-05 VoC -> CTQ Tree (artifacts/voc_ctq.py) ----
 
 export type CtqDirection = "higher_is_better" | "lower_is_better" | "target_is_best";

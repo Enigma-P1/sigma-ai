@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from factories import make_charter, make_picker, make_sipoc, make_voc_ctq
+from factories import make_charter, make_picker, make_process_map, make_sipoc, make_voc_ctq
 from sigma_engine.main import app
 
 
@@ -166,6 +166,31 @@ def test_project_info_returns_absolute_path_and_artifact_summary(client, tmp_pat
     assert Path(body["folder_path"]) == (tmp_path / "projects" / "proj-1").resolve()
 
     assert client.get("/project/no-such-project/info").status_code == 404
+
+
+def test_process_map_crud_and_prescore_via_registry(client):
+    """T-06 end-to-end through the generic registry-driven routes: validate,
+    save (bottleneck computed server-side), load, and prescore."""
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    body = make_process_map(demand={"available_time_minutes": 480, "demand_units": 96})
+    validated = client.post("/artifacts/T-06/validate", json=body)
+    assert validated.status_code == 200, validated.text
+    assert validated.json()["artifact"]["bottleneck"]["value"]["bottleneck_step_id"] == "step-2"
+
+    saved = client.post("/project/proj-1/artifacts/T-06", json=body)
+    assert saved.status_code == 200, saved.text
+    assert saved.json() == {"artifact_id": "process-map-001", "tool_id": "T-06", "version": 1}
+
+    loaded = client.get("/project/proj-1/artifacts/process-map-001")
+    assert loaded.status_code == 200
+    assert loaded.json()["bottleneck"]["value"]["meets_pace"] is True
+
+    prescore = client.post("/prescore/T-06", json=body)
+    assert prescore.status_code == 200, prescore.text
+    statuses = {r["check_id"]: r["status"] for r in prescore.json()}
+    assert statuses["lane_owner_present"] == "pass"
+    assert statuses["bottleneck_fields_consistency"] == "pass"
 
 
 def test_gates_hard_block_and_override_refused(client):
