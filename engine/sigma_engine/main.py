@@ -16,9 +16,12 @@ and otherwise unrelated to every router above it.
 from __future__ import annotations
 
 import argparse
+import logging
+import traceback
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import __version__
@@ -38,6 +41,46 @@ from .smoke import compute_smoke_result
 
 app = FastAPI(title="Sigma AI Engine", version=__version__)
 
+logger = logging.getLogger("sigma_engine")
+
+
+# Registered BEFORE CORSMiddleware below, which matters: Starlette's
+# add_middleware inserts at the front of the user stack, so the LAST one
+# added is the outermost. Being inside CORSMiddleware is the whole point of
+# this handler.
+#
+# Why it exists: an unhandled exception in a route is normally turned into a
+# 500 by Starlette's ServerErrorMiddleware, which sits ABOVE the user
+# middleware stack -- so that 500 skips CORSMiddleware entirely and reaches
+# the packaged webview with no Access-Control-Allow-Origin. The browser then
+# blocks it, fetch() rejects, and desktop/src/api/client.ts's request()
+# reports "Could not reach the engine (...)" -- i.e. a real server bug is
+# shown to the user as a transport failure, which is the same misdiagnosis
+# class as the "engine didn't start" report that cost the first installed
+# build. Through the Vite dev proxy the identical 500 renders correctly with
+# its detail, which is precisely why no dev-mode test could catch this.
+#
+# Catching here (inside CORS) means the 500 carries CORS headers and the app
+# renders it as the server error it is. The traceback is still logged, so
+# the sidecar log keeps the full diagnostic it had before.
+@app.middleware("http")
+async def surface_server_errors_with_cors(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception:  # noqa: BLE001 -- deliberately broad; re-raising would
+        # hand the response back to ServerErrorMiddleware, outside CORS.
+        logger.error(
+            "Unhandled error handling %s %s\n%s",
+            request.method,
+            request.url.path,
+            traceback.format_exc(),
+        )
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "The engine hit an internal error. See the sidecar log for the traceback."},
+        )
+
+
 # The packaged desktop app's webview makes cross-origin requests to this
 # engine (its origin is http://tauri.localhost on Windows / tauri://localhost
 # elsewhere; the engine's is 127.0.0.1:PORT), so the browser sends a CORS
@@ -48,12 +91,25 @@ app = FastAPI(title="Sigma AI Engine", version=__version__)
 # no test exercised it). The engine binds 127.0.0.1 only and uses no
 # cookies/credentials, so a permissive origin policy is safe here: nothing
 # off the local loopback can reach it regardless.
+#
+# allow_private_network=True is not optional decoration. Chromium's Private
+# Network Access rules make a page fetching a MORE-private address space
+# (here: loopback) send `Access-Control-Request-Private-Network: true` on the
+# preflight, and Starlette's CORSMiddleware DEFAULTS THAT TO FALSE -- it
+# answers such a preflight with 400 "Disallowed CORS private-network", which
+# the app reports as "Could not reach the engine". The packaged app is
+# exactly this shape (webview page -> 127.0.0.1 sidecar) and, on Windows,
+# its page is served by WebView2's custom scheme handler, which has no IP
+# for Chromium to classify by. Nothing in dev sends that request header, so
+# a 400 here is invisible until it is an installed app in a user's hands --
+# the same shape as the two bugs that already cost a build each.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_private_network=True,
 )
 
 app.include_router(projects_routes.router)
