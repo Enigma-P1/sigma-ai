@@ -115,16 +115,35 @@ warnings you will see and how to get past them:
 [Windows install guide](docs/install-windows.md) ·
 [Mac install guide](docs/install-mac.md).
 
-**Run from source (developers).** Requires Python 3.11+ and Node 22+.
+**Run from source (developers).** Requires Python 3.11+ and Node 22+. Use two
+terminals — the engine keeps running in the first while you work in the second.
+
+macOS / Linux:
 
 ```bash
-# 1. Engine (FastAPI + SciPy) on port 8000
+# Terminal 1 — engine (FastAPI + SciPy) on port 8000
 cd engine
 python3 -m venv .venv
 .venv/bin/pip install -e ".[dev]"
 .venv/bin/python -m uvicorn sigma_engine.main:app --port 8000
 
-# 2. Desktop UI (Vite dev server on port 1420, proxies to the engine)
+# Terminal 2 — desktop UI (Vite dev server on port 1420, proxies to the engine)
+cd desktop
+npm install
+npm run dev
+```
+
+Windows (PowerShell) — the venv lives in `.venv\Scripts\`, not `.venv/bin/`, and
+PowerShell has no `&&`, so run these one line at a time:
+
+```powershell
+# Terminal 1 — engine
+cd engine
+python -m venv .venv
+.venv\Scripts\pip install -e ".[dev]"
+.venv\Scripts\python -m uvicorn sigma_engine.main:app --port 8000
+
+# Terminal 2 — desktop UI
 cd desktop
 npm install
 npm run dev
@@ -135,7 +154,8 @@ browser tab, build the sidecar first, then run Tauri dev (needs a Rust
 toolchain): `scripts/build-sidecar.sh` from the repo root, then
 `cd desktop && npm run tauri dev`.
 
-**Run the proof yourself:**
+**Run the proof yourself** (macOS / Linux paths; on Windows use
+`.venv\Scripts\python`):
 
 ```bash
 cd engine && .venv/bin/python -m pytest          # 1412 tests, NIST-anchored
