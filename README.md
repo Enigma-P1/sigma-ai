@@ -106,13 +106,14 @@ checklist, never instead of it.
 
 ## Quickstart
 
-**Installers (Windows + Mac).** CI builds a Windows `.msi` + `.exe` (NSIS)
-and a Mac `.dmg` on every push to `main`
-([workflow](.github/workflows/build.yml)). Download them from the latest
-green run on the repo's Actions tab — artifacts `sigma-ai-windows-installers`
-and `sigma-ai-mac-installer`. Step-by-step guides, including the unsigned-app
-warnings you will see and how to get past them:
-[Windows install guide](docs/install-windows.md) ·
+**Installers (Windows + Mac).** Download the Windows `.msi`/`.exe` (NSIS) or
+the Mac `.dmg` from the repo's **[Releases](../../releases)** page — one clean
+download page, no login-gated artifact hunting. Tagging a version (`vX.Y.Z`)
+builds the installers and publishes them there
+([release workflow](.github/workflows/release.yml); the same installers are
+also built on every push to `main` via the [build workflow](.github/workflows/build.yml)).
+Step-by-step guides, including the unsigned-app warnings you will see and how
+to get past them: [Windows install guide](docs/install-windows.md) ·
 [Mac install guide](docs/install-mac.md).
 
 **Run from source (developers).** Requires Python 3.11+ and Node 22+. Use two

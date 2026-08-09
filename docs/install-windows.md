@@ -5,20 +5,20 @@ Python, no command line — the installer carries everything the app needs.
 
 ## 1. Download the installer
 
-Installers are built by the project's CI (the automated build system) on
-every push to `main`. There is no separate downloads page yet, so you fetch
-them from GitHub:
-
-1. Sign in to GitHub (downloading build artifacts requires a GitHub account).
-2. Open the repo's **Actions** tab and click the most recent **build** run
-   with a green check mark.
-3. At the bottom of the run page, under **Artifacts**, download
-   **`sigma-ai-windows-installers`** and unzip it. Inside are two installers
-   that produce the same app:
-   - a **`.msi`** — the standard Windows installer package. Pick this one if
+1. Sign in to GitHub (this is a private repo, so downloads need an account
+   with access).
+2. Go to the repo's **Releases** page — click **Releases** in the right-hand
+   sidebar of the repo home page, or add `/releases` to the repo URL.
+3. On the newest release, under **Assets**, download one of the Windows
+   installers (both produce the same app):
+   - the **`.msi`** — the standard Windows installer package. Pick this one if
      unsure.
-   - a **`.exe`** (NSIS setup program) — useful if your machine's policy
+   - the **`.exe`** (NSIS setup program) — useful if your machine's policy
      blocks `.msi` files.
+
+That's the whole download. (Installers are also built on every push to `main`
+and parked in the **Actions** tab under **Artifacts** — that's a developer
+fallback, not the place to go; the Releases page above is the real download.)
 
 ## 2. Run the installer
 
