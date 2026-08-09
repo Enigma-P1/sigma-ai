@@ -48,3 +48,48 @@ def test_smoke_endpoint_returns_match_true():
     assert body["dataset"] == "Lew"
     assert body["n"] == 200
     assert body["mean"] == compute_smoke_result()["mean"]
+
+
+# The packaged desktop webview is a different origin from the 127.0.0.1
+# engine, so every real call is preceded by a CORS preflight OPTIONS. These
+# pin the CORSMiddleware that answers it -- without it the preflight got 405
+# and the installed app read the engine as "not started" (main.py's comment
+# has the full story). A cross-origin header is required to trigger the
+# middleware's preflight handling.
+_WEBVIEW_ORIGIN = "http://tauri.localhost"
+
+
+def test_cors_preflight_on_health_is_allowed_not_405():
+    client = TestClient(app)
+    response = client.options(
+        "/health",
+        headers={
+            "Origin": _WEBVIEW_ORIGIN,
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert response.status_code == 200, response.text
+    assert response.headers["access-control-allow-origin"] in ("*", _WEBVIEW_ORIGIN)
+
+
+def test_cors_preflight_on_a_post_route_is_allowed():
+    # POST /project/create is the call that failed first on v0.1.0; its
+    # preflight must clear too, not just the health poll's.
+    client = TestClient(app)
+    response = client.options(
+        "/project/create",
+        headers={
+            "Origin": _WEBVIEW_ORIGIN,
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200, response.text
+    assert response.headers["access-control-allow-origin"] in ("*", _WEBVIEW_ORIGIN)
+
+
+def test_actual_cross_origin_get_carries_allow_origin_header():
+    client = TestClient(app)
+    response = client.get("/health", headers={"Origin": _WEBVIEW_ORIGIN})
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] in ("*", _WEBVIEW_ORIGIN)
