@@ -70,6 +70,33 @@ jobs:
           SIGMA_PROJECTS_ROOT: ${{ runner.temp }}/sigma-ai-eval-projects
         run: python evals/harness/run_goldens.py
 
+      # Reproduces the PACKAGED-app condition on a plain Linux runner: a real
+      # browser on one origin calling the engine on another, so the browser
+      # enforces CORS exactly as the Tauri webview does. Two bugs reached a
+      # real user because nothing tested this -- the Vite smoke proxies
+      # same-origin (never preflights) and curl doesn't preflight at all.
+      # Cheap and platform-independent, so it runs here rather than costing
+      # a Windows/Mac installer build to discover.
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+          cache-dependency-path: desktop/package-lock.json
+
+      - name: Install frontend deps (for Playwright)
+        working-directory: desktop
+        run: npm ci
+
+      - name: Install Playwright's chromium
+        working-directory: desktop
+        run: npx playwright install --with-deps chromium
+
+      - name: Cross-origin probe (packaged-webview condition)
+        working-directory: desktop
+        env:
+          ENGINE_PORT: "8000" # the ephemeral engine started above
+        run: node tools/xorigin-probe.mjs
+
       - name: Stop engine
         if: always()
         run: |
