@@ -1,0 +1,63 @@
+.sigma-engine-gate {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-7) var(--space-5);
+}
+
+.sigma-engine-gate__inner {
+  width: 100%;
+  max-width: 42rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.sigma-engine-gate__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+
+.sigma-engine-gate__panel {
+  width: 100%;
+}
+
+.sigma-engine-gate__logpath {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+  word-break: break-all;
+}
+
+.sigma-engine-gate__logpath code {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-sm);
+}
+
+.sigma-engine-gate__logtail {
+  margin: 0;
+  max-height: 18rem;
+  overflow: auto;
+  padding: var(--space-3);
+  background-color: var(--color-surface-sunken);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--color-text);
+}
+
+.sigma-engine-gate__logempty {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.sigma-engine-gate__actions {
+  display: flex;
+  justify-content: flex-start;
+}

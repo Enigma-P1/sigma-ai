@@ -206,19 +206,13 @@ jobs:
         working-directory: desktop
         run: npm run tauri build -- --bundles app
 
-      # PyInstaller's onedir bootloader resolves its support directory
-      # differently depending on where the executable lives. Outside an .app
-      # it wants `_internal` as a sibling of the exe (that's the Linux/.deb
-      # reproduction in docs/m1-spike-notes.md, and the Windows layout).
-      # INSIDE a macOS .app -- an exe path ending in Contents/MacOS/ -- the
-      # bootloader instead resolves support files to Contents/Frameworks/
-      # (run 31202027106 proved it on a real runner: PYI-9202 "Failed to
-      # load Python shared library .../Contents/Frameworks/Python"; a
-      # sibling `_internal` in Contents/MacOS is never consulted). Tauri
-      # stages bundle.resources into Contents/Resources, so the fix is to
-      # merge `_internal`'s CONTENTS into Contents/Frameworks -- ditto, not
-      # cp, to preserve dylib symlinks -- before sealing the dmg.
-      - name: Fix up onedir sidecar layout in the .app bundle
+      # The onefile sidecar has no _internal support directory to relocate --
+      # the single self-extracting exe Tauri stages at Contents/MacOS/sigma-
+      # engine is the whole artifact, and it unpacks itself to a temp dir at
+      # launch. The smoke-test and dmg steps below still need APP_PATH, so
+      # just locate the one .app bundle (same nullglob / exactly-one guard the
+      # old onedir fixup step used) and export it to the job env.
+      - name: Locate the .app bundle
         run: |
           set -euo pipefail
           shopt -s nullglob
@@ -229,23 +223,12 @@ jobs:
           fi
           APP_PATH="${apps[0]}"
           echo "App bundle: $APP_PATH"
-
-          INTERNAL_SRC="$APP_PATH/Contents/Resources/_internal"
-          FRAMEWORKS_DST="$APP_PATH/Contents/Frameworks"
-          if [ ! -d "$INTERNAL_SRC" ]; then
-            echo "ERROR: $INTERNAL_SRC not found -- tauri.conf.json's bundle.resources mapping may have changed." >&2
-            exit 1
-          fi
-          mkdir -p "$FRAMEWORKS_DST"
-          ditto "$INTERNAL_SRC" "$FRAMEWORKS_DST"
-          rm -rf "$INTERNAL_SRC"
-          ls "$FRAMEWORKS_DST" | head -5
           echo "APP_PATH=$APP_PATH" >> "$GITHUB_ENV"
 
-      # Proves the fix actually worked, on real macOS, before we bother
-      # sealing a dmg around it -- the sidecar is a plain CLI binary, so it
-      # can be smoke-tested directly without launching the GUI app.
-      - name: Smoke-test the sidecar inside the fixed .app
+      # Proves the real shipping artifact works, on real macOS, before we
+      # bother sealing a dmg around it -- the sidecar is a plain CLI binary,
+      # so it can be smoke-tested directly without launching the GUI app.
+      - name: Smoke-test the sidecar inside the .app
         run: |
           set -euo pipefail
           "$APP_PATH/Contents/MacOS/sigma-engine" --port 8756 &
@@ -261,7 +244,7 @@ jobs:
           python3 -c "import json; d = json.load(open('smoke.json')); assert d['match'] is True, d"
           kill "$SIDECAR_PID"
 
-      - name: Build dmg from the fixed .app
+      - name: Build dmg from the .app
         run: |
           set -euo pipefail
           mkdir -p dist-dmg
