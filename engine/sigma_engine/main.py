@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from . import __version__
@@ -36,6 +37,24 @@ from .routes import time_study as time_study_routes
 from .smoke import compute_smoke_result
 
 app = FastAPI(title="Sigma AI Engine", version=__version__)
+
+# The packaged desktop app's webview makes cross-origin requests to this
+# engine (its origin is http://tauri.localhost on Windows / tauri://localhost
+# elsewhere; the engine's is 127.0.0.1:PORT), so the browser sends a CORS
+# preflight OPTIONS before every real call. Without this middleware FastAPI
+# answers OPTIONS with 405 and the preflight fails -- the exact "engine
+# didn't start" symptom the sidecar log surfaced on the first installed
+# build (the dev browser never hit this because Vite proxies same-origin, so
+# no test exercised it). The engine binds 127.0.0.1 only and uses no
+# cookies/credentials, so a permissive origin policy is safe here: nothing
+# off the local loopback can reach it regardless.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(projects_routes.router)
 app.include_router(advisor_routes.router)
