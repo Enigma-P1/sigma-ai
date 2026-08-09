@@ -1,0 +1,61 @@
+# Ready-made example project — everything already filled in
+
+`coffee-bar-example-project.zip` is a complete, finished Coffee Bar project:
+all 25 tools filled in, both datasets embedded, charts and stats ready to
+look at. Drop it in and open it — nothing to type.
+
+Use it to see what good output looks like before (or instead of) typing a
+project yourself. It is the same worked example the docs and tests use.
+
+## Install it
+
+**Windows**
+
+1. Download `coffee-bar-example-project.zip` from this folder on GitHub
+   (click the file, then the download button).
+2. Open File Explorer and paste this into the address bar:
+   `%USERPROFILE%\.sigma-ai\projects`
+   (If the `projects` folder doesn't exist yet, launch Sigma AI once and
+   create any project — that makes it.)
+3. Right-click the zip → **Extract All…** → extract it into that folder.
+   You should end up with `...\.sigma-ai\projects\coffee-bar-example\`
+   containing `project.json` and an `artifacts` folder. If you instead get
+   `...\projects\coffee-bar-example-project\coffee-bar-example\`, move the
+   inner `coffee-bar-example` folder up one level.
+4. Restart Sigma AI. **Coffee Bar — worked example** appears under
+   *Open a project*.
+
+**Mac**
+
+Same idea: unzip into `~/.sigma-ai/projects/` (in Finder, press
+`Cmd+Shift+G` and paste `~/.sigma-ai/projects`), then restart the app.
+
+## What's inside
+
+The full DMAIC thread, engine-computed throughout:
+
+- **Define** — picker routed to full DMAIC, charter (8.4 → 5.0 minutes),
+  COPQ totalling $4,021/quarter, SIPOC, VoC → CTQ tree
+- **Measure** — process map, spaghetti diagram, check sheet, time study,
+  yield calculator, collection plan, measurement check, baseline
+  (mean 8.41, stable, Cpk −1.14 — predictable and predictably bad),
+  Pareto/histogram/run charts
+- **Analyze** — fishbone with evidence-backed verified causes, FMEA,
+  hypothesis test (a real result that comes back "significant but minor")
+- **Improve** — solution matrix, two pilot rounds, before/after proof with
+  the remaining-gap loop
+- **Control** — frozen I-MR control chart, control plan, 5S audit,
+  standard work
+- **Wrap** — A3 with tollgates, closed cleanly
+
+Two datasets ride along (`wait-times.csv`, the check-sheet export), so the
+baseline and chart screens work immediately with no import step.
+
+## Notes
+
+- It opens as a **closed** project (the A3 was completed). Everything is
+  readable; if you want to edit, re-open the phase you want from the rail.
+- Editing it changes only your copy. To start over, delete the
+  `coffee-bar-example` folder and unzip again.
+- Your own projects live beside it in the same `projects` folder, one folder
+  each, plain JSON — copy or back them up like any other files.
