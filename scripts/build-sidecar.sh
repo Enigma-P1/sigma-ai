@@ -30,31 +30,24 @@ echo "== Building sidecar with $PYINSTALLER =="
 TARGET_TRIPLE="$(rustc --print host-tuple)"
 echo "== Host target triple: $TARGET_TRIPLE =="
 
-SRC_DIR="$ENGINE_DIR/dist/sigma-engine"
-if [ -f "$SRC_DIR/sigma-engine.exe" ]; then
+# Onefile mode: PyInstaller emits a single self-contained executable directly
+# in dist/ (dist/sigma-engine[.exe]) -- there is no dist/sigma-engine/
+# directory and no _internal/ support folder to place alongside it.
+DIST_DIR="$ENGINE_DIR/dist"
+if [ -f "$DIST_DIR/sigma-engine.exe" ]; then
   EXT=".exe"
-elif [ -f "$SRC_DIR/sigma-engine" ]; then
+elif [ -f "$DIST_DIR/sigma-engine" ]; then
   EXT=""
 else
-  echo "ERROR: PyInstaller output not found at $SRC_DIR/sigma-engine[.exe]" >&2
+  echo "ERROR: PyInstaller output not found at $DIST_DIR/sigma-engine[.exe]" >&2
   exit 1
 fi
 
 mkdir -p "$BIN_DIR"
 
 DEST_EXE="$BIN_DIR/sigma-engine-${TARGET_TRIPLE}${EXT}"
-cp "$SRC_DIR/sigma-engine${EXT}" "$DEST_EXE"
+cp "$DIST_DIR/sigma-engine${EXT}" "$DEST_EXE"
 chmod +x "$DEST_EXE" 2>/dev/null || true
-
-# onedir mode ships a support directory alongside the executable (PyInstaller
-# >=6 default name: _internal). It MUST stay a sibling of the renamed exe --
-# PyInstaller's bootloader looks it up relative to the running executable's
-# own path, not via any Tauri-configurable setting. Confirmed in-container:
-# running the exe with _internal missing fails with "Failed to load Python
-# shared library ... No such file or directory" (see docs/m1-spike-notes.md).
-rm -rf "$BIN_DIR/_internal"
-cp -r "$SRC_DIR/_internal" "$BIN_DIR/_internal"
 
 echo "== Placed sidecar =="
 echo "  $DEST_EXE"
-echo "  $BIN_DIR/_internal/ ($(find "$BIN_DIR/_internal" -type f | wc -l) files)"

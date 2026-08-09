@@ -31,9 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/sigma-engine"],
-    "resources": {
-      "binaries/_internal": "_internal"
-    }
+    "externalBin": ["binaries/sigma-engine"]
   }
 }

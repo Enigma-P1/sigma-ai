@@ -1,19 +1,23 @@
-# PyInstaller spec, onedir mode. Built per-OS by .github/workflows/build.yml
+# PyInstaller spec, onefile mode. Built per-OS by .github/workflows/build.yml
 # (Windows and Mac jobs); a Linux build here is dev-only, never shipped.
 #
-# Output layout (PyInstaller >=6, onedir default): dist/sigma-engine/sigma-engine[.exe]
-# plus a dist/sigma-engine/_internal/ directory holding the interpreter, scipy's
-# native libs, and everything else. contents_directory is pinned explicitly
-# below so that layout can't silently change out from under the CI rename step.
+# Output layout (PyInstaller >=6, onefile via EXE without COLLECT): a single
+# self-contained executable dist/sigma-engine[.exe] and NO dist/sigma-engine/
+# directory and NO _internal/ support folder. The interpreter, scipy's native
+# libs, and everything else are packed inside the one file and unpacked to a
+# temp dir at launch by the bootloader. Onefile is used precisely so there is
+# no sibling support directory that can go missing in an installed layout --
+# the earlier onedir build shipped a dist/sigma-engine/_internal/ that the
+# exe resolved relative to its own path, and that path broke inside the
+# installed MSI/.app, so the sidecar never started.
 #
 # Tauri's externalBin sidecar mechanism (see desktop/src-tauri/tauri.conf.json)
-# expects exactly one file named "sigma-engine-<target-triple>[.exe]". The CI
-# workflow renames dist/sigma-engine/sigma-engine[.exe] to that pattern and
-# copies the whole onedir output (renamed exe + _internal/) into
-# desktop/src-tauri/binaries/ -- see scripts/build-sidecar.sh, which both CI
-# and local dev use, for the exact placement logic and its known macOS risk.
+# expects exactly one file named "sigma-engine-<target-triple>[.exe]". With
+# onefile that is the whole artifact: scripts/build-sidecar.sh renames the
+# single dist/sigma-engine[.exe] to that pattern and copies just that one file
+# into desktop/src-tauri/binaries/ -- there is nothing else to copy.
 
-from PyInstaller.building.api import COLLECT, EXE, PYZ
+from PyInstaller.building.api import EXE, PYZ
 from PyInstaller.building.build_main import Analysis
 
 block_cipher = None
@@ -37,28 +41,25 @@ a = Analysis(
 )
 pyz = PYZ(a.pure)
 
+# Onefile: the binaries and datas are bundled straight into the EXE (there is
+# no exclude_binaries=True and no COLLECT step). The result is one file.
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
     name="sigma-engine",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=False,
+    upx_exclude=[],
+    runtime_tmpdir=None,
     console=True,
     disable_windowed_traceback=False,
     argv_emulation=False,
-)
-
-COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=False,
-    upx_exclude=[],
-    name="sigma-engine",
-    contents_directory="_internal",
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
 )
