@@ -16,6 +16,16 @@ on:
   push:
     tags:
       - "v*"
+  # Manual trigger: publishes a release without a local `git tag` push
+  # (the session that authored this couldn't push tag refs -- its git
+  # credential is scoped to branch pushes). The publish job below creates
+  # the tag itself via `gh release create --target`.
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version tag to create and publish (e.g. v0.1.0)"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -227,7 +237,12 @@ jobs:
       - name: Publish the Release with the installers attached
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.ref_name }}
+          # Tag name from whichever trigger fired: the pushed tag, or the
+          # manual-dispatch input. TARGET_SHA anchors a dispatch-created tag
+          # to the commit the workflow ran on (ignored when the tag already
+          # exists from a tag push).
+          TAG: ${{ inputs.version || github.ref_name }}
+          TARGET_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
@@ -277,8 +292,12 @@ jobs:
             echo "Release $TAG already exists -- updating its assets."
             gh release upload "$TAG" "${ASSETS[@]}" --clobber --repo "$GITHUB_REPOSITORY"
           else
+            # --target creates the tag at this commit when it doesn't exist
+            # yet (the manual-dispatch path); harmless when the tag push
+            # already created it.
             gh release create "$TAG" "${ASSETS[@]}" \
               --repo "$GITHUB_REPOSITORY" \
+              --target "$TARGET_SHA" \
               --title "Sigma AI $TAG" \
               --notes-file release-notes.md
           fi
