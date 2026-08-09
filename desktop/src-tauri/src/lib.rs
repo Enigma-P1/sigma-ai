@@ -17,7 +17,8 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use tauri::Manager;
+use tauri::webview::DownloadEvent;
+use tauri::{Manager, WebviewWindowBuilder};
 use tauri_plugin_shell::process::{CommandChild, CommandEvent};
 use tauri_plugin_shell::ShellExt;
 
@@ -108,6 +109,56 @@ pub fn run() {
             // sidecar_log_tail always resolve even when the sidecar fails to
             // start (that failure is exactly when the frontend asks for them).
             app.manage(SidecarLogPath(log_path.clone()));
+
+            // Create the main window ourselves (tauri.conf.json marks it
+            // "create": false) for exactly one reason: to attach a download
+            // handler.
+            //
+            // The charter's "Export PDF" button fetches the PDF as a blob
+            // and clicks an <a download> (desktop/src/tools/charter/
+            // CharterForm.tsx). On macOS that becomes a WKWebView navigation
+            // with shouldPerformDownload = true, and wry's navigation
+            // delegate answers WKNavigationActionPolicy::Cancel whenever no
+            // download handler is registered (wry-0.55.1
+            // src/wkwebview/navigation.rs) -- so the download is silently
+            // dropped: no file, no error, no feedback. Tauri only registers
+            // that handler when the window is built with .on_download(),
+            // which a config-created window never is. Windows/WebView2 fell
+            // back to its own default download UI, which is why this looked
+            // fine on one platform and was dead on the other, and why no
+            // browser-based test could see it (Chromium downloads happily).
+            //
+            // Returning true = allow, saving to the platform's default
+            // download directory. Both events are mirrored into the sidecar
+            // log so an export that goes wrong is diagnosable after the fact
+            // like everything else here.
+            let log_for_download = Arc::clone(&log);
+            let window_config = app
+                .config()
+                .app
+                .windows
+                .first()
+                .cloned()
+                .expect("tauri.conf.json must define the main window");
+            WebviewWindowBuilder::from_config(app.handle(), &window_config)?
+                .on_download(move |_webview, event| {
+                    match event {
+                        DownloadEvent::Requested { url, destination } => append_log(
+                            &log_for_download,
+                            &format!("[sigma-engine] download requested {} -> {}\n", url, destination.display()),
+                        ),
+                        DownloadEvent::Finished { url, path, success } => append_log(
+                            &log_for_download,
+                            &format!(
+                                "[sigma-engine] download finished success={} {} -> {:?}\n",
+                                success, url, path
+                            ),
+                        ),
+                        _ => {}
+                    }
+                    true
+                })
+                .build()?;
 
             append_log(
                 &log,

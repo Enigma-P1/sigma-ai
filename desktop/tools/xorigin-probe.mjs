@@ -20,6 +20,14 @@
  */
 import { chromium } from "playwright";
 import http from "node:http";
+import fs from "node:fs";
+
+// This dev container ships a prebuilt chromium at a fixed path; CI runners
+// install their own via `playwright install` and Playwright resolves it
+// itself. Use the fixed path only when it's actually there -- hardcoding it
+// unconditionally failed the first CI run of this probe.
+const CHROMIUM_PATH = "/opt/pw-browsers/chromium";
+const launchOptions = fs.existsSync(CHROMIUM_PATH) ? { executablePath: CHROMIUM_PATH } : {};
 
 const ENGINE_PORT = process.env.ENGINE_PORT || "8756";
 const PROBE_PORT = Number(process.env.PROBE_PORT || 5599);
@@ -34,7 +42,7 @@ const site = http.createServer((_req, res) => {
 });
 await new Promise((r) => site.listen(PROBE_PORT, r));
 
-const browser = await chromium.launch({ executablePath: "/opt/pw-browsers/chromium" });
+const browser = await chromium.launch(launchOptions);
 const page = await browser.newPage();
 const consoleErrors = [];
 page.on("console", (m) => {
