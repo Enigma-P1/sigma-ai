@@ -6,18 +6,20 @@ statistics engine inside.
 
 ## 1. Download and install
 
-Installers are built by the project's CI (the automated build system) on
-every push to `main`:
-
-1. Sign in to GitHub (downloading build artifacts requires a GitHub account).
-2. Open the repo's **Actions** tab and click the most recent **build** run
-   with a green check mark.
-3. Under **Artifacts**, download **`sigma-ai-mac-installer`** and unzip it.
-   Inside is one disk image, named like `Sigma AI_0.1.0_arm64.dmg` — the
-   last part is the processor it was built for (`arm64` = Apple silicon,
-   which is what CI currently builds; check it matches your Mac).
+1. Sign in to GitHub (this is a private repo, so downloads need an account
+   with access).
+2. Go to the repo's **Releases** page — click **Releases** in the right-hand
+   sidebar of the repo home page, or add `/releases` to the repo URL.
+3. On the newest release, under **Assets**, download the disk image, named
+   like `Sigma AI_0.1.0_arm64.dmg` — the last part is the processor it was
+   built for (`arm64` = Apple silicon, which is what CI currently builds;
+   check it matches your Mac).
 4. Open the `.dmg` and drag **Sigma AI** into your **Applications** folder,
    then eject the disk image.
+
+(Installers are also parked in the **Actions** tab under **Artifacts** on
+every push to `main` — that's a developer fallback, not the place to go; the
+Releases page above is the real download.)
 
 ## 2. First launch — getting past the unsigned-app warning
 
