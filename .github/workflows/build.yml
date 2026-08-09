@@ -9,6 +9,47 @@ name: build
 on:
   push:
     branches: [main]
+    # Prose-only paths. Every push to main here spins a Windows AND a macOS
+    # runner, and those bill at 2x and 10x the Linux minute rate -- so a
+    # typo fix in a README costs about what a real code change costs. A
+    # commit touching nothing but the paths below cannot change what any job
+    # in this file builds or asserts, so it should not buy a pair of
+    # installer builds.
+    #
+    # DELIBERATELY NOT IGNORED, though they are .md -- these are read at
+    # test time, so editing them can genuinely fail this workflow:
+    #   docs/traceability-matrix.md  parsed by evals/harness/run_goldens.py
+    #                                and engine/tests/test_eval_harness.py;
+    #                                golden_id_map fails the job when the
+    #                                G-ids it cites drift from the goldens
+    #   docs/green-belt-rubric.md    read by engine/tests/test_advisor_rubric_items.py
+    #   docs/tier-a-done-means.md    authority doc; held to the full gate by
+    #                                choice even though only comments cite it
+    # (evals/scenarios/*/spec.md and prompts/**/*.md are also read at test
+    # time and are not under any ignored path -- keep it that way.)
+    #
+    # Rule for adding to this list: only if nothing under engine/, evals/,
+    # or desktop/ opens the file at run time. When unsure, leave it out. An
+    # unnecessary build is the cheap mistake; a skipped build that should
+    # have run is the expensive one.
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - "PLAN.md"
+      - "examples/**"
+      - "docs/architecture.md"
+      - "docs/belt-reviewer-brief.md"
+      - "docs/demo-walkthrough.md"
+      - "docs/field-notes.md"
+      - "docs/install-mac.md"
+      - "docs/install-windows.md"
+      - "docs/local-app-testing.md"
+      - "docs/m1-spike-notes.md"
+      - "docs/open-questions.md"
+      - "docs/research-summary.md"
+      - "docs/test-drive.md"
+      - "docs/research/**"
+      - "docs/screenshots/**"
   workflow_dispatch:
 
 permissions:

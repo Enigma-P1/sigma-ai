@@ -51,6 +51,23 @@ Mac) — you should land in a folder with `project.json` sitting directly
 inside it. If that path doesn't exist, go up to `projects` and move the
 inner `coffee-bar-example` folder up one level.
 
+## How it's built
+
+`make-example-project.py` in this folder turns a golden-harness Coffee Bar
+run into the zip. It exists because the two writers name artifacts
+differently: the harness uses scenario-scoped ids (`coffee-charter`) that are
+frozen into golden files, while every tool form in the app loads one
+hardcoded id (`charter`). Ship the harness output directly and you get a
+project whose rail says **Done** beside all 22 tools while every form renders
+blank and says *Not saved yet* — which is exactly what the first cut of this
+zip did. The script does the translation, rewrites the cross-references that
+ride along with it, and collapses the three tools that were run twice (COPQ,
+pilot, proof) into v1/v2 of one artifact instead of dropping either.
+
+`desktop/tools/example-project-probe.mjs` is the check: it opens this zip in
+the real production bundle and fails if any tool renders empty or is missing
+known content from the worked example.
+
 ## What's inside
 
 The full DMAIC thread, engine-computed throughout:

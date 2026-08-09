@@ -10,6 +10,47 @@ Ordered newest first.
 
 ---
 
+## 2026-08-09 — Example project opened with every tool "Done" and every form blank
+
+**Observed (Shawn, v0.1.2):** Opened the worked example. The left rail showed
+**Done** beside all 22 tools. Every form was empty and said *Not saved yet* —
+the fields showed placeholder text (`Line 2 scrap rate`, `Q2 2026`) that reads
+like content in a screenshot but is not.
+
+> "it highlights a bunch of things and says done, but it does not actually
+> fill on my screen anyway what is in there. So, therefore, if there's some
+> kind of work product that comes out of this, I can't actually get it."
+
+**Why:** two writers, two naming conventions, and one lookup each.
+`evals/harness/run_goldens.py` names artifacts per scenario —
+`coffee-charter`, `coffee-copq` — because golden files from several scenarios
+share a namespace and those ids are frozen into them. Every tool form loads a
+single hardcoded id (`const ARTIFACT_ID = "charter"`). The rail reads
+`project.json`'s artifact_index by **tool** id, finds T-03, and prints Done;
+the form reads by **artifact** id, misses, and renders its empty state. Both
+lookups were correct. The zip was wrong, and it was wrong because it shipped
+the harness output nearly as-is.
+
+**What made it survive review:** every engine test passed and every endpoint
+returned 200, because no endpoint was ever wrong. Nothing in the suite
+rendered a real screen against the real zip, so nothing could see it.
+
+**Fixed:** `examples/make-example-project.py` now does the translation when
+the zip is packaged (plus the cross-references, plus collapsing the three
+twice-run tools into v1/v2 rather than dropping a round), and
+`desktop/tools/example-project-probe.mjs` opens the zip in the production
+bundle and fails on any tool that renders empty or is missing known content.
+Verified both ways: 25/25 tools populated and 6/6 content anchors present on
+the fixed zip, 7 blank and 6/6 anchors missing on the old one. Data-only — no
+app build needed.
+
+**Worth keeping:** the failure mode to design against is not "it errored," it
+is *two honest components disagreeing quietly*. A placeholder is
+indistinguishable from a value at a glance, so an empty form reads as a filled
+one until someone tries to use it.
+
+---
+
 ## 2026-08-09 — No forward navigation after saving a tool
 
 **Observed (Shawn, v0.1.2, first run through T-01):** Filled in the Project
