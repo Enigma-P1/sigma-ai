@@ -10,6 +10,31 @@ Ordered newest first.
 
 ---
 
+## 2026-08-09 — FMEA table truncates every cell it shows
+
+**Observed** while screenshotting the worked example's T-16 screen: the FMEA
+renders nine fully-populated rows, and not one of them is readable. Every
+column is a fixed-width input, so real entries clip to `Steam wa`,
+`Barista sca`, `Wand park`, `Grind setti`. The severity/occurrence/detection
+numbers and the sort control are fine; the text that explains what the failure
+*is* is the part that gets cut.
+
+**Why:** the row is laid out as a fixed grid sized to the S/O/D selects, which
+are narrow by nature, and the free-text columns inherit that width. It reads
+fine when a row is being typed (the caret keeps the tail in view) and badly
+the moment anyone reads a row back — which is the entire point of an FMEA.
+
+**Fix (needs a build):** let the text columns flex and the numeric ones stay
+fixed, and give the wide table its own horizontal scroll container rather than
+compressing columns to fit. A `title` attribute carrying the full value would
+make hover work in the meantime, but it does not help the printed or
+screenshotted artifact, so the layout is the real fix.
+
+**Status:** logged, not built. Batch with the next UI build alongside the
+missing next-step affordance below.
+
+---
+
 ## 2026-08-09 — Example project opened with every tool "Done" and every form blank
 
 **Observed (Shawn, v0.1.2):** Opened the worked example. The left rail showed
