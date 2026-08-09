@@ -7,6 +7,17 @@ date: 2026-08-07
 
 # M1 packaging spike — notes
 
+> **Historical record — the packaging described below has been superseded.**
+> Everything here documents the **onedir** build and its `_internal/`
+> relocation work, which is exactly what later failed in a real installed
+> app on Windows. The shipped design is now **onefile** (one self-contained
+> executable, no `_internal/`, no per-platform relocation step). Read
+> [`architecture.md`](architecture.md) for what the packaging does today and
+> [`local-app-testing.md`](local-app-testing.md) for how to prove it before
+> paying for a build. This file is kept because the *reasoning* — how
+> PyInstaller resolves support files relative to the exe, and how that
+> interacts with `.app` and MSI layouts — is why onefile was chosen.
+
 Minimum scaffold proving the Tauri + PyInstaller-sidecar pipeline (PLAN.md
 §7, §8). Not the product: one tool-free window, one NIST computation.
 

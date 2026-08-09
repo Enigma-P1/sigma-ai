@@ -103,29 +103,43 @@ hash routing (four top-level routes, no router library).
 
 One installer per platform, no Python on the user's machine:
 
-- `scripts/build-sidecar.sh` runs **PyInstaller in onedir mode** over the
-  engine, renames the binary to Tauri's expected
-  `sigma-engine-<target-triple>` form, and stages it plus its `_internal/`
-  support directory into `desktop/src-tauri/binaries/` — Tauri bundles the
-  binary via `externalBin` and the support dir via `bundle.resources`
-  (`desktop/src-tauri/tauri.conf.json`).
-- **Windows:** `tauri build` produces `.msi` and NSIS `.exe` bundles.
-  PyInstaller's bootloader wants `_internal` beside the exe, and on Windows
-  Tauri stages resources into the exe's own directory, so no fixup is
-  needed — but CI does not take that on faith: the workflow launches the
-  *staged* sidecar on the real Windows runner and asserts `/health` and the
-  NIST `/smoke` check (`match: true`) before packaging.
-- **macOS needs a fixup, and the workflow documents why** (see the comments
-  at `.github/workflows/build.yml` and `docs/m1-spike-notes.md`): inside an
-  `.app`, PyInstaller's bootloader resolves support files to
-  `Contents/Frameworks/` — proven by a real CI failure (PYI-9202) — while
-  Tauri stages resources into `Contents/Resources/`. So the Mac job builds
-  the `.app` only, merges `_internal`'s contents into `Contents/Frameworks/`
-  (`ditto`, preserving dylib symlinks), smoke-tests the relocated sidecar on
-  the real runner, and only then seals the `.dmg` with `hdiutil` — because a
-  dmg is a sealed image you cannot patch afterwards.
+- `scripts/build-sidecar.sh` runs **PyInstaller in onefile mode** over the
+  engine and renames the single self-contained executable to Tauri's
+  expected `sigma-engine-<target-triple>` form in
+  `desktop/src-tauri/binaries/`. That one file is the whole artifact: Tauri
+  ships it via `externalBin`, and its bootloader unpacks the interpreter and
+  scipy's native libs to a temp dir at launch. Onefile is used precisely
+  because there is then no sibling support directory to go missing — the
+  earlier onedir build shipped a `_internal/` folder that the exe resolved
+  relative to its own path, that path broke inside the installed MSI and
+  inside the `.app` (PYI-9202, hit as a real CI failure), and the sidecar
+  never started for the first installed user.
+- **Windows:** `tauri build` produces `.msi` and NSIS `.exe` bundles. CI
+  does not take the staging on faith: the workflow launches the *staged*
+  sidecar on the real Windows runner and asserts `/health` and the NIST
+  `/smoke` check (`match: true`) before packaging.
+- **macOS:** the Mac job builds the `.app` only, smoke-tests the sidecar at
+  `Contents/MacOS/sigma-engine` on the real runner, and only then seals the
+  `.dmg` with `hdiutil` — because a dmg is a sealed image you cannot patch
+  afterwards. With onefile there is no `_internal` relocation step; that
+  fixup existed for the onedir layout and was removed with it.
+- The **sidecar's lifetime is bounded by the app's**, not by a kill signal.
+  Tauri's `CommandChild::kill()` can only SIGKILL the PyInstaller
+  bootloader, which forks the real Python process as a *grandchild* of the
+  app and cannot forward that signal — so the engine used to survive the
+  app, keep holding `127.0.0.1:8756`, and answer the next launch's
+  readiness poll from a stale build. The app therefore starts the sidecar
+  with `--shutdown-on-stdin-eof` and holds the write end of its stdin pipe;
+  the OS closes that pipe when the app process dies for any reason,
+  including a crash, and the engine stops itself
+  (`sigma_engine.main._exit_when_stdin_closes`,
+  `engine/tests/test_sidecar_lifecycle.py`).
 - The engine test job (pytest + the golden-scenario replay against a live
-  ephemeral engine) gates both installer jobs.
+  ephemeral engine) gates both installer jobs. Before paying for an
+  installer build, run the **real built app** locally — see
+  [`docs/local-app-testing.md`](local-app-testing.md), which drives
+  `desktop/src-tauri/target/release/desktop` under Xvfb and proves the
+  webview actually reaches the engine cross-origin.
 
 ## The advisor (`engine/sigma_engine/advisor/`)
 

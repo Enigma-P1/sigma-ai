@@ -38,6 +38,14 @@ struct SidecarProcess(Mutex<Option<CommandChild>>);
 /// commands below can find the file no matter which fallback dir won.
 struct SidecarLogPath(PathBuf);
 
+/// The open log file handle, managed so the shutdown path (which runs long
+/// after `setup` returned) can write to the same log everything else does.
+/// Without this, a shutdown that goes wrong leaves no trace at all -- which
+/// is how the orphaned-sidecar bug stayed invisible until the built app was
+/// run for real and `curl 127.0.0.1:8756/health` still answered after the
+/// window closed.
+struct SidecarLog(Arc<Mutex<Option<File>>>);
+
 /// Write `text` to the sidecar log (best-effort) and to this process's own
 /// stdout (visible under `npm run tauri dev`). `text` is expected to already
 /// carry its own newline; callers pass the full `[sigma-engine] ...` line so
@@ -80,6 +88,42 @@ fn sidecar_log_tail(state: tauri::State<'_, SidecarLogPath>) -> String {
     }
 }
 
+/// Kill the sidecar, once, and say so in the log. Safe to call more than
+/// once and safe to call when the sidecar never started: `try_state` (not
+/// `state`) because a failed spawn never managed `SidecarProcess`, and
+/// `.take()` because `CommandChild::kill` consumes `self`.
+///
+/// This kills the PyInstaller bootloader, which is NOT the whole story -- it
+/// leaves the forked Python process behind (SIGKILL cannot be forwarded).
+/// The actual guarantee that no engine outlives this app is the stdin-EOF
+/// lifeline the sidecar is started with; see the `--shutdown-on-stdin-eof`
+/// comment below. This function just makes the common case prompt, and makes
+/// the shutdown legible in the log.
+fn shutdown_sidecar(app_handle: &tauri::AppHandle, reason: &str) {
+    let log = app_handle
+        .try_state::<SidecarLog>()
+        .map(|state| Arc::clone(&state.0));
+    let child = app_handle
+        .try_state::<SidecarProcess>()
+        .and_then(|state| state.0.lock().ok().and_then(|mut guard| guard.take()));
+    let message = match child {
+        Some(child) => {
+            let pid = child.pid();
+            match child.kill() {
+                Ok(()) => format!("[sigma-engine] stopping sidecar (pid {pid}) on {reason}\n"),
+                Err(err) => format!(
+                    "[sigma-engine] SIDECAR ERROR: failed to stop sidecar (pid {pid}) on {reason}: {err}\n"
+                ),
+            }
+        }
+        None => format!("[sigma-engine] no sidecar to stop on {reason}\n"),
+    };
+    match log {
+        Some(log) => append_log(&log, &message),
+        None => print!("{}", message),
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -109,6 +153,7 @@ pub fn run() {
             // sidecar_log_tail always resolve even when the sidecar fails to
             // start (that failure is exactly when the frontend asks for them).
             app.manage(SidecarLogPath(log_path.clone()));
+            app.manage(SidecarLog(Arc::clone(&log)));
 
             // Create the main window ourselves (tauri.conf.json marks it
             // "create": false) for exactly one reason: to attach a download
@@ -172,8 +217,18 @@ pub fn run() {
             // Locate the sidecar for this platform/target-triple. On failure,
             // log it and let the window open anyway -- a clear "engine
             // unavailable" screen beats a silent hard crash on startup.
+            // --shutdown-on-stdin-eof is not optional decoration either: see
+            // sigma_engine.main._exit_when_stdin_closes. Tauri gives the
+            // sidecar a piped stdin whose write end this process owns, and
+            // CommandChild::kill() can only SIGKILL the PyInstaller ONEFILE
+            // bootloader -- never the real Python process it forked. Without
+            // the flag, quitting the app leaves an engine still serving
+            // 127.0.0.1:8756, and the NEXT launch's readiness gate passes
+            // against that stale engine instead of its own. Proven by running
+            // the built Linux app headless: window closed, app process gone,
+            // /health still answering.
             let sidecar_command = match app.shell().sidecar("sigma-engine") {
-                Ok(command) => command.args(["--port", SIDECAR_PORT]),
+                Ok(command) => command.args(["--port", SIDECAR_PORT, "--shutdown-on-stdin-eof"]),
                 Err(err) => {
                     append_log(
                         &log,
@@ -231,23 +286,20 @@ pub fn run() {
         })
         .on_window_event(|window, event| {
             if let tauri::WindowEvent::CloseRequested { .. } = event {
-                let app_handle = window.app_handle();
-                // `try_state` (not `state`): if the sidecar failed to spawn we
-                // never managed SidecarProcess, and the plain `state::<T>()`
-                // would panic on close. Nothing to kill in that case.
-                if let Some(state) = app_handle.try_state::<SidecarProcess>() {
-                    // `.take()` as its own statement so the MutexGuard temporary
-                    // is dropped immediately, before `child` (now a plain owned
-                    // value with no outstanding borrow of `state`) is used below.
-                    let child = state.0.lock().unwrap().take();
-                    if let Some(child) = child {
-                        // Best-effort: the window is closing either way. A failed
-                        // kill here would mean the OS already reaped the process.
-                        let _ = child.kill();
-                    }
-                }
+                shutdown_sidecar(window.app_handle(), "window close");
             }
         })
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        // `.build(...).run(closure)` rather than `.run(context)` so the
+        // shutdown also fires on RunEvent::Exit. Window close alone is not
+        // enough: it is one of several ways the app can go away (a quit from
+        // the OS, an exit() from Rust, the last window being destroyed
+        // without a CloseRequested), and each of those used to leave the
+        // engine running. Both paths call the same idempotent function.
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application")
+        .run(|app_handle, event| {
+            if let tauri::RunEvent::Exit = event {
+                shutdown_sidecar(app_handle, "app exit");
+            }
+        });
 }

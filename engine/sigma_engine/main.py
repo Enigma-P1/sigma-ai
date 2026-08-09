@@ -17,7 +17,12 @@ from __future__ import annotations
 
 import argparse
 import logging
+import os
+import sys
+import threading
+import time
 import traceback
+from typing import TYPE_CHECKING
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -38,6 +43,9 @@ from .routes import projects as projects_routes
 from .routes import stats as stats_routes
 from .routes import time_study as time_study_routes
 from .smoke import compute_smoke_result
+
+if TYPE_CHECKING:  # uvicorn is imported lazily in main() -- it is not needed
+    import uvicorn  # to import this module, only to serve it.
 
 app = FastAPI(title="Sigma AI Engine", version=__version__)
 
@@ -154,17 +162,85 @@ def smoke() -> SmokeResponse:
     return SmokeResponse(**compute_smoke_result())
 
 
-def main() -> None:
-    import uvicorn
-
+def build_arg_parser() -> argparse.ArgumentParser:
+    """The sidecar's CLI. Split out from main() so a test can assert the
+    exact flags desktop/src-tauri/src/lib.rs passes -- a rename here is a
+    sidecar that refuses to start in the installed app, with "unrecognized
+    arguments" buried in a log the user never opens."""
     parser = argparse.ArgumentParser(prog="sigma-engine")
     parser.add_argument(
         "--port", type=int, default=DEFAULT_PORT, help="Port to bind on 127.0.0.1"
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--shutdown-on-stdin-eof",
+        action="store_true",
+        help=(
+            "Exit when stdin reaches EOF. The desktop app holds the write end of "
+            "this pipe, so EOF means the app is gone and this engine must not "
+            "outlive it. Off by default: a hand-run engine with stdin on "
+            "/dev/null would otherwise exit instantly."
+        ),
+    )
+    return parser
+
+
+def _exit_when_stdin_closes(server: uvicorn.Server) -> None:
+    """Block on stdin until EOF, then ask uvicorn to stop.
+
+    WHY THIS EXISTS: the app spawns this engine through Tauri's sidecar
+    plugin, and the PyInstaller ONEFILE bootloader is a *second* process --
+    the bootloader forks the real Python interpreter as its own child. Tauri's
+    CommandChild::kill() sends SIGKILL to the bootloader only, which cannot be
+    forwarded, so the Python process is orphaned, keeps serving, and keeps
+    holding 127.0.0.1:8756 forever. Verified in a real headless run of the
+    built app: after the window closed, the app process was gone and
+    `curl 127.0.0.1:8756/health` still answered.
+
+    That orphan is not cosmetic. The next launch's fresh sidecar cannot bind
+    the port and dies, while the stale one still answers /health -- so the
+    readiness gate passes and the new UI silently runs against the PREVIOUS
+    version's engine. On Windows it also pins sigma-engine.exe open against
+    the installer during an upgrade.
+
+    stdin is the fix because it needs no platform code and survives an
+    ungraceful death: the app owns the write end, the OS closes it when the
+    app process exits for ANY reason (clean quit, crash, kill -9), and the
+    bootloader passes the same handle down to this process. EOF here is
+    therefore an exact, portable "my app is gone" signal on Windows, macOS,
+    and Linux alike.
+    """
+    stream = getattr(sys.stdin, "buffer", None)
+    if stream is None:  # no stdin at all (windowed build) -- nothing to watch
+        return
+    try:
+        while stream.read(1):
+            pass
+    except Exception:  # noqa: BLE001 -- a broken pipe is EOF by another name
+        pass
+    logger.info("stdin closed: the desktop app is gone, shutting the engine down")
+    server.should_exit = True
+    # Backstop: uvicorn checks should_exit on a ~100ms tick, so a clean stop
+    # lands well inside this window. If something is wedged (a hung request
+    # holding the loop), exit anyway rather than become the orphan this whole
+    # function exists to prevent. Every project write is atomic
+    # (project_store._atomic_write_json), so a hard exit cannot corrupt state.
+    time.sleep(10)
+    os._exit(0)
+
+
+def main() -> None:
+    import uvicorn
+
+    args = build_arg_parser().parse_args()
     # 127.0.0.1 only, never 0.0.0.0 -- this sidecar is never meant to be
     # reachable off the local machine.
-    uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="info")
+    config = uvicorn.Config(app, host="127.0.0.1", port=args.port, log_level="info")
+    server = uvicorn.Server(config)
+    if args.shutdown_on_stdin_eof:
+        threading.Thread(
+            target=_exit_when_stdin_closes, args=(server,), daemon=True
+        ).start()
+    server.run()
 
 
 if __name__ == "__main__":

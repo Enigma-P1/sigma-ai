@@ -469,10 +469,22 @@ async function main() {
       await page.locator('[data-testid="chartset-dataset-select"]').waitFor();
       await page.locator('[data-testid="chartset-dataset-select"]').selectOption({ label: FIXTURE_LABEL });
       await page.locator('[data-testid="chartset-pareto-column"]').waitFor();
-      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("delay_cause");
 
+      // The headline is already on screen for the DEFAULT category column
+      // (the first string column, `shift`), and switching columns is a
+      // round trip to /stats/pareto. Reading it straight after
+      // selectOption() therefore races the response and intermittently
+      // asserts against the previous column's verdict -- observed failing
+      // with "2 categories are roughly even (24 total)", which is `shift`,
+      // not `delay_cause`. Wait for the text to actually change first.
       const paretoHeadline = page.locator('[data-testid="chartset-pareto"] .sigma-verdict__headline');
       await paretoHeadline.waitFor();
+      const staleHeadline = await paretoHeadline.textContent();
+      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("delay_cause");
+      await page.waitForFunction(
+        (stale) => document.querySelector('[data-testid="chartset-pareto"] .sigma-verdict__headline')?.textContent !== stale,
+        staleHeadline,
+      );
       const text = await paretoHeadline.textContent();
       assert(
         text?.toLowerCase().includes("vital few") && text?.includes("register"),
@@ -738,10 +750,17 @@ async function main() {
     await step("open in Pareto (T-14) and assert the right top category renders, with no re-typing", async () => {
       await page.locator('[data-testid="checksheet-go-to-pareto"]').click();
       await page.locator('[data-testid="chartset-pareto-column"]').waitFor();
-      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("category");
 
+      // Same race as the T-14 step above: wait for the column switch's
+      // /stats/pareto response to land before reading the verdict.
       const headline = page.locator('[data-testid="chartset-pareto"] .sigma-verdict__headline');
       await headline.waitFor();
+      const staleHeadline = await headline.textContent();
+      await page.locator('[data-testid="chartset-pareto-column"]').selectOption("category");
+      await page.waitForFunction(
+        (stale) => document.querySelector('[data-testid="chartset-pareto"] .sigma-verdict__headline')?.textContent !== stale,
+        staleHeadline,
+      );
       const text = await headline.textContent();
       assert(
         text?.toLowerCase().includes("vital few") && text?.includes("Scratch"),
