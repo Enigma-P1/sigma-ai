@@ -226,13 +226,18 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write # required to create the Release and attach assets
+      actions: read # `gh run download` below needs this to fetch this run's artifacts
     steps:
-      - uses: actions/checkout@v7.0.1
-
-      - name: Download built installers
-        uses: actions/download-artifact@v7.0.1
-        with:
-          path: release-assets
+      # Fetch this run's own already-built installers with the runner's
+      # built-in gh CLI, rather than actions/download-artifact -- that
+      # action is versioned separately from upload-artifact and a wrong
+      # pin (v7.0.1 doesn't exist for it) failed release run #1; gh has no
+      # version to get wrong. The build jobs this one `needs:` have already
+      # uploaded their artifacts by the time this step runs.
+      - name: Download built installers from this run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download "$GITHUB_RUN_ID" --dir release-assets --repo "$GITHUB_REPOSITORY"
 
       - name: Publish the Release with the installers attached
         env:
