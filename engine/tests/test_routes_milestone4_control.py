@@ -144,3 +144,37 @@ def test_close_block_loop_over_http_blocks_then_clears_when_fmea_is_actioned(cli
     closed_loaded = client.get("/project/m4-1/artifacts/a3-001").json()
     assert closed_loaded["closure"]["close_check"]["value"]["close_blocked"] is False
     assert closed_loaded["closure"]["project_status"] == "closed"
+
+
+def test_prescore_t21_with_project_id_runs_the_measurement_check_on_file_check(client):
+    """M6 eval fix (persona FL-07): /prescore/T-21?project_id=... threads
+    the project's T-12 state into the T-21 prescore -- flag when a frozen
+    chart has no T-12 on file, pass naming the verdict once one exists.
+    Without project_id the response keeps its artifact-only shape."""
+    from factories import make_continuous_msa, make_control_chart_imr
+
+    _create_project(client)
+
+    body = make_control_chart_imr()
+    plain = client.post("/prescore/T-21", json=body)
+    assert plain.status_code == 200, plain.text
+    assert "measurement_check_on_file" not in {r["check_id"] for r in plain.json()}
+
+    flagged = client.post("/prescore/T-21?project_id=m4-1", json=body)
+    assert flagged.status_code == 200, flagged.text
+    by_id = {r["check_id"]: r for r in flagged.json()}
+    check = by_id["measurement_check_on_file"]
+    assert check["status"] == "flag"
+    assert "no measurement check (T-12) on file" in check["detail"]
+
+    save_msa = client.post("/project/m4-1/artifacts/T-12", json=make_continuous_msa())
+    assert save_msa.status_code == 200, save_msa.text
+
+    passed = client.post("/prescore/T-21?project_id=m4-1", json=body)
+    by_id = {r["check_id"]: r for r in passed.json()}
+    check = by_id["measurement_check_on_file"]
+    assert check["status"] == "pass"
+    assert "latest T-12 verdict" in check["detail"]
+
+    missing = client.post("/prescore/T-21?project_id=no-such-project", json=body)
+    assert missing.status_code == 404

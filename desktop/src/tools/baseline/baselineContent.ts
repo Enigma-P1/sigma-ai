@@ -22,7 +22,9 @@ export const baselineHelperContent: HelperFrameContent = {
     "points before control limits can be frozen. At the Coffee Bar: 25 peak orders' handoff minutes from " +
     "the time-study export, USL 5.0 from the customer's own words (\"if it's more than five minutes I just " +
     "go to the vending machine\"). The result is the measured baseline the charter's claimed 8.4 gets " +
-    "reconciled against.",
+    "reconciled against. This screen is for continuous measurements; if your data is pass/fail counts " +
+    "(attribute data), the baseline lives on the p-chart (T-21, run diagnostically -- no freeze needed) " +
+    "plus DPMO/sigma from the Yield Calculator (T-10) -- the matrix's own attribute pairing (§3a row 2.4.3).",
   whenNotTo:
     "The classic misuse is capability on an unstable process -- the defining invalidator of the whole " +
     "rubric. If the chart shows signals, EXIT-04 fires: \"you don't have a baseline yet.\" That is not a " +
@@ -30,7 +32,8 @@ export const baselineHelperContent: HelperFrameContent = {
     "Find what was different about the flagged points (the special causes), address that, collect again, " +
     "re-run. Until then the tool shows Pp/Ppk only, labeled performance-not-capability, and no Cp/Cpk claim " +
     "belongs anywhere -- including in your own write-up. Also not for shuffled data (stability needs true " +
-    "time order) and never before a passing measurement check.",
+    "time order), never before a passing measurement check, and not for pass/fail counts -- attribute data " +
+    "baselines on the p-chart (T-21) with T-10 for DPMO/sigma, not on this screen's I-MR math.",
   fieldGuidance: [
     {
       field: "Dataset",

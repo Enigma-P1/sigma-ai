@@ -123,8 +123,10 @@ The engine's verdict, pasted:
 
 The decision recorded is **loop**, not close — 64.8% recovered is the
 method working, and the remainder routes to the #2 ranked fix. Prescore:
-all five checks pass, including `gap_arithmetic_consistency` (stored gap
-re-derives from the stored inputs) and `confounder_echo_present`.
+all six checks pass, including `gap_arithmetic_consistency` (stored gap
+re-derives from the stored inputs), `confounder_echo_present`, and
+`capability_language_requires_stability` (both windows read stable, so
+nothing gates the free text).
 Implementation beyond the pilot followed the proof: batch-steam +
 sequencing became the standard on every morning from 2026-08-24, the
 documented state round 2 measures from.
@@ -217,9 +219,10 @@ package. The engine's verdict, pasted:
   writing, with the Cpk 0.054 capability run above quoted wherever the
   win is claimed.
 
-Prescore: all five checks pass (`confounder_echo_present` confirms the
+Prescore: all six checks pass (`confounder_echo_present` confirms the
 weakened sentence is in the headline; `gap_arithmetic_consistency`
-re-derives the remainder). Improve closes with numbers against the
+re-derives the remainder; `capability_language_requires_stability` sees
+both windows stable, so the quoted Cpk rider is backed by a real run). Improve closes with numbers against the
 charter goal: **met on the mean (4.899 vs 5.0, remaining −0.10), under
 semester load, with both guardrails improved and the every-order promise
 explicitly not yet met** — and the implemented state (both methods, all

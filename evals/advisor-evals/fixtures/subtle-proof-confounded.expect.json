@@ -1,0 +1,85 @@
+{
+  "defect": "PLAN \u00a79's subtle pattern: 'before/after proof with a reported confound' paired with 'a narrative that claims clean attribution.' Both before- and after-windows are deliberately STABLE and the improvement is real and threshold-meeting (isolating this fixture from fixture 3's instability defect) -- the only problem is that confounders.staffing.changed=true (two new baristas started the week the pilot began), which correctly makes the engine's OWN computed verdict honest ('Improvement shown, but a reported confounder weakens this proof: staffing: ...'), while the free-text `notes` field says the opposite: 'The improvement is fully attributable to our fix -- staffing was normal throughout the pilot.'",
+  "deterministic_layer": {
+    "notes": "prescore's confounder_echo_present PASSES -- and it SHOULD: it is checking that the engine's own computed verdict.weakened/headline honestly reflect the confounder checklist, which they do (confirmed live: weakened=true, headline includes 'weakens this proof: staffing: ...'). That check has no way to see, and was never designed to see, the free-text `notes` field at all -- it compares two engine-computed values to each other, not the student's prose to either of them. The gap between an honest engine verdict and a dishonest human narrative sitting three fields away in the same artifact is exactly what prescore cannot catch and review mode must.",
+    "prescore_flags": [
+      {
+        "check_id": "threshold_as_declared",
+        "detail": "threshold_verdict='met' matches a fresh recompute (5 vs declared 6, lower_is_better)",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "confounder_echo_present",
+        "detail": "1 confounder(s) changed (['staffing']); verdict.weakened=True, weakened sentence in headline=True",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "guardrail_section_present_or_explicitly_none",
+        "detail": "1 guardrail(s) reported alongside the primary metric",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "gap_arithmetic_consistency",
+        "detail": "original_gap=3.4, recovered=3.4, remaining=0, goal_met=True -- recomputed and matches",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "metric_identity_single_copy",
+        "detail": "metric_ref='order cycle time (minutes)', operational_definition_ref='OpDef: time from order placed to order handed to customer, stopwatch, whole seconds, station clock', measurement_system_ref='MSA-passed stopwatch check, T-12 artifact MSA-1' -- one copy each, shared by before and after by construction (a changed yardstick cannot happen)",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "capability_language_requires_stability",
+        "detail": "no computed stability field on this artifact reads unstable -- free-text capability language (if any) is not contradicted by the artifact's own computed state",
+        "status": "pass",
+        "tool_id": "T-20"
+      }
+    ],
+    "schema_blocks": false,
+    "validate_status": 200,
+    "verdict_headline": "Threshold met, as declared: order cycle time (minutes) = 5 vs 6 (lower_is_better). Improvement shown, but a reported confounder weakens this proof: staffing: Two new baristas started the week the pilot began.",
+    "verdict_weakened": true
+  },
+  "fixture_id": "subtle-proof-confounded",
+  "grading": {
+    "checks": [
+      {
+        "criterion_id": "R-IMP-03",
+        "expect_verdict": "needs_work",
+        "type": "criterion_verdict"
+      }
+    ],
+    "text_fallback_keywords": [
+      "confound",
+      "staffing",
+      "fully attributable",
+      "attribution",
+      "tempers the claim",
+      "contradicts",
+      "weakens",
+      "not fully attributable"
+    ]
+  },
+  "live_setup": {
+    "advisor_ask": {
+      "artifact_id": "eval-proof-confounded",
+      "mode": "review"
+    },
+    "project_id": "advisor-eval-subtle-proof-confounded",
+    "save_before_call": [
+      "T-20"
+    ]
+  },
+  "mode": "review",
+  "must_catch": [
+    "notes claims the improvement is 'fully attributable' to the fix, directly contradicting confounders.staffing.changed=true sitting in the same artifact, and contradicting the artifact's own computed verdict.headline, which already states the confound weakens the proof.",
+    "R-IMP-03 (before/after proof) should verdict needs_work: rubric text explicitly requires 'any reported confound tempers the claim in the student's own words' -- this student's words do the opposite."
+  ],
+  "schema_note": "Nothing here is schema-blocked -- confounders.staffing.changed=true and a `notes` field that ignores it are both independently valid; the schema has no rule tying free-text notes to the confounder checklist (and by PLAN \u00a74.2 never would -- that comparison is a content-quality judgment, not a math/logic guard).",
+  "tool_id": "T-20"
+}

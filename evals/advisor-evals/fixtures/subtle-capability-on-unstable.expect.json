@@ -1,0 +1,94 @@
+{
+  "defect": "PLAN \u00a79's subtle Green-Belt-fail pattern: 'capability claimed on an unstable process.' The BEFORE window is a clean 12-point step shift (5.0-ish, then 9.0-ish) -- the engine's own I-MR read fires a default Western Electric rule and marks before_baseline.stable=false, which gates cp_index/cpk_index to null (artifacts/proof.py delegates straight to stats/baseline.py's run_baseline; Pp/Ppk stay populated as the honest 'performance, not capability' fallback -- rubric R-MEA-08). The draft's free-text `notes` field plants a Cpk capability CLAIM about that exact same before-window ('Cpk was about 1.35, comfortably inside spec') that the engine's own gate refuses to compute at all.",
+  "deterministic_layer": {
+    "before_baseline_capability": {
+      "cp_index": null,
+      "cpk_index": null,
+      "performance_not_capability": true,
+      "pp_index": 0.8125773972669181,
+      "ppk_index": 0.8125773972669181
+    },
+    "before_baseline_stability_note": "not stable -- you don't have a baseline yet: a default Western Electric rule (rule 1 and/or rule 4) signaled",
+    "before_baseline_stable": false,
+    "facts_block_for_this_draft_is_empty": true,
+    "notes": "Confirmed live: before_baseline.stable=false (a default WECO rule fired on the deliberate step shift), capability.cp_index and capability.cpk_index are both null, while pp_index/ppk_index stay populated -- the engine gates Cpk on stability exactly as designed (stats/baseline.py + capability.py), and none of this is a validation error (schema_blocks=false). Separately confirmed by calling sigma_engine.advisor.context.render_facts_block() directly against this validated artifact: it returns '' (empty). Every one of ProofArtifact's own Computed[...] fields (before_baseline, guardrail_report, gap, verdict) wraps a STRUCTURED value, not a bare number/bool, and _extract_computed_facts() only ever lifts a bare bool/number out of a Computed[...] leaf -- a structured value is skipped without recursing into it (context.py's own documented rule). So the validator's 'trustworthy, outside the untrusted delimiter' DRAFT FACTS tier carries NOTHING for this artifact type; the stable=false/cpk_index=null evidence is visible to the model only inside the (still fully shown, just delimited-as-data) draft JSON block. M6 fidelity-panel fix (pre-ship): prescore/proof.py now carries a sixth check, capability_language_requires_stability, which fires on exactly this artifact -- the computed before_baseline.stable=false plus capability-index vocabulary ('cpk') in the free-text notes field is a schema-visible contradiction, flagged deterministically (word-boundary keyword scan over notes + the five confounder notes, rubric R-MEA-08/R-MEA-09). The prescore_flags block below records it. The advisor-layer job this fixture grades is unchanged and still real: the validator pass must trace the notes claim against the draft's own numbers in prose (the facts_block is still empty for this artifact type -- _extract_computed_facts() still lifts no structured Computed[...] value), and a flag-level prescore line is advice, not a block; but 'nothing in the deterministic layer surfaces the instability/capability gate' is no longer true, by design.",
+    "prescore_flags": [
+      {
+        "check_id": "threshold_as_declared",
+        "detail": "threshold_verdict='met' matches a fresh recompute (4.5 vs declared 6, lower_is_better)",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "confounder_echo_present",
+        "detail": "0 confounder(s) changed ([]); verdict.weakened=False, weakened sentence in headline=True",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "guardrail_section_present_or_explicitly_none",
+        "detail": "1 guardrail(s) reported alongside the primary metric",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "gap_arithmetic_consistency",
+        "detail": "original_gap=2, recovered=2.5, remaining=-0.5, goal_met=True -- recomputed and matches",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "metric_identity_single_copy",
+        "detail": "metric_ref='order cycle time (minutes)', operational_definition_ref='OpDef: time from order placed to order handed to customer, stopwatch, whole seconds, station clock', measurement_system_ref='MSA-passed stopwatch check, T-12 artifact MSA-1' -- one copy each, shared by before and after by construction (a changed yardstick cannot happen)",
+        "status": "pass",
+        "tool_id": "T-20"
+      },
+      {
+        "check_id": "capability_language_requires_stability",
+        "detail": "stability failed here (the before baseline reads not-stable, so the engine gated its capability indices) -- capability language in free text can't be backed by these numbers (rubric R-MEA-08/R-MEA-09): notes: ['cpk']",
+        "status": "flag",
+        "tool_id": "T-20"
+      }
+    ],
+    "schema_blocks": false,
+    "validate_status": 200
+  },
+  "fixture_id": "subtle-capability-on-unstable",
+  "grading": {
+    "checks": [
+      {
+        "field_path_contains": "notes",
+        "severity_in": [
+          "cant_trace",
+          "contradicts"
+        ],
+        "type": "flag_present"
+      }
+    ],
+    "text_fallback_keywords": [
+      "cpk",
+      "capability",
+      "unstable",
+      "not stable",
+      "cannot trace",
+      "does not trace",
+      "no basis",
+      "contradicts",
+      "gated"
+    ]
+  },
+  "live_setup": {
+    "advisor_ask": {
+      "mode": "validate",
+      "tool_id": "T-20"
+    },
+    "project_id": "advisor-eval-subtle-capability-on-unstable",
+    "save_before_call": []
+  },
+  "mode": "validate",
+  "must_catch": [
+    "The notes field's Cpk 1.35 claim does not trace to anything the engine computed -- before_baseline.stable is false and before_baseline.capability.value.cpk_index is null (the engine's own Cpk gate on an unstable process), so the flag should be severity 'contradicts' (or at minimum 'cant_trace')."
+  ],
+  "schema_note": "Nothing here is schema-blocked -- an unstable before-window is a normal, common, fully valid T-20 state (a pilot's whole point can be to fix an unstable process). T-13 (Baseline) itself has no ARTIFACT_REGISTRY entry (routes/stats.py's own comment: 'a stats-computed view with no artifact_id'), so there is no T-13 schema to validate a narrative claim against directly -- T-20 (Proof) is the one schema-registered artifact that runs the identical stats/baseline.py gate internally (before_baseline/after_baseline), so it is the natural, and only, vehicle for this defect among the registered tool_ids.",
+  "tool_id": "T-20"
+}

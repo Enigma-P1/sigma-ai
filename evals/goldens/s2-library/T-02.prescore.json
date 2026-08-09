@@ -7,8 +7,8 @@
   },
   {
     "check_id": "period_consistency",
-    "detail": "rows mix periods: ['Q3 2026', 'Q3 2026 (3-week sample, extrapolated)']",
-    "status": "flag",
+    "detail": "all rows share one period",
+    "status": "pass",
     "tool_id": "T-02"
   }
 ]

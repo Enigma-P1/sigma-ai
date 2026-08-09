@@ -16,8 +16,12 @@ export const standardWorkHelperContent: HelperFrameContent = {
   whenToUse:
     "Once the proven change is implemented and Control needs a method to train and hold. At the Coffee " +
     "Bar: seed the steps from the process map's improved state, then write the standard for each -- the " +
-    "paired-shot sequencing marked as changed-from-prior, with a standard someone could check against the " +
-    "3.75-minute order pace the peak demands (48 orders in 180 minutes). Priya Shah owns v1, effective " +
+    "paired-shot sequencing marked as changed-from-prior, each step's standard something observable about " +
+    "ONE repetition of that step (the 2.0-minute prepare; second shots within 30 seconds). Keep three " +
+    "numbers straight while writing: a step's standard says what one repetition of the work should take; " +
+    "the 3.75-minute pace (48 orders in 180 minutes) is what peak demand requires of the whole system -- " +
+    "context the step standards must add up to fit within, never itself a step's standard; and the " +
+    "customer's 5.0-minute promise is a spec line, not a work instruction. Priya Shah owns v1, effective " +
     "dated. The test while writing: could a qualified-but-new barista run the morning from this page, " +
     "without the author in the building?",
   whenNotTo:

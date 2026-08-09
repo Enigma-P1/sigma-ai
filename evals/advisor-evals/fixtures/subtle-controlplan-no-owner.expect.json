@@ -1,0 +1,111 @@
+{
+  "defect": "PLAN \u00a79's subtle pattern: 'control plan with no owner,' built as three monitored items spanning exactly the range prescore can and cannot see. M-1 (the primary CTQ) has owner_name='' -- a genuinely blank owner. M-3 has owner_name='the team' with owner_accepted=false -- a group name, not accepted. M-2 (the Improve change) has owner_name='TBD' with owner_accepted=TRUE -- a placeholder name marked as if a real person had accepted the role. Everything else on the plan (frequency reasons, OCAP coverage and elements, training verification, check-in schedule) is deliberately clean so the only signal is owner quality.",
+  "deterministic_layer": {
+    "notes": "Confirmed live: owner_named hard_flags on M-1 only (['M-1'], the genuinely blank owner); owner_accepted flags on M-3 only (['M-3'], named-but-not-accepted). M-2 ('TBD', accepted=true) never appears in either check's output -- plan_health.ownerless_item_ids and unaccepted_owner_item_ids both skip it entirely, because owner_named only tests '.strip()' truthiness and owner_accepted only tests the boolean flag; neither one reads what the name actually says. M6 fidelity-panel fix (pre-ship): the prescore now also runs owner_not_placeholder -- prescore/charter.py's R-DEF-04 blocklist (plus 'the team'), applied to owner fields regardless of the accepted flag -- so M-2 ('TBD', accepted=true) is now a deterministic hard_flag ('an accepted placeholder is not an owner') and M-3 ('the team', unaccepted) is named in the same check's detail. The prescore_flags block below records all three owner findings. The advisor-layer job this fixture grades is unchanged: R-CTL-03 should still verdict needs_work and name M-2's placeholder in prose rather than merely restating the deterministic flags; what changed is that the deterministic layer no longer reads M-2 as indistinguishable from a real accepted owner.",
+    "plan_health": {
+      "check_in_overdue": false,
+      "check_in_overdue_detail": "no check-in schedule on this plan yet",
+      "is_theater": true,
+      "ownerless_item_ids": [
+        "M-1"
+      ],
+      "unaccepted_owner_item_ids": [
+        "M-3"
+      ]
+    },
+    "prescore_flags": [
+      {
+        "check_id": "owner_named",
+        "detail": "ownerless monitored item(s) -- an unowned control plan is theater, and this rubric agrees (R-CTL-03 Fail line): ['M-1']",
+        "status": "hard_flag",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "owner_accepted",
+        "detail": "item(s) with a named owner and no evidence of handoff (R-CTL-03 Needs-work line): ['M-3']",
+        "status": "flag",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "owner_not_placeholder",
+        "detail": "an accepted placeholder is not an owner -- item(s) with a placeholder owner name marked accepted, as if a real person had taken the handoff (R-CTL-03 Fail line): [('M-2', 'TBD')]; item(s) with a placeholder owner name (R-CTL-03 / R-DEF-04's blocklist): [('M-3', 'the team')]",
+        "status": "hard_flag",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "frequency_reason_present",
+        "detail": "every item's monitoring frequency carries a stated reason",
+        "status": "pass",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "ctq_and_fix_coverage",
+        "detail": "the plan covers both the primary CTQ and what Improve changed",
+        "status": "pass",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "ocap_coverage",
+        "detail": "every monitored item has at least one OCAP entry",
+        "status": "pass",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "ocap_elements_complete",
+        "detail": "every OCAP entry carries a first response, a containment step, an escalation contact, and an acting owner",
+        "status": "pass",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "training_verification_present",
+        "detail": "every training row names how it was verified",
+        "status": "pass",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "check_in_overdue",
+        "detail": "no check-in schedule on this plan yet",
+        "status": "pass",
+        "tool_id": "T-22"
+      }
+    ],
+    "schema_blocks": false,
+    "validate_status": 200
+  },
+  "fixture_id": "subtle-controlplan-no-owner",
+  "grading": {
+    "checks": [
+      {
+        "criterion_id": "R-CTL-03",
+        "expect_verdict": "needs_work",
+        "type": "criterion_verdict"
+      }
+    ],
+    "text_fallback_keywords": [
+      "tbd",
+      "placeholder",
+      "not a real",
+      "named person",
+      "m-2",
+      "the team",
+      "not a named individual"
+    ]
+  },
+  "live_setup": {
+    "advisor_ask": {
+      "artifact_id": "eval-controlplan-1",
+      "mode": "review"
+    },
+    "project_id": "advisor-eval-subtle-controlplan-no-owner",
+    "save_before_call": [
+      "T-22"
+    ]
+  },
+  "mode": "review",
+  "must_catch": [
+    "M-2's owner_name is the placeholder 'TBD' (rubric R-CTL-03's own placeholder-name framing), not a real named person, despite owner_accepted=true -- this is the sharpest case: it passes BOTH prescore owner checks (owner_named only tests for blank; owner_accepted only tests the boolean flag) and is left entirely to judgment.",
+    "R-CTL-03 (control plan core) should verdict needs_work, and should name M-2's placeholder owner specifically -- not just restate the M-1/M-3 issues prescore already flagged."
+  ],
+  "schema_note": "Nothing here is schema-blocked -- MonitoredItem.owner_name is schema-loose by design (control_plan.py's own docstring: 'an ownerless item must be SAVEABLE so the theater flag has something to render against'), and nothing ties owner_name's CONTENT to owner_accepted's truth value. 'TBD' + accepted=true is fully schema-legal, which is exactly what makes it the strongest form of this defect: it is indistinguishable from a real accepted owner to every deterministic check in this engine.",
+  "tool_id": "T-22"
+}

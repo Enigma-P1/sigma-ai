@@ -2,21 +2,35 @@
 
 `owner_named` renders `plan_health.ownerless_item_ids` as the FAIL-level
 (hard_flag) theater check the task brief and R-CTL-03's own Fail line both
-name explicitly. `ocap_coverage` escalates to hard_flag only for the
-primary-CTQ item -- R-CTL-04's Fail line is specifically "the primary CTQ
-has no response path at all," not every item.
+name explicitly. `owner_not_placeholder` closes the gap the M6 fidelity
+panel named: a placeholder name ("TBD", "the team") is not an owner
+whatever the accepted flag says, and a placeholder marked accepted=true is
+the worst case -- the record claims a handoff that cannot have happened.
+`ocap_coverage` escalates to hard_flag only for the primary-CTQ item --
+R-CTL-04's Fail line is specifically "the primary CTQ has no response path
+at all," not every item.
 """
 
 from __future__ import annotations
 
-from ..artifacts.control_plan import ControlPlanArtifact
+from ..artifacts.control_plan import ControlPlanArtifact, MonitoredItem
+from .charter import PLACEHOLDER_OWNER_NAMES
 from .common import PrescoreResult
+
+# R-DEF-04's owner-name blocklist, shared from prescore/charter.py rather
+# than mirrored (the same exact-match-on-trimmed-lowercase approach --
+# deliberately narrow, so a real person named e.g. "Teamsy" is never
+# caught), plus "the team" -- the group-noun form a control plan's owner
+# column attracts (the M6 fidelity panel's own exhibit): an article in
+# front doesn't make a team a person.
+PLACEHOLDER_CONTROL_PLAN_OWNER_NAMES = PLACEHOLDER_OWNER_NAMES | frozenset({"the team"})
 
 
 def run_control_plan_prescore(artifact: ControlPlanArtifact) -> list[PrescoreResult]:
     return [
         _owner_named(artifact),
         _owner_accepted(artifact),
+        _owner_not_placeholder(artifact),
         _frequency_reason_present(artifact),
         _ctq_and_fix_coverage(artifact),
         _ocap_coverage(artifact),
@@ -49,6 +63,51 @@ def _owner_accepted(artifact: ControlPlanArtifact) -> PrescoreResult:
             "every named owner has accepted the role" if ok
             else f"item(s) with a named owner and no evidence of handoff (R-CTL-03 Needs-work line): {bad}"
         ),
+    )
+
+
+def _placeholder_owner_entries(item: MonitoredItem) -> list[tuple[str, str, bool]]:
+    """(label, name, accepted) for every owner field on this item whose
+    name is on the blocklist -- the top-level owner plus any per-shift
+    owners, since both carry the same name+accepted pair the two checks
+    above read."""
+    entries: list[tuple[str, str, bool]] = []
+    if item.owner_name.strip().lower() in PLACEHOLDER_CONTROL_PLAN_OWNER_NAMES:
+        entries.append((item.item_id, item.owner_name, item.owner_accepted))
+    for shift in item.per_shift_owners:
+        if shift.owner_name.strip().lower() in PLACEHOLDER_CONTROL_PLAN_OWNER_NAMES:
+            entries.append((f"{item.item_id} (shift {shift.shift!r})", shift.owner_name, shift.owner_accepted))
+    return entries
+
+
+def _owner_not_placeholder(artifact: ControlPlanArtifact) -> PrescoreResult:
+    """M6 fidelity-panel fix: the blocklist applies to owner fields
+    REGARDLESS of the accepted flag -- `owner_named` only tests blankness
+    and `owner_accepted` only tests the boolean, so "TBD" + accepted=true
+    used to pass both. Placeholder+accepted is the worst case (hard_flag):
+    an accepted placeholder is not an owner, it is a record claiming a
+    handoff to nobody. A placeholder not yet marked accepted flags (and
+    also shows in owner_accepted's own needs-work line)."""
+    placeholders = [e for i in artifact.monitored_items for e in _placeholder_owner_entries(i)]
+    if not placeholders:
+        return PrescoreResult(
+            check_id="owner_not_placeholder", tool_id="T-22", status="pass",
+            detail="no owner field carries a placeholder name",
+        )
+    accepted = [(label, name) for label, name, acc in placeholders if acc]
+    unaccepted = [(label, name) for label, name, acc in placeholders if not acc]
+    parts = []
+    if accepted:
+        parts.append(
+            "an accepted placeholder is not an owner -- item(s) with a placeholder owner name marked "
+            f"accepted, as if a real person had taken the handoff (R-CTL-03 Fail line): {accepted}"
+        )
+    if unaccepted:
+        parts.append(f"item(s) with a placeholder owner name (R-CTL-03 / R-DEF-04's blocklist): {unaccepted}")
+    return PrescoreResult(
+        check_id="owner_not_placeholder", tool_id="T-22",
+        status="hard_flag" if accepted else "flag",
+        detail="; ".join(parts),
     )
 
 

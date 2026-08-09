@@ -153,8 +153,16 @@ def save_and_prescore(
     recorder.call(
         f"{step_prefix}.save", "POST", f"/project/{project_id}/artifacts/{tool_id}", body, tool_ids=[tool_id],
     )
+    # T-21's prescore is project-aware (M6 fix, persona FL-07): with
+    # ?project_id= the engine adds measurement_check_on_file, threading the
+    # project's T-12 state in (routes/prescore.py). Every other tool's
+    # prescore stays artifact-only, so the query param is passed only where
+    # it does something.
+    prescore_path = f"/prescore/{tool_id}"
+    if tool_id == "T-21":
+        prescore_path = f"{prescore_path}?project_id={project_id}"
     recorder.call(
-        f"{step_prefix}.prescore", "POST", f"/prescore/{tool_id}", body, tool_ids=[tool_id],
+        f"{step_prefix}.prescore", "POST", prescore_path, body, tool_ids=[tool_id],
     )
     return validated["artifact"]
 

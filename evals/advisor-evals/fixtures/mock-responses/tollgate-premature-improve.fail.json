@@ -1,0 +1,12 @@
+{
+  "answer": "```json\n{\"recommendation\": \"go\", ...}\n```",
+  "structured": {
+    "actions": [],
+    "reasons": [
+      "The proof shows a clean, stable, threshold-meeting improvement."
+    ],
+    "recommendation": "go"
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

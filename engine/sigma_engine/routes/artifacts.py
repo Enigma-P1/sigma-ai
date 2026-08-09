@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 
 from ..project_store import ProjectStore
-from ..registry import ARTIFACT_REGISTRY
+from ..registry import ARTIFACT_REGISTRY, collect_standing_hard_flags
 from .deps import get_store
 
 router = APIRouter(tags=["artifacts"])
@@ -48,6 +48,31 @@ def save_artifact(
     new to the project, version N+1 otherwise -- "create" and "save" are
     the same operation here because every save is versioned (PLAN §4.5)."""
     model = _model_for(tool_id)
+
+    if tool_id == "T-25":
+        # M6 fidelity-panel fix 7: the A3 close check honors standing
+        # prescore hard flags across this project's saved artifacts. The
+        # sweep runs SERVER-side through the same registries this route
+        # set uses (registry.collect_standing_hard_flags), and whatever
+        # the caller posted in closure.standing_hard_flags is overwritten
+        # wholesale -- server-computed, never client-supplied, the same
+        # discipline as the engine-stamped tollgate questions. The A3's
+        # own artifact_id is excluded: its prior stored version describes
+        # a state this very save may be fixing. A malformed `closure`
+        # falls through untouched so model validation reports the real
+        # error.
+        raw_closure = body.get("closure", {})
+        if isinstance(raw_closure, dict):
+            try:
+                standing = collect_standing_hard_flags(
+                    store, project_id, exclude_artifact_id=body.get("artifact_id"),
+                )
+            except FileNotFoundError as exc:
+                raise HTTPException(status_code=404, detail=str(exc)) from exc
+            closure = dict(raw_closure)
+            closure["standing_hard_flags"] = [f.model_dump(mode="json") for f in standing]
+            body = {**body, "closure": closure}
+
     try:
         validated = model.model_validate(body)
     except ValidationError as exc:

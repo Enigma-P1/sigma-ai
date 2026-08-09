@@ -86,7 +86,9 @@ export function useControlChartForm(projectId: string, project: ProjectMetadata,
         /* the save itself succeeded; a failed re-load just skips the badge refresh */
       }
       try {
-        setPrescore(await runPrescore("T-21", body));
+        // projectId turns on the project-aware measurement_check_on_file
+        // check (a freeze with no T-12 on file gets a visible flag).
+        setPrescore(await runPrescore("T-21", body, projectId));
       } catch {
         /* prescore is a nice-to-have on top of a successful save */
       }

@@ -122,6 +122,7 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics, onOpe
                 onSaved={handleSaved}
                 presetDataset={presetDataset}
                 onNavigateToDataset={handleNavigateToDataset}
+                onNavigateToTool={handleStuckNavigate}
                 onOpenAdvisorSettings={onOpenAdvisorSettings}
               />
             ) : (

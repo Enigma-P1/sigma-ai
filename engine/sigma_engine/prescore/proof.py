@@ -20,13 +20,41 @@
     metric/definition/measurement system" guarantee (proof.py's module
     docstring), re-affirmed here the same way route_tamper_check
     re-affirms what HypothesisRunArtifact's own validator already ensures.
+  - capability_language_requires_stability (M6 fidelity-panel fix): when
+    this artifact's own computed stability read says a window is NOT
+    stable, capability-index vocabulary in its free-text fields is a
+    schema-visible contradiction -- the engine gated Cpk/Ppk on stability
+    (stats/baseline.py, rubric R-MEA-08/R-MEA-09), so no free-text claim
+    of it can be backed by these numbers. The solution-language-keyword
+    idiom (prescore/charter.py): a small reviewable vocabulary, matched
+    case-insensitively on word boundaries, over the enumerated free-text
+    fields this schema actually has (`notes` + the five confounder
+    notes). Fires ONLY when a computed stable field is False; never on a
+    stable (or not-computed) artifact. T-25/A3 gets no analogous check:
+    the A3 schema carries no computed stability state of its own (its
+    computed fields are realized benefits, the gap verdict, and the close
+    check), so there is nothing schema-visible there to contradict.
 """
 
 from __future__ import annotations
 
+import re
+
 from ..artifacts.proof import CONFOUNDER_FIELDS, ProofArtifact, compute_gap
 from ..stats.descriptive import weighted_mean
 from .common import PrescoreResult
+
+# Capability-index vocabulary (module docstring's last check). Deliberately
+# small and reviewable, like SOLUTION_LANGUAGE_KEYWORDS -- word-boundary
+# matching means "capable" never fires inside "escapable".
+CAPABILITY_LANGUAGE_KEYWORDS: tuple[str, ...] = (
+    "cpk", "ppk", "process capability", "sigma level", "capable",
+)
+
+_CAPABILITY_PATTERN = re.compile(
+    r"\b(" + "|".join(re.escape(k) for k in CAPABILITY_LANGUAGE_KEYWORDS) + r")\b",
+    re.IGNORECASE,
+)
 
 
 def run_proof_prescore(artifact: ProofArtifact) -> list[PrescoreResult]:
@@ -36,6 +64,7 @@ def run_proof_prescore(artifact: ProofArtifact) -> list[PrescoreResult]:
         _guardrail_section_present_or_explicitly_none(artifact),
         _gap_arithmetic_consistency(artifact),
         _metric_identity_single_copy(artifact),
+        _capability_language_requires_stability(artifact),
     ]
 
 
@@ -129,6 +158,56 @@ def _gap_arithmetic_consistency(artifact: ProofArtifact) -> PrescoreResult:
             f"goal_met={stored.goal_met} -- recomputed and matches" if matches
             else f"stored gap fields don't match a fresh recompute from the artifact's own inputs -- the file may "
             f"have been hand-edited (stored remaining={stored.remaining:g}, recomputed={recomputed.remaining:g})"
+        ),
+    )
+
+
+def _proof_free_text_fields(artifact: ProofArtifact) -> list[tuple[str, str]]:
+    """The free-text fields this schema actually has, enumerated (module
+    docstring): the artifact-level `notes` plus each confounder answer's
+    `note`. Refs (metric_ref etc.) are identity labels, not narrative, and
+    `next_cause_ref.cause_text` is echoed from the fishbone, not authored
+    here -- both deliberately excluded."""
+    fields = [("notes", artifact.notes or "")]
+    for name in CONFOUNDER_FIELDS:
+        fields.append((f"confounders.{name}.note", getattr(artifact.confounders, name).note))
+    return fields
+
+
+def _capability_language_requires_stability(artifact: ProofArtifact) -> PrescoreResult:
+    unstable_sides = [
+        side for side, baseline in (("before", artifact.before_baseline), ("after", artifact.after_baseline))
+        if baseline is not None and baseline.stable is False
+    ]
+    if not unstable_sides:
+        return PrescoreResult(
+            check_id="capability_language_requires_stability", tool_id="T-20", status="pass",
+            detail=(
+                "no computed stability field on this artifact reads unstable -- free-text capability language "
+                "(if any) is not contradicted by the artifact's own computed state"
+            ),
+        )
+    hits = [
+        (field_name, sorted({m.group(1).lower() for m in _CAPABILITY_PATTERN.finditer(text)}))
+        for field_name, text in _proof_free_text_fields(artifact)
+        if _CAPABILITY_PATTERN.search(text)
+    ]
+    sides = " and ".join(unstable_sides)
+    if not hits:
+        return PrescoreResult(
+            check_id="capability_language_requires_stability", tool_id="T-20", status="pass",
+            detail=(
+                f"the {sides} baseline reads not-stable, and no free-text field carries capability-index "
+                "vocabulary -- nothing claimed past what the numbers back"
+            ),
+        )
+    named = "; ".join(f"{field_name}: {terms}" for field_name, terms in hits)
+    return PrescoreResult(
+        check_id="capability_language_requires_stability", tool_id="T-20", status="flag",
+        detail=(
+            f"stability failed here (the {sides} baseline reads not-stable, so the engine gated its "
+            f"capability indices) -- capability language in free text can't be backed by these numbers "
+            f"(rubric R-MEA-08/R-MEA-09): {named}"
         ),
     )
 

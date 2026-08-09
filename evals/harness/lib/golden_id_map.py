@@ -35,6 +35,11 @@ class GoldenIdSource:
     # `uncovered_reason` is then required.
     scenario_tool_pairs: tuple[tuple[str, str], ...] = ()
     uncovered_reason: str | None = None
+    # An explicit documented status for an id that CANNOT have a test home
+    # at all (M6 fidelity-panel fix 8): today only G-scatter-01's v1-scope
+    # debt -- there is no engine computation to pin, so its entry carries
+    # this status string instead of pretending at coverage.
+    status: str | None = None
 
     def __post_init__(self) -> None:
         if not self.scenario_tool_pairs and not self.uncovered_reason:
@@ -75,11 +80,14 @@ GOLDEN_ID_SOURCES: dict[str, GoldenIdSource] = {
     "G-timestudy-01": GoldenIdSource((("coffee-bar", "T-09"),)),
     "G-run-01": GoldenIdSource((("coffee-bar", "T-13"), ("s1-helpdesk", "T-13"))),
     "G-pareto-01": GoldenIdSource((("coffee-bar", "T-14"), ("s1-helpdesk", "T-14"), ("s2-library", "T-14"))),
-    "G-scatter-01": GoldenIdSource(uncovered_reason=(
-        "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no "
-        "engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a "
-        "genuine desktop-only rendering surface."
-    )),
+    "G-scatter-01": GoldenIdSource(
+        uncovered_reason=(
+            "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no "
+            "engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a "
+            "genuine desktop-only rendering surface."
+        ),
+        status="v1-scope-debt: no engine computation exists; scatter ships visual-only per matrix §5a A-2",
+    ),
     "G-msa-01": GoldenIdSource((("coffee-bar", "T-12"), ("s1-helpdesk", "T-12"), ("s2-library", "T-12"))),
     "G-msa-02": GoldenIdSource((("s2-library", "T-12"),)),
     "G-hyp-01": GoldenIdSource((("coffee-bar", "T-17"), ("coffee-bar", "T-20"), ("s1-helpdesk", "T-17"), ("s1-helpdesk", "T-20"))),
@@ -191,6 +199,8 @@ def build_golden_id_map(
             entry["harness_steps"] = harness_steps
         if source.uncovered_reason:
             entry["design_note"] = source.uncovered_reason
+        if source.status:
+            entry["status"] = source.status
         if not homes:
             entry["uncovered_reason"] = source.uncovered_reason or "no unit test and no harness step cover this id"
 

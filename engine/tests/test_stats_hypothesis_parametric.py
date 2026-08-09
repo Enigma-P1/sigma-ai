@@ -98,6 +98,28 @@ def test_anova_eta_squared_matches_ss_ratio():
     assert "noncentral F" in r.effect_size_ci_method
 
 
+def test_G_hyp_02_one_way_anova_three_groups_hand_checked_f_and_p():
+    """G-hyp-02 golden (matrix IV.B.2, one-way ANOVA on 3+ groups), pinned
+    against a fully hand-checked example -- integer ramps chosen so every
+    sum of squares is exact by hand:
+      A=[1..5] mean 3, B=[3..7] mean 5, C=[5..9] mean 7; grand mean 5.
+      SSB = 5*((3-5)^2 + 0 + (7-5)^2) = 40; each group's SSW = 4+1+0+1+4
+        = 10 -> SSW = 30. df_between = 2, df_within = 12.
+      F = (40/2) / (30/12) = 20 / 2.5 = 8.0 exactly.
+      p (df1=2 has a closed form): P(F(2,12) > f) = (1 + 2f/12)^(-12/2)
+        = (7/3)^-6 = 0.00619639775943697 (hand-evaluated).
+      eta^2 = SSB/(SSB+SSW) = 40/70 = 4/7."""
+    r = one_way_anova([("A", [1, 2, 3, 4, 5]), ("B", [3, 4, 5, 6, 7]), ("C", [5, 6, 7, 8, 9])]).value
+    assert r.test_name == "one_way_anova"
+    assert [g.mean for g in r.groups] == [pytest.approx(3.0), pytest.approx(5.0), pytest.approx(7.0)]
+    assert r.statistic == pytest.approx(8.0, abs=1e-12)
+    assert r.df_between == 2.0
+    assert r.df_within == 12.0
+    assert r.p_value == pytest.approx((7 / 3) ** -6, abs=1e-12)
+    assert r.effect_size_value == pytest.approx(4 / 7, abs=1e-12)
+    assert r.significant is True
+
+
 def test_anova_exit13_attaches_on_significant_result_by_default():
     r = one_way_anova([("Level 1", NIST_ANOVA_LEVEL1), ("Level 2", NIST_ANOVA_LEVEL2), ("Level 3", NIST_ANOVA_LEVEL3)]).value
     assert r.exit13 is not None

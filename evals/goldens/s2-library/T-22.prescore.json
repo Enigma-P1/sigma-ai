@@ -12,6 +12,12 @@
     "tool_id": "T-22"
   },
   {
+    "check_id": "owner_not_placeholder",
+    "detail": "no owner field carries a placeholder name",
+    "status": "pass",
+    "tool_id": "T-22"
+  },
+  {
     "check_id": "frequency_reason_present",
     "detail": "every item's monitoring frequency carries a stated reason",
     "status": "pass",

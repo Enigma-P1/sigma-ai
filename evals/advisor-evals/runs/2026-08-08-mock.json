@@ -1,0 +1,139 @@
+{
+  "engine_url": null,
+  "mode": "mock",
+  "pins": {
+    "advisor_model": "claude-sonnet-5",
+    "anthropic_sdk_version": "0.121.0",
+    "engine_version": "0.1.0",
+    "engine_version_source": "local sigma_engine package (engine/.venv), not a live /health call"
+  },
+  "rows": [
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "crude-charter-solution-shaped",
+      "mode": "review",
+      "reason": "criterion 'R-DEF-02' verdict='needs_work' as expected; criterion 'R-DEF-03' verdict='needs_work' as expected",
+      "self_check": true,
+      "tool_id": "T-03"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "crude-charter-solution-shaped",
+      "mode": "review",
+      "reason": "criterion 'R-DEF-02' verdict='pass', expected 'needs_work'",
+      "self_check": true,
+      "tool_id": "T-03"
+    },
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "crude-fishbone-zero-evidence",
+      "mode": "review",
+      "reason": "criterion 'R-ANA-02' verdict='needs_work' as expected",
+      "self_check": true,
+      "tool_id": "T-15"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "crude-fishbone-zero-evidence",
+      "mode": "review",
+      "reason": "criterion 'R-ANA-02' verdict='pass', expected 'needs_work'",
+      "self_check": true,
+      "tool_id": "T-15"
+    },
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "subtle-capability-on-unstable",
+      "mode": "validate",
+      "reason": "flag on field_path='notes' severity='contradicts' matched",
+      "self_check": true,
+      "tool_id": "T-20"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "subtle-capability-on-unstable",
+      "mode": "validate",
+      "reason": "no flag with field_path containing 'notes' and severity in ['cant_trace', 'contradicts']",
+      "self_check": true,
+      "tool_id": "T-20"
+    },
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "subtle-controlplan-no-owner",
+      "mode": "review",
+      "reason": "criterion 'R-CTL-03' verdict='needs_work' as expected",
+      "self_check": true,
+      "tool_id": "T-22"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "subtle-controlplan-no-owner",
+      "mode": "review",
+      "reason": "criterion 'R-CTL-03' verdict='pass', expected 'needs_work'",
+      "self_check": true,
+      "tool_id": "T-22"
+    },
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "subtle-proof-confounded",
+      "mode": "review",
+      "reason": "criterion 'R-IMP-03' verdict='needs_work' as expected",
+      "self_check": true,
+      "tool_id": "T-20"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "subtle-proof-confounded",
+      "mode": "review",
+      "reason": "criterion 'R-IMP-03' verdict='pass', expected 'needs_work'",
+      "self_check": true,
+      "tool_id": "T-20"
+    },
+    {
+      "actual_grade": "pass",
+      "canned_response": "pass",
+      "expected_grade": "pass",
+      "fixture_id": "tollgate-premature-improve",
+      "mode": "tollgate",
+      "reason": "recommendation='no_go', not in disallowed set ['go']; matched keyword(s) ['pilot', 't-19', 'piloted'] in reasons/actions",
+      "self_check": true,
+      "tool_id": "T-20"
+    },
+    {
+      "actual_grade": "fail",
+      "canned_response": "fail",
+      "expected_grade": "fail",
+      "fixture_id": "tollgate-premature-improve",
+      "mode": "tollgate",
+      "reason": "recommendation='go' is in the disallowed set ['go']",
+      "self_check": true,
+      "tool_id": "T-20"
+    }
+  ],
+  "run_at": "2026-08-08T22:42:48.247479+00:00",
+  "summary": {
+    "grader_mechanics_ok": true,
+    "self_checks_failed": 0,
+    "self_checks_passed": 12,
+    "total_canned_responses": 12
+  }
+}

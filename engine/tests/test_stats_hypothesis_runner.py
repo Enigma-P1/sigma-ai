@@ -159,3 +159,67 @@ def test_run_hypothesis_dispatches_one_proportion():
     q = HypothesisQuestion(question_text="meets target?", comparison_type="proportions", groups=[GroupInput(label="s", successes=26, n=200)], target=0.10)
     r = run_hypothesis(q)
     assert r.routing.route == "one_proportion"
+
+
+# --- Golden pins (matrix golden-coverage rule; evals/goldens/golden-id-map
+# greps these literal ids into their unit-test homes) -----------------------
+
+
+def test_G_hyp_05_nonparametric_fallback_route_fires_at_the_documented_trigger():
+    """G-hyp-05 golden (matrix IV.B.2, nonparametric fallbacks): the
+    documented switch rule (PLAN §4.1 / §4a) -- per-group n <
+    HYP_SWITCH_MAX_GROUP_N (15) AND declared ordinal -- actually ROUTES to
+    Mann-Whitney, names why, and computes it. Reference values hand-checked
+    on two fully separated ordinal samples (no ties across groups):
+      old=[1..8], new=[9..16] -> every old value ranks below every new one.
+      R_old = 1+2+...+8 = 36; U_old = R_old - n1(n1+1)/2 = 36 - 36 = 0.
+      Exact two-sided p = 2 * P(U <= 0) = 2 * 1/C(16,8) = 2/12870
+        = 0.0001554001554... (one arrangement of 12870 puts all of `old`
+        below all of `new`)."""
+    q = HypothesisQuestion(
+        question_text="Did the reworked form change the error scores?",
+        comparison_type="two_independent", declared_data_type="ordinal",
+        groups=[
+            GroupInput(label="old", values=[1, 2, 3, 4, 5, 6, 7, 8]),
+            GroupInput(label="new", values=[9, 10, 11, 12, 13, 14, 15, 16]),
+        ],
+    )
+    r = run_hypothesis(q)
+    assert r.refused is False
+    assert r.routing.route == "mann_whitney_u"
+    assert r.routing.recommend_nonparametric is True
+    assert "declared ordinal" in r.routing.switch_reason  # never a silent swap
+    assert "n=8 < 15" in r.routing.switch_reason
+    v = r.result.value
+    assert v.test_name == "mann_whitney_u"
+    assert v.statistic == pytest.approx(0.0)
+    assert v.p_value == pytest.approx(2 / 12870, abs=1e-15)
+    assert v.significant is True
+
+
+def test_G_hyp_07_one_proportion_vs_target_hand_checked_binomial():
+    """G-hyp-07 golden (matrix §5a A-1 / IASSC 3.5.7, one-proportion vs
+    target): the proportions route with one sample + a target runs the
+    exact binomial test. Reference values hand-checked with binomial
+    coefficients at p0 = 0.5 (symmetric, so the two-sided p doubles one
+    tail exactly):
+      x=13, n=20, phat = 0.65 exactly.
+      P(X >= 13) = (C(20,13)+...+C(20,20))/2^20
+        = (77520+38760+15504+4845+1140+190+20+1)/1048576 = 137980/1048576.
+      two-sided p = 2 * 137980/1048576 = 275960/1048576
+        = 0.26317596435546875 exactly (dyadic rational -- exact in float).
+      Floor check (matrix §4a EXIT-06): n*phat = 13 >= 5, n*(1-phat) = 7 >= 5."""
+    q = HypothesisQuestion(
+        question_text="Is the first-pass approval rate different from the 50% target?",
+        comparison_type="proportions",
+        groups=[GroupInput(label="audited orders", successes=13, n=20)], target=0.5,
+    )
+    r = run_hypothesis(q)
+    assert r.refused is False
+    assert r.routing.route == "one_proportion"
+    v = r.result.value
+    assert v.test_name == "one_proportion"
+    assert v.statistic == pytest.approx(0.65)
+    assert v.p_value == 275960 / 1048576  # exact: scipy's two-sided sum lands on the same dyadic rational
+    assert v.significant is False  # 0.263 > alpha 0.05
+    assert v.risk_difference == pytest.approx(0.15)

@@ -31,7 +31,7 @@
   },
   {
     "check_id": "close_blocked_surfaced",
-    "detail": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure.",
+    "detail": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA, and no standing prescore hard_flag on the project's saved artifacts -- this check does not block closure.",
     "status": "pass",
     "tool_id": "T-25"
   }

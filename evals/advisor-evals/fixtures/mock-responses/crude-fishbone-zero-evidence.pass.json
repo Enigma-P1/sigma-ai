@@ -1,0 +1,15 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-ANA-02",
+        "specific_fix": "Every cause on this board uses proof language in its own text ('Confirmed', 'Proven', 'Verified as the primary driver', 'Established fact', 'Definitively the cause') while its status field still reads 'candidate' with no evidence attached. That is the rubric's own Fail exemplar -- an assumption wearing a badge. Move a cause to 'verified' only once real evidence is attached; until then, the text should read as a hypothesis, not a finding.",
+        "verdict": "needs_work"
+      }
+    ],
+    "overall_note": "Good breadth (6/6 branches), but the free text asserts proof the status/evidence fields don't back up anywhere on the board."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

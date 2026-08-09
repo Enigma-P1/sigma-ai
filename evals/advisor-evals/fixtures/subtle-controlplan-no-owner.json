@@ -1,0 +1,105 @@
+{
+  "artifact_id": "eval-controlplan-1",
+  "as_of": "2026-08-08",
+  "check_in_schedule": null,
+  "created_at": "2026-08-01T09:00:00",
+  "monitored_items": [
+    {
+      "characteristic": "Order fulfillment time",
+      "frequency": "Daily",
+      "frequency_reason": "Matches the daily volume review cadence",
+      "how_measured": "Timestamp diff, POS system",
+      "is_improve_change": false,
+      "is_primary_ctq": true,
+      "item_id": "M-1",
+      "operational_definition_ref": "",
+      "owner_accepted": false,
+      "owner_name": "",
+      "per_shift_owners": [],
+      "where": "Pack station"
+    },
+    {
+      "characteristic": "Barcode scan-verify step compliance",
+      "frequency": "Weekly",
+      "frequency_reason": "Aligned with the weekly team huddle",
+      "how_measured": "Check sheet tally",
+      "is_improve_change": true,
+      "is_primary_ctq": false,
+      "item_id": "M-2",
+      "operational_definition_ref": "",
+      "owner_accepted": true,
+      "owner_name": "TBD",
+      "per_shift_owners": [],
+      "where": "Pack station"
+    },
+    {
+      "characteristic": "Mis-pick rate",
+      "frequency": "Daily",
+      "frequency_reason": "Ties to the daily QC cycle",
+      "how_measured": "Daily QC audit",
+      "is_improve_change": false,
+      "is_primary_ctq": false,
+      "item_id": "M-3",
+      "operational_definition_ref": "",
+      "owner_accepted": false,
+      "owner_name": "the team",
+      "per_shift_owners": [],
+      "where": "Pack station"
+    }
+  ],
+  "notes": null,
+  "ocap_entries": [
+    {
+      "acting_owner": "Shift Lead on duty",
+      "action_steps": [
+        "Station lead pulls the next order personally",
+        "Page a second packer to the station"
+      ],
+      "escalation_contact": "Shift Manager",
+      "escalation_trigger": "Signal persists past 30 minutes",
+      "monitored_item_id": "M-1",
+      "ocap_id": "OC-1",
+      "trigger_signal": "Fulfillment time exceeds 12 minutes on 2 consecutive orders"
+    },
+    {
+      "acting_owner": "Shift Lead on duty",
+      "action_steps": [
+        "Retrain the flagged packer",
+        "Spot-check the next 20 orders"
+      ],
+      "escalation_contact": "Shift Manager",
+      "escalation_trigger": "Second consecutive week below 90%",
+      "monitored_item_id": "M-2",
+      "ocap_id": "OC-2",
+      "trigger_signal": "Weekly compliance below 90%"
+    },
+    {
+      "acting_owner": "Shift Lead on duty",
+      "action_steps": [
+        "Pull and re-audit the day's flagged orders",
+        "Notify the packer involved"
+      ],
+      "escalation_contact": "Shift Manager",
+      "escalation_trigger": "Rate exceeds 3% two days running",
+      "monitored_item_id": "M-3",
+      "ocap_id": "OC-3",
+      "trigger_signal": "Daily mis-pick rate exceeds 3%"
+    }
+  ],
+  "plan_health": null,
+  "schema_version": 1,
+  "tool_id": "T-22",
+  "training_rows": [
+    {
+      "by_when": "2026-08-15",
+      "by_whom": "Shift Lead",
+      "done": true,
+      "row_id": "TR-1",
+      "sop_ref": null,
+      "verified_at": "2026-08-10",
+      "verified_how": "Observed pack-and-scan demo, signed checklist",
+      "who": "New packers"
+    }
+  ],
+  "updated_at": "2026-08-01T09:00:00"
+}

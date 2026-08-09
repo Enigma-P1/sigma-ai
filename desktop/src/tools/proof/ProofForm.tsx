@@ -19,6 +19,7 @@ const CHECK_LABELS: Record<string, string> = {
   guardrail_section_present_or_explicitly_none: "Guardrail section present",
   gap_arithmetic_consistency: "Gap arithmetic consistent",
   metric_identity_single_copy: "Same metric/definition/measurement system",
+  capability_language_requires_stability: "Capability language backed by stability",
 };
 
 /** T-20 Before/After Proof + Remaining-Gap Check -- where the Improve

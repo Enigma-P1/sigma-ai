@@ -1,5 +1,5 @@
 {
-  "covered_count": 33,
+  "covered_count": 40,
   "generated_from": {
     "engine_tests_dir": "engine/tests",
     "matrix": "docs/traceability-matrix.md"
@@ -93,13 +93,21 @@
     },
     "G-baseline-02": {
       "design_note": "Unstable-baseline (EXIT-04) path: all three scenarios' baselines are engine-verified stable by construction (their data-notes' acceptance checks require zero rule-1/rule-4 signals) -- none tells an instability story.",
-      "homes": [],
-      "uncovered_reason": "Unstable-baseline (EXIT-04) path: all three scenarios' baselines are engine-verified stable by construction (their data-notes' acceptance checks require zero rule-1/rule-4 signals) -- none tells an instability story."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_baseline.py"
+      ]
     },
     "G-baseline-03": {
       "design_note": "Non-normal / percentile-capability (EXIT-05) path: both continuous scenarios (Coffee Bar, S-1) read normality no_concern by construction; S-2's baseline is the attribute p-chart path (T-21/T-10), which never touches T-13's normal-theory/percentile capability code at all.",
-      "homes": [],
-      "uncovered_reason": "Non-normal / percentile-capability (EXIT-05) path: both continuous scenarios (Coffee Bar, S-1) read normality no_concern by construction; S-2's baseline is the attribute p-chart path (T-21/T-10), which never touches T-13's normal-theory/percentile capability code at all."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_baseline.py"
+      ]
     },
     "G-charter-01": {
       "harness_steps": [
@@ -458,8 +466,12 @@
     },
     "G-hyp-02": {
       "design_note": "One-way ANOVA (3+ groups): none of the three scenarios' declared primary or screening comparisons is an ANOVA -- S-1/Coffee Bar run two-independent Welch t, S-2 runs chi-square + two-proportion z.",
-      "homes": [],
-      "uncovered_reason": "One-way ANOVA (3+ groups): none of the three scenarios' declared primary or screening comparisons is an ANOVA -- S-1/Coffee Bar run two-independent Welch t, S-2 runs chi-square + two-proportion z."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_hypothesis_parametric.py"
+      ]
     },
     "G-hyp-03": {
       "harness_steps": [
@@ -501,18 +513,30 @@
     },
     "G-hyp-05": {
       "design_note": "Nonparametric (Mann-Whitney / Wilcoxon) fallback: every scenario's continuous data clears the normality/shape checks by construction, so the selector never switches off its parametric default.",
-      "homes": [],
-      "uncovered_reason": "Nonparametric (Mann-Whitney / Wilcoxon) fallback: every scenario's continuous data clears the normality/shape checks by construction, so the selector never switches off its parametric default."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_hypothesis_runner.py"
+      ]
     },
     "G-hyp-06": {
       "design_note": "A T-17 selector EXIT case (matrix §4: 'an exit case appears in ... G-hyp-06'): none of the three scenarios' hypothesis calls is engineered to trip a T-17 exit -- S-2's named exit is T-12's EXIT-02, not a hypothesis-selector case.",
-      "homes": [],
-      "uncovered_reason": "A T-17 selector EXIT case (matrix §4: 'an exit case appears in ... G-hyp-06'): none of the three scenarios' hypothesis calls is engineered to trip a T-17 exit -- S-2's named exit is T-12's EXIT-02, not a hypothesis-selector case."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_hypothesis_selector.py"
+      ]
     },
     "G-hyp-07": {
       "design_note": "One-sample-vs-target routes (matrix correction A-1): every declared comparison across all three scenarios is two-sample (Welch t, chi-square, two-proportion z) -- none compares one sample against a fixed target value.",
-      "homes": [],
-      "uncovered_reason": "One-sample-vs-target routes (matrix correction A-1): every declared comparison across all three scenarios is two-sample (Welch t, chi-square, two-proportion z) -- none compares one sample against a fixed target value."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_stats_hypothesis_runner.py"
+      ]
     },
     "G-imr-01": {
       "harness_steps": [
@@ -683,8 +707,12 @@
     },
     "G-picker-02": {
       "design_note": "PDCA quick-path route: all three scenarios' Picker artifacts route full-DMAIC (none is a small-problem/PDCA story).",
-      "homes": [],
-      "uncovered_reason": "PDCA quick-path route: all three scenarios' Picker artifacts route full-DMAIC (none is a small-problem/PDCA story)."
+      "homes": [
+        "unit-test"
+      ],
+      "unit_test_files": [
+        "engine/tests/test_artifacts_picker.py"
+      ]
     },
     "G-pilot-01": {
       "harness_steps": [
@@ -822,6 +850,7 @@
     "G-scatter-01": {
       "design_note": "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a genuine desktop-only rendering surface.",
       "homes": [],
+      "status": "v1-scope-debt: no engine computation exists; scatter ships visual-only per matrix §5a A-2",
       "uncovered_reason": "Scatter is visual-only in v1 (matrix A-2 / EXIT-15 deferral: no fitted line, no r) -- there is no engine computation behind it at all, so no backend-driven harness step can ever exercise it; it is a genuine desktop-only rendering surface."
     },
     "G-sipoc-01": {
@@ -1056,14 +1085,7 @@
     }
   },
   "uncovered": [
-    "G-baseline-02",
-    "G-baseline-03",
-    "G-hyp-02",
-    "G-hyp-05",
-    "G-hyp-06",
-    "G-hyp-07",
-    "G-picker-02",
     "G-scatter-01"
   ],
-  "uncovered_count": 8
+  "uncovered_count": 1
 }

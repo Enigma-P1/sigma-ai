@@ -177,3 +177,71 @@ def test_baseline_result_round_trips_through_json():
     dumped = result.model_dump(mode="json")
     reloaded = BaselineResult.model_validate(dumped)
     assert reloaded == result
+
+
+# --- Golden pins (matrix golden-coverage rule; evals/goldens/golden-id-map
+# greps these literal ids into their unit-test homes) -----------------------
+
+
+def test_G_baseline_02_unstable_baseline_gates_capability_and_fires_exit04():
+    """G-baseline-02 (matrix III.F.2, unstable path): a rule-1 dataset ->
+    stability false, EXIT-04, Cp/Cpk gated to None, Pp/Ppk served as
+    performance-not-capability. Reference values hand-checked by direct
+    arithmetic on RULE1_DATASET:
+      sum = 1040, n = 20 -> mean = 52.0 exactly.
+      deviations sum of squares = 110 + 38^2 = 1554 -> sample sd (ddof=1)
+        = sqrt(1554/19) = 9.043753296...
+      Ppk = min[(USL-mean)/(3*sd), (mean-LSL)/(3*sd)]
+          = min[48/27.13126, 52/27.13126] = 1.769177 (USL side).
+      Pp  = (USL-LSL)/(6*sd) = 100/54.26252 = 1.842893."""
+    result = run_baseline(RULE1_DATASET, usl=USL, lsl=LSL, operational_definition_ok=True)
+    assert result.gate_ok is True
+    assert result.stable is False
+    assert "EXIT-04" in result.exits
+    assert any(s.rule_id == "rule1" for s in result.stability.value.signals)
+    assert result.descriptive.value.mean == pytest.approx(52.0)
+    assert result.descriptive.value.sd == pytest.approx(9.043753296293, abs=1e-9)
+    cap = result.capability.value
+    assert cap.cp_index is None and cap.cpk_index is None  # capability gated on stability
+    assert cap.performance_not_capability is True
+    assert cap.ppk_index == pytest.approx(1.7691769640, abs=1e-9)
+    assert cap.pp_index == pytest.approx(1.8428926708, abs=1e-9)
+
+
+# G-baseline-03's fixture: n=100 exactly, heavily right-skewed by
+# construction (mass at the low end, long right tail) so Anderson-Darling
+# reads "concern", with block boundaries placed so every percentile the
+# engine computes is hand-checkable under numpy's linear interpolation
+# (index = p/100 * (n-1)):
+#   sorted[0..29]=1, [30..54]=2, [55..74]=4, [75..89]=8, [90..97]=15, [98..99]=30
+#   p0.135 : idx 0.13365 between sorted[0]=1 and sorted[1]=1 -> 1.0 exactly
+#   p50    : idx 49.5 between sorted[49]=2 and sorted[50]=2 -> 2.0 exactly
+#   p99.865: idx 98.86635 between sorted[98]=30 and sorted[99]=30 -> 30.0 exactly
+G_BASELINE_03_DATA = [1.0] * 30 + [2.0] * 25 + [4.0] * 20 + [8.0] * 15 + [15.0] * 8 + [30.0] * 2
+G_BASELINE_03_USL, G_BASELINE_03_LSL = 40.0, 0.5
+
+
+def test_G_baseline_03_percentile_capability_at_n_100_non_normal_with_exit05():
+    """G-baseline-03 (matrix III.F.3, non-normal path): at n>=100 with a
+    normality concern, the EXIT-05 supplement serves empirical-percentile
+    capability (labeled not-normal-theory), never the observed-yield
+    fallback. Reference values hand-checked from the percentiles above:
+      Pp_perc  = (USL-LSL)/(p_high-p_low) = 39.5/29 = 1.362069...
+      Ppk_perc = min[(USL-p50)/(p_high-p50), (p50-LSL)/(p50-p_low)]
+               = min[38/28, 1.5/1] = 19/14 = 1.357142857... (upper side)."""
+    result = run_baseline(
+        G_BASELINE_03_DATA, usl=G_BASELINE_03_USL, lsl=G_BASELINE_03_LSL, operational_definition_ok=True,
+    )
+    assert result.gate_ok is True
+    assert result.n == 100
+    assert result.normality.value.advisory == "concern"
+    assert "EXIT-05" in result.exits
+    assert result.observed_yield is None  # n >= 100: the percentile path, not the fallback
+    pc = result.percentile_capability.value
+    assert pc.n == 100
+    assert pc.p_low == pytest.approx(1.0)
+    assert pc.p_median == pytest.approx(2.0)
+    assert pc.p_high == pytest.approx(30.0)
+    assert pc.pp_percentile == pytest.approx(39.5 / 29, abs=1e-12)
+    assert pc.ppk_percentile == pytest.approx(19 / 14, abs=1e-12)
+    assert "not normal-theory" in pc.label  # the EXIT-05 caveat travels with the numbers

@@ -130,16 +130,22 @@ actually proven:
   the tool surface that id belongs to (a hand-curated
   `(scenario, tool_id)` table in `lib/golden_id_map.py`, checked every
   run against the matrix's own id set so it can never silently go stale).
-- **`uncovered`** — neither, reported honestly with a one-line reason
-  (some ids are unit-test-covered instead of harness-covered, e.g.
-  `G-yield-01` lives in `test_artifacts_yield_calc.py`; some describe a
-  case none of these three particular stories needs, e.g. one-way ANOVA;
-  one, `G-scatter-01`, has no engine-side computation to exercise at all
-  — v1 scatter plots are visual-only).
+- **`uncovered`** — neither, reported honestly with a one-line reason.
+  Ids that describe a case none of these three particular stories needs
+  (unstable baseline, one-way ANOVA, the nonparametric fallbacks, the
+  selector exits, one-proportion-vs-target, the PDCA quick path) carry
+  pinned unit-test homes instead — named `test_G_<id>_...`, each with
+  hand-checked reference values — plus a `design_note` stating why no
+  harness step covers them. One id, `G-scatter-01`, has no engine-side
+  computation to exercise at all (v1 scatter plots are visual-only); its
+  entry carries an explicit documented status
+  (`v1-scope-debt: no engine computation exists; scatter ships
+  visual-only per matrix §5a A-2`) rather than fake coverage.
 
-As of the current three-scenario freeze: **33 of 41 covered, 8
-uncovered** (see `evals/goldens/golden-id-map.json` for the full
-per-id breakdown and reasons).
+As of the current three-scenario freeze: **40 of 41 covered, 1
+uncovered** — the one being `G-scatter-01`'s documented v1-scope debt
+(see `evals/goldens/golden-id-map.json` for the full per-id breakdown
+and reasons).
 
 ## Tests
 

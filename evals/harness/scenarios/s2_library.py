@@ -80,13 +80,22 @@ def run(recorder: Recorder, engine: EngineClient) -> None:
     common.gate_check(recorder, PROJECT_ID, "intake_picker_present")
     common.gate_check(recorder, PROJECT_ID, "intake_picker_not_exit01")
 
+    # Row 1's quantity is the QUARTERLY staff-hours (spec ground truth:
+    # "≈ $2,195/quarter (≈ $1,530.10 search time + $407.40 replacements +
+    # $257.40 hold handling)"): the 3-week desk-log sample (74 searches x
+    # 11 min) extrapolates to ~321 searches/quarter = 58.85 staff-hours,
+    # 58.85 x $26 = $1,530.10. FL-12 fix: this driver used to post the raw
+    # 3-week sample hours (13.57) here, producing a $1,017.62 total that
+    # contradicted the same scenario's charter basis ("$2,195 x 4") and the
+    # spec's own cost block -- the spec's arithmetic is internally
+    # consistent; the driver was the wrong side.
     copq = {
         "schema_version": 1, "artifact_id": "s2-copq", "tool_id": "T-02",
         "created_at": "2026-08-01T10:00:00Z", "updated_at": "2026-08-01T10:00:00Z",
         "notes": "Q3 ingredients per the charter's cost case; the engine computes each row amount and the total.",
         "rows": [
-            {"category": "custom", "custom_label": "Catalog-said-available searches (desk staff time)", "quantity": 13.57, "rate": 26.0,
-             "period": "Q3 2026 (3-week sample, extrapolated)", "basis": "74 searches averaging 11 staff-minutes each (13.57 staff-hours); loaded staff rate $26/hour", "is_estimate": True},
+            {"category": "custom", "custom_label": "Catalog-said-available searches (desk staff time)", "quantity": 58.85, "rate": 26.0,
+             "period": "Q3 2026", "basis": "74 searches averaging 11 staff-minutes each in a 3-week desk-log sample, extrapolated to the quarter (~321 searches, 58.85 staff-hours); loaded staff rate $26/hour", "is_estimate": True},
             {"category": "scrap", "custom_label": None, "quantity": 21.0, "rate": 19.40,
              "period": "Q3 2026", "basis": "21 replacement copies traced to shelving losses, average $19.40 each", "is_estimate": False},
             {"category": "custom", "custom_label": "Holds cancelled 'missing' (desk + ILL handling)", "quantity": 9.9, "rate": 26.0,

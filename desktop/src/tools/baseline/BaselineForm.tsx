@@ -10,12 +10,19 @@ export interface BaselineFormProps {
   /** T-09's "send to baseline" deep link (ToolRouter's DatasetPreset) --
    * preselects the dataset (and its first numeric column) once it loads. */
   initialDatasetId?: string;
+  /** Rail navigation to another tool (same callback the "I'm stuck"
+   * button rides) -- the attribute-data notice uses it to hand off to
+   * T-21/T-10. */
+  onNavigateToTool?: (toolId: string) => void;
 }
 
 /** T-13: pick dataset + column, enter spec limits, confirm the
  * operational definition — in that visible order — then run. Renders
- * BaselineResult faithfully; nothing here is computed client-side. */
-export function BaselineForm({ projectId, project, initialDatasetId }: BaselineFormProps) {
+ * BaselineResult faithfully; nothing here is computed client-side.
+ * Attribute (pass/fail) data has no path through this screen's I-MR +
+ * capability math — the explicit toggle below routes it to the p-chart
+ * (T-21, diagnostic) + DPMO/sigma (T-10) pairing instead of dead-ending. */
+export function BaselineForm({ projectId, project, initialDatasetId, onNavigateToTool }: BaselineFormProps) {
   const f = useBaselineForm(projectId, project, initialDatasetId);
 
   return (
@@ -53,6 +60,46 @@ export function BaselineForm({ projectId, project, initialDatasetId }: BaselineF
         </div>
         {f.datasetId && f.numericColumns.length === 0 && (
           <VerdictBanner tone="flag" headline="This dataset has no numeric columns — baseline needs one." />
+        )}
+        <label className="sigma-baseline-checkbox">
+          <input
+            type="checkbox" data-testid="baseline-attribute-toggle" checked={f.attributeData}
+            onChange={(e) => f.setAttributeData(e.target.checked)}
+          />
+          My data is pass/fail counts (each unit either passes or fails — attribute data)
+        </label>
+        {f.attributeData && (
+          <div data-testid="baseline-attribute-notice">
+            <VerdictBanner
+              tone="flag"
+              headline="Attribute data baselines on the p-chart, not on this screen"
+              detail={
+                "This screen's stability-then-capability math (I-MR chart, Cp/Cpk) is for continuous " +
+                "measurements. For pass/fail counts, the baseline lives in two tools: run a p-chart in Control " +
+                "Charts (T-21) diagnostically — no freeze needed — to see the proportion and whether it is " +
+                "stable, and use the Yield Calculator (T-10) for DPMO and sigma level. That pairing is the " +
+                "traceability matrix's own attribute-capability path (§3a row 2.4.3)."
+              }
+              actions={
+                onNavigateToTool ? (
+                  <>
+                    <Button
+                      variant="secondary" size="sm" data-testid="baseline-attribute-open-t21"
+                      onClick={() => onNavigateToTool("T-21")}
+                    >
+                      Open Control Charts (T-21)
+                    </Button>{" "}
+                    <Button
+                      variant="secondary" size="sm" data-testid="baseline-attribute-open-t10"
+                      onClick={() => onNavigateToTool("T-10")}
+                    >
+                      Open Yield Calculator (T-10)
+                    </Button>
+                  </>
+                ) : undefined
+              }
+            />
+          </div>
         )}
       </div>
 

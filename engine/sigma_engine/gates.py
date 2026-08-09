@@ -1,15 +1,23 @@
 """Phase gate state machine (PLAN §4.2): math/logic guards are hard,
 sequence gates are soft-with-a-logged-override. Requirements live in one
 data table (GATE_TABLE) so check() has no per-gate if-chain -- adding a
-gate means adding a row, not a branch. The one exception is the picker's
-EXIT-01 rule, which inspects a field *value* (the route), not mere
-artifact presence, so it can't be expressed as a required-tool-ids row;
-see the comment on that branch in check().
+gate means adding a row, not a branch. The exceptions are gates that
+inspect a field *value* or non-artifact state, not mere artifact
+presence, so they can't be expressed as a required-tool-ids row alone:
+the picker's EXIT-01 route, the T-12 capability-language verdict, the
+measure exit's saved-dataset requirement, and the analyze exit's
+verified-cause-or-hypothesis-run either/or -- see _missing_for and the
+two value-gate branches in check().
 
-Measure-phase-and-later gates are stubbed as NOT_YET_BUILT rows: the table
-names every transition so PHASE_ORDER is complete end-to-end, but no math
-guard is invented for phases this milestone doesn't build (M1 brief: "do
-NOT invent math guards yet").
+Every sequence gate Intake through Wrap is now a real soft gate (M6 eval
+fix: the four Measure-and-later transitions shipped across M2-M4 but sat
+as not-yet-built stubs until the eval campaign caught it). Soft means
+exactly what PLAN §4.2 promises: "a gate warning lists what's missing,
+and the user can proceed with a required, logged override reason."
+Artifact requirements per transition come from the matrix §1 phase
+column, kept honest about what is checkable: T-13 (baseline) writes no
+artifact -- the saved dataset is its evidence, so the Measure exit checks
+dataset presence instead of a T-13 row.
 """
 
 from __future__ import annotations
@@ -24,7 +32,10 @@ from .project_store import OverrideLogEntry, ProjectStore
 Phase = Literal["Intake", "Define", "Measure", "Analyze", "Improve", "Control", "Wrap"]
 PHASE_ORDER: tuple[Phase, ...] = ("Intake", "Define", "Measure", "Analyze", "Improve", "Control", "Wrap")
 
-GateStatus = Literal["CLEAR", "SOFT_BLOCK", "HARD_BLOCK", "NOT_YET_BUILT"]
+# NOT_YET_BUILT is gone from this Literal on purpose (M6): no stub rows
+# remain in GATE_TABLE, so no code path can produce it anymore. The
+# desktop's GateStatus mirror still tolerates the string, harmlessly.
+GateStatus = Literal["CLEAR", "SOFT_BLOCK", "HARD_BLOCK"]
 
 
 class GateResult(BaseModel):
@@ -54,6 +65,20 @@ class ProjectSnapshot(BaseModel):
     # check ever ran. routes/gates.py's _build_snapshot populates this the
     # same way it populates picker_route.
     msa_verdict: str | None = None
+    # Whether ANY T-12 artifact exists at all (M6 eval fix, persona
+    # finding FL-07): msa_verdict=None used to conflate "no T-12 ever ran"
+    # with "T-12 on file, no verdict recorded", and the capability-language
+    # gate answered both with the same bare CLEAR a genuinely-passed check
+    # earns -- indistinguishable downstream. This flag keeps the honest
+    # difference; prescore/control_chart.py's measurement_check_on_file
+    # consumes the same pair (routes/prescore.py threads it through).
+    msa_on_file: bool = False
+    # Measure-exit requirements that live outside the artifact index
+    # (matrix §1: T-13 writes no artifact -- a saved dataset is its
+    # evidence) and the Analyze exit's verified-cause count (None = no
+    # T-15 saved; 0 = a fishbone exists but nothing on it is verified).
+    has_dataset: bool = False
+    fishbone_verified_cause_count: int | None = None
 
 
 @dataclass(frozen=True)
@@ -61,7 +86,7 @@ class GateRequirement:
     gate_id: str
     from_phase: Phase
     to_phase: Phase
-    kind: Literal["hard", "soft", "stub"]
+    kind: Literal["hard", "soft"]
     description: str
     required_tool_ids: tuple[str, ...] = ()
 
@@ -82,8 +107,13 @@ GATE_TABLE: tuple[GateRequirement, ...] = (
         required_tool_ids=("T-03", "T-04", "T-05"),
     ),
     GateRequirement(
-        gate_id="measure_to_analyze", from_phase="Measure", to_phase="Analyze", kind="stub",
-        description="not-yet-built: Measure math guards (stability/capability) ship across M2.",
+        gate_id="measure_to_analyze", from_phase="Measure", to_phase="Analyze", kind="soft",
+        description=(
+            "Measure exit soft-requires a data collection plan (T-11), a measurement check (T-12), and at least "
+            "one saved dataset (matrix §1 Measure rows; T-13 writes no artifact -- the saved dataset is its "
+            "evidence)."
+        ),
+        required_tool_ids=("T-11", "T-12"),
     ),
     GateRequirement(
         gate_id="measure_capability_language_requires_msa_pass", from_phase="Measure", to_phase="Analyze", kind="hard",
@@ -93,18 +123,71 @@ GATE_TABLE: tuple[GateRequirement, ...] = (
         ),
     ),
     GateRequirement(
-        gate_id="analyze_to_improve", from_phase="Analyze", to_phase="Improve", kind="stub",
-        description="not-yet-built: Analyze gates (verified-cause ranking) ship in M3.",
+        gate_id="analyze_to_improve", from_phase="Analyze", to_phase="Improve", kind="soft",
+        description=(
+            "Analyze exit soft-requires verified-cause evidence: a fishbone (T-15) with at least one verified "
+            "cause, or a hypothesis run (T-17) -- either satisfies (matrix §1 Analyze rows; the T-15 schema "
+            "guarantees every verified cause carries evidence)."
+        ),
     ),
     GateRequirement(
-        gate_id="improve_to_control", from_phase="Improve", to_phase="Control", kind="stub",
-        description="not-yet-built: Improve gates (proof/remaining-gap) ship in M4.",
+        gate_id="improve_to_control", from_phase="Improve", to_phase="Control", kind="soft",
+        description=(
+            "Improve exit soft-requires a pilot plan (T-19) and a before/after proof (T-20) (matrix §1 Improve rows)."
+        ),
+        required_tool_ids=("T-19", "T-20"),
     ),
     GateRequirement(
-        gate_id="control_to_wrap", from_phase="Control", to_phase="Wrap", kind="stub",
-        description="not-yet-built: Control gates (control plan/OCAP) ship in M4.",
+        gate_id="control_to_wrap", from_phase="Control", to_phase="Wrap", kind="soft",
+        description=(
+            "Control exit soft-requires a control chart (T-21) and a control plan (T-22) (matrix §1 Control rows)."
+        ),
+        required_tool_ids=("T-21", "T-22"),
     ),
 )
+
+# Plain-language missing-list entries for requirements that are not a bare
+# tool id. The desktop's GateBanner maps tool-id entries to tool names and
+# renders anything else verbatim, so these read as sentences in the
+# "Missing: ..." line; the override log's exact-set matching
+# (_covering_override) works on them like any other string.
+_MISSING_DATASET = "a saved dataset"
+_MISSING_FISHBONE_WITH_VERIFIED_CAUSE = "either a fishbone (T-15) with at least one verified cause"
+_MISSING_VERIFIED_CAUSE_ON_FISHBONE = "either at least one verified cause on the fishbone (T-15 exists, none verified yet)"
+_MISSING_HYPOTHESIS_RUN = "or a hypothesis run (T-17)"
+
+# The four M6 soft gates carry their missing list restated in
+# GateResult.reason as one plain-English sentence (the eval brief's "lists
+# exactly what's missing in plain language"); the two pre-existing soft
+# gates keep their original bare-missing shape untouched.
+_SOFT_GATES_WITH_REASON = frozenset(
+    {"measure_to_analyze", "analyze_to_improve", "improve_to_control", "control_to_wrap"}
+)
+
+
+def _missing_for(req: GateRequirement, snapshot: ProjectSnapshot) -> list[str]:
+    """The one shared missing-list computation check() and override() both
+    use, so an override always records exactly the set a later check()
+    compares against (_covering_override's contract). Generic
+    required-tool-ids presence first, then the two soft gates whose
+    requirements aren't expressible as artifact presence alone."""
+    missing = [t for t in req.required_tool_ids if t not in snapshot.artifact_tool_ids]
+    if req.gate_id == "measure_to_analyze" and not snapshot.has_dataset:
+        # T-13 (baseline) writes no artifact -- the saved dataset is its
+        # evidence (matrix §1), so dataset presence stands in for it.
+        missing.append(_MISSING_DATASET)
+    if req.gate_id == "analyze_to_improve":
+        has_verified_cause = (snapshot.fishbone_verified_cause_count or 0) >= 1
+        has_hypothesis_run = "T-17" in snapshot.artifact_tool_ids
+        if not has_verified_cause and not has_hypothesis_run:
+            fishbone_entry = (
+                _MISSING_FISHBONE_WITH_VERIFIED_CAUSE
+                if snapshot.fishbone_verified_cause_count is None
+                else _MISSING_VERIFIED_CAUSE_ON_FISHBONE
+            )
+            missing.extend([fishbone_entry, _MISSING_HYPOTHESIS_RUN])
+    return missing
+
 
 _BY_ID = {g.gate_id: g for g in GATE_TABLE}
 
@@ -138,24 +221,46 @@ def build_project_snapshot(store: ProjectStore, project_id: str) -> ProjectSnaps
     see that docstring for the concrete history of that failure mode).
     Raises FileNotFoundError for an unknown project, same contract as
     every other store-backed lookup in this engine."""
+    from .datasets import DatasetStore  # local import, cross_checks.py's same cycle-avoidance move
+
     meta = store.load_project(project_id)  # FileNotFoundError propagates
     tool_ids = {entry.tool_id for entry in meta.artifact_index.values()}
 
     picker_data = store.latest_artifact_for_tool(project_id, meta, "T-01")
     msa_data = store.latest_artifact_for_tool(project_id, meta, "T-12")
+    fishbone_data = store.latest_artifact_for_tool(project_id, meta, "T-15")
     picker_route = picker_data.get("route") if picker_data is not None else None
     msa_verdict = (msa_data.get("result") or {}).get("verdict") if msa_data is not None else None
 
-    return ProjectSnapshot(artifact_tool_ids=tool_ids, picker_route=picker_route, msa_verdict=msa_verdict)
+    fishbone_verified_cause_count: int | None = None
+    if fishbone_data is not None:
+        # verified_causes is server-computed on every validate
+        # (fishbone.py), so it's present on any saved T-15; the causes-list
+        # recount is a defensive fallback for a hand-edited/legacy file,
+        # counting by the same status the computation itself keys on.
+        computed_count = ((fishbone_data.get("verified_causes") or {}).get("value") or {}).get("count")
+        if isinstance(computed_count, int):
+            fishbone_verified_cause_count = computed_count
+        else:
+            causes = fishbone_data.get("causes") or []
+            fishbone_verified_cause_count = sum(
+                1 for c in causes if isinstance(c, dict) and c.get("status") == "verified"
+            )
+
+    return ProjectSnapshot(
+        artifact_tool_ids=tool_ids,
+        picker_route=picker_route,
+        msa_verdict=msa_verdict,
+        msa_on_file=msa_data is not None,
+        has_dataset=bool(DatasetStore(store).list_datasets(project_id)),
+        fishbone_verified_cause_count=fishbone_verified_cause_count,
+    )
 
 
 def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideLogEntry] = ()) -> GateResult:
     req = _BY_ID.get(gate_id)
     if req is None:
         raise KeyError(f"unknown gate_id {gate_id!r}")
-
-    if req.kind == "stub":
-        return GateResult(status="NOT_YET_BUILT", reason=req.description)
 
     if gate_id == "intake_picker_not_exit01":
         # The only gate that can't be a generic required-tool-ids presence
@@ -173,12 +278,21 @@ def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideL
     if gate_id == "measure_capability_language_requires_msa_pass":
         # Second field-value-inspecting special case (see the picker
         # branch above): a hard gate on the latest T-12 *verdict*, not on
-        # T-12's mere presence -- a project that never ran T-12 is a
-        # softer, different concern than one whose latest check reads
-        # fail, and isn't modeled as its own gate this milestone. Hard
-        # blocks can't be overridden (PLAN §4.2): this matches rubric
-        # R-MEA-07's "the suite blocks the capability-language
-        # automatically," not a request the user can talk their way past.
+        # T-12's mere presence. Hard blocks can't be overridden (PLAN
+        # §4.2): this matches rubric R-MEA-07's "the suite blocks the
+        # capability-language automatically," not a request the user can
+        # talk their way past.
+        #
+        # The no-verdict case stays CLEAR by status -- the frozen rule
+        # (matrix §4a EXIT-02) hard-blocks a FAILED check only, T-12
+        # presence is the soft measure_to_analyze gate's job (overridable
+        # there, per PLAN §4.2's soft-sequence promise), and a T-21
+        # freeze without a T-12 is flagged by prescore/control_chart.py's
+        # measurement_check_on_file -- but it now carries a reason that
+        # says outright no checked measurement backs it (M6 eval fix,
+        # persona finding FL-07: this CLEAR used to be byte-identical to
+        # a genuinely-passed check's, so a project that never ran T-12
+        # read as if its measurement were checked).
         if snapshot.msa_verdict == "fail":
             return GateResult(
                 status="HARD_BLOCK",
@@ -187,16 +301,43 @@ def check(gate_id: str, snapshot: ProjectSnapshot, overrides: Sequence[OverrideL
                     "re-run before capability language is trusted."
                 ),
             )
-        return GateResult(status="CLEAR")
+        if snapshot.msa_verdict is None:
+            on_file = (
+                "A T-12 exists but its latest version records no verdict"
+                if snapshot.msa_on_file
+                else "No measurement check (T-12) is on file for this project"
+            )
+            return GateResult(
+                status="CLEAR",
+                reason=(
+                    f"{on_file}. This CLEAR only means no failed check is blocking capability language -- it "
+                    "does not attest a checked measurement. Run T-12 and get a recorded verdict before "
+                    "trusting capability claims."
+                ),
+            )
+        return GateResult(
+            status="CLEAR",
+            reason=(
+                f"Latest T-12 measurement check reads {snapshot.msa_verdict!r} -- capability language is "
+                "not blocked."
+            ),
+        )
 
-    missing = [t for t in req.required_tool_ids if t not in snapshot.artifact_tool_ids]
+    missing = _missing_for(req, snapshot)
     if not missing:
         return GateResult(status="CLEAR")
 
     covering = _covering_override(gate_id, missing, overrides)
     if covering is not None:
         return GateResult(status="CLEAR", overridden=True, override_reason=covering.reason)
-    return GateResult(status="SOFT_BLOCK", missing=missing)
+
+    reason = None
+    if gate_id in _SOFT_GATES_WITH_REASON:
+        reason = (
+            f"{req.description} Missing now: {', '.join(missing)}. You can proceed anyway with a logged "
+            "override reason (PLAN §4.2)."
+        )
+    return GateResult(status="SOFT_BLOCK", missing=missing, reason=reason)
 
 
 def override(
@@ -214,7 +355,5 @@ def override(
         raise KeyError(f"unknown gate_id {gate_id!r}")
     if req.kind == "hard":
         raise PermissionError(f"gate {gate_id!r} is hard and cannot be overridden")
-    if req.kind == "stub":
-        raise PermissionError(f"gate {gate_id!r} is not yet built")
-    missing = [t for t in req.required_tool_ids if t not in snapshot.artifact_tool_ids]
+    missing = _missing_for(req, snapshot)
     return store.append_override(project_id, gate_id, reason, timestamp, missing=missing)  # raises on empty reason

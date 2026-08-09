@@ -416,6 +416,36 @@ async function main() {
       );
     });
 
+    await step("toggle 'my data is pass/fail counts' and assert the attribute p-chart routing notice renders", async () => {
+      // M6 fix (persona FL-05/FL-08): the attribute baseline path (p-chart
+      // on T-21 run diagnostically + DPMO/sigma on T-10) must be visible
+      // FROM the tool named "Baseline", not left for the user to guess.
+      await page.locator('[data-testid="baseline-attribute-toggle"]').check();
+      await page.locator('[data-testid="baseline-attribute-notice"]').waitFor();
+      const noticeText = await page.locator('[data-testid="baseline-attribute-notice"]').textContent();
+      assert(
+        noticeText?.includes("p-chart") && noticeText?.includes("T-21") && noticeText?.includes("T-10"),
+        `expected the attribute notice to route to the T-21 p-chart + T-10 DPMO pairing, got ${JSON.stringify(noticeText)}`,
+      );
+      assert(
+        noticeText?.includes("no freeze needed"),
+        `expected the attribute notice to say the p-chart runs diagnostically with no freeze needed, got ${JSON.stringify(noticeText)}`,
+      );
+      // Both handoff buttons present (rail navigation, the app's own idiom).
+      assert(
+        (await page.locator('[data-testid="baseline-attribute-open-t21"]').count()) === 1 &&
+          (await page.locator('[data-testid="baseline-attribute-open-t10"]').count()) === 1,
+        "expected Open Control Charts (T-21) and Open Yield Calculator (T-10) buttons inside the attribute notice",
+      );
+      // Untoggle: this smoke project's data really is continuous, and the
+      // baseline-run step below continues on the continuous path.
+      await page.locator('[data-testid="baseline-attribute-toggle"]').uncheck();
+      assert(
+        (await page.locator('[data-testid="baseline-attribute-notice"]').count()) === 0,
+        "the attribute notice should disappear once the toggle is cleared",
+      );
+    });
+
     await step("run the baseline and assert the stability verdict + sigma-convention label render", async () => {
       await page.locator('[data-testid="baseline-run"]').click();
       await page.locator('[data-testid="baseline-stability-verdict"]').waitFor();
@@ -1799,14 +1829,23 @@ async function main() {
     await step("load the FMEA close-check and confirm the unaddressed sev-9 row blocks closure", async () => {
       await page.locator('[data-testid="a3-load-fmea-check"]').click();
       // close_check is a server-computed field (a no-save /validate
-      // preview, not synchronous local state) -- the banner already
-      // exists from the prior save's "not blocked" default, so wait for
-      // its TEXT to actually change, not merely for the element to exist.
-      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("may NOT close"));
+      // preview, not synchronous local state) -- and since the M6 fix the
+      // banner may ALREADY read blocked from the save's server-side
+      // standing-hard-flag sweep (the ownerless T-22 item and the
+      // unaddressed sev-9 FMEA row saved earlier both stand), so wait for
+      // the FMEA ROW itself to land in the text, not merely for "may NOT
+      // close".
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("Short pour incomplete fill"));
       const text = await page.locator('[data-testid="a3-close-check-banner"]').textContent();
       assert(
         text?.includes("may NOT close") && text?.includes("Short pour incomplete fill"),
         `expected the close check to block and name the FMEA row, got ${JSON.stringify(text)}`,
+      );
+      // The standing sweep stored at save time is named right alongside it
+      // (M6 fix 7: artifact id + check id, same close_blocked mechanics).
+      assert(
+        text?.includes("control-plan: owner_named") && text?.includes("fmea: high_severity_without_action"),
+        `expected the standing prescore hard flags to be named alongside the FMEA row, got ${JSON.stringify(text)}`,
       );
     });
 
@@ -1835,22 +1874,63 @@ async function main() {
       );
     });
 
-    await step("back on T-25, the close check clears and the project closes cleanly", async () => {
+    await step("back on T-25, the FMEA half clears but the standing control-plan hard flag still blocks", async () => {
+      // M6 fix 7's honest behavior: clearing the sev-9 row is not enough
+      // while any saved artifact still carries a prescore hard_flag -- the
+      // ownerless T-22 item saved earlier stands, so the close check keeps
+      // blocking and names it (artifact id + check id), with no FMEA row
+      // in sight.
       await page.locator('[data-testid="nav-tool-T-25"]').click();
       await page.locator('[data-testid="a3-save"]').waitFor();
       await page.locator('[data-testid="a3-load-fmea-check"]').click();
-      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("No FMEA block on closure"));
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("standing prescore hard flag"));
       const text = await page.locator('[data-testid="a3-close-check-banner"]').textContent();
       assert(
-        text?.includes("No FMEA block on closure"),
-        `expected the close check to clear once the FMEA row is actioned, got ${JSON.stringify(text)}`,
+        text?.includes("may NOT close") && text?.includes("control-plan: owner_named"),
+        `expected the standing control-plan hard flag to keep blocking closure by name, got ${JSON.stringify(text)}`,
+      );
+      assert(
+        !text?.includes("Short pour incomplete fill"),
+        `expected no FMEA row in the block once the sev-9 row is actioned, got ${JSON.stringify(text)}`,
+      );
+    });
+
+    await step("fix the ownerless control-plan item -- the last standing hard flag", async () => {
+      await page.locator('[data-testid="nav-tool-T-22"]').click();
+      await page.locator('[data-testid="controlplan-save"]').waitFor();
+      const row = page.locator('[data-testid="controlplan-items-table"] tbody tr').nth(1);
+      await row.locator('[data-testid$="-owner"]').fill("Maria Ortiz");
+      await row.locator('[data-testid$="-accepted"]').check();
+      await page.locator('[data-testid="controlplan-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="controlplan-version-badge"]')?.textContent?.includes("v4"));
+      const banner = await page.locator('[data-testid="controlplan-theater-banner"]').textContent();
+      assert(
+        banner?.includes("Every monitored item has a named owner"),
+        `expected the theater flag to clear once the item has an accepted owner, got ${JSON.stringify(banner)}`,
+      );
+    });
+
+    await step("back on T-25, a re-save refreshes the sweep, the close check clears, and the project closes cleanly", async () => {
+      await page.locator('[data-testid="nav-tool-T-25"]').click();
+      await page.locator('[data-testid="a3-save"]').waitFor();
+      // The standing snapshot on the form is the one stored at the LAST
+      // save -- a re-save runs the server-side sweep again (now clean)
+      // and the reloaded state shows the clear verdict.
+      await page.locator('[data-testid="a3-save"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v2"));
+      await page.locator('[data-testid="a3-load-fmea-check"]').click();
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-close-check-banner"]')?.textContent?.includes("Close check clear"));
+      const text = await page.locator('[data-testid="a3-close-check-banner"]').textContent();
+      assert(
+        text?.includes("Close check clear -- no FMEA block, no standing hard flags"),
+        `expected the close check to clear once every standing hard flag is fixed, got ${JSON.stringify(text)}`,
       );
 
       await page.locator('[data-testid="a3-project-status-closed"]').check();
       await page.locator('[data-testid="a3-save"]').click();
-      await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v2"));
+      await page.waitForFunction(() => document.querySelector('[data-testid="a3-version-badge"]')?.textContent?.includes("v3"));
       const noErr = await page.locator('[data-testid="a3-close-blocked-error"]').count();
-      assert(noErr === 0, "expected no close-blocked error once the FMEA block cleared");
+      assert(noErr === 0, "expected no close-blocked error once every standing hard flag cleared");
     });
 
     // ---- M5 unit 1 (Layer 2 advisor plumbing): no ANTHROPIC_API_KEY is set

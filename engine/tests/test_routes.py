@@ -345,3 +345,74 @@ def test_gates_hard_block_and_override_refused(client):
         },
     )
     assert override.status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# M6 fidelity-panel fix 7: the T-25 save route sweeps the project's SAVED
+# artifacts for standing prescore hard_flags (server-side, via
+# registry.collect_standing_hard_flags -- the same registries every route
+# here uses) and the close check blocks while any stand. The standing flag
+# used below is the tampered-baseline fixture: a T-21 whose stored frozen
+# baseline was hand-edited (xbar 50 / sigma 200 / UCL 650 over an untouched
+# freeze window), which frozen_baseline_matches_window hard_flags -- see
+# test_prescore_control_chart.py's critic-reproduction test for the same
+# tampering at the prescore layer.
+# ---------------------------------------------------------------------------
+
+
+def test_a3_close_blocked_by_standing_hard_flag_then_unblocked_when_fixed(client):
+    from factories import make_a3, make_a3_closure, make_control_chart_imr
+
+    client.post("/project/create", json={"project_id": "proj-1", "name": "Coffee Bar", "created_at": "2026-08-07T00:00:00"})
+
+    # A clean frozen chart's echo, then the stored baseline hand-tampered
+    # (freeze_requested=False keeps the stored baseline as posted --
+    # "frozen means frozen" -- so the tampered numbers really persist).
+    echo = client.post("/artifacts/T-21/validate", json=make_control_chart_imr()).json()["artifact"]
+    tampered = dict(echo)
+    tampered["freeze_requested"] = False
+    tampered["action_at"] = None
+    tampered["imr_baseline"] = dict(echo["imr_baseline"])
+    tampered["imr_baseline"]["value"] = {**echo["imr_baseline"]["value"], "xbar": 50.0, "sigma_within": 200.0, "i_ucl": 650.0}
+    assert client.post("/project/proj-1/artifacts/T-21", json=tampered).status_code == 200
+
+    # An OPEN A3 saves fine, but its server-swept close check names the
+    # standing flag (artifact id + check id) and reads blocked.
+    open_a3 = make_a3(closure=make_a3_closure(project_status="open"))
+    assert client.post("/project/proj-1/artifacts/T-25", json=open_a3).status_code == 200
+    stored = client.get("/project/proj-1/artifacts/a3-001").json()
+    check = stored["closure"]["close_check"]["value"]
+    assert check["close_blocked"] is True
+    assert check["standing_hard_flags"][0]["artifact_id"] == "cc-imr-001"
+    assert check["standing_hard_flags"][0]["check_id"] == "frozen_baseline_matches_window"
+    assert "cc-imr-001: frozen_baseline_matches_window" in check["reason"]
+
+    # Marking it closed while the flag stands is refused (422), naming it.
+    closed_a3 = make_a3(closure=make_a3_closure(project_status="closed"))
+    refused = client.post("/project/proj-1/artifacts/T-25", json=closed_a3)
+    assert refused.status_code == 422
+    assert "R-WRAP-03" in refused.text
+    assert "cc-imr-001: frozen_baseline_matches_window" in refused.text
+
+    # A client cannot launder the sweep by posting an empty snapshot -- the
+    # route overwrites closure.standing_hard_flags wholesale.
+    laundered = make_a3(closure=make_a3_closure(project_status="closed", standing_hard_flags=[]))
+    assert client.post("/project/proj-1/artifacts/T-25", json=laundered).status_code == 422
+
+    # Fix the chart: re-freeze from the untouched window (a fresh, honest
+    # baseline) AND arm monitoring -- a frozen-but-never-armed chart is
+    # itself a standing hard flag (never_armed), so the fix must clear
+    # both. The standing flags then clear, and the same closed A3 saves.
+    fixed = make_control_chart_imr(armed={"monitoring_started": True, "cadence_note": "daily peak entry"})
+    assert client.post("/project/proj-1/artifacts/T-21", json=fixed).status_code == 200
+    ok = client.post("/project/proj-1/artifacts/T-25", json=closed_a3)
+    assert ok.status_code == 200, ok.text
+    stored2 = client.get("/project/proj-1/artifacts/a3-001").json()
+    check2 = stored2["closure"]["close_check"]["value"]
+    assert check2["close_blocked"] is False
+    assert check2["standing_hard_flags"] == []
+    assert stored2["closure"]["project_status"] == "closed"
+    # Note the sequencing this proves: the project's OWN v1 A3 (saved
+    # blocked-open above) never stands in the way of its v2 close -- the
+    # sweep excludes the artifact being saved (its prior version's flags
+    # describe exactly the state this save is replacing).

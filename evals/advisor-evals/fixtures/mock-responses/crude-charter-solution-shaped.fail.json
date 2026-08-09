@@ -1,0 +1,35 @@
+{
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-DEF-02",
+        "specific_fix": "",
+        "verdict": "pass"
+      },
+      {
+        "criterion_id": "R-DEF-03",
+        "specific_fix": "",
+        "verdict": "pass"
+      },
+      {
+        "criterion_id": "R-DEF-04",
+        "specific_fix": "",
+        "verdict": "pass"
+      },
+      {
+        "criterion_id": "R-DEF-05",
+        "specific_fix": "",
+        "verdict": "pass"
+      },
+      {
+        "criterion_id": "R-DEF-08",
+        "specific_fix": "",
+        "verdict": "pass"
+      }
+    ],
+    "overall_note": "Charter looks complete and ready for Measure."
+  },
+  "truncated": false,
+  "unstructured_fallback": false
+}

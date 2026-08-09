@@ -25,6 +25,20 @@
     unacknowledged").
   - recalculation_log_has_reasons: every log entry's reason is non-blank
     (schema already guarantees this; re-affirmed the same way as above).
+  - measurement_check_on_file (M6 eval fix, persona finding FL-07): a
+    chart whose limits are FROZEN while the project has no T-12
+    measurement check on file gets a flag -- the frozen limits and every
+    signal judged against them rest on a measurement system nothing has
+    checked, and the EXIT-02 hard gate can only catch a FAILED check,
+    never a missing one. Flag-level, not hard: freezing is not blocked
+    (charting your own data diagnostically or frozen is legitimate); the
+    flag names the risk, and the capability-language gate keeps capability
+    claims honest. This is the one check here that needs PROJECT state,
+    which the registry's artifact-only call shape can't supply -- so it
+    runs only when the caller passes `msa_on_file` (routes/prescore.py
+    does, from the same gates.build_project_snapshot the gates consume,
+    whenever the request names a project_id); an artifact-only call
+    (registry/advisor path) omits the check rather than guessing.
 """
 
 from __future__ import annotations
@@ -43,8 +57,16 @@ def _close_enough(a: float, b: float) -> bool:
     return abs(a - b) <= _RELATIVE_TOLERANCE * max(1.0, abs(a), abs(b))
 
 
-def run_control_chart_prescore(artifact: ControlChartArtifact) -> list[PrescoreResult]:
-    return [
+def run_control_chart_prescore(
+    artifact: ControlChartArtifact, *, msa_on_file: bool | None = None, msa_verdict: str | None = None,
+) -> list[PrescoreResult]:
+    """`msa_on_file`/`msa_verdict` are the project's T-12 state as
+    gates.build_project_snapshot reports it (msa_on_file: any T-12 saved;
+    msa_verdict: the latest one's verdict). None for msa_on_file means the
+    caller has no project context (the registry's artifact-only shape) --
+    the measurement_check_on_file check is then omitted, not guessed (see
+    module docstring)."""
+    checks = [
         _family_matches_data(artifact),
         _frozen_limits_present_before_signals(artifact),
         _frozen_baseline_matches_window(artifact),
@@ -52,6 +74,39 @@ def run_control_chart_prescore(artifact: ControlChartArtifact) -> list[PrescoreR
         _signal_acknowledgment_completeness(artifact),
         _recalculation_log_has_reasons(artifact),
     ]
+    if msa_on_file is not None:
+        checks.append(_measurement_check_on_file(artifact, msa_on_file, msa_verdict))
+    return checks
+
+
+def _measurement_check_on_file(
+    artifact: ControlChartArtifact, msa_on_file: bool, msa_verdict: str | None
+) -> PrescoreResult:
+    frozen = artifact.imr_baseline is not None or artifact.p_baseline is not None
+    if not frozen:
+        # Same honest not-yet-applicable shape as _never_armed: a
+        # diagnostic chart makes no stability claim, so a missing T-12
+        # is not yet this chart's problem.
+        return PrescoreResult(
+            check_id="measurement_check_on_file", tool_id="T-21", status="pass",
+            detail="no frozen limits -- the chart runs diagnostically; this check applies once limits are frozen",
+        )
+    if not msa_on_file:
+        return PrescoreResult(
+            check_id="measurement_check_on_file", tool_id="T-21", status="flag",
+            detail=(
+                "limits are frozen but this project has no measurement check (T-12) on file -- the frozen "
+                "limits and every signal judged against them rest on a measurement system nothing has checked. "
+                "Freezing is not blocked; run T-12 (the EXIT-02 hard gate only catches a failed check, not a "
+                "missing one)."
+            ),
+        )
+    detail = (
+        f"measurement check on file: latest T-12 verdict {msa_verdict!r}"
+        if msa_verdict is not None
+        else "measurement check on file, but its latest version records no verdict"
+    )
+    return PrescoreResult(check_id="measurement_check_on_file", tool_id="T-21", status="pass", detail=detail)
 
 
 def _family_matches_data(artifact: ControlChartArtifact) -> PrescoreResult:

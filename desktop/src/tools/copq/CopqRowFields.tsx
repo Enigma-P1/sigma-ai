@@ -51,18 +51,18 @@ export function CopqRowFields({ index, row, serverAmount, onChange, errors }: Co
         )}
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-2)" }}>
-        <Field label="Quantity" required htmlFor={id("quantity")} flag={flagFor(errors?.quantity)}>
-          <TextInput id={id("quantity")} type="number" data-testid={id("quantity")} value={row.quantity} onChange={(e) => onChange({ quantity: Number(e.target.value) })} />
+        <Field label="Quantity" required htmlFor={id("quantity")} helper="Count per period -- units, hours, or events; the Period field below states the period." flag={flagFor(errors?.quantity)}>
+          <TextInput id={id("quantity")} type="number" data-testid={id("quantity")} value={row.quantity} onChange={(e) => onChange({ quantity: Number(e.target.value) })} placeholder="e.g. 500 (count per period)" />
         </Field>
-        <Field label="Rate" required htmlFor={id("rate")} flag={flagFor(errors?.rate)}>
-          <TextInput id={id("rate")} type="number" data-testid={id("rate")} value={row.rate} onChange={(e) => onChange({ rate: Number(e.target.value) })} />
+        <Field label="Rate" required htmlFor={id("rate")} helper="$ per unit of the quantity -- e.g. $ per scrapped unit, $ per hour." flag={flagFor(errors?.rate)}>
+          <TextInput id={id("rate")} type="number" data-testid={id("rate")} value={row.rate} onChange={(e) => onChange({ rate: Number(e.target.value) })} placeholder="e.g. 12 ($ per unit)" />
         </Field>
-        <Field label="Amount" helper="Computed by the engine on save -- never typed here.">
+        <Field label="Amount ($)" helper="Computed by the engine on save (quantity x rate) -- never typed here.">
           <TextInput data-testid={id("amount")} value={serverAmount != null ? serverAmount.toLocaleString() : "not yet computed"} disabled />
         </Field>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-2)" }}>
-        <Field label="Period" required htmlFor={id("period")} helper="e.g. Q2 2026, per month." flag={flagFor(errors?.period)}>
+        <Field label="Period" required htmlFor={id("period")} helper="The window the quantity counts over -- e.g. Q2 2026, per month. One period per row, stated." flag={flagFor(errors?.period)}>
           <TextInput id={id("period")} data-testid={id("period")} value={row.period} onChange={(e) => onChange({ period: e.target.value })} placeholder="Q2 2026" />
         </Field>
         <Field label="Basis note" required htmlFor={id("basis")} helper="A record, a system export, or an estimate." flag={flagFor(errors?.basis)}>

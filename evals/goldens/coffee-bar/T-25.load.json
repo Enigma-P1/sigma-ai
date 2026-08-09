@@ -5,14 +5,15 @@
       "provenance": {
         "assumptions_checked": [],
         "engine_version": "0.1.0",
-        "input_hash": "e01793274bf6efab7cbcdaa21b3bf5f31d3d14ad30ee0a07e6ef389a9b921767",
-        "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project may close' however clean the rest of the stack",
+        "input_hash": "309a5a44555d5443b4a29ba4d655de04b688bbf45c88c3657233cfe73d8874bf",
+        "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty, OR any standing prescore hard_flag on the project's saved artifacts (server-swept via the route registries) -- R-ANA-03's Fail line plus the M6 fidelity panel's ruling, per R-WRAP-03: neither an unaddressed severity-9/10 row nor an unresolved deterministic finding is a clean pass, however clean the rest of the stack",
         "warnings": []
       },
       "value": {
         "blocking_rows": [],
         "close_blocked": false,
-        "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+        "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA, and no standing prescore hard_flag on the project's saved artifacts -- this check does not block closure.",
+        "standing_hard_flags": []
       }
     },
     "fmea_check": {
@@ -86,7 +87,8 @@
         "owner": "Marcus Webb"
       }
     ],
-    "project_status": "closed"
+    "project_status": "closed",
+    "standing_hard_flags": []
   },
   "created_at": "2026-10-26T15:00:00Z",
   "notes": "The one-page story of the whole project, assembled at wrap from the saved record: every panel names the artifact its numbers come from, every number is identical to its computed source, and no claim is upgraded in transit -- the results panel keeps the round-2 proof's confound sentence and the capability caveat, because that is what the proof said. Panel seeds follow the desktop's seeding map (background/goal from the charter, current condition from the T-13 baseline run on the saved dataset, analysis from the fishbone, countermeasures from the solution matrix, results from the round-2 proof, follow-up from the control plan, lessons from the loop record). Realized benefits run on the wrap COPQ re-run (coffee-copq-wrap) over its stated 4-week window, net of the $360 the two fixes actually cost, with the annualized figure labeled a projection and its assumptions named -- not the charter's original $16,084, which priced the whole pain, not the measured recovery. Closure: objectives-vs-charter reconciliation is the engine's own gap arithmetic (proof.compute_gap, reused verbatim); the close check ran live against the latest FMEA's computed blocking flags -- the severity-8 steam-scald row carries its action (now a line in the T-24 SOP), no severity-9/10 row is unaddressed, blocking_flags came back empty, and the project closes CLEAN (control-run.md records the run). Project status: closed 2026-10-28, three days ahead of the charter's control-plan milestone.",

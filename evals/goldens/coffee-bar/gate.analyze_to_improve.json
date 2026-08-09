@@ -2,6 +2,6 @@
   "missing": [],
   "overridden": false,
   "override_reason": null,
-  "reason": "not-yet-built: Analyze gates (verified-cause ranking) ship in M3.",
-  "status": "NOT_YET_BUILT"
+  "reason": null,
+  "status": "CLEAR"
 }

@@ -1,0 +1,13 @@
+{
+  "checked_field_count": 1,
+  "flags": [
+    {
+      "claim_text": "Cpk was about 1.35, comfortably inside spec",
+      "field_path": "notes",
+      "severity": "contradicts",
+      "why_flagged": "before_baseline shows stable=false (a default Western Electric rule fired on the before-window) and before_baseline.capability.cpk_index=null -- the engine gates Cpk on stability, so no Cpk figure of any value traces to a computed fact here; this claim contradicts the artifact's own computed state."
+    }
+  ],
+  "raw_answer": "```json\n{\"flags\": [...], \"checked_field_count\": 1}\n```",
+  "unstructured_fallback": false
+}

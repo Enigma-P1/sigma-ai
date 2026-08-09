@@ -1,0 +1,23 @@
+{
+  "structured": {
+    "criteria": [
+      {
+        "criterion_id": "R-DEF-02",
+        "verdict": "needs_work",
+        "specific_fix": "The problem statement embeds the fix ('...so we need to buy a second espresso machine') and cause language ('because we only have one machine'). Restate as effect only: what/where/when/magnitude, with no cause and no fix implied."
+      },
+      {
+        "criterion_id": "R-DEF-03",
+        "verdict": "needs_work",
+        "specific_fix": "The goal statement names the solution ('Install a second espresso machine...') instead of a measurable outcome target. Restate as a SMART target (metric, baseline, target value, date) with the fix left out of the sentence."
+      },
+      {"criterion_id": "R-DEF-04", "verdict": "pass", "specific_fix": ""},
+      {"criterion_id": "R-DEF-05", "verdict": "pass", "specific_fix": ""},
+      {"criterion_id": "R-DEF-08", "verdict": "pass", "specific_fix": ""}
+    ],
+    "overall_note": "Mechanically complete, but both the problem statement and the goal are written as the fix, not the effect -- classic solution-shaped Define work."
+  },
+  "answer": "```json\n{\"criteria\": [...]}\n```",
+  "unstructured_fallback": false,
+  "truncated": false
+}
