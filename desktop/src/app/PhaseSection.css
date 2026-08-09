@@ -8,11 +8,34 @@
   background: var(--color-accent-soft);
 }
 
+/* wrap, not nowrap: the gate pill's longest label ("Needs earlier steps
+   (can override)") is wider than what is left of the 17rem rail after the
+   phase name, and .sigma-pill is white-space: nowrap with the default
+   min-width: auto, so it cannot shrink. On one line it overflowed the rail
+   and .sigma-rail's overflow: hidden cut it off mid-word -- no ellipsis,
+   just a sliced pill. Found by screenshotting the REAL app: the rail is a
+   fixed 17rem at every window size, so this was never a narrow-window bug,
+   it was simply never rendered in a state that shows a gate pill (the
+   1280x800 doc screenshots all have CLEAR gates, and PhaseSection only
+   renders the pill when the gate is NOT clear). Wrapping puts the pill on
+   its own line instead. */
 .sigma-phase__header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
+}
+
+/* ...and let the pill's own text wrap once it is on that line. Wrapping the
+   header alone is not enough: the longest label measures ~215px against
+   ~216px of usable rail width, i.e. it fits by a rounding error at one font
+   stack and clips at the next. Allowing the label to run to a second line
+   fits at any width, and loses nothing -- unlike an ellipsis, which would
+   hide the "(can override)" half that tells the user they are not stuck. */
+.sigma-phase__header .sigma-pill {
+  white-space: normal;
+  text-align: left;
 }
 
 .sigma-phase__name {

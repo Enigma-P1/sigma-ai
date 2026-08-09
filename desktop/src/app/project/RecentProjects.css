@@ -43,6 +43,19 @@
   color: var(--color-text-faint);
 }
 
+/* The empty state used to borrow .sigma-recent-list__path, the class that
+   styles an on-disk folder path inside a recent-project row. That made an
+   ordinary English sentence render monospace, and left it with no bottom
+   margin (the margin lives on .sigma-recent-list, which is absent when the
+   list is empty), so it collided with the "Or open by project ID" label
+   directly beneath it. Both visible on the app's very first screen; caught
+   by looking at a screenshot of the real app rather than at the DOM. */
+.sigma-recent-list__empty {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  margin: 0 0 var(--space-4);
+}
+
 .sigma-recent-list__forget {
   flex: none;
   background: none;

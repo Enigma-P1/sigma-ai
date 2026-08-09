@@ -72,7 +72,7 @@ export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
           ))}
         </ul>
       ) : (
-        <p className="sigma-recent-list__path">No recent projects yet on this machine.</p>
+        <p className="sigma-recent-list__empty">No recent projects yet on this machine.</p>
       )}
       <Field label="Or open by project ID" htmlFor="open-project-id">
         <TextInput
