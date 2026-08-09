@@ -25,7 +25,11 @@ from typing import Any
 # across runs (uuid4().hex), wherever they appear in a response body --
 # by key name, not by pattern-matching the value shape, so the rule stays
 # readable and auditable against the two route modules cited above.
-NORMALIZED_KEYS: frozenset[str] = frozenset({"dataset_id", "image_id"})
+# `folder_path` is machine-dependent rather than run-dependent: the
+# project-info route echoes the store's absolute on-disk path, which
+# differs between the freeze machine and any other machine (CI run 33
+# failed on exactly this -- /root/.sigma-ai vs /home/runner/.sigma-ai).
+NORMALIZED_KEYS: frozenset[str] = frozenset({"dataset_id", "image_id", "folder_path"})
 
 # Defense in depth for the key-based rule above: a scenario driver that
 # threads a freshly-minted dataset_id/image_id into some OTHER field (e.g.
