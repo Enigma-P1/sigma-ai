@@ -49,11 +49,14 @@ jobs:
       # exactly what this step exists to catch before it ships. Freezing
       # goldens is a local/PR-author action (see evals/README.md); CI only
       # ever replays and fails on drift.
+      # CI installs the engine into the job's own Python (pip install -e
+      # ".[dev]" above) -- there is no .venv on the runner; that path is a
+      # local-development convenience only. Run 31 failed exactly there.
       - name: Start engine (ephemeral, for the golden-scenario harness)
         working-directory: engine
         run: |
           set -euo pipefail
-          .venv/bin/python -m uvicorn sigma_engine.main:app --port 8000 > /tmp/eval-harness-engine.log 2>&1 &
+          python -m uvicorn sigma_engine.main:app --port 8000 > /tmp/eval-harness-engine.log 2>&1 &
           echo $! > /tmp/eval-harness-engine.pid
           for _ in $(seq 1 30); do
             curl -sf http://127.0.0.1:8000/health > /dev/null 2>&1 && break
@@ -65,7 +68,7 @@ jobs:
       - name: Run golden-scenario harness (replay, fails the job on diff)
         env:
           SIGMA_PROJECTS_ROOT: ${{ runner.temp }}/sigma-ai-eval-projects
-        run: engine/.venv/bin/python evals/harness/run_goldens.py
+        run: python evals/harness/run_goldens.py
 
       - name: Stop engine
         if: always()
