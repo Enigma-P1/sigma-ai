@@ -32,6 +32,12 @@
         "detail": "metric_ref='order cycle time (minutes)', operational_definition_ref='OpDef: time from order placed to order handed to customer, stopwatch, whole seconds, station clock', measurement_system_ref='MSA-passed stopwatch check, T-12 artifact MSA-1' -- one copy each, shared by before and after by construction (a changed yardstick cannot happen)",
         "status": "pass",
         "tool_id": "T-20"
+      },
+      {
+        "check_id": "capability_language_requires_stability",
+        "detail": "no computed stability field on this artifact reads unstable -- free-text capability language (if any) is not contradicted by the artifact's own computed state",
+        "status": "pass",
+        "tool_id": "T-20"
       }
     ],
     "schema_blocks": false,

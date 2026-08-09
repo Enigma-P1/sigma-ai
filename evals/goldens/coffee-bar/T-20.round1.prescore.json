@@ -28,5 +28,11 @@
     "detail": "metric_ref='handoff_minutes (charter C1: average order-to-handoff time, weekday 7:00-10:00 peak)', operational_definition_ref='coffee-collection-plan', measurement_system_ref='coffee-msa' -- one copy each, shared by before and after by construction (a changed yardstick cannot happen)",
     "status": "pass",
     "tool_id": "T-20"
+  },
+  {
+    "check_id": "capability_language_requires_stability",
+    "detail": "no computed stability field on this artifact reads unstable -- free-text capability language (if any) is not contradicted by the artifact's own computed state",
+    "status": "pass",
+    "tool_id": "T-20"
   }
 ]

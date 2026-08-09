@@ -17,6 +17,7 @@ from .a3 import (
     RealizedBenefits,
     RealizedBenefitsResult,
     SeededFrom,
+    StandingHardFlag,
     TollgateAnswer,
     TollgateChecklist,
     TollgatePhase,

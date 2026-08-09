@@ -2120,9 +2120,20 @@ export interface FmeaCloseCheckInput {
   blocking_flags: FmeaBlockingFlag[];
 }
 
+/** One prescore hard_flag standing on a SAVED artifact in the project --
+ * server-resolved at T-25 save time (registry.collect_standing_hard_flags);
+ * anything posted here from the client is overwritten wholesale. */
+export interface StandingHardFlag {
+  artifact_id: string;
+  tool_id: string;
+  check_id: string;
+  detail: string;
+}
+
 export interface CloseBlockResult {
   close_blocked: boolean;
   blocking_rows: FmeaBlockingFlag[];
+  standing_hard_flags?: StandingHardFlag[];
   reason: string;
 }
 
@@ -2134,8 +2145,13 @@ export interface ClosureBlock {
   lessons: LessonEntry[];
   open_items: OpenItem[];
   fmea_check?: FmeaCloseCheckInput | null;
+  /** Server-resolved snapshot (see StandingHardFlag) -- the save route
+   * fills this; the form never authors it. */
+  standing_hard_flags?: StandingHardFlag[];
   /** Server-computed -- true whenever the linked FMEA carries an
-   * unaddressed severity-9/10 safety/regulatory row (R-WRAP-03/R-ANA-03). */
+   * unaddressed severity-9/10 safety/regulatory row (R-WRAP-03/R-ANA-03)
+   * OR any saved artifact in the project carries a standing prescore
+   * hard_flag (M6 fidelity-panel fix). */
   close_check?: Computed<CloseBlockResult> | null;
   project_status: "open" | "closed";
 }

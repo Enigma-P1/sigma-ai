@@ -159,6 +159,53 @@ def test_no_fmea_linked_does_not_block_closure():
     assert a.closure.close_check.value.close_blocked is False
 
 
+# ---- Standing prescore hard flags block closure too (M6 fidelity-panel
+# fix 7: "closure must not treat an unresolved judgment finding as a clean
+# pass," made deterministic -- same close_blocked mechanics as the FMEA
+# sev-9 block, blocked-until-fixed, no override path). The snapshot is
+# server-resolved at save time (see test_routes.py's route-level test);
+# these tests cover the schema/compute half. ----
+
+STANDING_FLAG = {
+    "artifact_id": "cp-001", "tool_id": "T-22", "check_id": "owner_not_placeholder",
+    "detail": "an accepted placeholder is not an owner -- item(s) ...: [('item-2', 'TBD')]",
+}
+
+
+def test_standing_hard_flag_blocks_closure_naming_artifact_and_check():
+    a = A3Artifact.model_validate(make_a3(closure=make_a3_closure(standing_hard_flags=[STANDING_FLAG], project_status="open")))
+    check = a.closure.close_check.value
+    assert check.close_blocked is True
+    assert check.blocking_rows == []  # no FMEA block -- this is the standing-flag half alone
+    assert check.standing_hard_flags[0].artifact_id == "cp-001"
+    assert "cp-001: owner_not_placeholder" in check.reason
+    assert "not a clean pass" in check.reason
+
+    with pytest.raises(ValidationError, match="R-WRAP-03"):
+        A3Artifact.model_validate(make_a3(closure=make_a3_closure(standing_hard_flags=[STANDING_FLAG], project_status="closed")))
+
+
+def test_standing_hard_flags_cleared_unblocks_closure():
+    a = A3Artifact.model_validate(make_a3(closure=make_a3_closure(standing_hard_flags=[], project_status="closed")))
+    assert a.closure.close_check.value.close_blocked is False
+    assert a.closure.close_check.value.standing_hard_flags == []
+    assert "does not block closure" in a.closure.close_check.value.reason
+
+
+def test_fmea_block_and_standing_flags_both_named_when_both_present():
+    fmea = FmeaArtifact.model_validate(make_fmea())
+    fmea_check = {
+        "fmea_artifact_id": fmea.artifact_id,
+        "blocking_flags": [f.model_dump(mode="json") for f in fmea.blocking_flags.value],
+    }
+    a = A3Artifact.model_validate(make_a3(closure=make_a3_closure(
+        fmea_check=fmea_check, standing_hard_flags=[STANDING_FLAG], project_status="open",
+    )))
+    check = a.closure.close_check.value
+    assert check.close_blocked is True
+    assert "severity-9/10" in check.reason and "cp-001: owner_not_placeholder" in check.reason
+
+
 def test_round_trip_via_model_dump():
     a = A3Artifact.model_validate(make_a3())
     b = A3Artifact.model_validate(a.model_dump(mode="json"))

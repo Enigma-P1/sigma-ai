@@ -14,6 +14,7 @@ def test_clean_plan_passes_every_check():
     results = _by_id(run_control_plan_prescore(a))
     assert results["owner_named"].status == "pass"
     assert results["owner_accepted"].status == "pass"
+    assert results["owner_not_placeholder"].status == "pass"
     assert results["frequency_reason_present"].status == "pass"
     assert results["ctq_and_fix_coverage"].status == "pass"
     assert results["ocap_coverage"].status == "pass"
@@ -28,6 +29,59 @@ def test_ownerless_item_is_a_hard_flag_theater_line():
     results = _by_id(run_control_plan_prescore(a))
     assert results["owner_named"].status == "hard_flag"
     assert "item-2" in results["owner_named"].detail
+
+
+def test_placeholder_owner_marked_accepted_is_a_hard_flag():
+    """M6 fidelity-panel fix: 'TBD' + accepted=true used to pass BOTH owner
+    checks (owner_named only tests blankness, owner_accepted only tests the
+    boolean). The blocklist now applies regardless of accepted, and the
+    accepted placeholder is the worst case -- hard_flag."""
+    items = [make_monitored_item(), make_monitored_item(item_id="item-2", owner_name="TBD", owner_accepted=True)]
+    a = ControlPlanArtifact.model_validate(make_control_plan(monitored_items=items))
+    results = _by_id(run_control_plan_prescore(a))
+    # The two pre-existing checks still can't see it -- that's the gap...
+    assert results["owner_named"].status == "pass"
+    assert results["owner_accepted"].status == "pass"
+    # ...and the new check is what closes it.
+    assert results["owner_not_placeholder"].status == "hard_flag"
+    assert "an accepted placeholder is not an owner" in results["owner_not_placeholder"].detail
+    assert "item-2" in results["owner_not_placeholder"].detail
+    assert "TBD" in results["owner_not_placeholder"].detail
+
+
+def test_placeholder_owner_not_accepted_is_a_soft_flag():
+    """'the team', unaccepted: the blocklist fires regardless of accepted,
+    but only the accepted case escalates to hard_flag."""
+    items = [make_monitored_item(), make_monitored_item(item_id="item-2", owner_name="the team", owner_accepted=False)]
+    a = ControlPlanArtifact.model_validate(make_control_plan(monitored_items=items))
+    results = _by_id(run_control_plan_prescore(a))
+    assert results["owner_not_placeholder"].status == "flag"
+    assert "item-2" in results["owner_not_placeholder"].detail
+    assert "an accepted placeholder" not in results["owner_not_placeholder"].detail
+
+
+def test_placeholder_blocklist_is_exact_match_case_insensitive():
+    """Deliberately narrow (prescore/charter.py's idiom): 'tbd' in any case
+    is caught; a real name that merely contains a blocklisted word is not."""
+    caught = [make_monitored_item(), make_monitored_item(item_id="item-2", owner_name="  tBd ", owner_accepted=True)]
+    a = ControlPlanArtifact.model_validate(make_control_plan(monitored_items=caught))
+    assert _by_id(run_control_plan_prescore(a))["owner_not_placeholder"].status == "hard_flag"
+
+    not_caught = [make_monitored_item(), make_monitored_item(item_id="item-2", owner_name="Teamsy Vargas", owner_accepted=True)]
+    a2 = ControlPlanArtifact.model_validate(make_control_plan(monitored_items=not_caught))
+    assert _by_id(run_control_plan_prescore(a2))["owner_not_placeholder"].status == "pass"
+
+
+def test_placeholder_per_shift_owner_is_caught_too():
+    """ShiftOwner carries the same name+accepted pair as the top-level
+    owner field, so the blocklist reads it the same way."""
+    item = make_monitored_item(
+        per_shift_owners=[{"shift": "nights", "owner_name": "TBD", "owner_accepted": True}],
+    )
+    a = ControlPlanArtifact.model_validate(make_control_plan(monitored_items=[item]))
+    results = _by_id(run_control_plan_prescore(a))
+    assert results["owner_not_placeholder"].status == "hard_flag"
+    assert "nights" in results["owner_not_placeholder"].detail
 
 
 def test_primary_ctq_with_no_ocap_is_hard_flagged():

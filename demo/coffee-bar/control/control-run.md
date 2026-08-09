@@ -61,7 +61,9 @@ SOP by artifact id, all verified by observed demonstration and signed off
 - check-in `ci-2` (due 2026-10-05, answered same day): **pass** — "all 10
   entered value(s) hold inside the frozen band [3.029, 6.77]"
 
-Prescore: all eight checks pass — `owner_named`, `owner_accepted`,
+Prescore: all nine checks pass — `owner_named`, `owner_accepted`,
+`owner_not_placeholder` (every owner is a named person, not a "TBD"/"the
+team" placeholder — the M6 fidelity-panel addition),
 `frequency_reason_present`, `ctq_and_fix_coverage` (the plan covers the
 CTQ and what Improve changed), `ocap_coverage`, `ocap_elements_complete`,
 `training_verification_present`, `check_in_overdue`.
@@ -168,9 +170,14 @@ blocks, pasted:
 - **The close check, run live:** the linked FMEA's computed
   `blocking_flags` came back **empty** — the severity-8 steam-scald row
   carries its action (now st-4's purge-and-park standard in the SOP),
-  and no severity-9/10 row exists — so `close_blocked: false`: "No
-  unaddressed severity-9/10 safety/regulatory row on the linked FMEA —
-  this check does not block closure." With the check clean,
+  and no severity-9/10 row exists — and the server-side sweep of the
+  project's saved artifacts found **no standing prescore hard_flag**
+  (`standing_hard_flags: []`, the M6 fidelity-panel addition: an
+  unresolved deterministic finding anywhere in the project blocks
+  closure the same way a sev-9 row does), so `close_blocked: false`:
+  "No unaddressed severity-9/10 safety/regulatory row on the linked
+  FMEA, and no standing prescore hard_flag on the project's saved
+  artifacts — this check does not block closure." With the check clean,
   `project_status: "closed"` validated instead of raising — the same
   validator that would have refused to close past a live safety block.
 

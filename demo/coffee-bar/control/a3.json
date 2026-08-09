@@ -433,15 +433,17 @@
       "fmea_artifact_id": "coffee-fmea",
       "blocking_flags": []
     },
+    "standing_hard_flags": [],
     "close_check": {
       "value": {
         "close_blocked": false,
         "blocking_rows": [],
-        "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+        "standing_hard_flags": [],
+        "reason": "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA, and no standing prescore hard_flag on the project's saved artifacts -- this check does not block closure."
       },
       "provenance": {
-        "input_hash": "e01793274bf6efab7cbcdaa21b3bf5f31d3d14ad30ee0a07e6ef389a9b921767",
-        "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project may close' however clean the rest of the stack",
+        "input_hash": "309a5a44555d5443b4a29ba4d655de04b688bbf45c88c3657233cfe73d8874bf",
+        "method": "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty, OR any standing prescore hard_flag on the project's saved artifacts (server-swept via the route registries) -- R-ANA-03's Fail line plus the M6 fidelity panel's ruling, per R-WRAP-03: neither an unaddressed severity-9/10 row nor an unresolved deterministic finding is a clean pass, however clean the rest of the stack",
         "engine_version": "0.1.0",
         "assumptions_checked": [],
         "warnings": []

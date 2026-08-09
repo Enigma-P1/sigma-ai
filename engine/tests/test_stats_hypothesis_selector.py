@@ -371,3 +371,32 @@ def test_association_categorical_requires_a_contingency_table():
     q = make_question(comparison_type="association_categorical")
     with pytest.raises(ValueError):
         route_hypothesis(q)
+
+
+# --- Golden pin (matrix golden-coverage rule; evals/goldens/golden-id-map
+# greps this literal id into its unit-test home) ----------------------------
+
+
+def test_G_hyp_06_selector_exit14_kruskal_wallis_territory_is_a_named_refusal():
+    """G-hyp-06 golden (matrix IASSC 3.5.2 row: "Kruskal-Wallis | EXIT-14
+    in v1 (named, honest) ... G-hyp-06 (exit case)"; §4's registry:
+    "an exit case appears in ... G-hyp-06"): 3+ groups with the data
+    declared ordinal is Kruskal-Wallis territory no shipped v1 test covers
+    honestly -- the selector must refuse by name (EXIT-14), print the
+    branch in the decision path, and route the user to v1.1/a human,
+    never compute an ANOVA over ranks and present it as trustworthy."""
+    q = make_question(
+        comparison_type="multi_group", declared_data_type="ordinal",
+        groups=[
+            GroupInput(label="branch A", values=[1.0, 2.0, 2.0, 3.0, 1.0]),
+            GroupInput(label="branch B", values=[2.0, 3.0, 3.0, 4.0, 2.0]),
+            GroupInput(label="branch C", values=[4.0, 4.0, 5.0, 3.0, 4.0]),
+        ],
+    )
+    d = route_hypothesis(q)
+    assert d.route is None  # a raised exit never carries a route
+    assert d.exit is not None
+    assert d.exit.exit_id == "EXIT-14"
+    assert "Kruskal-Wallis" in d.exit.message
+    assert "v1.1" in d.exit.routes_to
+    assert any("EXIT-14" in node.branch for node in d.decision_path)  # the printed path names the refusal

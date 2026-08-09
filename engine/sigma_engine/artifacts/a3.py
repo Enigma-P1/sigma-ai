@@ -30,6 +30,15 @@ caller-resolved snapshot of the linked FMEA's own `blocking_flags`
 else here), and marking the project `closed` while blocked is a hard
 ValueError (R-WRAP-03/R-ANA-03's rule -- this is "the claim would be
 false," control_chart.py's EXIT-11 bar, not a content-quality flag).
+The close check's second half (M6 fidelity panel ruling: closure "must
+not treat an unresolved judgment finding as a clean pass," made
+deterministic): it also blocks while any SAVED artifact in the project
+carries a standing prescore hard_flag, listed by artifact id + check id
+in `standing_hard_flags` -- resolved SERVER-side at save time by
+registry.collect_standing_hard_flags (the same registries the routes
+use), never client-supplied, with the same blocked-until-fixed mechanics
+as the FMEA block (no override path -- fixing the flagged artifact and
+re-saving is what unblocks).
 """
 
 from __future__ import annotations
@@ -231,31 +240,70 @@ class FmeaCloseCheckInput(BaseModel):
     blocking_flags: list[BlockingFlag] = Field(default_factory=list)
 
 
+class StandingHardFlag(BaseModel):
+    """One prescore hard_flag currently standing on a SAVED artifact in
+    this project (M6 fidelity panel ruling: tollgate/closure must not
+    treat an unresolved deterministic finding as a clean pass). Snapshot
+    input like FmeaCloseCheckInput's blocking_flags, but resolved
+    SERVER-side: the T-25 save route sweeps the project's saved artifacts
+    through the same ARTIFACT_REGISTRY/PRESCORE_REGISTRY the routes use
+    (registry.collect_standing_hard_flags) and overwrites whatever the
+    caller posted -- never client-supplied, the tollgate-stamp
+    discipline."""
+
+    artifact_id: str
+    tool_id: str
+    check_id: str
+    detail: str
+
+
 class CloseBlockResult(BaseModel):
     close_blocked: bool
     blocking_rows: list[BlockingFlag]
+    standing_hard_flags: list[StandingHardFlag] = Field(default_factory=list)
     reason: str
 
 
-def compute_close_block(fmea_check: FmeaCloseCheckInput | None) -> Computed[CloseBlockResult]:
+def compute_close_block(
+    fmea_check: FmeaCloseCheckInput | None, standing_hard_flags: list[StandingHardFlag] | None = None,
+) -> Computed[CloseBlockResult]:
     flags = list(fmea_check.blocking_flags) if fmea_check else []
-    blocked = bool(flags)
+    standing = list(standing_hard_flags or [])
+    blocked = bool(flags) or bool(standing)
+    parts: list[str] = []
+    if flags:
+        parts.append(
+            f"{len(flags)} unaddressed severity-9/10 safety/regulatory row(s) on the linked FMEA "
+            f"({fmea_check.fmea_artifact_id if fmea_check else 'none linked'}) -- project may not close until each "
+            "carries an action (R-WRAP-03 / R-ANA-03)."
+        )
+    if standing:
+        named = ", ".join(f"{f.artifact_id}: {f.check_id}" for f in standing)
+        parts.append(
+            f"{len(standing)} saved artifact(s) in this project carry a standing prescore hard_flag ({named}) -- "
+            "an unresolved deterministic finding is not a clean pass; project may not close until each is fixed "
+            "and re-saved (M6 fidelity panel / R-WRAP-03)."
+        )
     reason = (
-        f"{len(flags)} unaddressed severity-9/10 safety/regulatory row(s) on the linked FMEA "
-        f"({fmea_check.fmea_artifact_id if fmea_check else 'none linked'}) -- project may not close until each "
-        "carries an action (R-WRAP-03 / R-ANA-03)."
-        if blocked else
-        "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA -- this check does not block closure."
+        " ".join(parts) if blocked else
+        "No unaddressed severity-9/10 safety/regulatory row on the linked FMEA, and no standing prescore "
+        "hard_flag on the project's saved artifacts -- this check does not block closure."
     )
-    result = CloseBlockResult(close_blocked=blocked, blocking_rows=flags, reason=reason)
+    result = CloseBlockResult(close_blocked=blocked, blocking_rows=flags, standing_hard_flags=standing, reason=reason)
     return compute(
         result,
         method=(
-            "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty -- R-ANA-03's Fail "
-            "line, echoed here per R-WRAP-03: an unaddressed severity-9/10 safety/regulatory row blocks 'project "
-            "may close' however clean the rest of the stack"
+            "close_blocked = the linked FMEA's own blocking_flags (fmea.py) carried non-empty, OR any standing "
+            "prescore hard_flag on the project's saved artifacts (server-swept via the route registries) -- "
+            "R-ANA-03's Fail line plus the M6 fidelity panel's ruling, per R-WRAP-03: neither an unaddressed "
+            "severity-9/10 row nor an unresolved deterministic finding is a clean pass, however clean the rest "
+            "of the stack"
         ),
-        input_data={"fmea_artifact_id": fmea_check.fmea_artifact_id if fmea_check else None, "n_blocking": len(flags)},
+        input_data={
+            "fmea_artifact_id": fmea_check.fmea_artifact_id if fmea_check else None,
+            "n_blocking": len(flags),
+            "n_standing_hard_flags": len(standing),
+        },
     )
 
 
@@ -265,6 +313,11 @@ class ClosureBlock(BaseModel):
     lessons: list[LessonEntry] = Field(default_factory=list)
     open_items: list[OpenItem] = Field(default_factory=list)
     fmea_check: FmeaCloseCheckInput | None = None
+    # Server-resolved on save (StandingHardFlag's docstring): the T-25 save
+    # route overwrites this wholesale with the project sweep's result. On a
+    # bare /validate (no project context) it stays as posted -- normally
+    # empty -- and the save is where the sweep is enforced.
+    standing_hard_flags: list[StandingHardFlag] = Field(default_factory=list)
     close_check: Computed[CloseBlockResult] | None = None  # server-computed -- see A3Artifact._recompute_closure
     project_status: Literal["open", "closed"] = "open"
 
@@ -307,7 +360,7 @@ class A3Artifact(ArtifactBase):
 
     @model_validator(mode="after")
     def _recompute_closure(self) -> "A3Artifact":
-        self.closure.close_check = compute_close_block(self.closure.fmea_check)
+        self.closure.close_check = compute_close_block(self.closure.fmea_check, self.closure.standing_hard_flags)
         if self.closure.objectives_input is not None:
             oi = self.closure.objectives_input
             self.closure.objectives_verdict = compute_gap(

@@ -66,7 +66,7 @@ export const msaHelperContent: HelperFrameContent = {
     },
     {
       field: "Items and two-rater judgments (attribute path)",
-      good: "10+ drinks judged pass/fail by rater A and rater B independently -- no peeking, no conferring, a mix of clearly-good, clearly-bad, and borderline items.",
+      good: "10+ drinks judged pass/fail by rater A and rater B independently -- no peeking, no conferring, a mix of clearly-good, clearly-bad, and borderline items. And keep what agreement proves in bounds: it proves the two raters read the yardstick the same way, not that the yardstick is right -- validity takes an independent reference (see the mistake list).",
       bad: "Raters comparing answers as they go. (agreement between people who conferred is theater -- kappa can't rescue it)",
     },
   ],
@@ -87,6 +87,11 @@ export const msaHelperContent: HelperFrameContent = {
   commonMistakes: [
     "Skipping the check because the numbers \"look fine.\" Gauge noise is invisible in the numbers it " +
       "contaminates -- that's the whole problem.",
+    "Reading agreement as validity. Two raters agreeing -- or one operator repeating -- proves the " +
+      "yardstick reads consistently, not that it reads RIGHT: a consistently flattering clock (say, a " +
+      "stop moment someone in the process controls) passes this check while measuring the wrong thing, " +
+      "because both raters share its bias. The check for that is independent evidence: re-time a sample " +
+      "against an independently-timed reference, or have someone outside the process hold the watch.",
     "Items that don't span the range: ten easy mid-range orders flatter the result and vet nothing.",
     "Narrating a marginal verdict as a clean pass -- the caveat must survive into your own words.",
     "Rater B seeing rater A's answers (or one person rating twice) in the attribute check.",

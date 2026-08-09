@@ -16,7 +16,11 @@ export const controlChartHelperContent: HelperFrameContent = {
     "them, they do not reshape them. That freeze is the whole alarm: a process drifting away from frozen " +
     "limits fires signals; limits recalculated on a whim follow the drift and erase the alarm system.",
   whenToUse:
-    "After Improve implements the fix, to hold it. At the Coffee Bar: daily peak handoff-minutes values on " +
+    "After Improve implements the fix, to hold it -- and once before that, in Measure, run UNFROZEN: a " +
+    "diagnostic chart with no frozen limits is the honest stability read on baseline data (the attribute " +
+    "baseline runs its p chart exactly this way -- plotted, no freeze, no sustained-control claim); " +
+    "freezing limits to monitor against stays a post-Improve act. At the Coffee Bar: daily peak " +
+    "handoff-minutes values on " +
     "an I-MR chart, limits frozen from at least 20 post-change points that themselves show no rule-1/" +
     "rule-4 signal. The customer's 5.0-minute line stays a SPEC limit -- it never gets drawn as a control " +
     "limit. Control limits say what the process is doing; spec limits say what the customer needs; " +

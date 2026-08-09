@@ -83,14 +83,27 @@ export function ClosurePanel({ closure, onUpdate, onLoadFmea }: ClosurePanelProp
         <Button variant="ghost" size="sm" onClick={addOpenItem} data-testid="a3-add-open-item">+ Add open item</Button>
       </Panel>
 
-      <Panel title="Project close -- the FMEA sev-block check">
+      <Panel title="Project close -- the FMEA sev-block + standing-hard-flag check">
         <Button variant="ghost" size="sm" onClick={onLoadFmea} data-testid="a3-load-fmea-check">Load latest FMEA</Button>
         {closeCheck && (
           <div data-testid="a3-close-check-banner">
             <VerdictBanner
               tone={closeCheck.close_blocked ? "fail" : "pass"}
-              headline={closeCheck.close_blocked ? "Project may NOT close -- unaddressed severity-9/10 row(s)" : "No FMEA block on closure"}
-              detail={closeCheck.blocking_rows.map((r) => `${r.row_id}: ${r.failure_mode} (sev ${r.severity}) -- ${r.reason}`).join("; ") || closeCheck.reason}
+              headline={
+                !closeCheck.close_blocked
+                  ? "Close check clear -- no FMEA block, no standing hard flags"
+                  : closeCheck.blocking_rows.length > 0 && (closeCheck.standing_hard_flags ?? []).length > 0
+                    ? "Project may NOT close -- unaddressed severity-9/10 row(s) + standing prescore hard flag(s)"
+                    : closeCheck.blocking_rows.length > 0
+                      ? "Project may NOT close -- unaddressed severity-9/10 row(s)"
+                      : "Project may NOT close -- standing prescore hard flag(s) on saved artifacts"
+              }
+              detail={
+                [
+                  ...closeCheck.blocking_rows.map((r) => `${r.row_id}: ${r.failure_mode} (sev ${r.severity}) -- ${r.reason}`),
+                  ...(closeCheck.standing_hard_flags ?? []).map((f) => `${f.artifact_id}: ${f.check_id} -- ${f.detail}`),
+                ].join("; ") || closeCheck.reason
+              }
             />
           </div>
         )}

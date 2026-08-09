@@ -1,7 +1,7 @@
 {
   "defect": "PLAN \u00a79's subtle pattern: 'control plan with no owner,' built as three monitored items spanning exactly the range prescore can and cannot see. M-1 (the primary CTQ) has owner_name='' -- a genuinely blank owner. M-3 has owner_name='the team' with owner_accepted=false -- a group name, not accepted. M-2 (the Improve change) has owner_name='TBD' with owner_accepted=TRUE -- a placeholder name marked as if a real person had accepted the role. Everything else on the plan (frequency reasons, OCAP coverage and elements, training verification, check-in schedule) is deliberately clean so the only signal is owner quality.",
   "deterministic_layer": {
-    "notes": "Confirmed live: owner_named hard_flags on M-1 only (['M-1'], the genuinely blank owner); owner_accepted flags on M-3 only (['M-3'], named-but-not-accepted). M-2 ('TBD', accepted=true) never appears in either check's output -- plan_health.ownerless_item_ids and unaccepted_owner_item_ids both skip it entirely, because owner_named only tests '.strip()' truthiness and owner_accepted only tests the boolean flag; neither one reads what the name actually says. This is the fixture's central point: a placeholder name marked accepted is deterministically indistinguishable from a real one.",
+    "notes": "Confirmed live: owner_named hard_flags on M-1 only (['M-1'], the genuinely blank owner); owner_accepted flags on M-3 only (['M-3'], named-but-not-accepted). M-2 ('TBD', accepted=true) never appears in either check's output -- plan_health.ownerless_item_ids and unaccepted_owner_item_ids both skip it entirely, because owner_named only tests '.strip()' truthiness and owner_accepted only tests the boolean flag; neither one reads what the name actually says. M6 fidelity-panel fix (pre-ship): the prescore now also runs owner_not_placeholder -- prescore/charter.py's R-DEF-04 blocklist (plus 'the team'), applied to owner fields regardless of the accepted flag -- so M-2 ('TBD', accepted=true) is now a deterministic hard_flag ('an accepted placeholder is not an owner') and M-3 ('the team', unaccepted) is named in the same check's detail. The prescore_flags block below records all three owner findings. The advisor-layer job this fixture grades is unchanged: R-CTL-03 should still verdict needs_work and name M-2's placeholder in prose rather than merely restating the deterministic flags; what changed is that the deterministic layer no longer reads M-2 as indistinguishable from a real accepted owner.",
     "plan_health": {
       "check_in_overdue": false,
       "check_in_overdue_detail": "no check-in schedule on this plan yet",
@@ -24,6 +24,12 @@
         "check_id": "owner_accepted",
         "detail": "item(s) with a named owner and no evidence of handoff (R-CTL-03 Needs-work line): ['M-3']",
         "status": "flag",
+        "tool_id": "T-22"
+      },
+      {
+        "check_id": "owner_not_placeholder",
+        "detail": "an accepted placeholder is not an owner -- item(s) with a placeholder owner name marked accepted, as if a real person had taken the handoff (R-CTL-03 Fail line): [('M-2', 'TBD')]; item(s) with a placeholder owner name (R-CTL-03 / R-DEF-04's blocklist): [('M-3', 'the team')]",
+        "status": "hard_flag",
         "tool_id": "T-22"
       },
       {
