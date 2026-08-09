@@ -22,13 +22,34 @@ project yourself. It is the same worked example the docs and tests use.
    containing `project.json` and an `artifacts` folder. If you instead get
    `...\projects\coffee-bar-example-project\coffee-bar-example\`, move the
    inner `coffee-bar-example` folder up one level.
-4. Restart Sigma AI. **Coffee Bar — worked example** appears under
-   *Open a project*.
 
 **Mac**
 
 Same idea: unzip into `~/.sigma-ai/projects/` (in Finder, press
-`Cmd+Shift+G` and paste `~/.sigma-ai/projects`), then restart the app.
+`Cmd+Shift+G` and paste `~/.sigma-ai/projects`).
+
+## Open it
+
+In Sigma AI, click **Open a project**, then:
+
+1. Find the field labelled **Or open by project ID**.
+2. Type `coffee-bar-example`.
+3. Click **Open**.
+
+No restart needed.
+
+**It will not appear in the list above that field.** That list is a
+recently-opened history kept per machine, not a scan of your projects
+folder — a project you dropped in by hand has never been opened here, so
+it is not in the history. Typing the ID once is what puts it there; after
+that it shows up in the list like any other project.
+
+If **Open** reports it can't find the project, the unzip nested one level
+too deep. Paste `%USERPROFILE%\.sigma-ai\projects\coffee-bar-example` into
+File Explorer's address bar (`~/.sigma-ai/projects/coffee-bar-example` on
+Mac) — you should land in a folder with `project.json` sitting directly
+inside it. If that path doesn't exist, go up to `projects` and move the
+inner `coffee-bar-example` folder up one level.
 
 ## What's inside
 

@@ -116,6 +116,18 @@ Step-by-step guides, including the unsigned-app warnings you will see and how
 to get past them: [Windows install guide](docs/install-windows.md) ·
 [Mac install guide](docs/install-mac.md).
 
+**Installed it — now what?** Two ways in, depending on whether you want to
+watch or to type:
+
+- **Watch first, type nothing.** [`examples/`](examples/) has a finished
+  Coffee Bar project — all 25 tools filled in, both datasets embedded, charts
+  and stats computed. Unzip it into your projects folder and open it by ID.
+  Fastest way to see what the output actually looks like.
+- **Type it yourself.** [Test drive](docs/test-drive.md) is a 20-minute
+  script with real copy-paste answers that produce that same project, so the
+  numbers tie out across tools and the honesty checks behave as they would on
+  a live project.
+
 **Run from source (developers).** Requires Python 3.11+ and Node 22+. Use two
 terminals — the engine keeps running in the first while you work in the second.
 
@@ -222,6 +234,11 @@ That statement, verbatim (from
 
 - [Demo walkthrough](docs/demo-walkthrough.md) — a 12-stop guided tour of the
   Coffee Bar project, with screenshots.
+- [Test drive](docs/test-drive.md) — 20 minutes, copy-paste answers, every
+  tool exercised. [`examples/`](examples/) is the same project pre-filled if
+  you'd rather not type.
+- [Field notes](docs/field-notes.md) — rough edges found using shipped
+  builds: what was observed, why, and what a fix costs.
 - [Architecture](docs/architecture.md) — the two-layer design, the honesty
   machinery, and where each piece lives in the code.
 - [Install guides](docs/install-windows.md) — [Windows](docs/install-windows.md),
