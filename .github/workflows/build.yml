@@ -25,6 +25,12 @@ on:
     #   docs/green-belt-rubric.md    read by engine/tests/test_advisor_rubric_items.py
     #   docs/tier-a-done-means.md    authority doc; held to the full gate by
     #                                choice even though only comments cite it
+    #   examples/**                  was ignored until the UI probes below
+    #                                started unzipping
+    #                                coffee-bar-example-project.zip and
+    #                                rendering it; the example is now a test
+    #                                INPUT, so a change to it must re-run
+    #                                this workflow
     # (evals/scenarios/*/spec.md and prompts/**/*.md are also read at test
     # time and are not under any ignored path -- keep it that way.)
     #
@@ -36,7 +42,6 @@ on:
       - "README.md"
       - "LICENSE"
       - "PLAN.md"
-      - "examples/**"
       - "docs/architecture.md"
       - "docs/belt-reviewer-brief.md"
       - "docs/demo-walkthrough.md"
@@ -137,6 +142,49 @@ jobs:
         env:
           ENGINE_PORT: "8000" # the ephemeral engine started above
         run: node tools/xorigin-probe.mjs
+
+      # The two checks that need a real rendered UI, not just a live route.
+      # Both cover failures that are invisible at the API layer: the example
+      # zip rendering blank in every form (right ids, wrong names), and the
+      # export button producing no file (a webview cancels downloads with no
+      # error unless the window carries a download handler).
+      - name: Build the production bundle (for the UI probes)
+        working-directory: desktop
+        run: npm run build
+
+      - name: Stage the worked example for the UI probes
+        run: |
+          mkdir -p /tmp/probe-projects
+          cd /tmp/probe-projects
+          unzip -qo "$GITHUB_WORKSPACE/examples/coffee-bar-example-project.zip"
+          test -f /tmp/probe-projects/coffee-bar-example/project.json
+
+      - name: Start engine over the worked example
+        run: |
+          cd engine
+          SIGMA_PROJECTS_ROOT=/tmp/probe-projects \
+            python -m sigma_engine.main --port 8756 > /tmp/probe-engine.log 2>&1 &
+          echo $! > /tmp/probe-engine.pid
+          for _ in $(seq 1 60); do
+            curl -sf http://127.0.0.1:8756/health >/dev/null && exit 0
+            sleep 1
+          done
+          echo "engine did not come up"; cat /tmp/probe-engine.log; exit 1
+
+      - name: Example project renders (every tool populated)
+        working-directory: desktop
+        run: node tools/example-project-probe.mjs
+
+      - name: Export project produces a real PDF on disk
+        working-directory: desktop
+        run: node tools/export-project-probe.mjs
+
+      - name: Stop probe engine
+        if: always()
+        run: |
+          if [ -f /tmp/probe-engine.pid ]; then
+            kill "$(cat /tmp/probe-engine.pid)" 2>/dev/null || true
+          fi
 
       - name: Stop engine
         if: always()
