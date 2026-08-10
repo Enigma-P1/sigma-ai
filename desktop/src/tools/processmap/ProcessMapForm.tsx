@@ -4,6 +4,7 @@ import { LanesPanel } from "./LanesPanel";
 import { StepsList } from "./StepsList";
 import { ConnectorsPanel } from "./ConnectorsPanel";
 import { StepInspector } from "./StepInspector";
+import { ValueAddPanel } from "./ValueAddPanel";
 import { DemandPanel } from "./DemandPanel";
 import { Legend } from "./Legend";
 import { WasteWalkSummary } from "./WasteWalkSummary";
@@ -60,6 +61,8 @@ export function ProcessMapForm({ projectId, project, onSaved }: ProcessMapFormPr
         longestStep={f.serverArtifact?.longest_step} constraintStep={f.serverArtifact?.constraint_step}
         saved={f.version != null}
       />
+
+      <ValueAddPanel valueAddRatio={f.serverArtifact?.value_add_ratio} saved={f.version != null} />
 
       {f.generalError && <VerdictBanner tone="fail" headline={f.generalError} />}
 

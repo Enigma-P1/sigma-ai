@@ -317,6 +317,16 @@ export interface LongestStepResult {
  * value_add or enabling) -- a pure-wait non_value_add step can queue up
  * behind the constraint, but it can never be named here. meets_pace is
  * judged on this step alone. */
+export interface ValueAddRatioResult {
+  value_add_minutes: number;
+  enabling_minutes: number;
+  non_value_add_minutes: number;
+  total_lead_time_minutes: number;
+  value_add_ratio: number;
+  steps_timed: number;
+  steps_untimed: number;
+}
+
 export interface ConstraintStepResult {
   step_id: string;
   step_name: string;
@@ -342,6 +352,8 @@ export interface ProcessMapArtifact extends ArtifactBase {
    * engine has echoed the artifact back. Null means "nothing to name yet"
    * (demand incomplete, or no PROCESSING step has a time), not an error. */
   constraint_step?: Computed<ConstraintStepResult> | null;
+  /** Server-computed value-add ratio -- the VSM readout (T-06). */
+  value_add_ratio?: Computed<ValueAddRatioResult> | null;
 }
 
 // ---- T-05 VoC -> CTQ Tree (artifacts/voc_ctq.py) ----

@@ -167,3 +167,35 @@ def collect_standing_hard_flags(
                     artifact_id=artifact_id, tool_id=entry.tool_id, check_id=result.check_id, detail=result.detail,
                 ))
     return flags
+
+
+def refresh_computed_fields(tool_id: str, data: dict) -> dict:
+    """Re-derive an artifact's server-computed fields on READ.
+
+    WHY: project_store.load_artifact returns the JSON exactly as it was
+    written, and every computed field (CopqArtifact.total,
+    ProcessMapArtifact.constraint_step, the value-add ratio, ...) is produced
+    by a model_validator that only runs on SAVE. So an artifact saved before
+    a computed field existed comes back without it forever, and the screen
+    that reads it shows its empty state on a project that is in fact
+    complete. That is the same shape as the blank-forms bug in the worked
+    example: two honest components disagreeing, with no error anywhere.
+
+    Running the artifact back through its model on read fixes it for every
+    tool at once, and keeps derived values honest in a second way -- a
+    hand-edited project.json cannot leave a stale computed number in place,
+    because it is recomputed from the inputs before anyone sees it.
+
+    FALLS BACK TO THE RAW DATA on any validation failure. An artifact written
+    by an older schema that no longer validates must still be readable: a
+    user losing access to their own work is far worse than a missing derived
+    field, and refusing to load would be exactly the "you can't get your work
+    out" failure this codebase keeps having to fix.
+    """
+    model = ARTIFACT_REGISTRY.get(tool_id)
+    if model is None:
+        return data
+    try:
+        return model.model_validate(data).model_dump(mode="json")
+    except ValidationError:
+        return data
