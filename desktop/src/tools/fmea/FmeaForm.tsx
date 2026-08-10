@@ -1,4 +1,5 @@
 import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
+import { ReportButton } from "../../app/ReportButton";
 import { FmeaWorksheet } from "./FmeaWorksheet";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { FMEA_CHECK_LABELS } from "./fmeaChecks";
@@ -25,7 +26,21 @@ export function FmeaForm({ projectId, project, onSaved }: FmeaFormProps) {
   const blockingFlags = f.serverArtifact?.blocking_flags?.value ?? [];
 
   return (
-    <Panel title="FMEA (process)" right={f.version != null && <span data-testid="fmea-version-badge">v{f.version} saved</span>}>
+    <Panel
+      title="FMEA (process)"
+      right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="fmea-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-16"
+            disabled={f.version == null}
+            disabledReason="Save the FMEA before downloading its report."
+          />
+        </span>
+      }
+    >
       <p>
         One row per specific failure of a specific process step. Rate severity, occurrence, and detection against the
         1-10 anchor scales below -- a rating should match its anchor&rsquo;s wording, not a gut feel.

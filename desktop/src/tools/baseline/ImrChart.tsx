@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { ChartFrame } from "../../charts/ChartFrame";
+import { fingerprint } from "../../charts/capture";
 import { CHART_COLORS } from "../../charts/palette";
 import { EXIT04_NEXT_ACTION, pointColor, pointHoverText } from "./baselineLogic";
 import type { Computed, ImrChartResult } from "../../api/types";
@@ -19,6 +21,20 @@ export interface ImrChartProps {
  * median center line only, no sigma limits or signals. */
 export function ImrChart({ values, stability, stable, stabilityNote, unitLabel = "", testId }: ImrChartProps) {
   const s = stability.value;
+  // The fingerprint is async (SubtleCrypto), so it lands a tick after the
+  // chart paints. Until it does the chart registers with a null hash, which
+  // the engine treats as unverifiable and declines rather than trusting --
+  // the safe direction, and it resolves within a frame in practice.
+  const [hash, setHash] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    void fingerprint(values).then((h) => {
+      if (live) setHash(h);
+    });
+    return () => {
+      live = false;
+    };
+  }, [values]);
   const tone: VerdictTone = stable ? "pass" : "fail";
   const colors = values.map((_, i) => pointColor(s.signals, i, CHART_COLORS.accent, CHART_COLORS.fail));
   const hover = values.map((v, i) => pointHoverText(s.signals, i, v));
@@ -28,6 +44,8 @@ export function ImrChart({ values, stability, stable, stabilityNote, unitLabel =
 
   return (
     <ChartFrame
+      captureKey="T-13-imr"
+      captureHash={hash}
       title="I-MR Chart — Individuals"
       headline={stabilityNote}
       tone={tone}

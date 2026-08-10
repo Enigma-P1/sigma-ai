@@ -16,15 +16,25 @@ Two routes, deliberately different in kind:
 
 from __future__ import annotations
 
+import base64
+import binascii
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
+from pydantic import BaseModel
 
 from .. import __version__
 from ..artifacts.charter import CharterArtifact
+from ..artifacts.fmea import FmeaArtifact
+from ..export import report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
+from ..export.reports import capability as capability_report_mod
+from ..export.reports import fmea as fmea_report_mod
 from ..project_store import ProjectMetadata, ProjectStore
+from ..stats.baseline import run_baseline
 from .deps import get_store
+from .stats import _latest_msa_verdict, _load_dataset_column
 
 router = APIRouter(tags=["export"])
 
@@ -120,6 +130,182 @@ def project_pdf(project_id: str, store: ProjectStore = Depends(get_store)) -> Re
         engine_version=__version__,
     )
     filename = f"{_safe_filename(meta.name)}-project-record.pdf"
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{filename}"'},
+    )
+
+
+class ChartCapture(BaseModel):
+    """A chart image lifted off the user's screen, with the fingerprint of
+    the data it was drawn from so a stale image cannot be paired with fresh
+    numbers (export/report_pdf.py explains why this matters)."""
+
+    png_base64: str
+    data_hash: str | None = None
+
+
+class ReportRequest(BaseModel):
+    """Everything a report needs that the engine cannot look up itself.
+
+    Note what is NOT here: any computed value. The client sends the chart
+    picture and the inputs; every number printed is recomputed server-side.
+    A client that could post its own statistics could put an unverified
+    figure on a page carrying the engine's name in the footer.
+    """
+
+    chart: ChartCapture | None = None
+    # T-13 only -- the baseline is computed from a dataset, not stored as an
+    # artifact, so the report has to be told which dataset and which specs.
+    dataset_id: str | None = None
+    column: str | None = None
+    usl: float | None = None
+    lsl: float | None = None
+    enable_rule2: bool = False
+    enable_rule3: bool = False
+    # Mirrors the baseline screen's own confirmation. Without it the engine's
+    # gate refuses to compute a baseline at all (matrix III.F.1) -- correctly,
+    # but the report would then always print "cannot be answered yet" even for
+    # a project whose screen shows a finished capability study.
+    operational_definition_ok: bool = False
+
+
+def _decode_png(capture: ChartCapture | None) -> bytes | None:
+    if capture is None or not capture.png_base64:
+        return None
+    raw = capture.png_base64
+    if "," in raw[:64] and raw.lstrip().startswith("data:"):
+        raw = raw.split(",", 1)[1]  # strip a data: URI preamble if one came along
+    try:
+        return base64.b64decode(raw, validate=True)
+    except (binascii.Error, ValueError):
+        return None
+
+
+@router.post("/project/{project_id}/report/T-13/pdf")
+def capability_report(
+    project_id: str, body: ReportRequest, store: ProjectStore = Depends(get_store)
+) -> Response:
+    """The Process Capability one-pager."""
+    try:
+        meta = store.load_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    if not body.dataset_id or not body.column:
+        raise HTTPException(status_code=422, detail="dataset_id and column are required for the T-13 report")
+
+    try:
+        values, provenance = _load_dataset_column(store, project_id, body.dataset_id, body.column)
+    except (FileNotFoundError, KeyError) as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    result = run_baseline(
+        values,
+        usl=body.usl,
+        lsl=body.lsl,
+        enable_rule2=body.enable_rule2,
+        enable_rule3=body.enable_rule3,
+        operational_definition_ok=body.operational_definition_ok,
+        msa_verdict=_latest_msa_verdict(store, project_id),
+    )
+
+    png, reason = report_pdf.check_chart(
+        _decode_png(body.chart),
+        body.chart.data_hash if body.chart else None,
+        report_pdf.data_fingerprint(values),
+    )
+
+    rows = [
+        ("Dataset", f"{body.dataset_id} · column '{body.column}'"),
+        ("Observations", str(len(values))),
+        ("Specification", _spec_text(body.lsl, body.usl)),
+        ("Engine version", __version__),
+    ]
+    if provenance is not None:
+        source = getattr(provenance, "source_filename", None)
+        if source:
+            rows.insert(1, ("Source file", str(source)))
+
+    def story(content_width: float):
+        return capability_report_mod.build_story(
+            result=result,
+            project_name=meta.name,
+            chart_png=png,
+            chart_unavailable_reason=reason,
+            provenance_rows=rows,
+            exported_at=report_theme.utc_stamp(),
+            content_width=content_width,
+        )
+
+    pdf_bytes = report_pdf.render(
+        story_builder=story,
+        title=f"{meta.name} — Process Capability",
+        project_id=project_id,
+        engine_version=__version__,
+    )
+    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-T13-capability.pdf")
+
+
+def _spec_text(lsl: float | None, usl: float | None) -> str:
+    if lsl is None and usl is None:
+        return "none given"
+    low = "—" if lsl is None else f"{lsl:g}"
+    high = "—" if usl is None else f"{usl:g}"
+    return f"LSL {low} / USL {high}"
+
+
+@router.post("/project/{project_id}/report/T-16/pdf")
+def fmea_report(project_id: str, body: ReportRequest, store: ProjectStore = Depends(get_store)) -> Response:
+    """The FMEA one-pager (landscape)."""
+    try:
+        meta = store.load_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    artifact_id = _find_artifact_id(meta, "T-16")
+    if artifact_id is None:
+        raise HTTPException(status_code=404, detail=f"no FMEA saved in project {project_id!r}")
+
+    data = store.load_artifact(project_id, artifact_id, None)
+    artifact = FmeaArtifact.model_validate(data)
+    version = meta.artifact_index[artifact_id].latest_version
+
+    rows = [
+        ("Artifact", f"{artifact_id} · v{version}"),
+        ("Failure modes", str(len(artifact.rows))),
+        ("Engine version", __version__),
+    ]
+
+    def story(content_width: float):
+        return fmea_report_mod.build_story(
+            artifact=artifact,
+            project_name=meta.name,
+            version=version,
+            provenance_rows=rows,
+            exported_at=report_theme.utc_stamp(),
+            content_width=content_width,
+        )
+
+    pdf_bytes = report_pdf.render(
+        story_builder=story,
+        title=f"{meta.name} — FMEA",
+        project_id=project_id,
+        engine_version=__version__,
+        page_size=fmea_report_mod.PAGE_SIZE,
+    )
+    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-T16-fmea.pdf")
+
+
+def _find_artifact_id(meta: ProjectMetadata, tool_id: str) -> str | None:
+    for artifact_id, entry in meta.artifact_index.items():
+        if entry.tool_id == tool_id:
+            return artifact_id
+    return None
+
+
+def _pdf_response(pdf_bytes: bytes, filename: str) -> Response:
     return Response(
         content=pdf_bytes,
         media_type="application/pdf",

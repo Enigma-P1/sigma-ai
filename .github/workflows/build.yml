@@ -179,6 +179,14 @@ jobs:
         working-directory: desktop
         run: node tools/export-project-probe.mjs
 
+      # Covers the three ways a report button fails silently: a cancelled
+      # webview download, a CORS regression on the POST, and a chart capture
+      # that returns nothing or gets refused by the engine's hash check. All
+      # three look identical from the route's side, which passes throughout.
+      - name: Tool reports download for real (Capability + FMEA)
+        working-directory: desktop
+        run: node tools/tool-report-probe.mjs
+
       - name: Stop probe engine
         if: always()
         run: |

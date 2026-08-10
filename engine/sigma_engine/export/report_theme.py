@@ -1,0 +1,295 @@
+"""The shared page frame every one-page tool report is built from.
+
+WHY A SHARED FRAME: the value of a report set is that reading one teaches
+you to read all of them. Twenty-three independently-designed pages is
+twenty-three things to learn. So the zones, their order, and their styling
+live here, and a per-tool module only supplies content.
+
+THE FIVE ZONES, in order down the page (docs/reports-plan.md):
+
+  1. Header       project, tool, date, artifact version
+  2. Answer       the chart / table / number -- most of the page
+  3. Meaning      one or two plain sentences
+  4. Report card  what would invalidate this
+  5. Provenance   dataset, n, engine version, export time
+
+Zone 4 is the differentiator and the reason the frame is rigid. Every one
+of the 23 tools already computes its own checks (PRESCORE_REGISTRY covers
+23/23, each result carrying a status and a plain-English detail); until now
+those appeared only on screen. A one-page summary is exactly the format
+that manufactures false confidence, and the report card is the guard
+against this product doing that.
+
+VERDICT AND RECOMMENDATION ARE DIFFERENT THINGS and the frame keeps them
+visually apart. "The means differ" is computed. "Standardise the new
+method" is advice. Rendered in one voice, advice reads as a computed fact
+-- the exact failure the honesty architecture exists to prevent -- so
+`verdict_banner` and `recommendation_block` are separate calls with
+separate looks, and no tool module may merge them.
+"""
+
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from typing import Any, Literal
+
+from reportlab.lib.utils import ImageReader
+from reportlab.platypus import Image, KeepTogether, Paragraph, Spacer, Table, TableStyle
+
+from . import pdf_theme as theme
+from .charter_pdf_common import esc, kv_table
+
+Tone = Literal["pass", "flag", "fail", "neutral"]
+
+# Roughly 40% of an A4 page's usable height. Chosen by rendering the real
+# Capability report: at full width the I-MR chart pushed the provenance zone
+# onto page two, which defeats the point of a one-pager.
+MAX_CHART_HEIGHT = 260.0
+
+_TONE_COLOR: dict[Tone, Any] = {
+    "pass": theme.PASS,
+    "flag": theme.FLAG,
+    "fail": theme.FAIL,
+    "neutral": theme.TEXT_MUTED,
+}
+
+# One vocabulary across all 23 reports. A label that means "estimate" on one
+# page and "approximate" on the next teaches the reader nothing, and the
+# whole point of these labels is that a reader learns them once and then
+# trusts them everywhere.
+LABELS = {
+    "estimate": "ESTIMATE — not measured",
+    "pilot_only": "PILOT ONLY — not yet proven at full scale",
+    "unstable": "UNSTABLE PROCESS — capability not claimable",
+    "msa_unqualified": "MEASUREMENT SYSTEM NOT QUALIFIED — treat the numbers below with caution",
+    "insufficient_n": "SAMPLE TOO SMALL — see the report card",
+}
+
+
+def report_styles() -> dict[str, Any]:
+    """The charter styles plus the few this frame adds. Built on top rather
+    than beside, so a token change moves both documents."""
+    styles = theme.build_styles()
+    base = styles["body"]
+    styles["report_title"] = theme.ParagraphStyle(
+        "report_title", parent=styles["title"], fontSize=theme.TEXT_LG, leading=theme.TEXT_LG * 1.15
+    )
+    styles["zone_label"] = theme.ParagraphStyle(
+        "zone_label",
+        parent=styles["label"],
+        fontSize=theme.TEXT_XS,
+        textColor=theme.TEXT_FAINT,
+        spaceBefore=theme.SPACE_3,
+        spaceAfter=theme.SPACE_1,
+    )
+    styles["headline"] = theme.ParagraphStyle(
+        "headline",
+        parent=base,
+        fontName=theme.FONT_BOLD,
+        fontSize=theme.TEXT_MD,
+        leading=theme.TEXT_MD * 1.3,
+    )
+    styles["meaning"] = theme.ParagraphStyle(
+        "meaning", parent=base, fontSize=theme.TEXT_BASE, leading=theme.TEXT_BASE * 1.5
+    )
+    styles["card_item"] = theme.ParagraphStyle(
+        "card_item", parent=styles["table_cell"], fontSize=theme.TEXT_SM
+    )
+    return styles
+
+
+def header(
+    *, project_name: str, tool_id: str, tool_title: str, version: int | None, styles: dict, content_width: float
+) -> list[Any]:
+    """Zone 1."""
+    meta = f"{tool_id}  ·  {project_name}"
+    if version is not None:
+        meta += f"  ·  v{version}"
+    return [
+        Paragraph(esc(tool_title), styles["report_title"]),
+        Paragraph(esc(meta), styles["meta"]),
+        _rule(content_width),
+        Spacer(1, theme.SPACE_3),
+    ]
+
+
+def _rule(width: float, color: Any = None, thickness: float = 0.75) -> Table:
+    table = Table([[""]], colWidths=[width], rowHeights=[thickness])
+    table.setStyle(
+        TableStyle(
+            [
+                ("LINEABOVE", (0, 0), (-1, 0), thickness, color or theme.BORDER),
+                ("TOPPADDING", (0, 0), (-1, -1), 0),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), 0),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+            ]
+        )
+    )
+    return table
+
+
+def verdict_banner(text: str, tone: Tone, styles: dict, content_width: float) -> list[Any]:
+    """Zone 2's headline: the computed answer, stated once, in the tone the
+    engine assigned. Never advice -- see recommendation_block."""
+    color = _TONE_COLOR[tone]
+    para = Paragraph(esc(text), styles["headline"])
+    table = Table([[para]], colWidths=[content_width])
+    table.setStyle(
+        TableStyle(
+            [
+                ("LINEBEFORE", (0, 0), (0, -1), 2.5, color),
+                ("LEFTPADDING", (0, 0), (-1, -1), theme.SPACE_3),
+                ("RIGHTPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+                ("TOPPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+                ("BACKGROUND", (0, 0), (-1, -1), theme.NEUTRAL_SOFT),
+            ]
+        )
+    )
+    return [table, Spacer(1, theme.SPACE_3)]
+
+
+def chart(
+    png_bytes: bytes | None, *, content_width: float, styles: dict, unavailable_reason: str | None = None
+) -> list[Any]:
+    """Zone 2's picture, or a stated reason there isn't one.
+
+    A missing chart must never cost the page. Capture can fail for reasons
+    the user cannot act on (the tab was never opened, the canvas had not
+    painted), and a report that refuses to render over it is a worse
+    outcome than a report that says why the picture is absent.
+
+    Aspect ratio is taken from the image itself rather than assumed: the
+    charts are 16:9-ish and the Konva canvases are not, and a hardcoded
+    height silently distorts one of them.
+    """
+    if not png_bytes:
+        reason = unavailable_reason or "Chart not captured — open the tool's screen and export again."
+        return [Paragraph(esc(reason), styles["body_muted"]), Spacer(1, theme.SPACE_3)]
+    from io import BytesIO
+
+    reader = ImageReader(BytesIO(png_bytes))
+    px_w, px_h = reader.getSize()
+    height = content_width * (px_h / px_w) if px_w else content_width * 0.5
+    # Cap the picture so it cannot push the rest of the report onto a second
+    # page. A one-page report that spills is not a one-page report, and the
+    # zone most likely to fall off the end is provenance -- the one that
+    # answers "where did this number come from". Width shrinks with it so the
+    # aspect ratio is preserved rather than squashed.
+    if height > MAX_CHART_HEIGHT:
+        content_width = content_width * (MAX_CHART_HEIGHT / height)
+        height = MAX_CHART_HEIGHT
+    return [Image(BytesIO(png_bytes), width=content_width, height=height), Spacer(1, theme.SPACE_3)]
+
+
+def meaning(sentences: str, styles: dict) -> list[Any]:
+    """Zone 3. Plain language, and deliberately not a restatement of the
+    number already printed above it."""
+    return [
+        Paragraph("WHAT THIS MEANS", styles["zone_label"]),
+        Paragraph(esc(sentences), styles["meaning"]),
+    ]
+
+
+def recommendation_block(text: str, styles: dict, content_width: float) -> list[Any]:
+    """Advice, marked as advice. Kept apart from verdict_banner so a reader
+    can always tell which sentence the engine computed and which one it is
+    suggesting."""
+    if not text:
+        return []
+    para = Paragraph(esc(text), styles["card_item"])
+    table = Table([[para]], colWidths=[content_width])
+    table.setStyle(
+        TableStyle(
+            [
+                ("BOX", (0, 0), (-1, -1), 0.75, theme.ACCENT_BORDER),
+                ("BACKGROUND", (0, 0), (-1, -1), theme.ACCENT_SOFT),
+                ("LEFTPADDING", (0, 0), (-1, -1), theme.SPACE_3),
+                ("RIGHTPADDING", (0, 0), (-1, -1), theme.SPACE_3),
+                ("TOPPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+            ]
+        )
+    )
+    return [
+        Paragraph("SUGGESTED NEXT STEP — not a computed result", styles["zone_label"]),
+        table,
+    ]
+
+
+def report_card(items: list[tuple[Tone, str]], styles: dict, content_width: float) -> list[Any]:
+    """Zone 4: what would invalidate this.
+
+    Takes (tone, text) rows, typically built straight from the tool's own
+    prescore results. An empty list still prints the zone with an explicit
+    "nothing flagged" line -- a silent absence is indistinguishable from a
+    report card that failed to run, and the reader cannot tell which.
+    """
+    if not items:
+        items = [("pass", "No checks flagged on this tool.")]
+    rows = []
+    styling: list[tuple] = []
+    for index, (tone, text) in enumerate(items):
+        rows.append([Paragraph("■", _dot_style(tone, styles)), Paragraph(esc(text), styles["card_item"])])
+        styling.append(("TEXTCOLOR", (0, index), (0, index), _TONE_COLOR[tone]))
+    table = Table(rows, colWidths=[theme.SPACE_5, content_width - theme.SPACE_5])
+    table.setStyle(
+        TableStyle(
+            [
+                ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                ("RIGHTPADDING", (0, 0), (-1, -1), theme.SPACE_2),
+                ("TOPPADDING", (0, 0), (-1, -1), theme.SPACE_1),
+                ("BOTTOMPADDING", (0, 0), (-1, -1), theme.SPACE_1),
+                *styling,
+            ]
+        )
+    )
+    return [Paragraph("REPORT CARD — what would change this answer", styles["zone_label"]), table]
+
+
+def _dot_style(tone: Tone, styles: dict) -> Any:
+    return theme.ParagraphStyle(f"dot_{tone}", parent=styles["card_item"], textColor=_TONE_COLOR[tone])
+
+
+def provenance(rows: list[tuple[str, str]], styles: dict, content_width: float, *, exported_at: str | None = None) -> list[Any]:
+    """Zone 5: enough to answer "where did this number come from" without
+    reaching for the full project record.
+
+    `exported_at` is injected rather than read from the clock here so the
+    same inputs render byte-identical output -- the tests and the golden
+    harness both depend on that, and a wall-clock read inside the renderer
+    would make every PDF differ from the last.
+    """
+    stamped = list(rows)
+    if exported_at:
+        stamped.append(("Exported", exported_at))
+    return [
+        Paragraph("PROVENANCE", styles["zone_label"]),
+        kv_table(stamped, styles, content_width, label_frac=0.3),
+    ]
+
+
+def utc_stamp() -> str:
+    return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def keep(flowables: list[Any]) -> KeepTogether:
+    """Group a zone so it does not split mid-way across a page break."""
+    return KeepTogether(flowables)
+
+
+__all__ = [
+    "LABELS",
+    "chart",
+    "header",
+    "keep",
+    "meaning",
+    "provenance",
+    "recommendation_block",
+    "report_card",
+    "report_styles",
+    "utc_stamp",
+    "verdict_banner",
+]
