@@ -34,6 +34,12 @@ from .constants import (
     WE_RULE3_WINDOW,
     WE_RULE3_ZONE_SIGMA,
     WE_RULE4_RUN_LENGTH,
+    WE_RULE5_TREND_LENGTH,
+    WE_RULE6_HUG_LENGTH,
+    WE_RULE6_ZONE_SIGMA,
+    WE_RULE7_ALTERNATING_LENGTH,
+    WE_RULE8_MIXTURE_LENGTH,
+    WE_RULE8_ZONE_SIGMA,
 )
 
 Side = Literal["above", "below"]
@@ -178,6 +184,10 @@ class ImrChartResult(BaseModel):
     signals: tuple[Signal, ...]
     rule2_enabled: bool
     rule3_enabled: bool
+    rule5_enabled: bool = False
+    rule6_enabled: bool = False
+    rule7_enabled: bool = False
+    rule8_enabled: bool = False
 
     @property
     def has_default_rule_signal(self) -> bool:
@@ -188,11 +198,24 @@ class ImrChartResult(BaseModel):
 
 
 def compute_imr_chart(
-    data: Sequence[float], *, enable_rule2: bool = False, enable_rule3: bool = False
+    data: Sequence[float],
+    *,
+    enable_rule2: bool = False,
+    enable_rule3: bool = False,
+    enable_rule5: bool = False,
+    enable_rule6: bool = False,
+    enable_rule7: bool = False,
+    enable_rule8: bool = False,
 ) -> Computed[ImrChartResult]:
     """The one supported way to produce a provenance-stamped
-    ImrChartResult. Rule 1 + rule 4 always run (frozen default); rule 2/3
-    run only when explicitly enabled."""
+    ImrChartResult. Rule 1 + rule 4 always run (frozen default); every other
+    rule runs only when explicitly enabled.
+
+    All six optional rules default OFF and stay that way. The EXIT-04
+    stability floor is keyed on rules 1+4 alone (module docstring), so a
+    project that switches extra tests on cannot accidentally move the bar it
+    was already judged against -- the extra rules add sensitivity for the
+    reader, never a new way to fail a frozen gate."""
     if len(data) < 2:
         raise ValueError("compute_imr_chart requires at least 2 observations")
 
@@ -207,17 +230,214 @@ def compute_imr_chart(
         signals += rule2_two_of_three_beyond_2sigma(data, xbar, sigma)
     if enable_rule3:
         signals += rule3_four_of_five_beyond_1sigma(data, xbar, sigma)
+    # Supplementary tests, each independently opt-in for the same
+    # false-alarm reason as rules 2 and 3.
+    if enable_rule5:
+        signals += rule5_trend(data, xbar)
+    if enable_rule6:
+        signals += rule6_hugging(data, xbar, sigma)
+    if enable_rule7:
+        signals += rule7_alternating(data, xbar)
+    if enable_rule8:
+        signals += rule8_mixture(data, xbar, sigma)
     signals.sort(key=lambda s: (s.start_index, s.rule_id))
 
     result = ImrChartResult(
         n=len(data), xbar=xbar, mr_bar=mrb, sigma_within=sigma,
         i_ucl=i_ucl, i_cl=i_cl, i_lcl=i_lcl, mr_ucl=mr_ucl, mr_cl=mr_cl, mr_lcl=mr_lcl,
         signals=tuple(signals), rule2_enabled=enable_rule2, rule3_enabled=enable_rule3,
+        rule5_enabled=enable_rule5, rule6_enabled=enable_rule6,
+        rule7_enabled=enable_rule7, rule8_enabled=enable_rule8,
     )
     return compute(
         result,
-        method="I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, "
-        "n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
-        input_data={"data": list(data), "enable_rule2": enable_rule2, "enable_rule3": enable_rule3},
+        method=(
+            "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 "
+            "table); WECO rule1+rule4 default, rules 2/3 opt-in (NIST §6.3.2 WECO); supplementary "
+            "run tests 5 (trend), 6 (hugging), 7 (alternating), 8 (mixture) opt-in, after Nelson "
+            "1984 -- renumbered to continue this module's WECO sequence, not Nelson's own"
+        ),
+            input_data={
+            "data": list(data),
+            "enable_rule2": enable_rule2,
+            "enable_rule3": enable_rule3,
+            "enable_rule5": enable_rule5,
+            "enable_rule6": enable_rule6,
+            "enable_rule7": enable_rule7,
+            "enable_rule8": enable_rule8,
+        },
         assumptions_checked=["n >= 2", "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"],
     )
+
+
+# --- Supplementary run tests (rules 5-8) -------------------------------------
+#
+# Rules 1-4 above are Western Electric's, which defines exactly four. These
+# four are the standard supplementary tests published by Lloyd Nelson (JQT,
+# 1984); Nelson numbers his own set 1-8 in a different order from WECO's, so
+# these ids continue THIS module's sequence and do not claim to be "Nelson
+# rule 5" and so on. Getting that wrong would make a report cite a rule
+# number that means something else in the reader's own reference.
+#
+# Every one of them is opt-in, like rules 2 and 3, and for the same reason:
+# each extra test shortens the in-control ARL. Rules 1+4 alone give ARL ~371;
+# running all eight brings false alarms roughly every 60-90 points, so a
+# stable process starts looking unstable and the chart trains its reader to
+# ignore it.
+#
+# Side, on rules 6 and 7, is not a meaningful property -- hugging and
+# oscillation are both two-sided patterns. Rather than widen the Side literal
+# (which every consumer would then have to handle), those report the side the
+# majority of the run sits on and say plainly in the description that the
+# pattern is not one-sided.
+
+
+def _majority_side(data: Sequence[float], start: int, end: int, xbar: float) -> Side:
+    above = sum(1 for x in data[start : end + 1] if x > xbar)
+    return "above" if above * 2 >= (end - start + 1) else "below"
+
+
+def rule5_trend(data: Sequence[float], xbar: float) -> list[Signal]:
+    """Rule 5: WE_RULE5_TREND_LENGTH points in a row all increasing or all
+    decreasing -- a drifting process (tool wear, a warming bath, a queue
+    building) that rules 1-4 miss entirely while every point sits inside the
+    limits.
+
+    Equal consecutive values BREAK a trend rather than continuing it: a flat
+    step is not a rise, and treating ties as continuation makes a rounded
+    measurement scale manufacture trends out of noise.
+    """
+    signals: list[Signal] = []
+    if len(data) < WE_RULE5_TREND_LENGTH:
+        return signals
+    run_start, direction = 0, 0
+    for i in range(1, len(data)):
+        step = 1 if data[i] > data[i - 1] else -1 if data[i] < data[i - 1] else 0
+        if step == 0 or step != direction:
+            if direction != 0 and (i - run_start) >= WE_RULE5_TREND_LENGTH:
+                signals.append(_trend_signal(data, run_start, i - 1, direction, xbar))
+            run_start = i - 1 if step != 0 else i
+            direction = step
+    if direction != 0 and (len(data) - run_start) >= WE_RULE5_TREND_LENGTH:
+        signals.append(_trend_signal(data, run_start, len(data) - 1, direction, xbar))
+    return signals
+
+
+def _trend_signal(data: Sequence[float], start: int, end: int, direction: int, xbar: float) -> Signal:
+    word = "increasing" if direction > 0 else "decreasing"
+    return Signal(
+        rule_id="rule5",
+        start_index=start,
+        end_index=end,
+        side="above" if direction > 0 else "below",
+        description=(
+            f"{end - start + 1} consecutive points steadily {word} (indices {start}-{end}) -- a drift, "
+            "even though every point may sit inside the limits"
+        ),
+    )
+
+
+def rule6_hugging(data: Sequence[float], xbar: float, sigma: float) -> list[Signal]:
+    """Rule 6: WE_RULE6_HUG_LENGTH points in a row all within 1 sigma of the
+    center line.
+
+    Counter-intuitive but real: points that cluster too tightly around center
+    usually mean the limits are too WIDE for the data -- stratified subgroups,
+    a mis-set sigma, or data that has been smoothed or averaged before
+    charting. It reads as a suspiciously good process and is a measurement
+    problem far more often than a process improvement.
+    """
+    return _window_all(
+        data,
+        length=WE_RULE6_HUG_LENGTH,
+        predicate=lambda x: abs(x - xbar) < WE_RULE6_ZONE_SIGMA * sigma,
+        rule_id="rule6",
+        xbar=xbar,
+        describe=lambda start, end: (
+            f"{end - start + 1} consecutive points all within 1 sigma of center (indices {start}-{end}) -- "
+            "usually a sign the limits are too wide for the data (stratification or averaged input), "
+            "not that the process improved. Not a one-sided pattern."
+        ),
+    )
+
+
+def rule7_alternating(data: Sequence[float], xbar: float) -> list[Signal]:
+    """Rule 7: WE_RULE7_ALTERNATING_LENGTH points in a row alternating up and
+    down -- systematic oscillation. Typically two alternating sources feeding
+    one chart (two machines, two shifts, two operators) rather than one
+    process behaving strangely."""
+    signals: list[Signal] = []
+    need = WE_RULE7_ALTERNATING_LENGTH
+    if len(data) < need:
+        return signals
+    steps = [1 if data[i] > data[i - 1] else -1 if data[i] < data[i - 1] else 0 for i in range(1, len(data))]
+    run_start = 0
+    for i in range(1, len(steps)):
+        if steps[i] == 0 or steps[i] == steps[i - 1]:
+            if (i - run_start) + 1 >= need - 1 and steps[run_start] != 0:
+                signals.append(_alternating_signal(data, run_start, i, xbar))
+            run_start = i
+    if steps and (len(steps) - run_start) >= need - 1 and steps[run_start] != 0:
+        signals.append(_alternating_signal(data, run_start, len(steps), xbar))
+    return signals
+
+
+def _alternating_signal(data: Sequence[float], step_start: int, step_end: int, xbar: float) -> Signal:
+    start, end = step_start, min(step_end, len(data) - 1)
+    return Signal(
+        rule_id="rule7",
+        start_index=start,
+        end_index=end,
+        side=_majority_side(data, start, end, xbar),
+        description=(
+            f"{end - start + 1} consecutive points alternating up and down (indices {start}-{end}) -- "
+            "systematic oscillation, often two sources charted as one. Not a one-sided pattern."
+        ),
+    )
+
+
+def rule8_mixture(data: Sequence[float], xbar: float, sigma: float) -> list[Signal]:
+    """Rule 8: WE_RULE8_MIXTURE_LENGTH points in a row on BOTH sides of
+    center with none within 1 sigma -- a bimodal mixture. Two populations
+    are being charted as one, and their average is a number that describes
+    neither."""
+    inner = WE_RULE8_ZONE_SIGMA * sigma
+    signals: list[Signal] = []
+    length = WE_RULE8_MIXTURE_LENGTH
+    for start in range(0, max(0, len(data) - length + 1)):
+        window = data[start : start + length]
+        if all(abs(x - xbar) > inner for x in window) and any(x > xbar for x in window) and any(x < xbar for x in window):
+            end = start + length - 1
+            signals.append(
+                Signal(
+                    rule_id="rule8",
+                    start_index=start,
+                    end_index=end,
+                    side=_majority_side(data, start, end, xbar),
+                    description=(
+                        f"{length} consecutive points on both sides of center with none within 1 sigma "
+                        f"(indices {start}-{end}) -- two populations charted as one; their average "
+                        "describes neither. Not a one-sided pattern."
+                    ),
+                )
+            )
+    return signals
+
+
+def _window_all(
+    data: Sequence[float], *, length: int, predicate, rule_id: str, xbar: float, describe
+) -> list[Signal]:
+    signals: list[Signal] = []
+    for start in range(0, max(0, len(data) - length + 1)):
+        if all(predicate(x) for x in data[start : start + length]):
+            end = start + length - 1
+            signals.append(
+                Signal(
+                    rule_id=rule_id,
+                    start_index=start,
+                    end_index=end,
+                    side=_majority_side(data, start, end, xbar),
+                    description=describe(start, end),
+                )
+            )
+    return signals
