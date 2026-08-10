@@ -5,15 +5,24 @@ import { ApiError } from "../../api/errors";
 import { forgetProject, loadRecentProjects, rememberProject } from "./recentProjects";
 import type { RecentProject } from "./recentProjects";
 import { projectFolderPath } from "./path";
+import { OnDiskProjects } from "./OnDiskProjects";
 import "./RecentProjects.css";
 
 export interface OpenProjectScreenProps {
   onOpened: (projectId: string) => void;
 }
 
-/** Open-project screen against GET /project/{id} (M1 brief), backed by a
- * localStorage recent-projects list since the engine has no "list all
- * projects" endpoint. */
+/** Open-project screen against GET /project/{id} (M1 brief).
+ *
+ * Two lists, deliberately, because they answer different questions.
+ * "Recently opened" is a localStorage history ordered by when YOU last
+ * looked, which is what "where was I" wants. "In your projects folder" is
+ * GET /projects — what actually exists.
+ *
+ * For a long time only the first existed, so a project you had not opened
+ * on this machine was invisible, including one you had just unzipped there
+ * on purpose. There was no error: the list was simply, correctly, empty of
+ * something that was really there (docs/field-notes.md). */
 export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
   const [recents, setRecents] = useState<RecentProject[]>(() => loadRecentProjects());
   const [manualId, setManualId] = useState("");
@@ -74,6 +83,11 @@ export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
       ) : (
         <p className="sigma-recent-list__empty">No recent projects yet on this machine.</p>
       )}
+      <p className="sigma-recent-list__section" data-testid="ondisk-heading">
+        In your projects folder
+      </p>
+      <OnDiskProjects onOpen={(id) => void open(id)} hideIds={recents.map((p) => p.project_id)} />
+
       <Field label="Or open by project ID" htmlFor="open-project-id">
         <TextInput
           id="open-project-id"

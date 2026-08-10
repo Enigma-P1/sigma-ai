@@ -187,6 +187,14 @@ jobs:
         working-directory: desktop
         run: node tools/tool-report-probe.mjs
 
+      # Uses a FRESH browser profile on purpose: empty localStorage is the
+      # condition under which the worked example used to be invisible. A
+      # route test cannot catch this regression, because the route was never
+      # the problem -- the screen simply didn't ask.
+      - name: A never-opened project on disk is visible and opens
+        working-directory: desktop
+        run: node tools/ondisk-projects-probe.mjs
+
       - name: Stop probe engine
         if: always()
         run: |

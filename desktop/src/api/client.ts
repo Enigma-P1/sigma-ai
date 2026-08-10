@@ -87,6 +87,25 @@ export function createProject(input: { project_id: string; name: string; created
   return request<ProjectMetadata>("/project/create", postJson(input));
 }
 
+export interface ProjectSummary {
+  project_id: string;
+  name: string;
+  updated_at: string;
+  artifact_count: number;
+  tools_done: string[];
+  latest_phase: string;
+}
+
+/** GET /projects — what is actually on disk.
+ *
+ * The Open-a-project screen used to be backed ONLY by a localStorage
+ * recently-opened list, so a project placed in the projects folder by hand
+ * was invisible in the app by construction. Someone unzipping the worked
+ * example hit exactly that (docs/field-notes.md). */
+export function listProjects(): Promise<ProjectSummary[]> {
+  return request<ProjectSummary[]>("/projects");
+}
+
 export function openProject(projectId: string): Promise<ProjectMetadata> {
   return request<ProjectMetadata>(`/project/${encodeURIComponent(projectId)}`);
 }
