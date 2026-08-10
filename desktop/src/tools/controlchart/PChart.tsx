@@ -16,6 +16,7 @@ export interface PChartProps {
   signals: PChartSignal[];
   meetsFreezeFloor: boolean;
   testId?: string;
+  captureKey?: string;
 }
 
 function pointColor(signals: PChartSignal[], i: number, normal: string, flagged: string): string {
@@ -27,7 +28,7 @@ function pointColor(signals: PChartSignal[], i: number, normal: string, flagged:
  * varying-n formula). The plain IMR chart (src/tools/baseline/ImrChart.tsx)
  * is reused verbatim for the continuous half of T-21; this is the
  * attribute-half sibling the task brief calls for. */
-export function PChart({ points, pBar, signals, meetsFreezeFloor, testId }: PChartProps) {
+export function PChart({ points, pBar, signals, meetsFreezeFloor, testId, captureKey = "T-21-chart" }: PChartProps) {
   const hasSignal = signals.length > 0;
   const tone: VerdictTone = hasSignal ? "fail" : meetsFreezeFloor ? "pass" : "flag";
   const headline = hasSignal
@@ -40,6 +41,7 @@ export function PChart({ points, pBar, signals, meetsFreezeFloor, testId }: PCha
 
   return (
     <ChartFrame
+      captureKey={captureKey}
       title="p Chart — Proportion Defective"
       headline={headline}
       tone={tone}

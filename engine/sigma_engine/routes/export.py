@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import Response
@@ -25,12 +26,20 @@ from pydantic import BaseModel
 
 from .. import __version__
 from ..artifacts.charter import CharterArtifact
+from ..artifacts.control_chart import ControlChartArtifact
 from ..artifacts.fmea import FmeaArtifact
+from ..artifacts.hypothesis import HypothesisRunArtifact
+from ..artifacts.msa import MsaArtifact
+from ..artifacts.proof import ProofArtifact
 from ..export import report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
 from ..export.reports import capability as capability_report_mod
+from ..export.reports import control_chart as control_chart_report_mod
 from ..export.reports import fmea as fmea_report_mod
+from ..export.reports import hypothesis as hypothesis_report_mod
+from ..export.reports import msa as msa_report_mod
+from ..export.reports import proof as proof_report_mod
 from ..project_store import ProjectMetadata, ProjectStore
 from ..stats.baseline import run_baseline
 from .deps import get_store
@@ -256,48 +265,6 @@ def _spec_text(lsl: float | None, usl: float | None) -> str:
     return f"LSL {low} / USL {high}"
 
 
-@router.post("/project/{project_id}/report/T-16/pdf")
-def fmea_report(project_id: str, body: ReportRequest, store: ProjectStore = Depends(get_store)) -> Response:
-    """The FMEA one-pager (landscape)."""
-    try:
-        meta = store.load_project(project_id)
-    except FileNotFoundError as exc:
-        raise HTTPException(status_code=404, detail=str(exc)) from exc
-
-    artifact_id = _find_artifact_id(meta, "T-16")
-    if artifact_id is None:
-        raise HTTPException(status_code=404, detail=f"no FMEA saved in project {project_id!r}")
-
-    data = store.load_artifact(project_id, artifact_id, None)
-    artifact = FmeaArtifact.model_validate(data)
-    version = meta.artifact_index[artifact_id].latest_version
-
-    rows = [
-        ("Artifact", f"{artifact_id} · v{version}"),
-        ("Failure modes", str(len(artifact.rows))),
-        ("Engine version", __version__),
-    ]
-
-    def story(content_width: float):
-        return fmea_report_mod.build_story(
-            artifact=artifact,
-            project_name=meta.name,
-            version=version,
-            provenance_rows=rows,
-            exported_at=report_theme.utc_stamp(),
-            content_width=content_width,
-        )
-
-    pdf_bytes = report_pdf.render(
-        story_builder=story,
-        title=f"{meta.name} — FMEA",
-        project_id=project_id,
-        engine_version=__version__,
-        page_size=fmea_report_mod.PAGE_SIZE,
-    )
-    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-T16-fmea.pdf")
-
-
 def _find_artifact_id(meta: ProjectMetadata, tool_id: str) -> str | None:
     for artifact_id, entry in meta.artifact_index.items():
         if entry.tool_id == tool_id:
@@ -311,3 +278,89 @@ def _pdf_response(pdf_bytes: bytes, filename: str) -> Response:
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# tool_id -> (artifact model, report module, wants a chart image, page size).
+# One row per artifact-backed report, so adding the next one is a table entry
+# rather than another near-copy of the same route body. T-13 stays separate
+# above: it is computed from a dataset, not stored as an artifact, so it needs
+# inputs this generic path has nowhere to put.
+ARTIFACT_REPORTS: dict[str, tuple[Any, Any, bool]] = {
+    "T-12": (MsaArtifact, msa_report_mod, False),
+    "T-16": (FmeaArtifact, fmea_report_mod, False),
+    "T-17": (HypothesisRunArtifact, hypothesis_report_mod, True),
+    "T-20": (ProofArtifact, proof_report_mod, True),
+    "T-21": (ControlChartArtifact, control_chart_report_mod, True),
+}
+
+
+def _chart_series(tool_id: str, artifact: Any) -> list[float] | None:
+    """The series a tool's chart is drawn from, for the fingerprint check.
+
+    None means "this report has no single underlying series", and
+    report_pdf.check_chart then takes the image on trust -- there is nothing
+    to compare it against, and inventing a comparison would be theatre.
+    """
+    if tool_id == "T-21":
+        return artifact.frozen_window_values or artifact.imr_values
+    if tool_id == "T-20":
+        return list(artifact.after.values) if artifact.after else None
+    return None
+
+
+@router.post("/project/{project_id}/report/{tool_id}/pdf")
+def artifact_report(
+    project_id: str, tool_id: str, body: ReportRequest, store: ProjectStore = Depends(get_store)
+) -> Response:
+    """One route for every artifact-backed report (see ARTIFACT_REPORTS)."""
+    entry = ARTIFACT_REPORTS.get(tool_id)
+    if entry is None:
+        raise HTTPException(status_code=404, detail=f"no report defined for {tool_id!r}")
+    model, module, wants_chart = entry
+
+    try:
+        meta = store.load_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    artifact_id = _find_artifact_id(meta, tool_id)
+    if artifact_id is None:
+        raise HTTPException(status_code=404, detail=f"no {tool_id} saved in project {project_id!r}")
+
+    data = store.load_artifact(project_id, artifact_id, None)
+    artifact = model.model_validate(data)
+    version = meta.artifact_index[artifact_id].latest_version
+
+    kwargs: dict[str, Any] = {}
+    if wants_chart:
+        series = _chart_series(tool_id, artifact)
+        png, reason = report_pdf.check_chart(
+            _decode_png(body.chart),
+            body.chart.data_hash if body.chart else None,
+            report_pdf.data_fingerprint(series) if series else None,
+        )
+        kwargs["chart_png"] = png
+        kwargs["chart_unavailable_reason"] = reason
+
+    rows = [("Artifact", f"{artifact_id} · v{version}"), ("Engine version", __version__)]
+
+    def story(content_width: float):
+        return module.build_story(
+            artifact=artifact,
+            project_name=meta.name,
+            version=version,
+            provenance_rows=rows,
+            exported_at=report_theme.utc_stamp(),
+            content_width=content_width,
+            **kwargs,
+        )
+
+    page_size = getattr(module, "PAGE_SIZE", None)
+    pdf_bytes = report_pdf.render(
+        story_builder=story,
+        title=f"{meta.name} — {module.TOOL_TITLE}",
+        project_id=project_id,
+        engine_version=__version__,
+        page_size=page_size,
+    )
+    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-{tool_id}-report.pdf")

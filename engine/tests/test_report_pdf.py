@@ -377,3 +377,147 @@ def test_chart_is_capped_so_the_report_stays_one_page():
     assert image.drawHeight <= report_theme.MAX_CHART_HEIGHT + 1
     # square source stays square after the cap
     assert abs(image.drawWidth - image.drawHeight) < 1
+
+
+# ------------------------------------------------------- Group A (phase 2)
+#
+# Built from the real worked example rather than hand-shaped fixtures. Two
+# bugs in phase 1 (NormalityResult.advisory, DescriptiveStats.sd) existed
+# only because a report was written against a remembered schema; fixtures
+# would have agreed with the mistake.
+
+import pathlib
+
+from sigma_engine.artifacts.control_chart import ControlChartArtifact
+from sigma_engine.artifacts.hypothesis import HypothesisRunArtifact
+from sigma_engine.artifacts.msa import MsaArtifact
+from sigma_engine.artifacts.proof import ProofArtifact
+from sigma_engine.export.reports import control_chart as chart_report
+from sigma_engine.export.reports import hypothesis as hyp_report
+from sigma_engine.export.reports import msa as msa_report
+from sigma_engine.export.reports import proof as proof_report
+from sigma_engine.project_store import ProjectStore
+
+EXAMPLE_ZIP = pathlib.Path(__file__).resolve().parents[2] / "examples" / "coffee-bar-example-project.zip"
+
+
+@pytest.fixture(scope="module")
+def example_store(tmp_path_factory):
+    """The shipped worked example, unzipped. Using the artifact we actually
+    distribute means these tests fail if the example and the reports drift
+    apart -- which is how the blank-forms bug survived review."""
+    import zipfile
+
+    if not EXAMPLE_ZIP.is_file():
+        pytest.skip("worked-example zip not present")
+    root = tmp_path_factory.mktemp("example-projects")
+    with zipfile.ZipFile(EXAMPLE_ZIP) as zf:
+        zf.extractall(root)
+    return ProjectStore(root)
+
+
+def _artifact(store, artifact_id, model):
+    return model.model_validate(store.load_artifact("coffee-bar-example", artifact_id, None))
+
+
+def test_msa_report_states_what_it_did_not_measure_even_when_passing(example_store):
+    """A page headed 'measurement study' that stays silent about
+    reproducibility is how a marginal gauge gets waved through."""
+    artifact = _artifact(example_store, "msa", MsaArtifact)
+    _, tone = msa_report.build_verdict(artifact)
+    assert tone == "pass"
+    card = " ".join(t for _, t in msa_report.build_report_card(artifact))
+    assert "reproducibility" in card.lower()
+    assert "NOT assessed" in card or "not assessed" in card.lower()
+    assert "Gage R&R" in card
+
+
+def test_msa_names_the_denominator_the_percentage_is_against(example_store):
+    """8.94% of tolerance and 8.94% of study variation are different claims."""
+    artifact = _artifact(example_store, "msa", MsaArtifact)
+    card = " ".join(t for _, t in msa_report.build_report_card(artifact))
+    assert "study variation" in card or "tolerance" in card
+
+
+def test_proof_prints_confounders_that_argue_against_its_own_result(example_store):
+    artifact = _artifact(example_store, "proof", ProofArtifact)
+    card = [t for _, t in proof_report.build_report_card(artifact)]
+    joined = " ".join(card)
+    assert "season" in joined.lower()
+    assert "demand" in joined.lower()
+    # Confounders lead: they are the reason to distrust everything above.
+    assert "season" in card[0].lower() or "demand" in card[0].lower()
+
+
+def test_proof_names_which_target_the_narrow_margin_refers_to(example_store):
+    """The pilot declared 5.5; the charter's goal is 5.0. An unqualified
+    'narrow margin' beside a verdict quoting the other threshold reads as a
+    contradiction rather than a caution."""
+    artifact = _artifact(example_store, "proof", ProofArtifact)
+    card = " ".join(t for _, t in proof_report.build_report_card(artifact))
+    assert "CHARTER goal" in card
+
+
+def test_proof_never_claims_causation(example_store):
+    artifact = _artifact(example_store, "proof", ProofArtifact)
+    card = " ".join(t for _, t in proof_report.build_report_card(artifact))
+    assert "not, by itself, proof of cause" in card
+
+
+def test_hypothesis_renders_the_engines_plain_language_not_a_paraphrase(example_store):
+    artifact = _artifact(example_store, "hypothesis", HypothesisRunArtifact)
+    verdict, _ = hyp_report.build_verdict(artifact)
+    assert verdict == artifact.result.value.plain_language.comparison_summary
+
+
+def test_hypothesis_diagnostic_names_the_test_and_the_p_value(example_store):
+    artifact = _artifact(example_store, "hypothesis", HypothesisRunArtifact)
+    rows = dict(hyp_report.build_diagnostic_rows(artifact))
+    assert "Test selected" in rows
+    assert "p-value" in rows
+
+
+def test_control_chart_report_flags_unacknowledged_signals(example_store):
+    artifact = _artifact(example_store, "control-chart", ControlChartArtifact)
+    card = " ".join(t for _, t in chart_report.build_report_card(artifact))
+    assert "frozen" in card.lower()
+    assert "Rules 1 and 4" in card
+
+
+def test_control_chart_says_when_limits_are_not_frozen(example_store):
+    artifact = _artifact(example_store, "control-chart", ControlChartArtifact)
+    unfrozen = artifact.model_copy(update={"frozen_at": None})
+    text, tone = chart_report.build_verdict(unfrozen)
+    assert tone == "flag"
+    assert "not frozen" in text.lower()
+
+
+@pytest.mark.parametrize(
+    "artifact_id,model,module,wants_chart",
+    [
+        ("msa", MsaArtifact, msa_report, False),
+        ("proof", ProofArtifact, proof_report, True),
+        ("hypothesis", HypothesisRunArtifact, hyp_report, True),
+        ("control-chart", ControlChartArtifact, chart_report, True),
+    ],
+)
+def test_every_group_a_report_renders_a_real_pdf(example_store, artifact_id, model, module, wants_chart):
+    artifact = _artifact(example_store, artifact_id, model)
+    extra = {"chart_png": None, "chart_unavailable_reason": "not captured in this test"} if wants_chart else {}
+    pdf = report_pdf.render(
+        story_builder=lambda w: module.build_story(
+            artifact=artifact,
+            project_name="Coffee Bar",
+            version=1,
+            provenance_rows=[("Artifact", artifact_id)],
+            exported_at="2026-08-10 00:00 UTC",
+            content_width=w,
+            **extra,
+        ),
+        title=module.TOOL_TITLE,
+        project_id="coffee-bar-example",
+        engine_version="0.1.0",
+        page_size=getattr(module, "PAGE_SIZE", None),
+    )
+    assert pdf.startswith(b"%PDF-")
+    assert len(pdf) > 2000

@@ -92,8 +92,10 @@ async function grab(toolId, prepare) {
   });
 }
 
-// T-16: saved artifact, no chart -- the dense-table path.
-await grab("T-16");
+// Artifact-backed reports, no chart capture needed for most of them.
+for (const tool of ["T-12", "T-16", "T-17", "T-20", "T-21"]) {
+  await grab(tool);
+}
 
 // T-13: the report button only exists after a baseline has been run, which
 // is correct -- there is nothing to report on before that. Running it here
