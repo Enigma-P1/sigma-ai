@@ -178,10 +178,8 @@ export function overrideGate(input: {
  * response body is a binary PDF, not JSON. Error handling mirrors
  * request(): a non-JSON or non-string `detail` just falls back to the
  * HTTP status text. */
-export async function downloadCharterPdf(projectId: string, version?: number): Promise<Blob> {
-  const base = resolveEngineBaseUrl();
-  const qs = version != null ? `?version=${version}` : "";
-  const url = `${base}/project/${encodeURIComponent(projectId)}/artifacts/T-03/pdf${qs}`;
+async function fetchBlob(path: string): Promise<Blob> {
+  const url = `${resolveEngineBaseUrl()}${path}`;
 
   let res: Response;
   try {
@@ -202,6 +200,19 @@ export async function downloadCharterPdf(projectId: string, version?: number): P
   }
 
   return res.blob();
+}
+
+export function downloadCharterPdf(projectId: string, version?: number): Promise<Blob> {
+  const qs = version != null ? `?version=${version}` : "";
+  return fetchBlob(`/project/${encodeURIComponent(projectId)}/artifacts/T-03/pdf${qs}`);
+}
+
+/** GET .../export/pdf — the whole project as one document: every saved
+ * tool, in DMAIC order (routes/export.py project_pdf). Separate from the
+ * charter export because they answer different questions: the charter is
+ * what a sponsor signs, this is the record of the work. */
+export function downloadProjectPdf(projectId: string): Promise<Blob> {
+  return fetchBlob(`/project/${encodeURIComponent(projectId)}/export/pdf`);
 }
 
 // ---- Datasets (routes/datasets.py) — T-11 import half ----

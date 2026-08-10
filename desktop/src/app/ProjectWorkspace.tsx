@@ -96,6 +96,7 @@ export function ProjectWorkspace({ projectId, onGoHome, onOpenDiagnostics, onOpe
       <div className="sigma-workspace">
         <TopBar
           projectName={project.name}
+          projectId={project.project_id}
           phase={activePhase}
           onGoHome={onGoHome}
           onOpenDiagnostics={onOpenDiagnostics}
