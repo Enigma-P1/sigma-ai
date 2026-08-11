@@ -29,7 +29,10 @@ export interface ToolDef {
 
 /** The Tier-A tool inventory, mirrored by hand from
  * docs/traceability-matrix.md §1 ("the single authoritative tool count").
- * 25 tools, phases + ids + names verbatim from that table. */
+ * 25 tools, phases + ids + names verbatim from that table -- plus T-35,
+ * which the same table lists as v2 scope and which shipped early (see its
+ * entry below). The Tier-A count is still 25; T-35 is an addition to it,
+ * not a renumbering of it. */
 export const TOOLS: ToolDef[] = [
   // Intake
   { id: "T-01", name: "Project Picker (+ PDCA quick path routing)", phase: "Intake", live: true, hasForm: true, artifactId: "picker" },
@@ -54,6 +57,12 @@ export const TOOLS: ToolDef[] = [
   // deliberately omitted (see ToolDef.artifactId's docstring).
   { id: "T-13", name: "Baseline: Stability then Capability", phase: "Measure", live: true, hasForm: true },
   { id: "T-14", name: "Pareto / Histogram / Run Chart", phase: "Measure", live: true, hasForm: true },
+  // T-35: not Tier-A. Numbered outside the T-01..T-25 block on purpose --
+  // the matrix lists it as v2 scope, and it shipped early because T-12
+  // routes to it by name (EXIT-03) and had nowhere to route to. Placed
+  // after T-14 rather than beside T-12 so the Measure order still reads
+  // as the Tier-A sequence with an addition at the end.
+  { id: "T-35", name: "Gage R&R (full crossed study)", phase: "Measure", live: true, hasForm: true, artifactId: "gage-rr" },
 
   // Analyze
   { id: "T-15", name: "Fishbone (6M) + 5 Whys", phase: "Analyze", live: true, hasForm: true, artifactId: "fishbone" },

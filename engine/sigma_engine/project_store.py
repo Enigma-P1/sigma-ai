@@ -89,6 +89,34 @@ class ProjectStore:
         _atomic_write_json(self._metadata_path(project_id), meta.model_dump(mode="json"))
         return meta
 
+    def list_projects(self) -> list[ProjectMetadata]:
+        """Every project actually on disk, newest-updated first.
+
+        WHY THIS EXISTS: the Open-a-project screen was backed only by a
+        localStorage recently-opened list, so a project placed in the
+        projects folder by hand was invisible in the app -- by construction,
+        not by accident. Someone unzipping the worked example hit exactly
+        that: a folder full of real work the app would not admit existed
+        (docs/field-notes.md).
+
+        A directory that is not a project, or whose project.json no longer
+        validates, is SKIPPED rather than raised on. One unreadable folder
+        must not make every other project unlistable -- that would turn a
+        single corrupt file into total data loss from the user's side.
+        """
+        if not self.root.is_dir():
+            return []
+        found: list[ProjectMetadata] = []
+        for child in sorted(self.root.iterdir()):
+            if not child.is_dir():
+                continue
+            try:
+                found.append(self.load_project(child.name))
+            except (FileNotFoundError, ValueError, json.JSONDecodeError):
+                continue
+        found.sort(key=lambda m: (m.updated_at or "", m.project_id), reverse=True)
+        return found
+
     def load_project(self, project_id: str) -> ProjectMetadata:
         path = self._metadata_path(project_id)
         if not path.exists():

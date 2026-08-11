@@ -317,6 +317,16 @@ export interface LongestStepResult {
  * value_add or enabling) -- a pure-wait non_value_add step can queue up
  * behind the constraint, but it can never be named here. meets_pace is
  * judged on this step alone. */
+export interface ValueAddRatioResult {
+  value_add_minutes: number;
+  enabling_minutes: number;
+  non_value_add_minutes: number;
+  total_lead_time_minutes: number;
+  value_add_ratio: number;
+  steps_timed: number;
+  steps_untimed: number;
+}
+
 export interface ConstraintStepResult {
   step_id: string;
   step_name: string;
@@ -342,6 +352,8 @@ export interface ProcessMapArtifact extends ArtifactBase {
    * engine has echoed the artifact back. Null means "nothing to name yet"
    * (demand incomplete, or no PROCESSING step has a time), not an error. */
   constraint_step?: Computed<ConstraintStepResult> | null;
+  /** Server-computed value-add ratio -- the VSM readout (T-06). */
+  value_add_ratio?: Computed<ValueAddRatioResult> | null;
 }
 
 // ---- T-05 VoC -> CTQ Tree (artifacts/voc_ctq.py) ----
@@ -708,6 +720,75 @@ export interface MsaArtifact extends ArtifactBase {
    * echoed the artifact back (validate/save/load), absent on a fresh
    * client-side draft that hasn't round-tripped yet. */
   result?: MsaResult | null;
+}
+
+// ---- T-35 Gage R&R, full crossed study (stats/gage_rr.py + artifacts/gage_rr.py) ----
+
+export type GageRRVerdict = "acceptable" | "marginal" | "unacceptable";
+export type GageRRBasis = "study_variation" | "tolerance";
+
+/** Mirrored from stats/gage_rr.py. Frozen convention, not this app's
+ * invention -- quoted in the helper panel so the bands are visible. */
+export const GRR_ACCEPTABLE_MAX_PERCENT = 10;
+export const GRR_MARGINAL_MAX_PERCENT = 30;
+export const GRR_NDC_MINIMUM = 5;
+
+export interface GageRRAnovaRow {
+  source: string;
+  df: number;
+  ss: number;
+  ms: number;
+  f_statistic?: number | null;
+  p_value?: number | null;
+}
+
+export interface GageRRVarianceComponent {
+  name: string;
+  variance: number;
+  std_dev: number;
+  percent_study_variation: number;
+  percent_tolerance?: number | null;
+  /** The raw estimator came out negative and was floored at zero -- the
+   * component is smaller than this study can resolve, not absent. */
+  clamped_from_negative: boolean;
+}
+
+export interface GageRRResult {
+  parts: number;
+  operators: number;
+  replicates: number;
+  anova: GageRRAnovaRow[];
+  interaction_pooled: boolean;
+  interaction_p_value?: number | null;
+  components: GageRRVarianceComponent[];
+  grr_percent_study_variation: number;
+  grr_percent_tolerance?: number | null;
+  number_of_distinct_categories: number;
+  verdict: GageRRVerdict;
+  basis: GageRRBasis;
+  warnings: string[];
+}
+
+export interface GageRRReading {
+  part: string;
+  operator: string;
+  value: number;
+}
+
+export interface GageRRArtifact extends ArtifactBase {
+  tool_id: "T-35";
+  gauge_name?: string | null;
+  /** Tolerance WIDTH (USL - LSL), not a limit. Null judges the gauge
+   * against study variation alone. */
+  tolerance?: number | null;
+  readings: GageRRReading[];
+  /** null = let the engine decide by the significance test. */
+  pool_interaction?: boolean | null;
+  /** Server-computed, never hand-typed. */
+  result?: GageRRResult | null;
+  /** Why the study could not be computed. A half-entered study still
+   * saves -- the reason rides here instead of failing the save. */
+  design_error?: string | null;
 }
 
 // ---- Stats: sample-size guidance (stats/sample_size.py) — T-11 ------------

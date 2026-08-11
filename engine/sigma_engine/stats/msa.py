@@ -340,13 +340,20 @@ class Exit03Payload(BaseModel):
         "This question is beyond the narrow check this tool runs (test/retest repeatability, "
         "or two-rater attribute agreement)."
     )
+    # Multi-operator reproducibility used to head this list. T-35 now runs
+    # that study, so it is no longer out of scope -- it is a screen in this
+    # app, and routes_to says which one. The three below are still
+    # genuinely not studies this suite runs.
     out_of_scope_examples: tuple[str, ...] = (
-        "multi-operator reproducibility -- do different people get different readings on the same items?",
         "gauge bias -- is the gauge systematically off from a known reference/standard?",
         "linearity -- does bias change across the measurement range?",
         "gauge stability over time -- does repeatability drift across weeks or months?",
     )
-    routes_to: str = "A human quality engineer or certified Belt for a full Gage R&R study (multi-operator GR&R ships in v2, T-35)."
+    routes_to: str = (
+        "For multi-operator reproducibility, run T-35 (Gage R&R, full crossed study) -- it is in this app, in "
+        "Measure. For bias, linearity or stability over time, a human quality engineer or certified Belt: this "
+        "suite does not run those studies."
+    )
 
 
 EXIT03_INFO = Exit03Payload()

@@ -1,4 +1,5 @@
 import { Button, Field, MissingHint, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { ReportButton } from "../../app/ReportButton";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { ArraySourceInput } from "../hypothesis/ArraySourceInput";
 import { ConfounderChecklistSection } from "../pilotplan/ConfounderChecklistSection";
@@ -34,7 +35,21 @@ export function ProofForm({ projectId, project, onSaved }: ProofFormProps) {
   const pilotIds = Object.keys(project.artifact_index).filter((id) => project.artifact_index[id]?.tool_id === "T-19");
 
   return (
-    <Panel title="Before/After Proof" right={f.version != null && <span data-testid="proof-version-badge">v{f.version} saved</span>}>
+    <Panel
+      title="Before/After Proof"
+      right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="proof-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-20"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }
+    >
       <p>Re-run the engine on the pilot's before/after data: stability, capability, the appropriate test, the threshold as declared, and the loop&rsquo;s remaining gap.</p>
 
       <div className="sigma-proof-row">

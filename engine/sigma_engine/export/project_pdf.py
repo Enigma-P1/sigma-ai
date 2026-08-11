@@ -64,6 +64,7 @@ TOOL_TITLES: dict[str, tuple[str, str]] = {
     "T-23": ("Control", "5S Audit"),
     "T-24": ("Control", "Standard Work"),
     "T-25": ("Wrap", "A3 Final Report"),
+    "T-35": ("Measure", "Gage R&R (full study)"),
 }
 
 PHASE_ORDER = ("Intake", "Define", "Measure", "Analyze", "Improve", "Control", "Wrap")

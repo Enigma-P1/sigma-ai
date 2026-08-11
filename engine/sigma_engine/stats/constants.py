@@ -41,6 +41,21 @@ WE_RULE3_ZONE_SIGMA = 1.0     # rule 3: 4 of last 5 points beyond +/-1 sigma (sa
 WE_RULE3_COUNT, WE_RULE3_WINDOW = 4, 5
 WE_RULE4_RUN_LENGTH = 8       # rule 4: 8 consecutive points on one side of center
 
+# --- Supplementary run tests (rules 5-8) -------------------------------------
+# Western Electric defines FOUR rules; these four are the standard
+# supplementary tests, published by Lloyd Nelson (Journal of Quality
+# Technology, 1984) and carried by every SPC package since. Nelson numbers
+# his set 1-8 in a different order from WECO's, so the ids here continue THIS
+# module's sequence rather than claiming Nelson's numbering -- see imr.py's
+# docstring. All four are opt-in for the same reason rules 2 and 3 are: each
+# additional test shortens the in-control ARL and multiplies false alarms.
+WE_RULE5_TREND_LENGTH = 6      # rule 5: 6 points steadily increasing or decreasing
+WE_RULE6_HUG_LENGTH = 15       # rule 6: 15 points within 1 sigma of center (either side)
+WE_RULE6_ZONE_SIGMA = 1.0
+WE_RULE7_ALTERNATING_LENGTH = 14  # rule 7: 14 points alternating up and down
+WE_RULE8_MIXTURE_LENGTH = 8    # rule 8: 8 points on both sides, none within 1 sigma
+WE_RULE8_ZONE_SIGMA = 1.0
+
 # Companion floor for trusting/freezing limits (docs/traceability-matrix.md
 # §4a, EXIT-04 row): a window used to set or freeze control limits needs at
 # least this many points AND no default-rule signal within it. Below this,

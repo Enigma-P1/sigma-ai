@@ -1,5 +1,6 @@
 import { Button, Field, Panel, SelectInput, StatusPill, TextInput, VerdictBanner } from "../../design/components";
 import { BaselineResultView } from "./BaselineResultView";
+import { ReportButton } from "../../app/ReportButton";
 import { useBaselineForm } from "./useBaselineForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./BaselineForm.css";
@@ -157,7 +158,26 @@ export function BaselineForm({ projectId, project, initialDatasetId, onNavigateT
 
       {f.error && <VerdictBanner tone="fail" headline={f.error} />}
 
-      {f.result && <BaselineResultView result={f.result} values={f.chartValues} />}
+      {f.result && (
+        <>
+          <div style={{ display: "flex", justifyContent: "flex-end", margin: "var(--space-3) 0" }}>
+            <ReportButton
+              projectId={projectId}
+              projectName={project.name}
+              toolId="T-13"
+              captureKey="T-13-imr"
+              body={{
+                dataset_id: f.datasetId,
+                column: f.column,
+                usl: f.usl,
+                lsl: f.lsl,
+                operational_definition_ok: f.operationalDefinitionOk,
+              }}
+            />
+          </div>
+          <BaselineResultView result={f.result} values={f.chartValues} />
+        </>
+      )}
     </Panel>
   );
 }

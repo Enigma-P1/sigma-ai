@@ -1,4 +1,5 @@
 import { Button, Field, MissingHint, Panel, SelectInput, TextInput, VerdictBanner } from "../../design/components";
+import { ReportButton } from "../../app/ReportButton";
 import { AttributeStudyFields } from "./AttributeStudyFields";
 import { ContinuousStudyFields } from "./ContinuousStudyFields";
 import { Exit03Panel } from "./Exit03Panel";
@@ -29,12 +30,26 @@ export function MsaForm({ projectId, project, onSaved }: MsaFormProps) {
       : attributeMissingFields(f.attributeItems, f.operator);
 
   return (
-    <Panel title="Measurement Check (MSA)" right={f.version != null && <span data-testid="msa-version-badge">v{f.version} saved</span>}>
+    <Panel
+      title="Measurement Check (MSA)"
+      right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="msa-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-12"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }
+    >
       <p>
         A resolution pre-check first (can the gauge even see the process?), then either test/retest repeatability%
         (continuous) or two-rater kappa + % agreement (attribute) — the narrow, honestly-named check this suite
-        runs. Full multi-operator Gage R&amp;R is out of scope; see &ldquo;Is your question bigger than this
-        check?&rdquo; below.
+        runs. If more than one person does the measuring, the study you want is T-35 (Gage R&amp;R, full crossed
+        study), also in Measure; see &ldquo;Is your question bigger than this check?&rdquo; below.
       </p>
 
       <div className="sigma-msa-row">

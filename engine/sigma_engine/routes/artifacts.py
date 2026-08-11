@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import ValidationError
 
 from ..project_store import ProjectStore
-from ..registry import ARTIFACT_REGISTRY, collect_standing_hard_flags
+from ..registry import ARTIFACT_REGISTRY, collect_standing_hard_flags, refresh_computed_fields
 from .deps import get_store
 
 router = APIRouter(tags=["artifacts"])
@@ -93,9 +93,16 @@ def load_artifact(
     project_id: str, artifact_id: str, version: int | None = None, store: ProjectStore = Depends(get_store)
 ) -> dict[str, Any]:
     try:
-        return store.load_artifact(project_id, artifact_id, version)
+        data = store.load_artifact(project_id, artifact_id, version)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+    # Re-derive computed fields on read (registry.refresh_computed_fields):
+    # they are produced by model validators that only run on save, so an
+    # artifact stored before a computed field existed would otherwise come
+    # back without it forever and its screen would show an empty state on a
+    # finished project.
+    tool_id = data.get("tool_id")
+    return refresh_computed_fields(tool_id, data) if isinstance(tool_id, str) else data
 
 
 @router.get("/project/{project_id}/artifacts/{artifact_id}/versions")

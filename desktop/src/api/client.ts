@@ -87,6 +87,25 @@ export function createProject(input: { project_id: string; name: string; created
   return request<ProjectMetadata>("/project/create", postJson(input));
 }
 
+export interface ProjectSummary {
+  project_id: string;
+  name: string;
+  updated_at: string;
+  artifact_count: number;
+  tools_done: string[];
+  latest_phase: string;
+}
+
+/** GET /projects — what is actually on disk.
+ *
+ * The Open-a-project screen used to be backed ONLY by a localStorage
+ * recently-opened list, so a project placed in the projects folder by hand
+ * was invisible in the app by construction. Someone unzipping the worked
+ * example hit exactly that (docs/field-notes.md). */
+export function listProjects(): Promise<ProjectSummary[]> {
+  return request<ProjectSummary[]>("/projects");
+}
+
 export function openProject(projectId: string): Promise<ProjectMetadata> {
   return request<ProjectMetadata>(`/project/${encodeURIComponent(projectId)}`);
 }
@@ -451,4 +470,53 @@ export function getHealth(): Promise<HealthResponse> {
 
 export function getSmoke(): Promise<SmokeResponse> {
   return request<SmokeResponse>("/smoke");
+}
+
+// ---- Tool reports (routes/export.py report_* -- docs/reports-plan.md) ----
+
+export interface ChartCapture {
+  png_base64: string;
+  data_hash: string | null;
+}
+
+export interface ReportRequestBody {
+  chart?: ChartCapture | null;
+  dataset_id?: string;
+  column?: string;
+  usl?: number | null;
+  lsl?: number | null;
+  enable_rule2?: boolean;
+  enable_rule3?: boolean;
+  operational_definition_ok?: boolean;
+}
+
+/** POST a report request and get the PDF back.
+ *
+ * Deliberately posts inputs, never computed values: everything printed is
+ * recomputed by the engine, so the page cannot carry a statistic the client
+ * made up under a footer that says the engine produced it. */
+export async function downloadToolReport(projectId: string, toolId: string, body: ReportRequestBody): Promise<Blob> {
+  const url = `${resolveEngineBaseUrl()}/project/${encodeURIComponent(projectId)}/report/${encodeURIComponent(toolId)}/pdf`;
+  let res: Response;
+  try {
+    // The Content-Type header is NOT part of postJson() -- request() adds it
+    // for every other call. This path bypasses request() (the response is a
+    // binary PDF, not JSON), so it must set the header itself. Omitted, the
+    // body arrives untyped, FastAPI declines to parse it, and every report
+    // 422s -- with the button looking like it simply did nothing.
+    res = await fetch(url, { ...postJson(body), headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+    throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
+  }
+  if (!res.ok) {
+    let detailText = res.statusText;
+    try {
+      const parsed = (await res.json()) as { detail?: unknown };
+      if (typeof parsed.detail === "string") detailText = parsed.detail;
+    } catch {
+      /* non-JSON error body */
+    }
+    throw new ApiError(detailText || `HTTP ${res.status}`, res.status, { detail: detailText });
+  }
+  return res.blob();
 }

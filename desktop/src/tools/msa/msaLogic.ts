@@ -114,11 +114,16 @@ export function fmt(n: number, digits = 3): string {
 }
 
 export const EXIT03_EXAMPLES: string[] = [
-  "multi-operator reproducibility — do different people get different readings on the same items?",
   "gauge bias — is the gauge systematically off from a known reference/standard?",
   "linearity — does bias change across the measurement range?",
   "gauge stability over time — does repeatability drift across weeks or months?",
 ];
 
+/** Multi-operator reproducibility used to head the list above with "ships
+ * in v2" beside it. T-35 now runs that study, so it is no longer an exit
+ * -- it is a screen in this app, and the route says which one. Bias,
+ * linearity and stability are still genuinely out of scope. */
 export const EXIT03_ROUTES_TO =
-  "A human quality engineer or certified Belt for a full Gage R&R study (multi-operator GR&R ships in v2, T-35).";
+  "For multi-operator reproducibility, run T-35 (Gage R&R, full crossed study) — it is in this app, in Measure. " +
+  "For bias, linearity or stability over time, a human quality engineer or certified Belt: this suite does not " +
+  "run those studies.";

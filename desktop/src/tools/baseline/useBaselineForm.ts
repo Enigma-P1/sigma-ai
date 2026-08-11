@@ -111,7 +111,7 @@ export function useBaselineForm(projectId: string, project: ProjectMetadata, ini
   return {
     datasets, datasetId, setDatasetId, column, setColumn, numericColumns,
     attributeData, setAttributeData,
-    uslText, setUslText, lslText, setLslText,
+    uslText, setUslText, lslText, setLslText, usl, lsl,
     operationalDefinitionOk, setOperationalDefinitionOk,
     enableRule2, setEnableRule2, enableRule3, setEnableRule3, applySigmaShift, setApplySigmaShift,
     running, error, result, chartValues,

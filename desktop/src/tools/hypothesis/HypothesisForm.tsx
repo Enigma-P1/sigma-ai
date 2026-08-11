@@ -1,4 +1,5 @@
 import { Button, Field, MissingHint, Panel, TextArea, VerdictBanner } from "../../design/components";
+import { ReportButton } from "../../app/ReportButton";
 import { DataSourceFields } from "./DataSourceFields";
 import { DecisionTree } from "./DecisionTree";
 import { ExitPanel } from "./ExitPanel";
@@ -26,7 +27,21 @@ export function HypothesisForm({ projectId, project, onSaved }: HypothesisFormPr
   const f = useHypothesisForm(projectId, project, onSaved);
 
   return (
-    <Panel title="Hypothesis Testing" right={f.version != null && <span data-testid="hyp-version-badge">v{f.version} saved</span>}>
+    <Panel
+      title="Hypothesis Testing"
+      right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="hyp-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-17"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }
+    >
       <p>
         Say what you're asking first, in your own words. Then answer a few structured questions about your data --
         the engine picks the test by rule and shows the exact path it took, or names the reason it won't compute

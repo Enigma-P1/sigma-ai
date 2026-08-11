@@ -1,4 +1,5 @@
 import { Button, Field, MissingHint, Panel, SelectInput, TextArea, TextInput, VerdictBanner } from "../../design/components";
+import { ReportButton } from "../../app/ReportButton";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { ArraySourceInput } from "../hypothesis/ArraySourceInput";
 import { ImrChart } from "../baseline/ImrChart";
@@ -35,7 +36,22 @@ export function ControlChartForm({ projectId, project, onSaved }: ControlChartFo
   const chartType = f.state.dataShape === "continuous" ? "imr" : "p";
 
   return (
-    <Panel title="Control Chart" right={f.version != null && <span data-testid="controlchart-version-badge">v{f.version} saved</span>}>
+    <Panel
+      title="Control Chart"
+      right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="controlchart-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-21"
+            captureKey="T-21-chart"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }
+    >
       <p>Pick the chart family by data type, freeze limits from a stable window, arm monitoring, and respond to signals.</p>
 
       <div className="sigma-controlchart-selector">
@@ -139,6 +155,7 @@ export function ControlChartForm({ projectId, project, onSaved }: ControlChartFo
 
       {f.serverArtifact?.imr_baseline && f.serverArtifact.imr_values && (
         <ImrChart
+          captureKey="T-21-chart"
           values={f.serverArtifact.imr_values} stability={f.serverArtifact.imr_baseline}
           stable={!f.serverArtifact.imr_baseline.value.signals.some((s) => s.rule_id === "rule1" || s.rule_id === "rule4")}
           stabilityNote="Frozen baseline — limits do not move as new points arrive."

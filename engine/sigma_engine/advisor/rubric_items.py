@@ -62,6 +62,13 @@ TOOL_RUBRIC_ITEMS: dict[str, tuple[str, ...]] = {
     "T-10": ("R-MEA-09",),
     "T-11": ("R-MEA-05", "R-MEA-06"),
     "T-12": ("R-MEA-07",),
+    # T-35 is the full crossed study answering the same rubric question as
+    # T-12 -- "is the measurement system trustworthy" -- with a stronger
+    # method, so it maps to the same anchor item rather than a new one. The
+    # registry pin caught this: without an entry here the advisor's review
+    # mode would have had nothing to grade a Gage R&R against and would have
+    # said so only by producing an empty review.
+    "T-35": ("R-MEA-07",),
     # T-13/T-14 (baseline, chart set) are stats-computed views with no
     # ARTIFACT_REGISTRY entry (routes/stats.py) -- no artifact_id ever
     # exists for them, so "review" mode (which grades a specific saved
@@ -256,7 +263,7 @@ RUBRIC_ITEM_TEXT: dict[str, RubricItemText] = {
         pass_means=(
             "The check matching the data type was run before the baseline was trusted: test/retest repeatability for continuous data (reported as repeatability% — renamed from %EV at Belt-panel round 2; defined in matrix §4a — with its denominator named as which one it is — tolerance when specs exist, else study variation, matching the tool's rule; an unnamed denominator lets the flatter number get shopped), two-rater agreement with kappa for judgment calls — including the resolution pre-check the tool runs first (the gauge reads fine enough to see the process; a stopwatch in whole minutes on a 3-minute process fails here, before any repeatability math). The student's narrative carries the tool's repeatability-only caveat (\"full gauge study not done — a full study could only read worse, not better\"): the 10/30 bands are borrowed from full-study convention, so passing them on repeatability alone is the lenient side, and saying so is part of the pass (Belt-panel review). The check's samples follow the tool's instruction: ≥10 items spanning the range the process actually shows, near-limit items included when specs exist.",
             "The verdict is obeyed: acceptable → proceed; marginal → proceed with the caveat carried into the narrative; fail → stop, fix the measurement (EXIT-02), re-run the check — and only then resume. Taking that stop is Pass-level work (§8). Verdict thresholds are the matrix §4 frozen trigger values.",
-            "If the measurement question exceeds the narrow check the suite ships — multi-operator variation, bias, linearity — the named exit is taken (EXIT-03: human quality engineer / v2 T-35), not improvised around.",
+            "If the measurement question exceeds the narrow check the suite ships — bias, linearity, stability over time — the named exit is taken (EXIT-03: human quality engineer / certified Belt), not improvised around. Multi-operator variation is no longer one of those: T-35 (full crossed Gage R&R) shipped 2026-08-11, so \"more than one person measures\" routes to a tool in the app rather than out of it, and running T-12 alone where T-35 applies is a Needs-work call.",
         ),
     ),
     "R-MEA-08": RubricItemText(

@@ -135,6 +135,33 @@ class ConstraintStepResult(BaseModel):
     meets_pace: bool
 
 
+class ValueAddRatioResult(BaseModel):
+    """The number a value-stream map exists to produce, and the one thing
+    T-06 was missing.
+
+    A VSM's punchline is its timeline ladder: three minutes of work inside a
+    four-day lead time. The shock is the RATIO, not either number alone --
+    it is what stops an argument about who is working hard enough and starts
+    one about the waiting. T-06 already tags every step value_add /
+    non_value_add / enabling and already times them; it simply never summed
+    them.
+
+    `enabling` time counts in the total but NOT in the numerator. Enabling
+    work (a required inspection, a regulated sign-off) is not waste, and
+    calling it value-add would flatter the ratio while calling it waste
+    would tell someone to delete a step they legally cannot. It gets its own
+    line so the reader sees the three-way split rather than a binary that
+    hides it."""
+
+    value_add_minutes: float
+    enabling_minutes: float
+    non_value_add_minutes: float
+    total_lead_time_minutes: float
+    value_add_ratio: float
+    steps_timed: int
+    steps_untimed: int
+
+
 class ProcessMapArtifact(ArtifactBase):
     tool_id: Literal["T-06"] = "T-06"
 
@@ -153,6 +180,7 @@ class ProcessMapArtifact(ArtifactBase):
     # compute_constraint_step below for the exact preconditions.
     longest_step: Computed[LongestStepResult] | None = None
     constraint_step: Computed[ConstraintStepResult] | None = None
+    value_add_ratio: Computed[ValueAddRatioResult] | None = None
 
     @model_validator(mode="after")
     def _referential_integrity(self) -> "ProcessMapArtifact":
@@ -180,6 +208,7 @@ class ProcessMapArtifact(ArtifactBase):
     def _recompute_longest_and_constraint(self) -> "ProcessMapArtifact":
         self.longest_step = compute_longest_step(self.steps)
         self.constraint_step = compute_constraint_step(self.steps, self.demand)
+        self.value_add_ratio = compute_value_add_ratio(self.steps)
         return self
 
 
@@ -267,5 +296,60 @@ def compute_constraint_step(
         assumptions_checked=[
             "pace is arithmetic on two fields (available time / demand), not full takt/line-balancing (T-32, v1.1)",
             "only value_add/enabling steps are eligible -- a non_value_add (wait) step is excluded by construction",
+        ],
+    )
+
+
+def compute_value_add_ratio(steps: list[ProcessStepModel]) -> Computed[ValueAddRatioResult] | None:
+    """Value-add time over total lead time -- the VSM readout (matrix I.B.2).
+
+    None when no step carries a time: an honest "nothing to divide" rather
+    than a zero ratio, matching compute_longest_step's contract.
+
+    UNTIMED STEPS ARE COUNTED AND REPORTED, never silently skipped. A map
+    where half the steps have no time yields a ratio computed over the other
+    half, and a reader told "12% value-add" without being told it came from
+    six of twelve steps has been misled by an omission. The count rides on
+    the result so the report card can flag it.
+    """
+    timed = [s for s in steps if s.time_minutes is not None]
+    if not timed:
+        return None
+
+    def total(step_type: StepType) -> float:
+        return sum(s.time_minutes for s in timed if s.step_type == step_type)
+
+    value_add = total("value_add")
+    enabling = total("enabling")
+    non_value_add = total("non_value_add")
+    lead_time = value_add + enabling + non_value_add
+
+    result = ValueAddRatioResult(
+        value_add_minutes=value_add,
+        enabling_minutes=enabling,
+        non_value_add_minutes=non_value_add,
+        total_lead_time_minutes=lead_time,
+        # Lead time can only be zero if every timed step is timed at zero;
+        # report 0.0 rather than dividing by it.
+        value_add_ratio=(value_add / lead_time) if lead_time > 0 else 0.0,
+        steps_timed=len(timed),
+        steps_untimed=len(steps) - len(timed),
+    )
+    return compute(
+        result,
+        method=(
+            "value_add_ratio = sum(time_minutes where step_type=value_add) / sum(time_minutes over all "
+            "timed steps). Enabling time counts toward the denominator only -- it is neither waste nor "
+            "value-add. Untimed steps are excluded from both and reported as steps_untimed."
+        ),
+        input_data={
+            "steps": [
+                {"step_id": s.step_id, "step_type": s.step_type, "time_minutes": s.time_minutes}
+                for s in steps
+            ]
+        },
+        assumptions_checked=[
+            "every timed step carries exactly one step_type (schema-enforced)",
+            "untimed steps excluded from numerator and denominator alike, and reported as steps_untimed",
         ],
     )
