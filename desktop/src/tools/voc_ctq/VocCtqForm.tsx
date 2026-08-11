@@ -8,6 +8,7 @@ import { VOC_CTQ_CHECK_LABELS } from "./vocCtqChecks";
 import { makeCtq, makeNeed, makeStatement, vocCtqMissingFields } from "./vocCtqLogic";
 import { useVocCtqForm } from "./useVocCtqForm";
 import type { ProjectMetadata } from "../../api/types";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface VocCtqFormProps {
   projectId: string;
@@ -25,7 +26,18 @@ export function VocCtqForm({ projectId, project, onSaved }: VocCtqFormProps) {
 
   return (
     <div data-testid="voc-ctq-form">
-      <Panel title="VoC → CTQ Tree" right={f.version != null && <span data-testid="voc-ctq-version-badge">v{f.version} saved</span>}>
+      <Panel title="VoC → CTQ Tree" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="voc-ctq-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-05"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
         {f.version == null && <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>Not saved yet.</p>}
       </Panel>
 

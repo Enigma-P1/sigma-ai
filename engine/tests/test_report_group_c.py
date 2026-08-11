@@ -499,3 +499,128 @@ def test_pilot_plan_actually_reports_the_confounders_that_were_ticked():
     assert acknowledged, "a ticked confounder must reach the report card"
     assert "staffing" in acknowledged[0]
     assert "off sick" in acknowledged[0]
+
+
+# ------------------------------------------------------------------- group B
+
+GROUP_B = ("T-04", "T-05", "T-06", "T-07", "T-15")
+
+
+def test_every_group_b_tool_has_a_report_with_the_five_zone_contract():
+    for tool_id in GROUP_B:
+        assert tool_id in ARTIFACT_REPORTS, tool_id
+        _, module, _ = ARTIFACT_REPORTS[tool_id]
+        for name in ("TOOL_ID", "TOOL_TITLE", "build_story", "build_verdict", "build_meaning", "build_report_card"):
+            assert hasattr(module, name), f"{tool_id} report is missing {name}"
+
+
+def test_the_canvas_reports_ask_for_a_chart_and_the_others_do_not():
+    """T-06, T-07 and T-15 are drawings -- the picture IS the deliverable,
+    so their route entry must request a capture. A report whose wants_chart
+    is False silently prints without its diagram and still passes as a
+    valid PDF, which is the failure that looks like success."""
+    for tool_id in ("T-06", "T-07", "T-15"):
+        _, _, wants_chart = ARTIFACT_REPORTS[tool_id]
+        assert wants_chart is True, f"{tool_id} is a diagram report and must request its capture"
+    for tool_id in ("T-04", "T-05"):
+        _, _, wants_chart = ARTIFACT_REPORTS[tool_id]
+        assert wants_chart is False, f"{tool_id} has no canvas to capture"
+
+
+def test_a_canvas_report_says_the_picture_is_missing_rather_than_omitting_it():
+    """The reader has to be able to tell "no diagram was captured" from
+    "this process has no diagram"."""
+    from sigma_engine.export.reports import process_map as pm_report
+
+    text = _flatten(
+        pm_report.build_story(
+            artifact=_process_map(), project_name="P", version=1,
+            chart_png=None, chart_unavailable_reason="Chart not captured — open this tool's screen.",
+            provenance_rows=[("Artifact", "process-map")], exported_at="x", content_width=400.0,
+        )
+    )
+    assert "not captured" in text
+
+
+def test_process_map_prints_waste_names_not_python_reprs():
+    """A duck-typed getattr(w, "kind", w) fell through to str(w) on the
+    model and printed "waste id='waiting' note='...'" onto a page a
+    supervisor reads. The field is waste_id and it is a Literal."""
+    from sigma_engine.export.reports import process_map as pm_report
+
+    table_text = _table_text(pm_report.build_steps_table(_process_map(), rt.report_styles(), 400.0))
+    assert "Waiting" in table_text
+    assert "waste_id" not in table_text
+    assert "note=" not in table_text
+
+
+def test_a_verified_cause_cannot_be_saved_without_evidence():
+    """Pinned because the report's wording depends on it: the guard lives in
+    the schema, which is the strongest place for it, so the page reports the
+    known-versus-suspected split rather than lecturing about a state the
+    tool refuses to create."""
+    with pytest.raises(Exception) as caught:
+        _fishbone(verified_with_evidence=False)
+    assert "evidence is required" in str(caught.value)
+
+
+def test_fishbone_leads_with_how_much_is_known_versus_suspected():
+    from sigma_engine.export.reports import fishbone as fb_report
+
+    text, tone = fb_report.build_verdict(_fishbone(verified_with_evidence=True))
+    assert tone == "pass"
+    assert "verified with evidence" in text
+
+
+def test_fishbone_resolves_evidence_to_words_rather_than_ids():
+    """"ds-4a2f" beside a verified cause is a promise that evidence exists,
+    not evidence."""
+    from sigma_engine.export.reports import fishbone as fb_report
+
+    text = _flatten(
+        fb_report.build_story(
+            artifact=_fishbone(verified_with_evidence=True), project_name="P", version=1,
+            provenance_rows=[("Artifact", "fishbone")], exported_at="x", content_width=400.0,
+        )
+    )
+    assert "dataset" in text
+    assert "ds-4a2f" in text  # the ref still prints -- resolved means labelled, not hidden
+
+
+def _process_map():
+    from sigma_engine.artifacts.process_map import ProcessMapArtifact
+
+    return ProcessMapArtifact.model_validate(
+        {
+            "schema_version": 1, "artifact_id": "process-map", "tool_id": "T-06",
+            "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+            "lanes": [{"lane_id": "l1", "name": "Front counter"}],
+            "steps": [
+                {"step_id": "s1", "lane_id": "l1", "name": "Take the order", "order": 1,
+                 "step_type": "enabling", "time_minutes": 0.8},
+                {"step_id": "s2", "lane_id": "l1", "name": "Cup waits", "order": 2,
+                 "step_type": "non_value_add", "time_minutes": 4.5,
+                 "wastes": [{"waste_id": "waiting", "note": "cups sit in the queue"}]},
+                {"step_id": "s3", "lane_id": "l1", "name": "Make the drink", "order": 3,
+                 "step_type": "value_add", "time_minutes": 2.0},
+            ],
+        }
+    )
+
+
+def _fishbone(*, verified_with_evidence: bool):
+    from sigma_engine.artifacts.fishbone import FishboneArtifact
+
+    cause = {
+        "cause_id": "c1", "branch": "machine", "text": "grinder drifts mid-peak", "status": "verified",
+    }
+    if verified_with_evidence:
+        cause["evidence"] = {"kind": "dataset", "ref": "ds-4a2f"}
+    return FishboneArtifact.model_validate(
+        {
+            "schema_version": 1, "artifact_id": "fishbone", "tool_id": "T-15",
+            "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+            "effect": {"text": "orders take too long at peak"},
+            "causes": [cause, {"cause_id": "c2", "branch": "method", "text": "no dial-in routine", "status": "candidate"}],
+        }
+    )

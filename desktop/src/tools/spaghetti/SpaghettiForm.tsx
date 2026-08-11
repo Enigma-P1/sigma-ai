@@ -13,6 +13,7 @@ import { spaghettiMissingFields } from "./spaghettiLogic";
 import { useSpaghettiForm } from "./useSpaghettiForm";
 import type { LayoutMode, ProjectMetadata } from "../../api/types";
 import "./SpaghettiForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface SpaghettiFormProps {
   projectId: string;
@@ -35,7 +36,19 @@ export function SpaghettiForm({ projectId, project, onSaved }: SpaghettiFormProp
   const unit = f.serverArtifact?.metrics?.value.unit ?? f.calibration?.unit ?? null;
 
   return (
-    <Panel title="Spaghetti Diagram (interactive)" right={f.version != null && <span data-testid="spaghetti-version-badge">v{f.version} saved</span>}>
+    <Panel title="Spaghetti Diagram (interactive)" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="spaghetti-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-07"
+            captureKey="T-07-spaghetti"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>
         Upload the floor plan, calibrate scale by drawing one known-length line, then trace routes per operator and
         trip. Distance, walk time, and the daily travel burden are the engine&rsquo;s own arithmetic on your trace —

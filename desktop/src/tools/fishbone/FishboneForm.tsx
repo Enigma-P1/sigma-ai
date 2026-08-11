@@ -9,6 +9,7 @@ import { fishboneMissingFields } from "./fishboneLogic";
 import { useFishboneForm } from "./useFishboneForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./FishboneForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface FishboneFormProps {
   projectId: string;
@@ -29,7 +30,19 @@ export function FishboneForm({ projectId, project, onSaved }: FishboneFormProps)
   const charterOptions = Object.keys(project.artifact_index).filter((id) => project.artifact_index[id]?.tool_id === "T-03");
 
   return (
-    <Panel title="Fishbone (6M) + 5 Whys" right={f.version != null && <span data-testid="fishbone-version-badge">v{f.version} saved</span>}>
+    <Panel title="Fishbone (6M) + 5 Whys" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="fishbone-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-15"
+            captureKey="T-15-fishbone"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>
         Click a branch to add a candidate cause. Every cause needs an evidence pointer before it can be marked
         verified -- team consensus alone is not evidence. A candidate with no evidence yet carries a visible flag

@@ -5,6 +5,7 @@ import type { ProcessMapConnector, ProcessMapLane, ProcessMapStep, StepPosition 
 import { LANE_HEIGHT, STEP_HEIGHT, STEP_WIDTH, laneTopY } from "./processMapLogic";
 import { CANVAS_CONNECTOR, CANVAS_LANE_BORDER, CANVAS_LANE_FILL, CANVAS_SELECTED_STROKE, CANVAS_TEXT, CANVAS_TEXT_MUTED, STEP_FILL, STEP_STROKE } from "./canvasColors";
 import "./ProcessMapCanvas.css";
+import { useStageCapture } from "../../charts/useStageCapture";
 
 const CANVAS_WIDTH = 1040;
 const MIN_SCALE = 0.5;
@@ -38,6 +39,7 @@ function connectorPoints(a: StepPosition, b: StepPosition): number[] {
  * own transform). */
 export function ProcessMapCanvas({ lanes, steps, connectors, layout, selectedStepId, onSelectStep, onMoveStep }: ProcessMapCanvasProps) {
   const stageRef = useRef<Konva.Stage>(null);
+  useStageCapture("T-06-process-map", stageRef);
   const canvasHeight = Math.max(lanes.length, 1) * LANE_HEIGHT + 40;
 
   function handleWheel(e: Konva.KonvaEventObject<WheelEvent>) {

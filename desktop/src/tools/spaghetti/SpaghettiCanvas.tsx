@@ -10,6 +10,7 @@ import { heatmapStrokeWidth, pointsToFlat } from "./spaghettiLogic";
 import type { DraftPoint } from "./spaghettiLogic";
 import { useRoutePlayback } from "./spaghettiPlayback";
 import "./SpaghettiCanvas.css";
+import { useStageCapture } from "../../charts/useStageCapture";
 
 const STAGE_WIDTH = 900;
 const STAGE_HEIGHT = 600;
@@ -64,6 +65,7 @@ export function SpaghettiCanvas(props: SpaghettiCanvasProps) {
     traceDraft, activeLayoutMode, heatmapOn, playbackRouteId, playing, onCanvasClick,
   } = props;
   const stageRef = useRef<Konva.Stage>(null);
+  useStageCapture("T-07-spaghetti", stageRef);
   const image = useHtmlImage(imageSrc);
 
   const visibleRoutes = useMemo(() => routes.filter((r) => r.layout_mode === activeLayoutMode), [routes, activeLayoutMode]);

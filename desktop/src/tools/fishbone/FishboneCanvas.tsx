@@ -30,6 +30,7 @@ import {
   CAUSE_TEXT,
 } from "./canvasColors";
 import "./FishboneCanvas.css";
+import { useStageCapture } from "../../charts/useStageCapture";
 
 const MIN_SCALE = 0.5;
 const MAX_SCALE = 2.5;
@@ -52,6 +53,7 @@ export interface FishboneCanvasProps {
  * further out, the 5-Whys chain rendered as a visible stack. */
 export function FishboneCanvas({ effectText, causes, layout, selectedCauseId, onSelectCause, onMoveCause, onAddCause }: FishboneCanvasProps) {
   const stageRef = useRef<Konva.Stage>(null);
+  useStageCapture("T-15-fishbone", stageRef);
 
   function handleWheel(e: Konva.KonvaEventObject<WheelEvent>) {
     e.evt.preventDefault();

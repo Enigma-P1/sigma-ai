@@ -8,6 +8,7 @@ import { SIPOC_CHECK_FIELD, SIPOC_CHECK_LABELS } from "./sipocChecks";
 import { sipocMissingFields } from "./sipocLogic";
 import { useSipocForm } from "./useSipocForm";
 import type { ProjectMetadata } from "../../api/types";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface SipocFormProps {
   projectId: string;
@@ -34,7 +35,18 @@ export function SipocForm({ projectId, project, onSaved }: SipocFormProps) {
 
   return (
     <div data-testid="sipoc-form">
-      <Panel title="SIPOC" right={f.version != null && <span data-testid="sipoc-version-badge">v{f.version} saved</span>}>
+      <Panel title="SIPOC" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="sipoc-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-04"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
         {f.version == null && <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-muted)" }}>Not saved yet.</p>}
       </Panel>
 

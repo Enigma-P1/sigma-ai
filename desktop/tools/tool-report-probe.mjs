@@ -97,7 +97,16 @@ async function grab(toolId, prepare) {
 // tabbed and the collection plan is not the default tab -- its button
 // renders but stays hidden, which is correct product behaviour and would
 // read as a broken button if the probe did not open the tab.
+const CANVAS_SETTLE_MS = 900;
+const settleCanvas = async () => page.waitForTimeout(CANVAS_SETTLE_MS);
+
 const PREPARE = {
+  // The Konva stages register their capturer on mount; give them a beat
+  // before asking for the image, or the report prints "chart not captured"
+  // and still passes as a PDF.
+  "T-06": settleCanvas,
+  "T-07": settleCanvas,
+  "T-15": settleCanvas,
   "T-11": async () => {
     await page.getByTestId("t11-tab-plan").click();
     await page.waitForTimeout(300);
@@ -105,8 +114,9 @@ const PREPARE = {
 };
 
 for (const tool of [
-  "T-01", "T-02", "T-08", "T-09", "T-11", "T-12", "T-16", "T-17",
-  "T-18", "T-19", "T-20", "T-21", "T-22", "T-23", "T-24",
+  "T-01", "T-02", "T-04", "T-05", "T-06", "T-07", "T-08", "T-09",
+  "T-11", "T-12", "T-15", "T-16", "T-17", "T-18", "T-19", "T-20",
+  "T-21", "T-22", "T-23", "T-24",
 ]) {
   await grab(tool, PREPARE[tool]);
 }

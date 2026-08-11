@@ -14,6 +14,7 @@ import { processMapMissingFields } from "./processMapLogic";
 import { useProcessMapForm } from "./useProcessMapForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./ProcessMapForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface ProcessMapFormProps {
   projectId: string;
@@ -31,7 +32,19 @@ export function ProcessMapForm({ projectId, project, onSaved }: ProcessMapFormPr
   const selectedStep = f.steps.find((s) => s.step_id === f.selectedStepId) ?? null;
 
   return (
-    <Panel title="Process Map (swimlane) + Waste Walk" right={f.version != null && <span data-testid="processmap-version-badge">v{f.version} saved</span>}>
+    <Panel title="Process Map (swimlane) + Waste Walk" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="processmap-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-06"
+            captureKey="T-06-process-map"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>
         Drag steps within or between lanes, connect them to show the flow, tag each value-add / non-value-add /
         enabling with a reason, and walk the 8 wastes. Times and the demand block feed the engine&rsquo;s bottleneck
