@@ -93,8 +93,22 @@ async function grab(toolId, prepare) {
 }
 
 // Artifact-backed reports, no chart capture needed for most of them.
-for (const tool of ["T-02", "T-08", "T-09", "T-12", "T-16", "T-17", "T-18", "T-20", "T-21", "T-22", "T-23"]) {
-  await grab(tool);
+// A few screens need a step before the button is reachable. T-11 is
+// tabbed and the collection plan is not the default tab -- its button
+// renders but stays hidden, which is correct product behaviour and would
+// read as a broken button if the probe did not open the tab.
+const PREPARE = {
+  "T-11": async () => {
+    await page.getByTestId("t11-tab-plan").click();
+    await page.waitForTimeout(300);
+  },
+};
+
+for (const tool of [
+  "T-01", "T-02", "T-08", "T-09", "T-11", "T-12", "T-16", "T-17",
+  "T-18", "T-19", "T-20", "T-21", "T-22", "T-23", "T-24",
+]) {
+  await grab(tool, PREPARE[tool]);
 }
 
 // T-35: nothing is saved in the example, so this both builds a study from

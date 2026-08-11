@@ -26,10 +26,13 @@ from sigma_engine.export.reports import yield_calc as yield_report
 from sigma_engine.routes.export import ARTIFACT_REPORTS
 
 GROUP_C = ("T-02", "T-08", "T-09", "T-10", "T-18", "T-22", "T-23")
+# Group D — the form-shaped four. T-03 Charter keeps its own hand-laid PDF.
+GROUP_D = ("T-01", "T-11", "T-19", "T-24")
+GROUP_CD = GROUP_C + GROUP_D
 
 
-def test_every_group_c_tool_has_a_report_registered():
-    for tool_id in GROUP_C:
+def test_every_group_c_and_d_tool_has_a_report_registered():
+    for tool_id in GROUP_CD:
         assert tool_id in ARTIFACT_REPORTS, tool_id
 
 
@@ -37,7 +40,7 @@ def test_every_group_c_report_exposes_the_five_zone_contract():
     """build_story is what the route calls; the other three are what make a
     report a report rather than a data dump. A module missing one of them
     fails at request time, on a route with no per-tool test."""
-    for tool_id in GROUP_C:
+    for tool_id in GROUP_CD:
         _, module, _ = ARTIFACT_REPORTS[tool_id]
         for name in ("TOOL_ID", "TOOL_TITLE", "build_story", "build_verdict", "build_meaning", "build_report_card"):
             assert hasattr(module, name), f"{tool_id} report is missing {name}"
@@ -284,3 +287,215 @@ def _five_s(*, sustain_history: list[int]):
             "rounds": rounds,
         }
     )
+
+
+# ------------------------------------------------------------------- group D
+
+
+def test_pilot_plan_does_not_punish_a_correctly_declared_package():
+    """The tool has a first-class concept for bundling changes on purpose --
+    declared_package, with a rationale and a server-stamped attribution
+    note -- and the schema REFUSES more than one change without it
+    (EXIT-10). So a multi-change plan that reaches a report is by
+    construction the honest path being used correctly, and an earlier
+    version of this report flagged it as a mistake."""
+    from sigma_engine.export.reports import pilot_plan as pilot_report
+
+    bundled = _pilot(change_count=2, declared_package=True)
+    text, tone = pilot_report.build_verdict(bundled)
+    assert tone == "pass"
+    assert "declared package" in text.lower()
+
+
+def test_more_than_one_change_without_a_package_never_reaches_a_report():
+    """Pinned because the report's wording depends on it: the "undeclared
+    multi-change" case is unreachable, so the page does not need -- and must
+    not have -- a scolding branch for it."""
+    with pytest.raises(Exception) as caught:
+        _pilot(change_count=2, declared_package=False)
+    assert "EXIT-10" in str(caught.value)
+
+
+def test_pilot_plan_prints_the_falsification_line_beside_the_success_line():
+    """Printing only the success half is what makes a pilot unfalsifiable in
+    practice: with no result that would have counted as failure, any outcome
+    can be narrated as a win."""
+    from sigma_engine.export.reports import pilot_plan as pilot_report
+
+    text = _story_text(pilot_report, _pilot(change_count=1, declared_package=False))
+    assert "FAILURE MEANS" in text.upper()
+    assert "SUCCESS MEANS" in text.upper()
+
+
+def test_collection_plan_names_which_part_of_the_definition_is_missing():
+    """A prose definition reads as complete and hides the gap. Naming the
+    missing part is the whole value of splitting it into fields."""
+    from sigma_engine.export.reports import data_collection_plan as dcp_report
+
+    artifact = _collection_plan(stops_when="")
+    text, tone = dcp_report.build_verdict(artifact)
+    assert tone == "fail"
+    assert "clock stops when" in text.lower()
+
+
+def test_collection_plan_treats_unstratified_with_no_reason_as_a_failure():
+    """Not recoverable later: data collected without a factor can never be
+    split by it afterwards."""
+    from sigma_engine.export.reports import data_collection_plan as dcp_report
+
+    card = dcp_report.build_report_card(_collection_plan(strata=[], no_strata_reason=""))
+    assert any(tone == "fail" and "stratification" in text.lower() for tone, text in card)
+
+    card = dcp_report.build_report_card(_collection_plan(strata=[], no_strata_reason="single barista, single till"))
+    assert not any(tone == "fail" and "stratification" in text.lower() for tone, text in card)
+
+
+def test_standard_work_catches_a_standard_that_just_restates_the_action():
+    """SOPs fail most often by merging "what you do" with "what right looks
+    like" -- and a step whose standard echoes its action is that failure
+    made machine-visible."""
+    from sigma_engine.export.reports import standard_work as sop_report
+
+    card = sop_report.build_report_card(_sop(standard_echoes_action=True))
+    assert any(tone == "fail" and "identical to the action" in text for tone, text in card)
+
+
+def test_standard_work_escapes_a_step_containing_markup_characters():
+    """A spec like "<0.5 mm" is entirely plausible in an SOP step, and
+    building the cell's markup before escaping breaks the Paragraph parse
+    rather than printing."""
+    from sigma_engine.export.reports import standard_work as sop_report
+
+    artifact = _sop(action="Trim to <0.5 mm & deburr", note="see drawing <A-12>")
+    pdf = report_pdf.render(
+        story_builder=lambda w: sop_report.build_story(
+            artifact=artifact, project_name="P", version=1,
+            provenance_rows=[("Artifact", "sop")], exported_at="x", content_width=w,
+        ),
+        title="t", project_id="p", engine_version="0.1.0",
+    )
+    assert pdf.startswith(b"%PDF-")
+
+
+def test_picker_names_the_failed_criterion_rather_than_just_refusing():
+    """"Not viable as scoped" invites a rescope that changes nothing. The
+    sponsor needs to know which of the five failed, in their own words."""
+    from sigma_engine.export.reports import picker as picker_report
+
+    artifact = _picker(failing="measurable_outcome", detail="we want it to feel faster")
+    text, tone = picker_report.build_verdict(artifact)
+    assert tone == "fail"
+    assert "measurable" in text.lower()
+    card = " ".join(t for _, t in picker_report.build_report_card(artifact))
+    assert "we want it to feel faster" in card
+
+
+def _pilot(*, change_count: int, declared_package: bool):
+    from sigma_engine.artifacts.pilot_plan import PilotPlanArtifact
+
+    # The schema pins the_one_change.statement to changes[0].text -- the one
+    # declared change cannot read two ways in the same artifact.
+    first = "change the grinder routine"
+    changes = [{"change_id": "chg-1", "text": first}] + [
+        {"change_id": f"chg-{i}", "text": f"additional change number {i}"} for i in range(2, change_count + 1)
+    ]
+    body = {
+        "schema_version": 1, "artifact_id": "pilot-plan", "tool_id": "T-19",
+        "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+        "the_one_change": {"statement": first, "linked_cause_ids": ["c1"]},
+        "changes": changes,
+        "comparison_design": {"kind": "before_period", "description": "same peak window, prior 10 mornings"},
+        "inclusion": {"who_or_what": "weekday peak espresso orders", "how_selected": "every order in the 7-10 window",
+                      "honesty_note": "one site only, chosen because the owner agreed"},
+        "success_threshold": {"metric_ref": "handoff_minutes", "direction": "lower_is_better", "value": 5.5,
+                              "declared_at": "2026-09-03T15:00:00Z"},
+        "analysis_plan": {"expected_route": "two-sample t-test", "rationale": "continuous data, two independent windows"},
+        "falsification_line": "if the pilot-window mean is not below 5.5 minutes, the change did not work",
+        "confounder_checklist": {
+            "staffing": {"changed": True, "note": "one barista off sick in week two"},
+            "season": {"changed": False},
+            "demand": {"changed": False},
+            "measurement": {"changed": False},
+            "other": {"changed": False},
+        },
+    }
+    if declared_package:
+        body["declared_package"] = {
+            "components": [c["text"] for c in changes],
+            "rationale": "the two only work together",
+        }
+    return PilotPlanArtifact.model_validate(body)
+
+
+def _collection_plan(*, stops_when: str = "cup reaches the handoff counter", strata=None, no_strata_reason: str = ""):
+    from sigma_engine.artifacts.data_collection_plan import DataCollectionPlanArtifact
+
+    return DataCollectionPlanArtifact.model_validate(
+        {
+            "schema_version": 1, "artifact_id": "collection-plan", "tool_id": "T-11",
+            "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+            "metric_name": "order-to-handoff time",
+            "operational_definition": {
+                "what_measured": "minutes from order paid to cup handed over",
+                "how_instrument": "POS timestamp",
+                "precision_unit": "tenths of a minute",
+                "starts_when": "order is paid",
+                "stops_when": stops_when,
+                "two_people_confirmed": True,
+            },
+            "data_type": "continuous",
+            "stratification_factors": [{"name": s} for s in (strata if strata is not None else ["shift"])],
+            "no_stratification_reason": no_strata_reason,
+            "logistics": {"who_collects": "Marcus", "where_collected": "front counter",
+                          "when_how_often": "every 4th order at peak", "planned_n": 120,
+                          "sample_size_rationale": "rule of thumb for an I-MR baseline"},
+        }
+    )
+
+
+def _sop(*, standard_echoes_action: bool = False, action: str = "Dial in the grinder", note: str = ""):
+    from sigma_engine.artifacts.standard_work import StandardWorkArtifact
+
+    standard = action if standard_echoes_action else "shot pulls 25-29 s at 36 g out"
+    return StandardWorkArtifact.model_validate(
+        {
+            "schema_version": 1, "artifact_id": "sop", "tool_id": "T-24",
+            "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+            "title": "Espresso dial-in", "version": 1, "owner": "Marcus Webb",
+            "effective_date": "2026-09-22",
+            "steps": [{"step_id": "s1", "order": 1, "action": action, "standard": standard, "note": note}],
+        }
+    )
+
+
+def _picker(*, failing: str, detail: str):
+    from sigma_engine.artifacts.picker import PickerArtifact
+
+    fields = ("scope_narrow", "measurable_outcome", "data_obtainable",
+              "process_owner_engaged", "business_impact_plausible")
+    body = {
+        "schema_version": 1, "artifact_id": "picker", "tool_id": "T-01",
+        "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+        "route": "EXIT-01",
+    }
+    for field in fields:
+        if field == failing:
+            body[field] = {"answer": False, "detail": detail}
+        else:
+            body[field] = {"answer": True, "detail": "fine"}
+    return PickerArtifact.model_validate(body)
+
+
+def test_pilot_plan_actually_reports_the_confounders_that_were_ticked():
+    """The checklist holds ConfounderAnswer objects, not bare booleans. An
+    earlier version dumped to JSON and tested `value is True` -- never true
+    for a dict -- so this line silently never printed on a page whose whole
+    argument is that naming confounders in advance is what separates a
+    limitation from an excuse."""
+    from sigma_engine.export.reports import pilot_plan as pilot_report
+
+    card = pilot_report.build_report_card(_pilot(change_count=1, declared_package=False))
+    acknowledged = [text for tone, text in card if "confounder(s) acknowledged" in text]
+    assert acknowledged, "a ticked confounder must reach the report card"
+    assert "staffing" in acknowledged[0]
+    assert "off sick" in acknowledged[0]

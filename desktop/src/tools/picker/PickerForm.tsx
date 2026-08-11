@@ -8,6 +8,7 @@ import { ApiError, groupValidationByField } from "../../api/errors";
 import { useSaveState } from "../../app/SaveStateContext";
 import { PICKER_CRITERIA_KEYS } from "../../api/types";
 import type { PickerCriterionKey, PickerRoute, PrescoreResult, ProjectMetadata } from "../../api/types";
+import { ReportButton } from "../../app/ReportButton";
 
 const ARTIFACT_ID = "picker";
 const SCHEMA_VERSION = 1;
@@ -163,9 +164,18 @@ export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
   }
 
   return (
-    <Panel title="Is this a good first project?" right={version != null && (
-      <span data-testid="picker-version-badge">v{version} saved</span>
-    )}>
+    <Panel title="Is this a good first project?" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {version != null && <span data-testid="picker-version-badge">v{version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-01"
+            disabled={version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       {CRITERIA_META.map((meta) => (
         <CriterionField
           key={meta.key}

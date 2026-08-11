@@ -12,6 +12,7 @@ import { usePilotPlanForm } from "./usePilotPlanForm";
 import type { PilotStatus, ProjectMetadata } from "../../api/types";
 import { PILOT_STATUSES } from "../../api/types";
 import "./PilotPlanForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface PilotPlanFormProps {
   projectId: string;
@@ -31,7 +32,18 @@ export function PilotPlanForm({ projectId, project, onSaved }: PilotPlanFormProp
   const declaredAt = f.serverArtifact?.success_threshold.declared_at ?? null;
 
   return (
-    <Panel title="Pilot Plan" right={f.version != null && <span data-testid="pilot-version-badge">v{f.version} saved</span>}>
+    <Panel title="Pilot Plan" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="pilot-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-19"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>
         Design one small study before you touch anything. One change, a comparison you defined before running it,
         who&rsquo;s included and how you picked them, a threshold and analysis plan declared now, a line that says

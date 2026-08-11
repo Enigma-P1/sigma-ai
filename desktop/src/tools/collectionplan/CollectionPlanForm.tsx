@@ -9,6 +9,7 @@ import { useCollectionPlanForm } from "./useCollectionPlanForm";
 import { DATA_COLLECTION_DATA_TYPES } from "../../api/types";
 import type { DataCollectionDataType, ProjectMetadata } from "../../api/types";
 import "./CollectionPlanForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface CollectionPlanFormProps {
   projectId: string;
@@ -24,7 +25,18 @@ export function CollectionPlanForm({ projectId, project, onSaved }: CollectionPl
   const f = useCollectionPlanForm(projectId, project, onSaved);
 
   return (
-    <Panel title="Data Collection Plan" right={f.version != null && <span data-testid="dcp-version-badge">v{f.version} saved</span>}>
+    <Panel title="Data Collection Plan" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="dcp-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-11"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <div className="sigma-dcp-row">
         <Field label="Metric name" htmlFor="dcp-metric-name">
           <TextInput id="dcp-metric-name" data-testid="dcp-metric-name" value={f.metricName} onChange={(e) => f.setMetricName(e.target.value)} />

@@ -5,6 +5,7 @@ import { STANDARD_WORK_CHECK_LABELS } from "./standardWorkChecks";
 import { useStandardWorkForm } from "./useStandardWorkForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./StandardWorkForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface StandardWorkFormProps {
   projectId: string;
@@ -19,7 +20,18 @@ export function StandardWorkForm({ projectId, project, onSaved }: StandardWorkFo
   const f = useStandardWorkForm(projectId, project, onSaved);
 
   return (
-    <Panel title="Standard Work / SOP" right={f.version != null && <span data-testid="standardwork-version-badge">v{f.version} saved</span>}>
+    <Panel title="Standard Work / SOP" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="standardwork-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-24"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>Write the improved method as steps a qualified-but-new person could follow -- one action, one standard, per step.</p>
 
       <div className="sigma-standardwork-header">
