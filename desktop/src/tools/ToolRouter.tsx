@@ -50,6 +50,8 @@ import { StandardWorkForm } from "./standardwork/StandardWorkForm";
 import { standardWorkHelperContent } from "./standardwork/standardWorkContent";
 import { A3Form } from "./a3/A3Form";
 import { a3HelperContent } from "./a3/a3Content";
+import { GageRrForm } from "./gagerr/GageRrForm";
+import { gageRrHelperContent } from "./gagerr/gageRrContent";
 import { placeholderHelperContent } from "./helperFrameTypes";
 import { toolById } from "../app/tools";
 import type { CombinedGate } from "../app/gateLogic";
@@ -308,6 +310,17 @@ export function ToolRouter({
     return (
       <ToolScreen {...screenProps} helperContent={a3HelperContent}>
         <A3Form projectId={projectId} project={project} onSaved={onSaved} />
+      </ToolScreen>
+    );
+  }
+
+  // T-35: the full crossed Gage R&R T-12's EXIT-03 names. Sits in Measure
+  // beside T-12 rather than replacing it -- one is the afternoon check, the
+  // other is the study a quality engineer means by "Gage R&R".
+  if (toolId === "T-35") {
+    return (
+      <ToolScreen {...screenProps} helperContent={gageRrHelperContent}>
+        <GageRrForm projectId={projectId} project={project} onSaved={onSaved} />
       </ToolScreen>
     );
   }

@@ -127,7 +127,13 @@ def run_gage_rr_prescore(artifact: GageRRArtifact) -> list[PrescoreResult]:
             "differently than others do, which is worth understanding before training is blamed.",
         )
 
-    for warning in result.warnings:
-        add("grr_warning", "flag", warning)
+    # ONE entry, not one per warning. check_id is the identity of a check
+    # everywhere downstream -- it keys the results strip's pills and their
+    # test ids -- so emitting `grr_warning` N times produced N colliding
+    # entries. The warnings are joined into a single caveat instead, which
+    # is also how a reader wants them: one place that says what this study
+    # could not resolve.
+    if result.warnings:
+        add("grr_warnings", "flag", " · ".join(result.warnings))
 
     return results

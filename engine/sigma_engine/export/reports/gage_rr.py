@@ -39,6 +39,12 @@ _TONE: dict[str, rt.Tone] = {"acceptable": "pass", "marginal": "flag", "unaccept
 # Rows printed in the components table, in the order a reader works down
 # them: the two halves of measurement error, their total, then what the
 # study was trying to see.
+
+# The components whose own estimator can go negative and be clamped.
+# reproducibility (= operator + interaction), gage_rr and total_variation
+# are sums -- they carry the flag onward but did not cause it.
+CLAMPABLE_COMPONENTS = frozenset({"operator", "operator_x_part", "part_to_part"})
+
 COMPONENT_ORDER = (
     ("repeatability", "Repeatability (equipment)"),
     ("reproducibility", "Reproducibility (operators)"),
@@ -48,6 +54,27 @@ COMPONENT_ORDER = (
     ("part_to_part", "Part-to-part"),
     ("total_variation", "Total variation"),
 )
+
+
+def fmt_component(value: float) -> str:
+    """Variance columns span orders of magnitude in one table -- a
+    repeatability variance of 0.0036 sits beside a part-to-part of 100.
+
+    The shared fmt_number is a two-decimal MAGNITUDE formatter, built for
+    dollar amounts, and it prints the first of those as "0". In a variance
+    table "0" reads as "no equipment variation at all" when the truth is
+    "small", which is the opposite of what this report exists to say. So:
+    significant figures, and a real zero still prints as one.
+    """
+    if value == 0:
+        return "0"
+    # Above 1000 the significant-figure form flips to scientific notation
+    # ("1.067e+05" for an F statistic), which is correct and unreadable on a
+    # page someone prints. Comma-grouped whole numbers there instead; the
+    # decimals only matter at the small end.
+    if abs(value) >= 1000:
+        return f"{value:,.0f}"
+    return f"{value:,.4g}"
 
 
 def _basis_words(result: gage_rr_mod.GageRRResult) -> str:
@@ -153,8 +180,12 @@ def build_report_card(artifact: GageRRArtifact) -> list[tuple[rt.Tone, str]]:
             )
         )
 
+    # Only the components that can clamp on their OWN account. reproducibility
+    # and gage_rr are sums that inherit the flag from `operator`, so iterating
+    # every component printed one clamp two or three times, in near-identical
+    # words, as if several things had gone wrong instead of one.
     for component in result.components:
-        if component.clamped_from_negative:
+        if component.clamped_from_negative and component.name in CLAMPABLE_COMPONENTS:
             items.append(
                 (
                     "flag",
@@ -163,8 +194,11 @@ def build_report_card(artifact: GageRRArtifact) -> list[tuple[rt.Tone, str]]:
                 )
             )
 
-    for warning in result.warnings:
-        items.append(("flag", warning))
+    # result.warnings is deliberately NOT printed here: every warning the
+    # stats module currently raises (distinct categories, part count, repeat
+    # count, the clamps) already has a structured item above, and printing
+    # both said each thing twice. A NEW warning with no item above needs a
+    # new item -- add it, rather than restoring a blanket loop.
 
     items.append(
         (
@@ -193,8 +227,8 @@ def build_components_table(result: gage_rr_mod.GageRRResult, styles: dict, conte
             continue
         row = [
             Paragraph(esc(label), styles["table_cell"]),
-            Paragraph(fmt_number(component.variance), styles["table_cell"]),
-            Paragraph(fmt_number(component.std_dev), styles["table_cell"]),
+            Paragraph(fmt_component(component.variance), styles["table_cell"]),
+            Paragraph(fmt_component(component.std_dev), styles["table_cell"]),
             Paragraph(f"{fmt_number(component.percent_study_variation)}%", styles["table_cell"]),
         ]
         if has_tolerance:
@@ -218,9 +252,9 @@ def build_anova_table(result: gage_rr_mod.GageRRResult, styles: dict, content_wi
             [
                 Paragraph(esc(row.source.replace("_", " ")), styles["table_cell"]),
                 Paragraph(str(row.df), styles["table_cell"]),
-                Paragraph(fmt_number(row.ss), styles["table_cell"]),
-                Paragraph(fmt_number(row.ms), styles["table_cell"]),
-                Paragraph(fmt_number(row.f_statistic) if row.f_statistic is not None else "—", styles["table_cell"]),
+                Paragraph(fmt_component(row.ss), styles["table_cell"]),
+                Paragraph(fmt_component(row.ms), styles["table_cell"]),
+                Paragraph(fmt_component(row.f_statistic) if row.f_statistic is not None else "—", styles["table_cell"]),
                 Paragraph(f"{row.p_value:.4g}" if row.p_value is not None else "—", styles["table_cell"]),
             ]
         )

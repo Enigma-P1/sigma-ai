@@ -97,6 +97,34 @@ for (const tool of ["T-12", "T-16", "T-17", "T-20", "T-21"]) {
   await grab(tool);
 }
 
+// T-35: nothing is saved in the example, so this both builds a study from
+// scratch through the entry grid and then exports it -- the only check that
+// the grid, the resize, the save and the components chart hold together.
+// A small study on purpose: 3x2x2 is 12 cells to type, and the arithmetic
+// under test is the same at any size.
+await grab("T-35", async () => {
+  await page.getByTestId("grr-parts-count").fill("3");
+  await page.getByTestId("grr-operators-count").fill("2");
+  await page.getByTestId("grr-trials-count").fill("2");
+  await page.getByTestId("grr-tolerance").fill("20");
+  // Parts far apart, operators close together, small repeat spread: an
+  // acceptable gauge, so a broken verdict shows up as a wrong one rather
+  // than as an empty report.
+  const base = [10, 20, 30];
+  for (let p = 0; p < 3; p++) {
+    for (let o = 0; o < 2; o++) {
+      for (let t = 0; t < 2; t++) {
+        await page.getByTestId(`grr-cell-${p}-${o}-${t}`).fill(String(base[p] + o * 0.2 + t * 0.1));
+      }
+    }
+  }
+  await page.getByTestId("grr-run").click();
+  await page.getByTestId("grr-result").waitFor({ timeout: 30000 });
+  // The components chart must paint before its capturer registers, and the
+  // fingerprint lands a tick later still.
+  await page.waitForTimeout(1200);
+});
+
 // T-13: the report button only exists after a baseline has been run, which
 // is correct -- there is nothing to report on before that. Running it here
 // is also the only way to exercise the chart-capture path end to end, which

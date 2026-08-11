@@ -48,8 +48,8 @@ export function MsaForm({ projectId, project, onSaved }: MsaFormProps) {
       <p>
         A resolution pre-check first (can the gauge even see the process?), then either test/retest repeatability%
         (continuous) or two-rater kappa + % agreement (attribute) — the narrow, honestly-named check this suite
-        runs. Full multi-operator Gage R&amp;R is out of scope; see &ldquo;Is your question bigger than this
-        check?&rdquo; below.
+        runs. If more than one person does the measuring, the study you want is T-35 (Gage R&amp;R, full crossed
+        study), also in Measure; see &ldquo;Is your question bigger than this check?&rdquo; below.
       </p>
 
       <div className="sigma-msa-row">

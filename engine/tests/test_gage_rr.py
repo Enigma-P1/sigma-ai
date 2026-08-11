@@ -370,3 +370,118 @@ def test_report_on_an_uncomputable_study_states_the_reason_rather_than_crashing(
     text, tone = grr_report.build_verdict(artifact)
     assert tone == "neutral"
     assert "cannot be computed" in text
+
+
+def test_prescore_check_ids_are_unique():
+    """check_id is the identity of a check everywhere downstream -- it keys
+    the results strip's pills and their test ids. Emitting one id per
+    warning produced collisions the moment a study raised two, which is the
+    common case (few parts AND few categories)."""
+    import random
+
+    random.seed(9)
+    rows = [
+        (f"p{p}", op, 10.0 + p * 0.01 + random.gauss(0, 2.0))
+        for p in range(4)  # under 10 parts -> a parts warning as well as the ndc one
+        for op in ("A", "B", "C")
+        for _ in range(3)
+    ]
+    artifact = _artifact(rows)
+    assert len(artifact.result.warnings) >= 2, "this fixture is meant to raise more than one warning"
+    ids = [f.check_id for f in run_gage_rr_prescore(artifact)]
+    assert len(ids) == len(set(ids))
+    assert "grr_warnings" in ids
+
+
+def test_report_card_states_one_clamp_once():
+    """reproducibility and gage_rr are SUMS that inherit the clamp flag from
+    `operator`. Iterating every component printed one event two or three
+    times in near-identical words, reading as several separate problems."""
+    # Operators identical, parts far apart: the operator variance estimator
+    # goes negative and is floored, which is the clamp under test.
+    rows = [
+        (f"p{p}", op, p * 10.0 + trial * 0.1)
+        for p in range(1, 4)
+        for op in ("A", "B", "C")
+        for trial in range(3)
+    ]
+    artifact = _artifact(rows)
+    clamped = [c.name for c in artifact.result.components if c.clamped_from_negative]
+    assert "operator" in clamped and "reproducibility" in clamped, "fixture must clamp a sum and its cause"
+    card = [text for _, text in grr_report.build_report_card(artifact)]
+    assert sum(1 for text in card if "floored at zero" in text) == 1
+
+
+def test_the_chart_series_matches_the_order_the_client_draws():
+    """The engine hashes this series and refuses any chart image whose
+    fingerprint disagrees. If the two sides order the bars differently the
+    hashes never match, the picture is silently dropped from every report,
+    and nothing else fails -- so the orders are pinned against each other
+    here, by reading the client's own constant."""
+    import pathlib
+    import re as _re
+
+    from sigma_engine.routes.export import GRR_CHART_COMPONENT_ORDER, _grr_chart_series
+
+    logic = pathlib.Path(__file__).resolve().parents[2] / "desktop" / "src" / "tools" / "gagerr" / "gageRrLogic.ts"
+    source = logic.read_text()
+    match = _re.search(r"CHART_COMPONENT_ORDER = \[([^\]]+)\]", source)
+    assert match, "client CHART_COMPONENT_ORDER not found -- did gageRrLogic.ts move?"
+    client_order = tuple(_re.findall(r'"([^"]+)"', match.group(1)))
+    assert client_order == GRR_CHART_COMPONENT_ORDER
+
+    # And the series the engine hashes is exactly those four, then the same
+    # four again as %tolerance when the study has a tolerance.
+    artifact = _artifact(HAND_ROWS)
+    assert len(_grr_chart_series(artifact)) == len(GRR_CHART_COMPONENT_ORDER)
+    with_tolerance = _artifact(HAND_ROWS, tolerance=20.0)
+    assert len(_grr_chart_series(with_tolerance)) == 2 * len(GRR_CHART_COMPONENT_ORDER)
+
+
+def test_a_study_that_cannot_be_computed_has_no_chart_to_verify():
+    """None means "nothing to compare against" and check_chart then takes
+    the image on trust. A half-entered study has no components at all, so
+    it must return None rather than raising on the missing result."""
+    from sigma_engine.routes.export import _grr_chart_series
+
+    assert _grr_chart_series(_artifact([("p1", "A", 1.0), ("p1", "A", 2.0)])) is None
+
+
+def test_every_tested_anova_row_carries_a_p_value():
+    """An F with an empty p column beside it is not a test a reader can
+    use. part and operator both had F statistics and neither had a p --
+    the denominator's degrees of freedom were never carried to compute one."""
+    result = compute_gage_rr(
+        [
+            Measurement(part=f"p{p}", operator=op, value=p * 2.0 + (0.3 if op == "B" else 0.0) + trial * 0.1)
+            for p in range(1, 6)
+            for op in ("A", "B")
+            for trial in range(3)
+        ]
+    )
+    rows = {row.source: row for row in result.anova}
+    for source in ("part", "operator", "operator_x_part"):
+        assert rows[source].f_statistic is not None, source
+        assert rows[source].p_value is not None, source
+        assert 0.0 <= rows[source].p_value <= 1.0
+    # repeatability and total are not tests -- nothing to test them against.
+    assert rows["repeatability"].p_value is None
+    assert rows["total"].p_value is None
+
+
+def test_the_f_denominator_follows_the_pooling_decision():
+    """Parts and operators are random effects: unpooled, their error term
+    is the INTERACTION mean square, not the residual. Pooling changes the
+    denominator, and so must change F -- if it did not, one of the two
+    models would be using the wrong error term."""
+    rows = [
+        Measurement(part=f"p{p}", operator=op, value=p * 2.0 + (0.4 if op == "B" else 0.0) + trial * 0.1)
+        for p in range(1, 6)
+        for op in ("A", "B")
+        for trial in range(3)
+    ]
+    pooled = {r.source: r for r in compute_gage_rr(rows, pool_interaction=True).anova}
+    kept = {r.source: r for r in compute_gage_rr(rows, pool_interaction=False).anova}
+    assert pooled["part"].f_statistic != kept["part"].f_statistic
+    # Same SS and MS either way -- only the test around them moves.
+    assert pooled["part"].ms == pytest.approx(kept["part"].ms)

@@ -722,6 +722,75 @@ export interface MsaArtifact extends ArtifactBase {
   result?: MsaResult | null;
 }
 
+// ---- T-35 Gage R&R, full crossed study (stats/gage_rr.py + artifacts/gage_rr.py) ----
+
+export type GageRRVerdict = "acceptable" | "marginal" | "unacceptable";
+export type GageRRBasis = "study_variation" | "tolerance";
+
+/** Mirrored from stats/gage_rr.py. Frozen convention, not this app's
+ * invention -- quoted in the helper panel so the bands are visible. */
+export const GRR_ACCEPTABLE_MAX_PERCENT = 10;
+export const GRR_MARGINAL_MAX_PERCENT = 30;
+export const GRR_NDC_MINIMUM = 5;
+
+export interface GageRRAnovaRow {
+  source: string;
+  df: number;
+  ss: number;
+  ms: number;
+  f_statistic?: number | null;
+  p_value?: number | null;
+}
+
+export interface GageRRVarianceComponent {
+  name: string;
+  variance: number;
+  std_dev: number;
+  percent_study_variation: number;
+  percent_tolerance?: number | null;
+  /** The raw estimator came out negative and was floored at zero -- the
+   * component is smaller than this study can resolve, not absent. */
+  clamped_from_negative: boolean;
+}
+
+export interface GageRRResult {
+  parts: number;
+  operators: number;
+  replicates: number;
+  anova: GageRRAnovaRow[];
+  interaction_pooled: boolean;
+  interaction_p_value?: number | null;
+  components: GageRRVarianceComponent[];
+  grr_percent_study_variation: number;
+  grr_percent_tolerance?: number | null;
+  number_of_distinct_categories: number;
+  verdict: GageRRVerdict;
+  basis: GageRRBasis;
+  warnings: string[];
+}
+
+export interface GageRRReading {
+  part: string;
+  operator: string;
+  value: number;
+}
+
+export interface GageRRArtifact extends ArtifactBase {
+  tool_id: "T-35";
+  gauge_name?: string | null;
+  /** Tolerance WIDTH (USL - LSL), not a limit. Null judges the gauge
+   * against study variation alone. */
+  tolerance?: number | null;
+  readings: GageRRReading[];
+  /** null = let the engine decide by the significance test. */
+  pool_interaction?: boolean | null;
+  /** Server-computed, never hand-typed. */
+  result?: GageRRResult | null;
+  /** Why the study could not be computed. A half-entered study still
+   * saves -- the reason rides here instead of failing the save. */
+  design_error?: string | null;
+}
+
 // ---- Stats: sample-size guidance (stats/sample_size.py) — T-11 ------------
 
 export interface RuleOfThumbResult {

@@ -329,11 +329,33 @@ def compute_gage_rr(
     if n_r < 2:  # pragma: no cover -- _grid already rejects this
         warnings.append("Fewer than 2 repeats per cell.")
 
+    # The denominator the part and operator F tests are taken against, and
+    # its degrees of freedom. In the unpooled model that is the INTERACTION
+    # mean square, not the error mean square: parts and operators are random
+    # effects here, and the interaction is their correct error term. Pooling
+    # folds the interaction into error, and then the pooled term is the
+    # denominator for everything.
+    #
+    # The df is what was missing before. Both F statistics were computed and
+    # neither carried a p_value, so the printed table had an F column and an
+    # empty p column beside it -- a reader cannot tell a significant part
+    # effect from an insignificant one by staring at an F alone.
+    if should_pool:
+        f_denominator, df_denominator = ms_error_used, df_int + df_error
+    else:
+        f_denominator, df_denominator = ms_int, df_int
+
+    def _tested_row(source: str, df: int, ss: float, ms: float) -> AnovaRow:
+        f = ms / f_denominator if (f_denominator > 0 and df_denominator > 0) else None
+        return AnovaRow(
+            source=source, df=df, ss=ss, ms=ms,
+            f_statistic=f,
+            p_value=_f_p_value(f, df, df_denominator) if f is not None else None,
+        )
+
     anova = [
-        AnovaRow(source="part", df=df_part, ss=ss_part, ms=ms_part,
-                 f_statistic=(ms_part / ms_int) if (ms_int > 0 and not should_pool) else (ms_part / ms_error_used if ms_error_used > 0 else None)),
-        AnovaRow(source="operator", df=df_op, ss=ss_op, ms=ms_op,
-                 f_statistic=(ms_op / ms_int) if (ms_int > 0 and not should_pool) else (ms_op / ms_error_used if ms_error_used > 0 else None)),
+        _tested_row("part", df_part, ss_part, ms_part),
+        _tested_row("operator", df_op, ss_op, ms_op),
         AnovaRow(source="operator_x_part", df=df_int, ss=ss_int, ms=ms_int, f_statistic=f_int, p_value=p_int),
         AnovaRow(source="repeatability", df=df_error, ss=ss_error, ms=ms_error),
         AnovaRow(source="total", df=total_n - 1, ss=ss_total, ms=ss_total / (total_n - 1)),

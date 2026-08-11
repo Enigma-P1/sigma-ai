@@ -293,8 +293,35 @@ ARTIFACT_REPORTS: dict[str, tuple[Any, Any, bool]] = {
     "T-17": (HypothesisRunArtifact, hypothesis_report_mod, True),
     "T-20": (ProofArtifact, proof_report_mod, True),
     "T-21": (ControlChartArtifact, control_chart_report_mod, True),
-    "T-35": (GageRRArtifact, gage_rr_report_mod, False),
+    "T-35": (GageRRArtifact, gage_rr_report_mod, True),
 }
+
+# Bar order for T-35's components-of-variation chart. MUST match the
+# client's CHART_COMPONENT_ORDER (tools/gagerr/gageRrLogic.ts) exactly:
+# the same values in the same order are hashed on both sides, and a
+# mismatch means the engine drops the picture. test_report_pdf.py pins the
+# two orders against each other.
+GRR_CHART_COMPONENT_ORDER = ("gage_rr", "repeatability", "reproducibility", "part_to_part")
+
+
+def _grr_chart_series(artifact: Any) -> list[float] | None:
+    """T-35's chart is a bar per variance component, not a data series, so
+    the thing to fingerprint is the bars themselves: %study variation for
+    each component, then %tolerance when the study has one. Including the
+    tolerance half means a tolerance-only edit still moves the hash -- a
+    stale chart would otherwise print tolerance bars that disagree with the
+    verdict beside them."""
+    result = getattr(artifact, "result", None)
+    if result is None:
+        return None
+    by_name = {c.name: c for c in result.components}
+    study = [by_name[name].percent_study_variation for name in GRR_CHART_COMPONENT_ORDER if name in by_name]
+    if len(study) != len(GRR_CHART_COMPONENT_ORDER):
+        return None
+    tolerance = [by_name[name].percent_tolerance for name in GRR_CHART_COMPONENT_ORDER]
+    if all(v is not None for v in tolerance):
+        return study + [float(v) for v in tolerance]
+    return study
 
 
 def _chart_series(tool_id: str, artifact: Any) -> list[float] | None:
@@ -308,6 +335,8 @@ def _chart_series(tool_id: str, artifact: Any) -> list[float] | None:
         return artifact.frozen_window_values or artifact.imr_values
     if tool_id == "T-20":
         return list(artifact.after.values) if artifact.after else None
+    if tool_id == "T-35":
+        return _grr_chart_series(artifact)
     return None
 
 

@@ -1,0 +1,151 @@
+.sigma-grr-row {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.sigma-grr-row > * {
+  flex: 1;
+  min-width: 12rem;
+}
+
+.sigma-grr-row--sizes > * {
+  max-width: 10rem;
+}
+
+/* The grid can be 30 parts wide. Scrolling the table rather than the page
+   keeps the study designer and the Run button in view while typing. */
+.sigma-grr-grid-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.sigma-grr-grid,
+.sigma-grr-table {
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  width: max-content;
+  min-width: 100%;
+}
+
+.sigma-grr-grid th,
+.sigma-grr-grid td,
+.sigma-grr-table th,
+.sigma-grr-table td {
+  border: 1px solid var(--color-border);
+  padding: 0;
+  text-align: left;
+}
+
+.sigma-grr-table th,
+.sigma-grr-table td {
+  padding: var(--space-2) var(--space-3);
+  white-space: nowrap;
+}
+
+.sigma-grr-table thead th,
+.sigma-grr-grid thead th {
+  background: var(--color-surface-sunken);
+  font-weight: var(--weight-semibold);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.sigma-grr-grid__corner,
+.sigma-grr-grid__operator,
+.sigma-grr-grid__trial {
+  background: var(--color-surface-sunken);
+  padding: var(--space-2) var(--space-3);
+  white-space: nowrap;
+}
+
+.sigma-grr-grid__trial {
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
+  text-align: center;
+}
+
+.sigma-grr-grid__operator {
+  vertical-align: top;
+}
+
+.sigma-grr-grid__label {
+  width: 5rem;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  color: inherit;
+  padding: var(--space-1);
+}
+
+.sigma-grr-grid__label:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+}
+
+.sigma-grr-grid__cell {
+  width: 5.5rem;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  padding: var(--space-2);
+  text-align: right;
+}
+
+.sigma-grr-grid__cell:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -2px;
+  background: var(--color-accent-soft);
+}
+
+.sigma-grr-progress {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-3) 0;
+}
+
+.sigma-grr-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+}
+
+.sigma-grr-dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.sigma-grr-dl dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sigma-grr-dl dd {
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-semibold);
+}
+
+.sigma-grr-note {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: var(--space-2) 0 0;
+}
+
+.sigma-grr-warnings {
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
