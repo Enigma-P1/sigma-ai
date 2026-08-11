@@ -49,7 +49,7 @@ or via uvicorn in development (port 8000). The parts that matter:
   published tables (`stats/constants.py`); formula implementations cite
   their NIST/SEMATECH section at the definition site; NIST reference
   datasets ship in-repo (`nist_lew.py`, `nist_lottery.py`, `nist_mavro.py`)
-  and anchor the unit tests (`engine/tests/`, 1412 tests).
+  and anchor the unit tests (`engine/tests/`, 1552 tests).
 - **Gates** (`gates.py`) — a small state machine with two deliberately
   different kinds. Soft sequence gates (`define_to_measure`, …) warn, list
   what's missing, and clear via a *logged* override whose recorded
@@ -225,7 +225,7 @@ where each one actually lives:
 | 6 | Validator pass — a heuristic second reader, labeled as such | `advisor/validator.py` (`run_validator`), cheap-tier model, permanent disclaimer; its honest scope (catches some errors, guarantees live in layers 1–5) is stated in code and in every response |
 
 Two cross-cutting facts make the table more than a checklist. First, layers
-1–5 are deterministic and run with no API key — they are tested by the 1412
+1–5 are deterministic and run with no API key — they are tested by the 1552
 unit tests and the 267-step golden replay, so the honesty machinery is
 regression-locked in CI. Second, the advisor consumes the layers rather
 than bypassing them: the prescore runs before any model call, computed

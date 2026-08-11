@@ -171,7 +171,19 @@ toolchain): `scripts/build-sidecar.sh` from the repo root, then
 `.venv\Scripts\python`):
 
 ```bash
-cd engine && .venv/bin/python -m pytest          # 1412 tests, NIST-anchored
+scripts/local-gate.sh        # everything CI's Linux job checks, one command
+scripts/local-gate.sh --fast # same, minus the browser probes (~2 min faster)
+```
+
+That runs the 1552 NIST-anchored engine tests, the 267-step golden replay,
+the frontend typecheck and production bundle, and five browser probes
+against the packaged-app origin condition — starting and tearing down the
+engines it needs. The only things it cannot prove are the Windows and macOS
+installer builds, which need those platforms. Run the pieces directly if
+you prefer:
+
+```bash
+cd engine && .venv/bin/python -m pytest          # 1552 tests, NIST-anchored
 .venv/bin/python ../evals/harness/run_goldens.py # 267-step golden replay
                                                  # (needs the engine running on port 8000)
 ```
@@ -180,7 +192,7 @@ cd engine && .venv/bin/python -m pytest          # 1412 tests, NIST-anchored
 
 Deterministic gates first, judgment second, and every claim labeled:
 
-- **1412 engine tests** run in CI on every push: every computed statistic is
+- **1552 engine tests** run in CI on every push: every computed statistic is
   unit-tested against NIST/SEMATECH reference values or published worked
   examples (control-chart constants, capability indices, test statistics,
   kappa, sigma tables). These tests are the final authority on the math.

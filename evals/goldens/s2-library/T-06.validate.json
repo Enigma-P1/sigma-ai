@@ -168,7 +168,28 @@
       }
     ],
     "tool_id": "T-06",
-    "updated_at": "2026-08-15T09:00:00Z"
+    "updated_at": "2026-08-15T09:00:00Z",
+    "value_add_ratio": {
+      "provenance": {
+        "assumptions_checked": [
+          "every timed step carries exactly one step_type (schema-enforced)",
+          "untimed steps excluded from numerator and denominator alike, and reported as steps_untimed"
+        ],
+        "engine_version": "0.1.0",
+        "input_hash": "e418c387d956b9fcc2de9fd8ec6a4ee16547b1c465a74a709d847badf1b0e895",
+        "method": "value_add_ratio = sum(time_minutes where step_type=value_add) / sum(time_minutes over all timed steps). Enabling time counts toward the denominator only -- it is neither waste nor value-add. Untimed steps are excluded from both and reported as steps_untimed.",
+        "warnings": []
+      },
+      "value": {
+        "enabling_minutes": 5.5,
+        "non_value_add_minutes": 2.0,
+        "steps_timed": 4,
+        "steps_untimed": 0,
+        "total_lead_time_minutes": 10.5,
+        "value_add_minutes": 3.0,
+        "value_add_ratio": 0.2857142857142857
+      }
+    }
   },
   "valid": true
 }

@@ -101,8 +101,8 @@
         "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
       ],
       "engine_version": "0.1.0",
-      "input_hash": "d2ef3f208d71593de07c1aad350a668c0df208e4e93d42a686c125a26cad111a",
-      "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+      "input_hash": "e320150b58983813e2ed1fa94819fbd1b40348397c2ded02bfff0d8265e84c16",
+      "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rules 2/3 opt-in (NIST §6.3.2 WECO); supplementary run tests 5 (trend), 6 (hugging), 7 (alternating), 8 (mixture) opt-in, after Nelson 1984 -- renumbered to continue this module's WECO sequence, not Nelson's own",
       "warnings": []
     },
     "value": {
@@ -116,6 +116,10 @@
       "n": 127,
       "rule2_enabled": false,
       "rule3_enabled": false,
+      "rule5_enabled": false,
+      "rule6_enabled": false,
+      "rule7_enabled": false,
+      "rule8_enabled": false,
       "sigma_within": 6.498367668580436,
       "signals": [],
       "xbar": 26.714173228346464

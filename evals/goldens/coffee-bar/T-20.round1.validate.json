@@ -225,8 +225,8 @@
             "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
           ],
           "engine_version": "0.1.0",
-          "input_hash": "273ed032d4bb7a6b5314f6b1492d14e72a36b65a8a71eb1b0fbf6e8cfaf02c79",
-          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+          "input_hash": "ed71f62671d9519b6ed52098eda5b4f66d9aac9262382781aa5a29d77d0590c6",
+          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rules 2/3 opt-in (NIST §6.3.2 WECO); supplementary run tests 5 (trend), 6 (hugging), 7 (alternating), 8 (mixture) opt-in, after Nelson 1984 -- renumbered to continue this module's WECO sequence, not Nelson's own",
           "warnings": []
         },
         "value": {
@@ -240,6 +240,10 @@
           "n": 120,
           "rule2_enabled": false,
           "rule3_enabled": false,
+          "rule5_enabled": false,
+          "rule6_enabled": false,
+          "rule7_enabled": false,
+          "rule8_enabled": false,
           "sigma_within": 0.8798200131116275,
           "signals": [],
           "xbar": 6.1983333333333315
@@ -474,8 +478,8 @@
             "moving range of 2 consecutive individuals (d2=1.128, D4=3.267, table n=2)"
           ],
           "engine_version": "0.1.0",
-          "input_hash": "634a40aca7af2c8970782c28626c3a8f0d7d8323e2293ce7b08afcda34a714dd",
-          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rule2/3 opt-in (NIST §6.3.2 WECO)",
+          "input_hash": "63fa622569995df52bd31734c4f2291ec4b322ea784fe1483513e16a40ab7e12",
+          "method": "I-MR: individuals xbar +/- 3(MRbar/d2), MR D4*MRbar/D3*MRbar (NIST §6.3.2.1/.2, n=2 table); WECO rule1+rule4 default, rules 2/3 opt-in (NIST §6.3.2 WECO); supplementary run tests 5 (trend), 6 (hugging), 7 (alternating), 8 (mixture) opt-in, after Nelson 1984 -- renumbered to continue this module's WECO sequence, not Nelson's own",
           "warnings": []
         },
         "value": {
@@ -489,6 +493,10 @@
           "n": 120,
           "rule2_enabled": false,
           "rule3_enabled": false,
+          "rule5_enabled": false,
+          "rule6_enabled": false,
+          "rule7_enabled": false,
+          "rule8_enabled": false,
           "sigma_within": 0.9967816913999643,
           "signals": [],
           "xbar": 8.408333333333335
