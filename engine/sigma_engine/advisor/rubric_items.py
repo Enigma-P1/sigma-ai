@@ -62,6 +62,13 @@ TOOL_RUBRIC_ITEMS: dict[str, tuple[str, ...]] = {
     "T-10": ("R-MEA-09",),
     "T-11": ("R-MEA-05", "R-MEA-06"),
     "T-12": ("R-MEA-07",),
+    # T-35 is the full crossed study answering the same rubric question as
+    # T-12 -- "is the measurement system trustworthy" -- with a stronger
+    # method, so it maps to the same anchor item rather than a new one. The
+    # registry pin caught this: without an entry here the advisor's review
+    # mode would have had nothing to grade a Gage R&R against and would have
+    # said so only by producing an empty review.
+    "T-35": ("R-MEA-07",),
     # T-13/T-14 (baseline, chart set) are stats-computed views with no
     # ARTIFACT_REGISTRY entry (routes/stats.py) -- no artifact_id ever
     # exists for them, so "review" mode (which grades a specific saved

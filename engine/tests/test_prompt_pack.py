@@ -34,11 +34,16 @@ def _read(path: Path) -> str:
 # ---- Inventory: exactly 25 + 6 + README ----
 
 
-def test_pack_inventory_is_exactly_25_tools_6_tollgates_and_a_readme():
+def test_pack_inventory_is_exactly_26_tools_6_tollgates_and_a_readme():
+    """Frozen counts, deliberately. Their job is to make a prompt file
+    silently appearing or disappearing fail the build -- a self-derived
+    count could never do that. Moved from 25 to 26 when T-35 (full Gage R&R)
+    was added, which is the kind of change that should be typed on purpose.
+    """
     assert (PROMPTS_DIR / "README.md").is_file()
     tool_files = sorted(p.name for p in TOOLS_DIR.glob("*.md"))
     tollgate_files = sorted(p.name for p in TOLLGATES_DIR.glob("*.md"))
-    assert len(tool_files) == 25, tool_files
+    assert len(tool_files) == 26, tool_files
     assert len(tollgate_files) == 6, tollgate_files
     # No strays anywhere in the pack -- the three lists above are the pack.
     all_md = sorted(p.relative_to(PROMPTS_DIR).as_posix() for p in PROMPTS_DIR.rglob("*"))
@@ -68,7 +73,11 @@ def test_tollgate_filenames_are_the_six_phases_lowercased():
 def test_every_pack_file_ends_with_the_fixed_footer_byte_identical():
     footer_tail = prompt_pack.FIXED_FOOTER + "\n"
     files = [PROMPTS_DIR / "README.md", *TOOLS_DIR.glob("*.md"), *TOLLGATES_DIR.glob("*.md")]
-    assert len(files) == 32
+    # 26 tools + 6 tollgates + README. Moved from 32 when T-35 (full Gage
+    # R&R) was added. The count is deliberately frozen rather than derived:
+    # its job is to make a file silently appearing or disappearing fail,
+    # which a self-derived count could never do. Update it on purpose.
+    assert len(files) == 33
     for path in files:
         assert _read(path).endswith(footer_tail), f"{path.name} does not end with the fixed footer"
 

@@ -10,6 +10,7 @@ from .copq import run_copq_prescore
 from .data_collection_plan import run_data_collection_plan_prescore
 from .fishbone import run_fishbone_prescore
 from .five_s import run_five_s_prescore
+from .gage_rr import run_gage_rr_prescore
 from .fmea import run_fmea_prescore
 from .hypothesis import run_hypothesis_prescore
 from .msa import run_msa_prescore
@@ -37,6 +38,7 @@ __all__ = [
     "run_fishbone_prescore",
     "run_five_s_prescore",
     "run_fmea_prescore",
+    "run_gage_rr_prescore",
     "run_hypothesis_prescore",
     "run_msa_prescore",
     "run_picker_prescore",

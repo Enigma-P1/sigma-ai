@@ -28,6 +28,7 @@ from .. import __version__
 from ..artifacts.charter import CharterArtifact
 from ..artifacts.control_chart import ControlChartArtifact
 from ..artifacts.fmea import FmeaArtifact
+from ..artifacts.gage_rr import GageRRArtifact
 from ..artifacts.hypothesis import HypothesisRunArtifact
 from ..artifacts.msa import MsaArtifact
 from ..artifacts.proof import ProofArtifact
@@ -37,6 +38,7 @@ from ..export.project_pdf import render_project_pdf
 from ..export.reports import capability as capability_report_mod
 from ..export.reports import control_chart as control_chart_report_mod
 from ..export.reports import fmea as fmea_report_mod
+from ..export.reports import gage_rr as gage_rr_report_mod
 from ..export.reports import hypothesis as hypothesis_report_mod
 from ..export.reports import msa as msa_report_mod
 from ..export.reports import proof as proof_report_mod
@@ -291,6 +293,7 @@ ARTIFACT_REPORTS: dict[str, tuple[Any, Any, bool]] = {
     "T-17": (HypothesisRunArtifact, hypothesis_report_mod, True),
     "T-20": (ProofArtifact, proof_report_mod, True),
     "T-21": (ControlChartArtifact, control_chart_report_mod, True),
+    "T-35": (GageRRArtifact, gage_rr_report_mod, False),
 }
 
 

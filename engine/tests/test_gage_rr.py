@@ -233,3 +233,140 @@ def test_anova_table_carries_every_source_with_its_df():
     dfs = {row.source: row.df for row in result.anova}
     assert dfs["part"] == 1 and dfs["operator"] == 1 and dfs["operator_x_part"] == 1
     assert dfs["repeatability"] == 4 and dfs["total"] == 7
+
+
+# ------------------------------------------------- artifact, prescore, report
+
+from sigma_engine.artifacts.gage_rr import GageRRArtifact  # noqa: E402
+from sigma_engine.export.reports import gage_rr as grr_report  # noqa: E402
+from sigma_engine.prescore.gage_rr import run_gage_rr_prescore  # noqa: E402
+from sigma_engine.registry import ARTIFACT_REGISTRY, PRESCORE_REGISTRY  # noqa: E402
+
+
+def _artifact(rows, **kw) -> GageRRArtifact:
+    return GageRRArtifact.model_validate(
+        {
+            "artifact_id": "gage-rr",
+            "tool_id": "T-35",
+            "schema_version": 1,
+            "created_at": "2026-08-10T00:00:00",
+            "updated_at": "2026-08-10T00:00:00",
+            "readings": [{"part": p, "operator": o, "value": v} for p, o, v in rows],
+            **kw,
+        }
+    )
+
+
+HAND_ROWS = [
+    ("p1", "A", 1.0), ("p1", "A", 3.0), ("p1", "B", 2.0), ("p1", "B", 4.0),
+    ("p2", "A", 5.0), ("p2", "A", 7.0), ("p2", "B", 6.0), ("p2", "B", 8.0),
+]
+
+
+def test_t35_is_registered_everywhere_it_has_to_be():
+    """A tool missing from either registry fails at a different layer each
+    time -- artifacts save but never prescore, or prescore but never
+    export."""
+    assert "T-35" in ARTIFACT_REGISTRY
+    assert "T-35" in PRESCORE_REGISTRY
+
+
+def test_artifact_recomputes_and_matches_the_hand_derived_result():
+    artifact = _artifact(HAND_ROWS)
+    assert artifact.result is not None
+    assert artifact.result.grr_percent_study_variation == pytest.approx(100 * math.sqrt(1.7 / 9.3))
+
+
+def test_a_client_supplied_result_does_not_survive_validation():
+    """CopqArtifact.total's contract: server-computed, unconditionally
+    replaced, so nobody can post a flattering %GRR."""
+    artifact = _artifact(HAND_ROWS)
+    tampered = GageRRArtifact.model_validate(
+        {**artifact.model_dump(mode="json"), "result": {**artifact.result.model_dump(mode="json"), "grr_percent_study_variation": 1.0}}
+    )
+    assert tampered.result.grr_percent_study_variation != pytest.approx(1.0)
+
+
+def test_a_half_entered_study_still_saves_and_says_why_it_cannot_compute():
+    """A study is built up over a shift. Refusing to save a partial one
+    would make the tool unusable for the way the work actually happens."""
+    artifact = _artifact([("p1", "A", 1.0), ("p1", "A", 2.0)])
+    assert artifact.result is None
+    assert artifact.design_error
+    assert "2 parts" in artifact.design_error
+
+
+def test_prescore_hard_flags_an_unusable_gauge():
+    import random
+
+    random.seed(9)
+    rows = [
+        (f"p{p}", op, 10.0 + p * 0.01 + random.gauss(0, 2.0))
+        for p in range(10)
+        for op in ("A", "B", "C")
+        for _ in range(3)
+    ]
+    flags = run_gage_rr_prescore(_artifact(rows))
+    statuses = {f.check_id: f.status for f in flags}
+    assert statuses["grr_verdict"] == "hard_flag"
+    assert statuses["grr_ndc"] == "hard_flag"
+
+
+def test_prescore_catches_a_hand_edited_result(tmp_path):
+    """Mirrors prescore/copq.py's safety net: the stored result is recomputed
+    from the stored readings, because the load path returns the file as-is."""
+    artifact = _artifact(HAND_ROWS)
+    edited = artifact.model_copy(
+        update={"result": artifact.result.model_copy(update={"grr_percent_study_variation": 1.0})}
+    )
+    flags = {f.check_id: f for f in run_gage_rr_prescore(edited)}
+    assert flags["grr_result_matches_readings"].status == "hard_flag"
+    assert "edited outside the app" in flags["grr_result_matches_readings"].detail
+
+
+def test_report_names_the_basis_beside_the_number():
+    """%GRR of study variation and of tolerance answer different questions,
+    and a gauge can pass one and fail the other."""
+    without = grr_report.build_verdict(_artifact(HAND_ROWS))[0]
+    with_tol = grr_report.build_verdict(_artifact(HAND_ROWS, tolerance=100.0))[0]
+    assert "of study variation" in without
+    assert "of tolerance" in with_tol
+
+
+def test_report_card_warns_that_the_study_can_only_judge_the_parts_it_was_given():
+    """The commonest way a Gage R&R flatters a gauge, and invisible in the
+    arithmetic: narrow parts understate part-to-part and so overstate %GRR."""
+    card = " ".join(t for _, t in grr_report.build_report_card(_artifact(HAND_ROWS)))
+    assert "span the real range of production" in card
+
+
+def test_report_card_explains_why_the_percentages_do_not_sum_to_100():
+    card = " ".join(t for _, t in grr_report.build_report_card(_artifact(HAND_ROWS)))
+    assert "standard deviations, not variances" in card
+
+
+def test_report_renders_a_real_pdf_including_the_anova_table():
+    from sigma_engine.export import report_pdf as rp
+
+    artifact = _artifact(HAND_ROWS, tolerance=20.0)
+    pdf = rp.render(
+        story_builder=lambda w: grr_report.build_story(
+            artifact=artifact,
+            project_name="P",
+            version=1,
+            provenance_rows=[("Artifact", "gage-rr")],
+            exported_at="2026-08-10 00:00 UTC",
+            content_width=w,
+        ),
+        title="t",
+        project_id="p",
+        engine_version="0.1.0",
+    )
+    assert pdf.startswith(b"%PDF-")
+
+
+def test_report_on_an_uncomputable_study_states_the_reason_rather_than_crashing():
+    artifact = _artifact([("p1", "A", 1.0), ("p1", "A", 2.0)])
+    text, tone = grr_report.build_verdict(artifact)
+    assert tone == "neutral"
+    assert "cannot be computed" in text

@@ -105,6 +105,7 @@ from .fishbone import (
     VerifiedCausesSummary,
     compute_verified_causes,
 )
+from .gage_rr import GageRRArtifact
 from .fmea import (
     DETECTION_ANCHORS,
     HIGH_SEVERITY,
@@ -339,6 +340,7 @@ __all__ = [
     "BlockingFlag",
     "FmeaAnchors",
     "FmeaArtifact",
+    "GageRRArtifact",
     "FmeaRow",
     "compute_blocking_flags",
     "compute_sorted_view",

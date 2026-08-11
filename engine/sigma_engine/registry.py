@@ -27,6 +27,7 @@ from .artifacts import (
     FishboneArtifact,
     FiveSArtifact,
     FmeaArtifact,
+    GageRRArtifact,
     HypothesisRunArtifact,
     MsaArtifact,
     PickerArtifact,
@@ -53,6 +54,7 @@ from .prescore import (
     run_fishbone_prescore,
     run_five_s_prescore,
     run_fmea_prescore,
+    run_gage_rr_prescore,
     run_hypothesis_prescore,
     run_msa_prescore,
     run_picker_prescore,
@@ -92,6 +94,7 @@ ARTIFACT_REGISTRY: dict[str, type[ArtifactBase]] = {
     "T-23": FiveSArtifact,
     "T-24": StandardWorkArtifact,
     "T-25": A3Artifact,
+    "T-35": GageRRArtifact,
 }
 
 PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
@@ -118,6 +121,7 @@ PRESCORE_REGISTRY: dict[str, Callable[[ArtifactBase], list[PrescoreResult]]] = {
     "T-23": run_five_s_prescore,
     "T-24": run_standard_work_prescore,
     "T-25": run_a3_prescore,
+    "T-35": run_gage_rr_prescore,
 }
 
 
