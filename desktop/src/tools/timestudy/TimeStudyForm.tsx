@@ -10,6 +10,7 @@ import { timeStudyMissingFields } from "./timeStudyLogic";
 import { useTimeStudyForm } from "./useTimeStudyForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./TimeStudyForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface TimeStudyFormProps {
   projectId: string;
@@ -29,7 +30,18 @@ export function TimeStudyForm({ projectId, project, onSaved, onNavigateToDataset
   const f = useTimeStudyForm(projectId, project, onSaved);
 
   return (
-    <Panel title="Guided Time Study / Work Sampling" right={f.version != null && <span data-testid="timestudy-version-badge">v{f.version} saved</span>}>
+    <Panel title="Guided Time Study / Work Sampling" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="timestudy-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-09"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <ElementsSetup elements={f.elements} onAdd={f.addElement} onUpdate={f.updateElement} onRemove={f.removeElement} />
 
       <div className="sigma-timestudy-section-title">2. Time repeated cycles</div>

@@ -27,21 +27,35 @@ from pydantic import BaseModel
 from .. import __version__
 from ..artifacts.charter import CharterArtifact
 from ..artifacts.control_chart import ControlChartArtifact
+from ..artifacts.control_plan import ControlPlanArtifact
+from ..artifacts.check_sheet import CheckSheetArtifact
+from ..artifacts.copq import CopqArtifact
+from ..artifacts.five_s import FiveSArtifact
 from ..artifacts.fmea import FmeaArtifact
 from ..artifacts.gage_rr import GageRRArtifact
 from ..artifacts.hypothesis import HypothesisRunArtifact
 from ..artifacts.msa import MsaArtifact
 from ..artifacts.proof import ProofArtifact
+from ..artifacts.solution_matrix import SolutionMatrixArtifact
+from ..artifacts.time_study import TimeStudyArtifact
+from ..artifacts.yield_calc import YieldCalcArtifact
 from ..export import report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
 from ..export.reports import capability as capability_report_mod
 from ..export.reports import control_chart as control_chart_report_mod
+from ..export.reports import control_plan as control_plan_report_mod
+from ..export.reports import check_sheet as check_sheet_report_mod
+from ..export.reports import copq as copq_report_mod
+from ..export.reports import five_s as five_s_report_mod
 from ..export.reports import fmea as fmea_report_mod
 from ..export.reports import gage_rr as gage_rr_report_mod
 from ..export.reports import hypothesis as hypothesis_report_mod
 from ..export.reports import msa as msa_report_mod
 from ..export.reports import proof as proof_report_mod
+from ..export.reports import solution_matrix as solution_matrix_report_mod
+from ..export.reports import time_study as time_study_report_mod
+from ..export.reports import yield_calc as yield_calc_report_mod
 from ..project_store import ProjectMetadata, ProjectStore
 from ..stats.baseline import run_baseline
 from .deps import get_store
@@ -288,11 +302,18 @@ def _pdf_response(pdf_bytes: bytes, filename: str) -> Response:
 # above: it is computed from a dataset, not stored as an artifact, so it needs
 # inputs this generic path has nowhere to put.
 ARTIFACT_REPORTS: dict[str, tuple[Any, Any, bool]] = {
+    "T-02": (CopqArtifact, copq_report_mod, False),
+    "T-08": (CheckSheetArtifact, check_sheet_report_mod, False),
+    "T-09": (TimeStudyArtifact, time_study_report_mod, False),
+    "T-10": (YieldCalcArtifact, yield_calc_report_mod, False),
     "T-12": (MsaArtifact, msa_report_mod, False),
     "T-16": (FmeaArtifact, fmea_report_mod, False),
     "T-17": (HypothesisRunArtifact, hypothesis_report_mod, True),
+    "T-18": (SolutionMatrixArtifact, solution_matrix_report_mod, False),
     "T-20": (ProofArtifact, proof_report_mod, True),
     "T-21": (ControlChartArtifact, control_chart_report_mod, True),
+    "T-22": (ControlPlanArtifact, control_plan_report_mod, False),
+    "T-23": (FiveSArtifact, five_s_report_mod, False),
     "T-35": (GageRRArtifact, gage_rr_report_mod, True),
 }
 

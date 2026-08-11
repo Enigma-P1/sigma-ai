@@ -280,6 +280,37 @@ def keep(flowables: list[Any]) -> KeepTogether:
     return KeepTogether(flowables)
 
 
+# What a table cell can hold before it stops being a cell. Chosen by
+# rendering the real Control Plan: its "how often" field carried a
+# 400-character sampling rationale, which turned one row into a full page of
+# eight-character-wide columns and pushed the table off page one entirely.
+DEFAULT_CELL_CHARS = 90
+
+
+def clip(text: str, max_chars: int = DEFAULT_CELL_CHARS) -> str:
+    """Cut a cell to a length a table can lay out, on a word boundary.
+
+    WHY THIS IS NEEDED AT ALL. These artifacts hold free text with no length
+    limit, because the schema is right not to impose one -- the full
+    reasoning belongs in the record. But a report table is a fixed grid, and
+    ReportLab splits BETWEEN rows and never within one: a cell taller than
+    the frame does not wrap onto the next page, it forces a page break and
+    then overflows anyway. So the choice is not "clip or print it all", it
+    is "clip or wreck the page".
+
+    The pointer matters as much as the cut. A reader who sees "…" needs to
+    know the rest exists and where -- the whole-project export carries every
+    field at full length, which is what it is for.
+    """
+    cleaned = " ".join((text or "").split())
+    if len(cleaned) <= max_chars:
+        return cleaned
+    cut = cleaned[: max_chars - 1]
+    if " " in cut[max_chars // 2 :]:
+        cut = cut.rsplit(" ", 1)[0]
+    return cut.rstrip(" ,;:.") + "…"
+
+
 __all__ = [
     "LABELS",
     "chart",

@@ -7,6 +7,7 @@ import { TrainingRowsEditor } from "./TrainingRowsEditor";
 import { CONTROL_PLAN_CHECK_LABELS } from "./controlPlanChecks";
 import { useControlPlanForm } from "./useControlPlanForm";
 import type { ProjectMetadata } from "../../api/types";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface ControlPlanFormProps {
   projectId: string;
@@ -23,7 +24,18 @@ export function ControlPlanForm({ projectId, project, onSaved }: ControlPlanForm
   const health = f.serverArtifact?.plan_health?.value ?? null;
 
   return (
-    <Panel title="Control Plan" right={f.version != null && <span data-testid="controlplan-version-badge">v{f.version} saved</span>}>
+    <Panel title="Control Plan" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="controlplan-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-22"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>What&rsquo;s monitored, how often, and by WHOM -- a control plan with no owner is theater, not control.</p>
 
       {health && (

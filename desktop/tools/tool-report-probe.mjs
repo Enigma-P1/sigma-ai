@@ -93,7 +93,7 @@ async function grab(toolId, prepare) {
 }
 
 // Artifact-backed reports, no chart capture needed for most of them.
-for (const tool of ["T-12", "T-16", "T-17", "T-20", "T-21"]) {
+for (const tool of ["T-02", "T-08", "T-09", "T-12", "T-16", "T-17", "T-18", "T-20", "T-21", "T-22", "T-23"]) {
   await grab(tool);
 }
 

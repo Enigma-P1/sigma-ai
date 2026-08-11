@@ -44,8 +44,20 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# NOT called in a subshell, deliberately. `ENGINE_PIDS+=($!)` inside
+# `( ... )` records the pid in a child that then exits, so cleanup has
+# nothing to kill and the engine outlives the run. The next run's engine
+# then cannot bind, the probes talk to the STALE one, and its projects root
+# was deleted by the previous run's trap -- so every probe 404s and the
+# failure looks like a broken app rather than a leaked process. Cost me a
+# full gate run to work out.
 start_engine() { # port, projects_root, logfile
-  SIGMA_PROJECTS_ROOT="$2" "$PY" -m sigma_engine.main --port "$1" > "$3" 2>&1 &
+  if curl -sf "http://127.0.0.1:$1/health" >/dev/null 2>&1; then
+    echo "port $1 already has an engine on it -- refusing to run against something this script"
+    echo "did not start (its projects root is unknown). Stop it first: pkill -f sigma_engine.main"
+    return 1
+  fi
+  (cd "$REPO/engine" && SIGMA_PROJECTS_ROOT="$2" exec "$PY" -m sigma_engine.main --port "$1") > "$3" 2>&1 &
   ENGINE_PIDS+=($!)
   for _ in $(seq 1 40); do
     curl -sf "http://127.0.0.1:$1/health" >/dev/null 2>&1 && return 0
@@ -59,8 +71,7 @@ step "Engine tests"
 check ${PIPESTATUS[0]} "pytest"
 
 step "Golden-scenario replay (267 steps, 3 scenarios)"
-(cd "$REPO/engine" && start_engine 8000 "$EVAL_ROOT" /tmp/local-gate-eval-engine.log)
-if [[ $? -eq 0 ]]; then
+if start_engine 8000 "$EVAL_ROOT" /tmp/local-gate-eval-engine.log; then
   "$PY" "$REPO/evals/harness/run_goldens.py" 2>&1 | tail -6
   check ${PIPESTATUS[0]} "golden replay"
 else
@@ -78,8 +89,12 @@ if [[ $FAST -eq 1 ]]; then
 else
   step "Browser probes (packaged-origin condition)"
   unzip -qo "$REPO/examples/coffee-bar-example-project.zip" -d "$PROBE_ROOT"
-  (cd "$REPO/engine" && start_engine 8756 "$PROBE_ROOT" /tmp/local-gate-probe-engine.log)
-  if [[ $? -eq 0 ]]; then
+  # Assert the staging worked before blaming the app: every probe opens this
+  # project, so a missing unzip makes all four fail with a 404 that looks
+  # like a product bug.
+  if [[ ! -f "$PROBE_ROOT/coffee-bar-example/project.json" ]]; then
+    check 1 "staging the worked example into $PROBE_ROOT"
+  elif start_engine 8756 "$PROBE_ROOT" /tmp/local-gate-probe-engine.log; then
     for probe in xorigin example-project export-project tool-report ondisk-projects; do
       (cd "$REPO/desktop" && node "tools/$probe-probe.mjs" > "/tmp/local-gate-$probe.log" 2>&1)
       check $? "$probe-probe  (log: /tmp/local-gate-$probe.log)"

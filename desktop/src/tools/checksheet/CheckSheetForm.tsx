@@ -10,6 +10,7 @@ import { checkSheetMissingFields, tallyCounts } from "./checkSheetLogic";
 import { useCheckSheetForm } from "./useCheckSheetForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./CheckSheetForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 type EntryModeTab = "live" | "transcribe";
 
@@ -32,7 +33,18 @@ export function CheckSheetForm({ projectId, project, onSaved, onNavigateToDatase
   const [mode, setMode] = useState<EntryModeTab>("live");
 
   return (
-    <Panel title="Check Sheet / Tally" right={f.version != null && <span data-testid="checksheet-version-badge">v{f.version} saved</span>}>
+    <Panel title="Check Sheet / Tally" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="checksheet-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-08"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <CategorySetup
         categories={f.categories} onAddCategory={f.addCategory} onUpdateCategory={f.updateCategory} onRemoveCategory={f.removeCategory}
         strataFields={f.strataFields} onAddStrataField={f.addStrataField} onUpdateStrataField={f.updateStrataField} onRemoveStrataField={f.removeStrataField}

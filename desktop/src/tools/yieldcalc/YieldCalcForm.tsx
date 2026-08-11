@@ -8,6 +8,7 @@ import { emptyYieldStep, fmt, percent, sectionFlag, sigmaLevelText, yieldCalcMis
 import { useYieldCalcForm } from "./useYieldCalcForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./YieldCalcForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface YieldCalcFormProps {
   projectId: string;
@@ -39,7 +40,18 @@ export function YieldCalcForm({ projectId, project, onSaved }: YieldCalcFormProp
   const dpmo = f.serverArtifact?.dpmo_result;
 
   return (
-    <Panel title="Yield Calculator (FPY/RTY + DPMO)" right={f.version != null && <span data-testid="yieldcalc-version-badge">v{f.version} saved</span>}>
+    <Panel title="Yield Calculator (FPY/RTY + DPMO)" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="yieldcalc-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-10"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <Field label="Process steps" flag={sectionFlag(f.prescore, STEPS_CHECK_IDS)}>
         <DynamicList
           items={f.steps}

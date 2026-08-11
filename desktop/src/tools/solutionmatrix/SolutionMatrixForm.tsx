@@ -8,6 +8,7 @@ import { emptySolution, solutionMatrixMissingFields } from "./solutionMatrixLogi
 import { useSolutionMatrixForm } from "./useSolutionMatrixForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./SolutionMatrixForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface SolutionMatrixFormProps {
   projectId: string;
@@ -27,7 +28,18 @@ export function SolutionMatrixForm({ projectId, project, onSaved }: SolutionMatr
   const scoresById = new Map((f.serverArtifact?.scores?.value ?? []).map((s) => [s.solution_id, s]));
 
   return (
-    <Panel title="Solution Selection Matrix" right={f.version != null && <span data-testid="solmatrix-version-badge">v{f.version} saved</span>}>
+    <Panel title="Solution Selection Matrix" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="solmatrix-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-18"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>
         List candidate solutions for your top-ranked verified cause -- at least two, so this is a real comparison, not a
         rubber stamp. Every solution links to the cause(s) it addresses; an unlinked solution is flagged and never enters

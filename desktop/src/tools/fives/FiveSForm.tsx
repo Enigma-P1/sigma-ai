@@ -6,6 +6,7 @@ import { FIVE_S_CHECK_LABELS } from "./fiveSChecks";
 import { useFiveSForm } from "./useFiveSForm";
 import type { ProjectMetadata } from "../../api/types";
 import "./FiveSForm.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface FiveSFormProps {
   projectId: string;
@@ -19,7 +20,18 @@ export function FiveSForm({ projectId, project, onSaved }: FiveSFormProps) {
   const f = useFiveSForm(projectId, project, onSaved);
 
   return (
-    <Panel title="5S Audit" right={f.version != null && <span data-testid="fives-version-badge">v{f.version} saved</span>}>
+    <Panel title="5S Audit" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="fives-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-23"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <p>Score each S category 0-5, photograph the physical state, and give the lowest category an action.</p>
 
       {f.rounds.map((r) => (

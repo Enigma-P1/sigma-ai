@@ -6,6 +6,7 @@ import { COPQ_CHECK_LABELS } from "./copqChecks";
 import { copqMissingFields, copqRowsFlag, copqTotalDisplay, emptyCopqRow } from "./copqLogic";
 import { useCopqForm } from "./useCopqForm";
 import type { ProjectMetadata } from "../../api/types";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface CopqFormProps {
   projectId: string;
@@ -27,7 +28,18 @@ export function CopqForm({ projectId, project, onSaved }: CopqFormProps) {
   }
 
   return (
-    <Panel title="COPQ / Benefit Calculator" right={f.version != null && <span data-testid="copq-version-badge">v{f.version} saved</span>}>
+    <Panel title="COPQ / Benefit Calculator" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="copq-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-02"
+            disabled={f.version == null}
+            disabledReason="Save this tool before downloading its report."
+          />
+        </span>
+      }>
       <Field label="Cost rows" flag={copqRowsFlag(f.prescore)}>
         <DynamicList
           items={f.rows}
