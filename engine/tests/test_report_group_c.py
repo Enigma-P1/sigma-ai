@@ -624,3 +624,104 @@ def _fishbone(*, verified_with_evidence: bool):
             "causes": [cause, {"cause_id": "c2", "branch": "method", "text": "no dial-in routine", "status": "candidate"}],
         }
     )
+
+
+# ------------------------------------------------------- the A3 capstone
+
+
+def test_the_a3_sheet_is_one_page():
+    """The whole discipline. An A3 that runs to two sheets is a document,
+    and the first attempt at this layout put row four on page two -- which
+    is why the verdict banner was moved behind a page break and the budgets
+    were cut."""
+    from sigma_engine.export.reports import a3 as a3_report
+
+    artifact = _a3(narrative_length=900)
+    pdf = report_pdf.render(
+        story_builder=lambda w: a3_report.build_story(
+            artifact=artifact, project_name="P", version=1,
+            provenance_rows=[("Artifact", "a3")], exported_at="x", content_width=w,
+        ),
+        title="t", project_id="p", engine_version="0.1.0", page_size=a3_report.PAGE_SIZE,
+    )
+    assert pdf.startswith(b"%PDF-")
+    # Page one is the sheet; the analysis that follows may run on.
+    text = _flatten(
+        a3_report.build_story(
+            artifact=artifact, project_name="P", version=1,
+            provenance_rows=[("Artifact", "a3")], exported_at="x", content_width=760.0,
+        )
+    )
+    for label in a3_report.PANEL_LABELS.values():
+        assert label in text, f"{label} must appear on the sheet"
+
+
+def test_an_over_budget_panel_is_cut_on_the_sheet_and_named_in_the_card():
+    """The budgets are the point. A tool that lets panels grow until they
+    fit whatever was typed has removed the only thing an A3 does that a
+    document does not."""
+    from sigma_engine.export.reports import a3 as a3_report
+
+    artifact = _a3(narrative_length=2000)
+    overs = a3_report.over_budget(artifact)
+    assert len(overs) == len(a3_report.PANEL_ORDER)
+
+    grid_text = _table_text(a3_report.build_panel_grid(artifact, _a3_styles(), 760.0))
+    assert "more characters in the project record" in grid_text
+
+    card = a3_report.build_report_card(artifact)
+    named = [text for tone, text in card if "against a budget of" in text]
+    assert len(named) == len(a3_report.PANEL_ORDER)
+    assert any("2000 characters" in text for text in named)
+
+
+def test_a_panel_within_budget_is_printed_whole():
+    from sigma_engine.export.reports import a3 as a3_report
+
+    artifact = _a3(narrative_length=200)
+    assert a3_report.over_budget(artifact) == []
+    grid_text = _table_text(a3_report.build_panel_grid(artifact, _a3_styles(), 760.0))
+    assert "more characters in the project record" not in grid_text
+    text, tone = a3_report.build_verdict(artifact)
+    assert tone == "pass"
+    assert "fits its space" in text
+
+
+def test_an_empty_panel_prints_as_empty_rather_than_collapsing():
+    """An empty panel is the most informative thing on the sheet -- usually
+    "results" on a project that declared success."""
+    from sigma_engine.export.reports import a3 as a3_report
+
+    artifact = _a3(narrative_length=200, blank=("results",))
+    text, tone = a3_report.build_verdict(artifact)
+    assert tone in ("flag", "fail")
+    assert "results" in text.lower()
+    grid_text = _table_text(a3_report.build_panel_grid(artifact, _a3_styles(), 760.0))
+    assert "6. Results" in grid_text
+    assert "empty" in grid_text
+
+
+def _a3_styles():
+    from sigma_engine.export import pdf_theme as theme
+    from sigma_engine.export.reports import a3 as a3_report  # noqa: F401
+
+    styles = rt.report_styles()
+    styles["a3_panel"] = theme.ParagraphStyle(
+        "a3_panel", parent=styles["table_cell"], fontSize=theme.TEXT_XS, leading=theme.TEXT_XS * 1.35
+    )
+    return styles
+
+
+def _a3(*, narrative_length: int, blank: tuple[str, ...] = ()):
+    from sigma_engine.artifacts.a3 import PANEL_ORDER, A3Artifact
+
+    filler = ("the story of this panel runs on " * 200)[:narrative_length]
+    return A3Artifact.model_validate(
+        {
+            "schema_version": 1, "artifact_id": "a3", "tool_id": "T-25",
+            "created_at": "2026-08-10T00:00:00Z", "updated_at": "2026-08-10T00:00:00Z",
+            "panels": [
+                {"panel": kind, "narrative": "" if kind in blank else filler} for kind in PANEL_ORDER
+            ],
+        }
+    )

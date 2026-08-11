@@ -10,6 +10,7 @@ import { useA3Form } from "./useA3Form";
 import type { A3PanelKind, ProjectMetadata } from "../../api/types";
 import { A3_PANEL_ORDER, TOLLGATE_PHASES } from "../../api/types";
 import "./A3Form.css";
+import { ReportButton } from "../../app/ReportButton";
 
 export interface A3FormProps {
   projectId: string;
@@ -27,7 +28,19 @@ export function A3Form({ projectId, project, onSaved }: A3FormProps) {
   const serverPanel = f.serverArtifact?.panels.find((p) => p.panel === activePanel);
 
   return (
-    <Panel title="A3 Final Report" right={f.version != null && <span data-testid="a3-version-badge">v{f.version} saved</span>}>
+    <Panel title="A3 Final Report" right={
+        <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
+          {f.version != null && <span data-testid="a3-version-badge">v{f.version} saved</span>}
+          <ReportButton
+            projectId={projectId}
+            projectName={project.name}
+            toolId="T-25"
+            label="Download the A3"
+            disabled={f.version == null}
+            disabledReason="Save the A3 before downloading it."
+          />
+        </span>
+      }>
       <p>One argument, panel by panel -- problem, baseline, causes, countermeasures, proof, control. Not a field dump.</p>
 
       <div className="sigma-a3-layout">

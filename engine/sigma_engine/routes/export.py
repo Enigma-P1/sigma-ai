@@ -25,6 +25,7 @@ from fastapi.responses import Response
 from pydantic import BaseModel
 
 from .. import __version__
+from ..artifacts.a3 import A3Artifact
 from ..artifacts.charter import CharterArtifact
 from ..artifacts.control_chart import ControlChartArtifact
 from ..artifacts.control_plan import ControlPlanArtifact
@@ -51,6 +52,7 @@ from ..artifacts.yield_calc import YieldCalcArtifact
 from ..export import report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
+from ..export.reports import a3 as a3_report_mod
 from ..export.reports import capability as capability_report_mod
 from ..export.reports import control_chart as control_chart_report_mod
 from ..export.reports import control_plan as control_plan_report_mod
@@ -341,6 +343,7 @@ ARTIFACT_REPORTS: dict[str, tuple[Any, Any, bool]] = {
     "T-22": (ControlPlanArtifact, control_plan_report_mod, False),
     "T-23": (FiveSArtifact, five_s_report_mod, False),
     "T-24": (StandardWorkArtifact, standard_work_report_mod, False),
+    "T-25": (A3Artifact, a3_report_mod, False),
     "T-35": (GageRRArtifact, gage_rr_report_mod, True),
 }
 
