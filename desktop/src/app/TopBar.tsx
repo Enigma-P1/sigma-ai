@@ -16,7 +16,11 @@ export interface TopBarProps {
 }
 
 const SAVE_LABEL: Record<string, string> = {
-  idle: "No changes yet",
+  // "No changes yet" was a claim this state cannot make: `idle` only means
+  // no save has been attempted, and nothing reports edits up to here -- so
+  // the bar sat on "No changes yet" while a user typed a charter, and then
+  // the text was gone. Say what idle actually knows.
+  idle: "Nothing saved yet",
   saving: "Saving…",
   saved: "Saved",
   error: "Save failed",

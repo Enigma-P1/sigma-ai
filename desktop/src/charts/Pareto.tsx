@@ -13,6 +13,10 @@ export interface ParetoChartProps {
   testId?: string;
 }
 
+/** How many category names the headline spells out before it starts
+ * counting instead. Five fits a line; twenty-one does not. */
+const HEADLINE_NAME_LIMIT = 5;
+
 function headlineFor(result: ParetoResult | undefined): { headline: string; tone: VerdictTone } {
   if (!result) return { headline: "Waiting on the engine's Pareto tally…", tone: "neutral" };
   if (result.flat) {
@@ -23,8 +27,16 @@ function headlineFor(result: ParetoResult | undefined): { headline: string; tone
   }
   const vital = result.categories.filter((c) => c.vital_few);
   const share = vital[vital.length - 1]?.cumulative_share ?? 0;
+  // A "vital few" of twenty-one names is a sentence nobody reads, and the
+  // reader cannot tell from it that the few is not few. Naming the first
+  // handful and counting the rest says both. The engine still owns the
+  // vital-few/flat call -- this only decides how to print it.
+  const names = vital.length > HEADLINE_NAME_LIMIT
+    ? `${vital.slice(0, HEADLINE_NAME_LIMIT).map((c) => c.category).join(", ")} and ${vital.length - HEADLINE_NAME_LIMIT} more`
+    : vital.map((c) => c.category).join(", ");
+  const scale = vital.length > HEADLINE_NAME_LIMIT ? `${vital.length} of ${result.categories.length} categories — ` : "";
   return {
-    headline: `Vital few: ${vital.map((c) => c.category).join(", ")} account for ${(share * 100).toFixed(1)}% of ${result.total}`,
+    headline: `Vital few: ${scale}${names} account for ${(share * 100).toFixed(1)}% of ${result.total}`,
     tone: "pass",
   };
 }
@@ -54,6 +66,14 @@ export function ParetoChart({ title = "Pareto", result, testId }: ParetoChartPro
         },
       ]}
       layout={{
+        // WITHOUT THIS the axis is silently numeric whenever the categories
+        // happen to look like numbers -- aisle "12", part number "22187" --
+        // because Plotly type-infers from the x values. The bars then sit at
+        // their numeric positions instead of in count order, no bar carries
+        // a label (the axis prints 20k, 30k, 40k …), and the cumulative line
+        // zigzags. Two testers hit this on their own data before it was
+        // found: a Pareto of part numbers is exactly the case that breaks.
+        xaxis: { type: "category" },
         yaxis: { title: { text: "Count" } },
         yaxis2: { title: { text: "Cumulative %" }, overlaying: "y", side: "right", range: [0, 100], gridcolor: "transparent" },
         shapes: [{ type: "line", x0: 0, x1: 1, xref: "paper", y0: 80, y1: 80, yref: "y2", line: { color: CHART_COLORS.textFaint, dash: "dot", width: 1 } }],

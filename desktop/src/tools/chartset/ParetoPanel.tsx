@@ -10,6 +10,12 @@ export function ParetoPanel({ detail }: { detail: DatasetDetail }) {
   const [column, setColumn] = useState(columns[0]?.name ?? "");
   const [result, setResult] = useState<Computed<ParetoResult> | null>(null);
 
+  // Rows whose category cell is blank cannot be tallied, so they are not in
+  // the chart -- and a chart headed "9 total" over a 10-row dataset reads as
+  // an arithmetic error unless the missing one is named. Saying it here is
+  // the whole fix: the count was always right, it was just unexplained.
+  const excluded = column ? detail.rows.length - textColumnValues(detail.rows, column).length : 0;
+
   useEffect(() => {
     const categories = column ? textColumnValues(detail.rows, column) : [];
     if (categories.length === 0) {
@@ -36,6 +42,11 @@ export function ParetoPanel({ detail }: { detail: DatasetDetail }) {
           </SelectInput>
         </Field>
       </div>
+      {excluded > 0 && (
+        <p className="sigma-chartset__excluded" data-testid="chartset-pareto-excluded">
+          {excluded} of {detail.rows.length} rows have no {column} and are not counted in this chart.
+        </p>
+      )}
       <ParetoChart result={result} testId="chartset-pareto" />
     </div>
   );

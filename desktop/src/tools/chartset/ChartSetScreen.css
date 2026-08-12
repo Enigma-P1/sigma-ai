@@ -16,3 +16,11 @@
   flex: 1;
   min-width: 10rem;
 }
+
+/* Rows a chart could not include -- said out loud, because a Pareto headed
+   "9 total" over a 10-row dataset otherwise reads as an arithmetic error. */
+.sigma-chartset__excluded {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}

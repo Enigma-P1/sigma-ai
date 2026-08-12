@@ -28,6 +28,15 @@ export function HistogramPanel({ detail }: { detail: DatasetDetail }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [column, detail]);
 
+  // With no numeric column there is nothing to select, nothing to send to
+  // /stats/descriptive, and so the headline sits on "Waiting on the engine's
+  // descriptive statistics…" for good -- which reads as a hung request
+  // rather than as "this dataset has no numbers in it". Scatter and Box
+  // already say so plainly; this says it the same way.
+  if (columns.length === 0) {
+    return <p data-testid="chartset-histogram-panel">A histogram needs a numeric column; this dataset has none. Set a column's type to numeric on the import screen if it should be one.</p>;
+  }
+
   return (
     <div data-testid="chartset-histogram-panel">
       <div className="sigma-chartset__controls">

@@ -24,6 +24,12 @@ export function RunChartPanel({ detail }: { detail: DatasetDetail }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [column, detail]);
 
+  // Same reason as HistogramPanel: no numeric column means the headline
+  // would wait on statistics that are never requested.
+  if (columns.length === 0) {
+    return <p data-testid="chartset-runchart-panel">A run chart needs a numeric column; this dataset has none. Set a column's type to numeric on the import screen if it should be one.</p>;
+  }
+
   return (
     <div data-testid="chartset-runchart-panel">
       <div className="sigma-chartset__controls">
