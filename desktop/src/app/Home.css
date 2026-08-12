@@ -20,6 +20,15 @@
   font-size: var(--text-base);
 }
 
+/* The method line sits under the plain-English one and is deliberately
+   quieter: it is there for the reader who wants to know what this is built
+   on, not for the supervisor who just wants to know what it does. */
+.sigma-home__intro .sigma-home__method {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint, var(--color-text-muted));
+  max-width: 44rem;
+}
+
 .sigma-home__grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));

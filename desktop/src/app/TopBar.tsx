@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSaveState } from "./SaveStateContext";
 import type { SaveState } from "./SaveStateContext";
 import { formatDraftTime } from "./useToolDraft";
+import { GlossaryButton } from "./GlossaryButton";
 import { downloadProjectPdf } from "../api/client";
 import { ApiError } from "../api/errors";
 import { safeFilename, saveBlob } from "../api/saveBlob";
@@ -95,6 +96,7 @@ export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnost
             {exportError}
           </span>
         )}
+        <GlossaryButton />
         <button
           type="button"
           className="sigma-topbar__link"

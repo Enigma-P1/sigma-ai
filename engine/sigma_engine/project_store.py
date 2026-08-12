@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -157,6 +158,29 @@ class ProjectStore:
         if not path.exists():
             raise FileNotFoundError(f"project {project_id!r} not found")
         return ProjectMetadata.model_validate(json.loads(path.read_text(encoding="utf-8")))
+
+    def delete_project(self, project_id: str) -> None:
+        """Remove a project and everything in it, irreversibly.
+
+        WHY THIS EXISTS: one tester swept the whole app looking for a way to
+        get rid of a project -- the list, diagnostics, advisor settings, hover
+        and right-click on the card -- and found nothing anywhere. He was not
+        angry about it, but he was clear where it ends up: "if I keep using it
+        I will eventually create junk". Software you cannot tidy is software
+        that slowly becomes unusable.
+
+        There is no undo and this does not pretend otherwise: the confirmation
+        lives in the UI, where the user can actually read what they are about
+        to lose. What this method owes them is that it deletes the right
+        directory and nothing else -- _safe_segment plus the containment check
+        in resolved_project_path are what make that true, and this method
+        resolves the path through them deliberately rather than joining its
+        own.
+        """
+        target = self.resolved_project_path(project_id)  # validates + contains
+        if not (target / "project.json").exists():
+            raise FileNotFoundError(f"project {project_id!r} not found")
+        shutil.rmtree(target)
 
     def save_artifact(
         self, project_id: str, artifact_id: str, tool_id: str, data: dict[str, Any], updated_at: str

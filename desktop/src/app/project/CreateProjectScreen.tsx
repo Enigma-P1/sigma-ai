@@ -49,10 +49,16 @@ export function CreateProjectScreen({ onCreated }: CreateProjectScreenProps) {
           placeholder="e.g. Coffee Bar order-to-handoff time"
         />
       </Field>
+      {/* "Project folder (ID)" read as a technical field a supervisor was
+        * expected to understand: one tester said it "sounds like a
+        * technical field, not something I would expect to fill in as an
+        * operations supervisor", and asked for the folder name to be named
+        * as a folder name and marked leave-alone. It fills itself in from
+        * the project name, so most people should never touch it. */}
       <Field
-        label="Project folder (ID)"
+        label="Folder name on this computer"
         htmlFor="create-project-id"
-        helper={`Default location: ${defaultProjectFolderPath(effectiveId || "…")}`}
+        helper={`Filled in from the project name — leave it alone unless you need a different folder. Saved in ${defaultProjectFolderPath(effectiveId || "…")}`}
       >
         <TextInput
           id="create-project-id"

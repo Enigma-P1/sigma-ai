@@ -86,6 +86,29 @@ def open_project(project_id: str, store: ProjectStore = Depends(get_store)) -> P
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
+class ProjectDeleteResponse(BaseModel):
+    deleted: bool
+
+
+@router.delete("/{project_id}", response_model=ProjectDeleteResponse)
+def delete_project(project_id: str, store: ProjectStore = Depends(get_store)) -> ProjectDeleteResponse:
+    """Irreversible, and NOT idempotent on purpose.
+
+    Deleting a draft that was already gone is a no-op because the caller
+    genuinely does not care. Deleting a project that is already gone is
+    different: if a user asks to delete `june-2026-picking` and the engine
+    cheerfully says "done" for a project that never existed, the most likely
+    explanation is that they are looking at the wrong name -- and the second
+    most likely is that something else deleted their work. Both deserve a
+    404 rather than a reassuring lie.
+    """
+    try:
+        store.delete_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return ProjectDeleteResponse(deleted=True)
+
+
 class ProjectInfoResponse(BaseModel):
     project_id: str
     name: str
