@@ -57,6 +57,8 @@
   ],
   "created_at": "2026-09-24T17:05:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-s2-library",
   "quality": {
     "duplicate_row_count": 20,
@@ -81,5 +83,6 @@
   "sha256": "f811613acc8ef33490fe422aeb66ba0851996192a4e313b8bb0aca6e962cbac5",
   "source_artifact_id": "s2-check-sheet",
   "source_filename": "s2-check-sheet-check-sheet.csv",
-  "source_tool_id": "T-08"
+  "source_tool_id": "T-08",
+  "superseded_by_dataset_id": null
 }

@@ -75,6 +75,8 @@
   ],
   "created_at": "2026-07-31T17:00:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-coffee-bar",
   "quality": {
     "duplicate_row_count": 0,
@@ -101,5 +103,6 @@
   "sha256": "6d31a43fbf305e84fad004cb20d0d06b02a395c3a59f9e6ba89aaf2ba1c72dc0",
   "source_artifact_id": null,
   "source_filename": "wait-times.csv",
-  "source_tool_id": null
+  "source_tool_id": null,
+  "superseded_by_dataset_id": null
 }

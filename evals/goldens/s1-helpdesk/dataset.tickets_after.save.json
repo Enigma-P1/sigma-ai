@@ -75,6 +75,8 @@
   ],
   "created_at": "2026-10-09T17:00:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-s1-helpdesk",
   "quality": {
     "duplicate_row_count": 0,
@@ -101,5 +103,6 @@
   "sha256": "c910a167dc67491bd40adf8ec6f80e472c58b67ccd431f9d6a7f613b1163edcb",
   "source_artifact_id": null,
   "source_filename": "tickets-after.csv",
-  "source_tool_id": null
+  "source_tool_id": null,
+  "superseded_by_dataset_id": null
 }

@@ -63,6 +63,8 @@
   ],
   "created_at": "2026-07-31T17:10:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-coffee-bar",
   "quality": {
     "duplicate_row_count": 0,
@@ -87,5 +89,6 @@
   "sha256": "627b68fab09aef55756fbbb3a5bd34f27db074e9a3aaaa87e089c41bc22e4995",
   "source_artifact_id": "coffee-check-sheet",
   "source_filename": "coffee-check-sheet-check-sheet.csv",
-  "source_tool_id": "T-08"
+  "source_tool_id": "T-08",
+  "superseded_by_dataset_id": null
 }

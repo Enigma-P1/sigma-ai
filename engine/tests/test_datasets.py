@@ -10,7 +10,14 @@ import openpyxl
 import pytest
 
 from sigma_engine.datasets import (
+    AddRowDerivation,
+    CellEdit,
     DatasetStore,
+    DeleteRowsDerivation,
+    DeriveColumnDerivation,
+    EditCellsDerivation,
+    RecodeDerivation,
+    apply_derivation,
     build_columns,
     build_preview,
     infer_column_type,
@@ -30,6 +37,17 @@ DIRTY_CSV = (
     b"grinder,\n"
     b"restock,n/a\n"
     b"register,92\n"
+)
+
+# The docs/uat vital-few bug this whole feature exists to fix: "JM" and
+# "J Morales" are the same picker under two spellings. A separate fixture
+# from CLEAN_CSV/DIRTY_CSV so a derivation test's row/column names are
+# unambiguous in failure output.
+PICKER_CSV = (
+    b"picker,item_ordered,item_shipped\n"
+    b"JM,Ketchup 4 oz,Ketchup 4 oz\n"
+    b"J Morales,Ketchup 4 oz,Ketchup 6 oz\n"
+    b"AB,Mozzarella sticks,Onion rings\n"
 )
 
 
@@ -206,3 +224,261 @@ def test_load_numeric_column_refuses_to_silently_drop_bad_values(tmp_path):
     )
     with pytest.raises(ValueError, match="missing/non-numeric"):
         DatasetStore(store).load_numeric_column("proj-1", meta.dataset_id, "wait_seconds")
+
+
+# --- Derivations: apply_derivation (the pure per-kind transform) ---
+
+
+def test_apply_derivation_edit_cells_sets_specific_positions_and_leaves_the_input_alone():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    derivation = EditCellsDerivation(edits=[CellEdit(row_index=0, column="picker", value="J. Morales")])
+    new_header, new_rows = apply_derivation(header, rows, derivation)
+    assert new_header == header
+    assert new_rows[0]["picker"] == "J. Morales"
+    assert rows[0]["picker"] == "JM"  # the caller's own rows list is never mutated in place
+
+
+def test_apply_derivation_add_row_pads_missing_columns_with_blank():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    new_header, new_rows = apply_derivation(header, rows, AddRowDerivation(values={"picker": "TK"}))
+    assert new_header == header
+    assert len(new_rows) == len(rows) + 1
+    assert new_rows[-1] == {"picker": "TK", "item_ordered": "", "item_shipped": ""}
+
+
+def test_apply_derivation_add_row_rejects_an_unknown_column():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    with pytest.raises(ValueError, match="not found"):
+        apply_derivation(header, rows, AddRowDerivation(values={"picler": "TK"}))  # typo'd column name
+
+
+def test_apply_derivation_delete_rows_drops_by_index():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    new_header, new_rows = apply_derivation(header, rows, DeleteRowsDerivation(row_indices=[1]))
+    assert new_header == header
+    assert [r["picker"] for r in new_rows] == ["JM", "AB"]
+
+
+def test_apply_derivation_recode_merges_multiple_spellings_into_one_target():
+    # The exact vital-few bug (docs/uat/PLAN.md 1.3): "JM" and "J Morales"
+    # are one person under two spellings; both keys point at one target.
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    derivation = RecodeDerivation(column="picker", mapping={"JM": "J. Morales", "J Morales": "J. Morales"})
+    _, new_rows = apply_derivation(header, rows, derivation)
+    assert [r["picker"] for r in new_rows] == ["J. Morales", "J. Morales", "AB"]
+
+
+def test_apply_derivation_recode_leaves_values_outside_the_mapping_untouched():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    _, new_rows = apply_derivation(header, rows, RecodeDerivation(column="picker", mapping={"JM": "J. Morales"}))
+    assert [r["picker"] for r in new_rows] == ["J. Morales", "J Morales", "AB"]  # "J Morales"/"AB" not in the mapping
+
+
+def test_apply_derivation_recode_rejects_a_blank_target():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    with pytest.raises(ValueError, match="would be empty"):
+        apply_derivation(header, rows, RecodeDerivation(column="picker", mapping={"JM": "   "}))
+
+
+def test_apply_derivation_derive_column_joins_with_the_default_separator():
+    # "group by Item ordered AND Item shipped" (docs/uat/PLAN.md 1.4).
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    derivation = DeriveColumnDerivation(new_column_name="item_pair", left_column="item_ordered", right_column="item_shipped")
+    new_header, new_rows = apply_derivation(header, rows, derivation)
+    assert new_header == [*header, "item_pair"]
+    assert new_rows[1]["item_pair"] == "Ketchup 4 oz → Ketchup 6 oz"
+    assert new_rows[0]["item_pair"] == "Ketchup 4 oz → Ketchup 4 oz"
+
+
+def test_apply_derivation_derive_column_respects_a_custom_separator():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    derivation = DeriveColumnDerivation(
+        new_column_name="item_pair", left_column="item_ordered", right_column="item_shipped", separator=" / "
+    )
+    _, new_rows = apply_derivation(header, rows, derivation)
+    assert new_rows[1]["item_pair"] == "Ketchup 4 oz / Ketchup 6 oz"
+
+
+def test_apply_derivation_derive_column_rejects_a_name_that_already_exists():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    derivation = DeriveColumnDerivation(new_column_name="picker", left_column="item_ordered", right_column="item_shipped")
+    with pytest.raises(ValueError, match="already exists"):
+        apply_derivation(header, rows, derivation)
+
+
+def test_apply_derivation_rejects_an_out_of_range_row_index():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    with pytest.raises(ValueError, match="out of range"):
+        apply_derivation(header, rows, EditCellsDerivation(edits=[CellEdit(row_index=99, column="picker", value="x")]))
+
+
+def test_apply_derivation_rejects_a_negative_row_index():
+    header, rows = parse_upload(PICKER_CSV, "picking.csv")
+    with pytest.raises(ValueError, match="out of range"):
+        apply_derivation(header, rows, DeleteRowsDerivation(row_indices=[-1]))
+
+
+# --- Derivations: DatasetStore.derive_dataset (new dataset, parent untouched) ---
+
+
+def test_derive_dataset_recode_produces_a_new_dataset_and_leaves_the_parent_byte_identical(tmp_path):
+    import hashlib
+
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "picking.csv", PICKER_CSV, None, "2026-08-07T01:00:00")
+
+    derivation = RecodeDerivation(column="picker", mapping={"JM": "J. Morales", "J Morales": "J. Morales"})
+    child = ds.derive_dataset("proj-1", parent.dataset_id, derivation, "2026-08-07T02:00:00")
+
+    assert child.dataset_id != parent.dataset_id
+    assert child.derived_from_dataset_id == parent.dataset_id
+    assert child.derivation == derivation
+    assert child.row_count == parent.row_count
+    assert [r["picker"] for r in ds.load_rows("proj-1", child.dataset_id)] == ["J. Morales", "J. Morales", "AB"]
+
+    # The parent's v1.csv was never opened for writing -- re-hash the file
+    # on disk independently rather than trusting the in-memory object.
+    parent_csv_on_disk = (tmp_path / "proj-1" / "datasets" / parent.dataset_id / "v1.csv").read_bytes()
+    assert hashlib.sha256(parent_csv_on_disk).hexdigest() == parent.sha256
+
+    # ...but re-loading its meta.json now shows the supersede pointer.
+    reloaded_parent = ds.load_meta("proj-1", parent.dataset_id)
+    assert reloaded_parent.superseded_by_dataset_id == child.dataset_id
+    assert reloaded_parent.sha256 == parent.sha256
+    assert reloaded_parent.derivation is None  # the PARENT itself was never derived from anything
+
+
+def test_derive_dataset_child_sha256_matches_a_rehash_of_its_own_v1_csv(tmp_path):
+    import hashlib
+
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "picking.csv", PICKER_CSV, None, "2026-08-07T01:00:00")
+    child = ds.derive_dataset("proj-1", parent.dataset_id, DeleteRowsDerivation(row_indices=[0]), "2026-08-07T02:00:00")
+
+    child_csv_on_disk = (tmp_path / "proj-1" / "datasets" / child.dataset_id / "v1.csv").read_bytes()
+    assert hashlib.sha256(child_csv_on_disk).hexdigest() == child.sha256
+    assert child.row_count == 2
+
+
+def test_derive_dataset_carries_forward_an_earlier_type_override(tmp_path):
+    # "007"/"010" parse fine as float() -- infer_column_type alone would
+    # call this column numeric -- but a caller earlier confirmed it's
+    # really text (a SKU, not a quantity). A derivation must not silently
+    # re-guess that decision away.
+    sku_csv = b"sku,qty\n007,3\n010,5\n"
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "skus.csv", sku_csv, {"sku": "text"}, "2026-08-07T01:00:00")
+    assert {c.name: c.type for c in parent.columns}["sku"] == "text"  # sanity: the override took on save
+
+    child = ds.derive_dataset(
+        "proj-1", parent.dataset_id, AddRowDerivation(values={"sku": "099", "qty": "1"}), "2026-08-07T02:00:00"
+    )
+    by_name = {c.name: c for c in child.columns}
+    assert by_name["sku"].inferred_type == "numeric"  # what the sniffer alone would say on the new rows
+    assert by_name["sku"].type == "text"  # the parent's confirmed override, carried forward
+
+
+def test_derive_dataset_derive_column_is_always_text_even_when_it_looks_numeric(tmp_path):
+    # separator="" joining two numeric-looking columns could otherwise
+    # infer as numeric by accident -- a newly derived column is always
+    # text regardless (module docstring / brief), so this must be forced,
+    # not left to infer_column_type.
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "nums.csv", b"a,b\n1,2\n3,4\n", None, "2026-08-07T01:00:00")
+
+    child = ds.derive_dataset(
+        "proj-1", parent.dataset_id,
+        DeriveColumnDerivation(new_column_name="ab", left_column="a", right_column="b", separator=""),
+        "2026-08-07T02:00:00",
+    )
+    rows = ds.load_rows("proj-1", child.dataset_id)
+    assert rows[0]["ab"] == "12"  # would infer numeric on its own -- confirms the trap is real
+    by_name = {c.name: c for c in child.columns}
+    assert by_name["ab"].inferred_type == "numeric"
+    assert by_name["ab"].type == "text"  # forced
+
+
+def test_derive_dataset_rescans_quality_on_the_new_rows(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "wait_times.csv", CLEAN_CSV, None, "2026-08-07T01:00:00")
+    assert parent.quality.duplicate_row_count == 0
+
+    # Appended row exactly duplicates row 1 -- the re-run scan should catch
+    # it even though the parent's own scan (over the parent's rows) never saw it.
+    child = ds.derive_dataset(
+        "proj-1", parent.dataset_id,
+        AddRowDerivation(values={"name": "register", "wait_seconds": "92"}),
+        "2026-08-07T02:00:00",
+    )
+    assert child.quality.duplicate_row_count == 1
+
+
+def test_derive_dataset_422_out_of_range_row_index(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "wait_times.csv", CLEAN_CSV, None, "2026-08-07T01:00:00")
+    with pytest.raises(ValueError, match="out of range"):
+        ds.derive_dataset("proj-1", parent.dataset_id, DeleteRowsDerivation(row_indices=[99]), "2026-08-07T02:00:00")
+
+
+def test_derive_dataset_422_unknown_column(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "wait_times.csv", CLEAN_CSV, None, "2026-08-07T01:00:00")
+    with pytest.raises(ValueError, match="not found"):
+        ds.derive_dataset(
+            "proj-1", parent.dataset_id, RecodeDerivation(column="no_such_column", mapping={"a": "b"}), "2026-08-07T02:00:00"
+        )
+
+
+def test_derive_dataset_422_recode_target_would_be_empty(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "wait_times.csv", CLEAN_CSV, None, "2026-08-07T01:00:00")
+    with pytest.raises(ValueError, match="would be empty"):
+        ds.derive_dataset(
+            "proj-1", parent.dataset_id, RecodeDerivation(column="name", mapping={"register": ""}), "2026-08-07T02:00:00"
+        )
+
+
+def test_derive_dataset_422_derived_column_name_already_exists(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    ds = DatasetStore(store)
+    parent = ds.save_dataset("proj-1", "wait_times.csv", CLEAN_CSV, None, "2026-08-07T01:00:00")
+    with pytest.raises(ValueError, match="already exists"):
+        ds.derive_dataset(
+            "proj-1", parent.dataset_id,
+            DeriveColumnDerivation(new_column_name="name", left_column="name", right_column="wait_seconds"),
+            "2026-08-07T02:00:00",
+        )
+
+
+def test_derive_dataset_requires_an_existing_project(tmp_path):
+    store = ProjectStore(tmp_path)
+    with pytest.raises(FileNotFoundError):
+        DatasetStore(store).derive_dataset(
+            "no-such-project", "no-such-dataset", DeleteRowsDerivation(row_indices=[0]), "2026-08-07T01:00:00"
+        )
+
+
+def test_derive_dataset_requires_an_existing_dataset(tmp_path):
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    with pytest.raises(FileNotFoundError):
+        DatasetStore(store).derive_dataset(
+            "proj-1", "no-such-dataset", DeleteRowsDerivation(row_indices=[0]), "2026-08-07T01:00:00"
+        )

@@ -51,6 +51,8 @@
   ],
   "created_at": "2026-10-31T17:00:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-s2-library",
   "quality": {
     "duplicate_row_count": 0,
@@ -73,5 +75,6 @@
   "sha256": "407db59b789babcd308e172d22fbaf5c93c04b4715cf9b2aa54b7961b26412d1",
   "source_artifact_id": null,
   "source_filename": "after-audit.csv",
-  "source_tool_id": null
+  "source_tool_id": null,
+  "superseded_by_dataset_id": null
 }

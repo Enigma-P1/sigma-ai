@@ -51,6 +51,8 @@
   ],
   "created_at": "2026-09-24T17:10:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-s2-library",
   "quality": {
     "duplicate_row_count": 0,
@@ -73,5 +75,6 @@
   "sha256": "642b1c227add71cbb352fc7bfee3980800129d405c2afa397f68c170358c99ca",
   "source_artifact_id": null,
   "source_filename": "baseline-audit.csv",
-  "source_tool_id": null
+  "source_tool_id": null,
+  "superseded_by_dataset_id": null
 }

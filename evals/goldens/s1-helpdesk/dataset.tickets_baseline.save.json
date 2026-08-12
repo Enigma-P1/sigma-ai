@@ -75,6 +75,8 @@
   ],
   "created_at": "2026-07-31T17:00:00Z",
   "dataset_id": "<normalized>",
+  "derivation": null,
+  "derived_from_dataset_id": null,
   "project_id": "eval-s1-helpdesk",
   "quality": {
     "duplicate_row_count": 0,
@@ -101,5 +103,6 @@
   "sha256": "46ba763d4c4691e926b357b65dd22b9fe277b160aaadca24f31d1201ceb5002f",
   "source_artifact_id": null,
   "source_filename": "tickets-baseline.csv",
-  "source_tool_id": null
+  "source_tool_id": null,
+  "superseded_by_dataset_id": null
 }

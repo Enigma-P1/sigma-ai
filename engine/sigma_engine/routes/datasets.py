@@ -1,9 +1,12 @@
 """POST .../datasets/preview, POST .../datasets, GET .../datasets,
-GET .../datasets/{dataset_id} -- T-11's import half (PLAN §4.1 Data
-Collection Plan row): parse+infer+scan without persisting (preview,
-replayable as the user tries different column-type overrides), then
-persist for real (save). See datasets.py's module docstring for why this
-is JSON+base64 rather than multipart.
+GET .../datasets/{dataset_id}, POST .../datasets/{dataset_id}/derive --
+T-11's import half (PLAN §4.1 Data Collection Plan row): parse+infer+scan
+without persisting (preview, replayable as the user tries different
+column-type overrides), then persist for real (save). See datasets.py's
+module docstring for why this is JSON+base64 rather than multipart, and
+for why /derive produces a whole new dataset rather than editing the saved
+one (UAT PLAN.md Phase 1: edit a cell/add a row/delete a row, a recode
+map, a derived column -- all one mechanism, datasets.py's Derivation).
 """
 
 from __future__ import annotations
@@ -14,7 +17,7 @@ import binascii
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
-from ..datasets import ColumnType, DatasetMeta, DatasetPreview, DatasetStore, build_preview
+from ..datasets import ColumnType, DatasetMeta, DatasetPreview, DatasetStore, Derivation, build_preview
 from ..project_store import ProjectStore
 from .deps import get_store
 
@@ -82,3 +85,22 @@ def get_dataset(project_id: str, dataset_id: str, store: ProjectStore = Depends(
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     return DatasetDetailResponse(meta=meta, rows=rows)
+
+
+class DatasetDeriveRequest(BaseModel):
+    derivation: Derivation
+    # Caller-supplied, like DatasetSaveRequest.created_at above -- never
+    # datetime.now() on the server.
+    created_at: str
+
+
+@router.post("/{dataset_id}/derive", response_model=DatasetMeta)
+def derive_dataset(
+    project_id: str, dataset_id: str, body: DatasetDeriveRequest, store: ProjectStore = Depends(get_store)
+) -> DatasetMeta:
+    try:
+        return DatasetStore(store).derive_dataset(project_id, dataset_id, body.derivation, body.created_at)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
