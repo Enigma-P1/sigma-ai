@@ -1,5 +1,6 @@
 import { Button, Field, Panel, VerdictBanner } from "../../design/components";
 import { ColumnPreviewTable } from "./ColumnPreviewTable";
+import { DatasetRowsView } from "./DatasetRowsView";
 import { qualityFindingLines, summarizeQuality } from "./dataImportLogic";
 import { useDataImportForm } from "./useDataImportForm";
 import "./DataImportForm.css";
@@ -66,6 +67,14 @@ export function DataImportForm({ projectId, onSaved }: DataImportFormProps) {
             tone="pass"
             headline={`Saved: ${f.savedMeta.row_count} rows as dataset ${f.savedMeta.dataset_id.slice(0, 8)}`}
             detail={`SHA-256 ${f.savedMeta.sha256} — the provenance anchor any baseline computed from this dataset links back to.`}
+            actions={
+              <Button
+                variant="secondary" size="sm" onClick={() => f.handleToggleRows(f.savedMeta!.dataset_id)}
+                data-testid="dataimport-view-rows-latest"
+              >
+                {f.viewingDatasetId === f.savedMeta.dataset_id ? "Hide rows" : "View rows"}
+              </Button>
+            }
           />
         </div>
       )}
@@ -76,11 +85,23 @@ export function DataImportForm({ projectId, onSaved }: DataImportFormProps) {
           <ul>
             {f.priorDatasets.map((d) => (
               <li key={d.dataset_id}>
-                {d.source_filename} — {d.row_count} rows, saved {d.created_at}
+                <span>
+                  {d.source_filename} — {d.row_count} rows, saved {d.created_at}
+                </span>
+                <Button
+                  variant="ghost" size="sm" onClick={() => f.handleToggleRows(d.dataset_id)}
+                  data-testid={`dataimport-view-rows-${d.dataset_id}`}
+                >
+                  {f.viewingDatasetId === d.dataset_id ? "Hide rows" : "View rows"}
+                </Button>
               </li>
             ))}
           </ul>
         </div>
+      )}
+
+      {f.viewingDatasetId && (
+        <DatasetRowsView projectId={projectId} datasetId={f.viewingDatasetId} onClose={f.closeRows} />
       )}
     </Panel>
   );

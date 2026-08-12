@@ -2,3 +2,4 @@
 # Python bytecode anywhere in the tree
 __pycache__/
 *.pyc
+docs/uat/method/node_modules

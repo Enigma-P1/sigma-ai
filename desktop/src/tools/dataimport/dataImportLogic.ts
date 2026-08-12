@@ -1,4 +1,4 @@
-import type { QualityScanResult } from "../../api/types";
+import type { ColumnInfo, QualityScanResult } from "../../api/types";
 import type { VerdictTone } from "../../design/components";
 
 /** Chunked to avoid `String.fromCharCode(...bigArray)` blowing the call
@@ -56,4 +56,33 @@ export function qualityFindingLines(q: QualityScanResult): string[] {
   }
   lines.push(`${q.row_count} total rows scanned`);
   return lines;
+}
+
+export interface ColumnTotal {
+  column: string;
+  total: number;
+}
+
+/** The rows view's header line (docs/uat/README.md's sharpest finding: "the
+ * app never once showed either of them their own rows" -- no total was ever
+ * shown, only five sample values per column). One entry per column
+ * confirmed numeric (ColumnInfo.type -- the same caller-overridable
+ * effective type build_columns() computes engine-side, not inferred_type),
+ * summing that column's actual saved values. A blank cell or a stray
+ * non-numeric cell (the quality scan's own non_numeric_in_numeric_columns
+ * finding) is skipped rather than treated as zero -- it stays visible as a
+ * quality finding above the rows table, it just doesn't quietly distort
+ * the total here. */
+export function numericColumnTotals(columns: ColumnInfo[], rows: Record<string, string>[]): ColumnTotal[] {
+  return columns
+    .filter((c) => c.type === "numeric")
+    .map((c) => ({
+      column: c.name,
+      total: rows.reduce((sum, row) => {
+        const raw = row[c.name];
+        if (raw == null || raw.trim() === "") return sum;
+        const n = Number(raw);
+        return Number.isFinite(n) ? sum + n : sum;
+      }, 0),
+    }));
 }

@@ -53,6 +53,14 @@ Finally, hand each model its own run back:
 ./phase3.sh /tmp/uat/mike xai   <vision-model> mike-report.md 26
 ```
 
+One setup step: Node resolves `playwright` from the importing file's own
+directory, and this one has no `node_modules`, so the harness will not import
+until you link the client's:
+
+```bash
+ln -sfn ../../../desktop/node_modules docs/uat/method/node_modules   # gitignored
+```
+
 ## Two things that will bite
 
 **The engine port is hard-coded in the client.** `resolveEngineBaseUrl()`

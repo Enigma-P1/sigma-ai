@@ -47,5 +47,37 @@
 }
 
 .sigma-dataimport__prior li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   margin-bottom: var(--space-1);
+}
+
+/* ---- Rows view (T-11 "show the actual rows back" -- docs/uat/README.md) ---- */
+
+.sigma-dataimport__rows-panel {
+  margin-top: var(--space-4);
+}
+
+.sigma-dataimport__rows-summary {
+  margin-bottom: var(--space-3);
+}
+
+.sigma-dataimport__rows-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* The caveat under the column totals -- quieter than the totals it qualifies,
+   but present, because a meaningless sum printed plainly reads as a fact. */
+.sigma-dataimport__totals-caveat {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
 }

@@ -18,6 +18,19 @@ export function useDataImportForm(projectId: string, onSaved: () => void) {
   const [error, setError] = useState<string | null>(null);
   const [savedMeta, setSavedMeta] = useState<DatasetMeta | null>(null);
   const [priorDatasets, setPriorDatasets] = useState<DatasetMeta[]>([]);
+  // Which saved dataset's rows are currently expanded below -- at most one
+  // at a time (docs/uat/README.md: showing the actual rows back is the
+  // point, not a gallery of every dataset open together), reachable from
+  // either the just-saved confirmation or the prior-imports list below.
+  const [viewingDatasetId, setViewingDatasetId] = useState<string | null>(null);
+
+  function handleToggleRows(datasetId: string) {
+    setViewingDatasetId((cur) => (cur === datasetId ? null : datasetId));
+  }
+
+  function closeRows() {
+    setViewingDatasetId(null);
+  }
 
   function refreshPriorDatasets() {
     listDatasets(projectId)
@@ -77,8 +90,8 @@ export function useDataImportForm(projectId: string, onSaved: () => void) {
   }
 
   return {
-    fileName, preview, columnTypes, loadingPreview, saving, error, savedMeta, priorDatasets,
-    handleFileSelected, handleColumnTypeChange, handleSave,
+    fileName, preview, columnTypes, loadingPreview, saving, error, savedMeta, priorDatasets, viewingDatasetId,
+    handleFileSelected, handleColumnTypeChange, handleSave, handleToggleRows, closeRows,
     canSave: preview != null && !saving,
   };
 }
