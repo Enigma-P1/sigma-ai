@@ -49,7 +49,7 @@ from ..artifacts.standard_work import StandardWorkArtifact
 from ..artifacts.time_study import TimeStudyArtifact
 from ..artifacts.voc_ctq import VocCtqArtifact
 from ..artifacts.yield_calc import YieldCalcArtifact
-from ..export import report_pdf, report_theme
+from ..export import pack_pdf, report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
 from ..export.reports import a3 as a3_report_mod
@@ -447,3 +447,109 @@ def artifact_report(
         page_size=page_size,
     )
     return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-{tool_id}-report.pdf")
+
+
+class PackRequest(BaseModel):
+    """Captures for a whole pack, keyed by tool id.
+
+    A pack can contain several chart-bearing reports and the client can only
+    capture what is currently mounted -- typically one screen's worth. So
+    this is best-effort by design: a report with no capture prints the same
+    "chart not captured" line it prints anywhere else, which is already the
+    honest, designed behaviour rather than a special case invented here.
+    """
+
+    charts: dict[str, ChartCapture] = {}
+
+
+@router.post("/project/{project_id}/pack/{phase}/pdf")
+def phase_pack(
+    project_id: str, phase: str, body: PackRequest, store: ProjectStore = Depends(get_store)
+) -> Response:
+    """One phase's reports, with a cover and a verdict index.
+
+    Deliberately built by CALLING the same per-tool report modules the
+    single-report route uses, rather than by re-rendering their content: a
+    pack that drifted from the report it claims to contain would be worse
+    than no pack.
+    """
+    if phase not in pack_pdf.PACK_PHASES:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no pack defined for phase {phase!r} -- packs exist for {', '.join(pack_pdf.PACK_PHASES)}",
+        )
+
+    try:
+        meta = store.load_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    entries: list[tuple[str, Any, tuple[str, Any]]] = []
+    missing: list[str] = []
+
+    for tool_id in pack_pdf.tools_in_phase(phase):
+        entry = ARTIFACT_REPORTS.get(tool_id)
+        artifact_id = _find_artifact_id(meta, tool_id)
+        if entry is None or artifact_id is None:
+            # Either the tool was never done, or it has no report of its own
+            # (T-03's charter has its own hand-laid PDF). Both are "not in
+            # this pack", and both get named on the index rather than
+            # silently dropped.
+            missing.append(tool_id)
+            continue
+
+        model, module, wants_chart = entry
+        try:
+            data = store.load_artifact(project_id, artifact_id, None)
+            artifact = model.model_validate(data)
+        except (FileNotFoundError, ValueError):
+            missing.append(tool_id)
+            continue
+
+        version = meta.artifact_index[artifact_id].latest_version
+        kwargs: dict[str, Any] = {}
+        if wants_chart:
+            capture = body.charts.get(tool_id)
+            series = _chart_series(tool_id, artifact)
+            png, reason = report_pdf.check_chart(
+                _decode_png(capture),
+                capture.data_hash if capture else None,
+                report_pdf.data_fingerprint(series) if series else None,
+            )
+            kwargs["chart_png"] = png
+            kwargs["chart_unavailable_reason"] = reason
+
+        rows = [("Artifact", f"{artifact_id} · v{version}"), ("Engine version", __version__)]
+
+        def make_builder(module=module, artifact=artifact, version=version, rows=rows, kwargs=kwargs):
+            def build(content_width: float):
+                return module.build_story(
+                    artifact=artifact,
+                    project_name=meta.name,
+                    version=version,
+                    provenance_rows=rows,
+                    exported_at=report_theme.utc_stamp(),
+                    content_width=content_width,
+                    **kwargs,
+                )
+
+            return build
+
+        entries.append((tool_id, make_builder(), module.build_verdict(artifact)))
+
+    if not entries:
+        raise HTTPException(
+            status_code=404,
+            detail=f"no {phase} tools have been saved in project {project_id!r} yet",
+        )
+
+    pdf_bytes = pack_pdf.build_pack(
+        phase=phase,
+        project_name=meta.name,
+        project_id=project_id,
+        engine_version=__version__,
+        entries=entries,
+        missing=missing,
+        exported_at=report_theme.utc_stamp(),
+    )
+    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-{phase.lower()}-pack.pdf")

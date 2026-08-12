@@ -4,6 +4,8 @@ import type { ToolRailStatus } from "./statusTone";
 import { toolsForPhase } from "./tools";
 import { PHASE_BLURB } from "./phases";
 import { getVisitedTools } from "./toolVisitedStore";
+import { PhasePackButton } from "./PhasePackButton";
+import { doneToolIdsFromProject } from "./stuckTree";
 import type { CombinedGate } from "./gateLogic";
 import type { Phase, ProjectMetadata } from "../api/types";
 import "./PhaseSection.css";
@@ -69,6 +71,12 @@ export function PhaseSection({ phase, gate, project, activeToolId, activePhase, 
           );
         })}
       </ul>
+      <PhasePackButton
+        projectId={project.project_id}
+        projectName={project.name}
+        phase={phase}
+        doneToolIds={doneToolIdsFromProject(project)}
+      />
     </div>
   );
 }

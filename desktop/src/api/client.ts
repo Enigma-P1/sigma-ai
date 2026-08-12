@@ -6,6 +6,7 @@
 import { resolveEngineBaseUrl } from "./runtime";
 import { ApiError } from "./errors";
 import type { PydanticErrorItem } from "./errors";
+import type { Capture } from "../charts/capture";
 import type {
   AdvisorAskRequest,
   AdvisorAskResponse,
@@ -495,6 +496,37 @@ export interface ReportRequestBody {
  * Deliberately posts inputs, never computed values: everything printed is
  * recomputed by the engine, so the page cannot carry a statistic the client
  * made up under a footer that says the engine produced it. */
+/** One phase's reports, bound with a cover and a verdict index.
+ *
+ * Charts are best-effort and keyed by tool id: the client can only capture
+ * what is mounted, which is normally the screen the user is standing on. A
+ * report with no capture prints its usual "chart not captured" line, so a
+ * pack is never blocked on having visited every screen first. */
+export async function downloadPhasePack(
+  projectId: string,
+  phase: string,
+  charts: Record<string, Capture>,
+): Promise<Blob> {
+  const url = `${resolveEngineBaseUrl()}/project/${encodeURIComponent(projectId)}/pack/${encodeURIComponent(phase)}/pdf`;
+  let res: Response;
+  try {
+    res = await fetch(url, { ...postJson({ charts }), headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+    throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
+  }
+  if (!res.ok) {
+    let detailText = res.statusText;
+    try {
+      const parsed = (await res.json()) as { detail?: unknown };
+      if (typeof parsed.detail === "string") detailText = parsed.detail;
+    } catch {
+      /* non-JSON error body */
+    }
+    throw new ApiError(detailText || `HTTP ${res.status}`, res.status, { detail: detailText });
+  }
+  return res.blob();
+}
+
 export async function downloadToolReport(projectId: string, toolId: string, body: ReportRequestBody): Promise<Blob> {
   const url = `${resolveEngineBaseUrl()}/project/${encodeURIComponent(projectId)}/report/${encodeURIComponent(toolId)}/pdf`;
   let res: Response;

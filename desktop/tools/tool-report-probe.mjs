@@ -169,6 +169,33 @@ await grab("T-13", async () => {
   await page.waitForTimeout(1200);
 });
 
+// PHASE PACKS: one phase's reports bound with a cover and a verdict index.
+// Exercised in the browser for the same reason as the reports -- the route
+// can be tested from pytest, and that says nothing about whether the link
+// in the rail produces a file.
+for (const phase of ["Define", "Measure", "Control"]) {
+  const btn = page.getByTestId(`phase-pack-${phase}`);
+  await btn.waitFor({ timeout: 20000 });
+  if (await btn.isDisabled()) {
+    results.push({ toolId: `pack:${phase}`, ok: false, note: "pack button disabled" });
+    continue;
+  }
+  const dl = page.waitForEvent("download", { timeout: 90000 });
+  await btn.click();
+  const download = await dl;
+  const dest = path.join(OUT, download.suggestedFilename());
+  await download.saveAs(dest);
+  const bytes = fs.readFileSync(dest);
+  const err = await page.getByTestId(`phase-pack-error-${phase}`).count();
+  results.push({
+    toolId: `pack:${phase}`,
+    ok: bytes.subarray(0, 5).toString() === "%PDF-" && bytes.length > 5000 && err === 0,
+    bytes: bytes.length,
+    file: download.suggestedFilename(),
+    note: err ? await page.getByTestId(`phase-pack-error-${phase}`).innerText() : "",
+  });
+}
+
 for (const r of results) {
   console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.toolId}  ${r.bytes ?? 0} bytes  ${r.file ?? ""} ${r.note}`);
 }
