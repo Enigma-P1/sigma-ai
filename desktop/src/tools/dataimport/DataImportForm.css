@@ -81,3 +81,125 @@
   color: var(--color-text-muted);
   font-size: var(--text-xs);
 }
+
+/* A dataset that came out of a derivation, spotted in the prior-imports
+   list -- quiet, not a status pill, since it is not a warning. */
+.sigma-dataimport__lineage-tag {
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+}
+
+/* ---- Derivation controls (docs/uat/PLAN.md 1.2/1.3/1.4) -- edit a cell,
+   add/delete a row, recode a column, derive a column, all on the rows view.
+   ---- */
+
+.sigma-dataimport__derive-banner {
+  margin-bottom: var(--space-4);
+}
+
+.sigma-dataimport__mode-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 var(--space-3);
+}
+
+.sigma-dataimport__mode-helper {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+.sigma-dataimport__mode-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  font-size: var(--text-sm);
+}
+
+.sigma-dataimport__mode-actions > .sigma-dataimport__mode-helper {
+  flex-basis: 100%;
+  margin-bottom: 0;
+}
+
+/* One quality finding + its fix button -- stacked with a gap, same
+   VerdictBanner every other verdict in the app uses, just several in a row. */
+.sigma-dataimport__quality-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+/* ---- Recode ---- */
+
+.sigma-dataimport__recode {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-dataimport__recode-values {
+  max-height: 16rem;
+  overflow-y: auto;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-dataimport__recode-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) 0;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.sigma-dataimport__recode-value {
+  flex: 1;
+}
+
+.sigma-dataimport__recode-count {
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+}
+
+/* ---- Add a row / Derive a column: both a bordered card of Fields ---- */
+
+.sigma-dataimport__add-row,
+.sigma-dataimport__derive-column {
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.sigma-dataimport__add-row-grid,
+.sigma-dataimport__derive-column-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-3) var(--space-4);
+}
+
+/* ---- The rows table in Edit cells / Delete rows mode ---- */
+
+.sigma-dataimport__cell-input {
+  min-width: 6rem;
+  padding: var(--space-1) var(--space-2);
+}
+
+.sigma-dataimport__table td.sigma-dataimport__cell--pending {
+  font-style: italic;
+  color: var(--color-flag);
+  background: var(--color-flag-soft);
+}
+
+.sigma-dataimport__table .sigma-dataimport__select-cell {
+  width: 2.5rem;
+  text-align: center;
+}

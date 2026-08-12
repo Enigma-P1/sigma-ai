@@ -3,13 +3,36 @@ import { Field, SelectInput } from "../../design/components";
 import { RunChart } from "../../charts";
 import { runDescriptive } from "../../api/client";
 import type { Computed, DatasetDetail, DescriptiveStats } from "../../api/types";
-import { numericColumnValues, numericColumns } from "./chartSetLogic";
+import { numericColumnValues, numericColumns, resolveColumn } from "./chartSetLogic";
+import { saveChartSetView } from "./chartSetViewStore";
+import type { ChartSetView } from "./chartSetViewStore";
 
-export function RunChartPanel({ detail }: { detail: DatasetDetail }) {
+export interface RunChartPanelProps {
+  detail: DatasetDetail;
+  projectId: string;
+  /** This project's saved chart view (chartSetViewStore.ts, PLAN 2.1) --
+   * seeds the column picker the first time this panel sees a dataset. */
+  restored?: ChartSetView;
+}
+
+export function RunChartPanel({ detail, projectId, restored }: RunChartPanelProps) {
   const columns = numericColumns(detail.meta);
-  const [column, setColumn] = useState(columns[0]?.name ?? "");
+  const [column, setColumnState] = useState(() => resolveColumn(restored?.runChartColumn, columns));
   const [descriptive, setDescriptive] = useState<Computed<DescriptiveStats> | null>(null);
   const values = column ? numericColumnValues(detail.rows, column) : [];
+
+  // The dataset changed under an already-mounted panel -- the previous pick
+  // may not exist on the new one, so fall back to its first column instead
+  // of leaving a selection the <select> can't actually show.
+  useEffect(() => {
+    setColumnState((prev) => resolveColumn(prev, columns));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.meta.dataset_id]);
+
+  function setColumn(next: string) {
+    setColumnState(next);
+    saveChartSetView(projectId, { runChartColumn: next });
+  }
 
   useEffect(() => {
     if (!column || values.length < 2) {

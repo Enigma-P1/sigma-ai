@@ -83,3 +83,34 @@
   color: var(--color-text-muted);
   margin: var(--space-5) 0 var(--space-2);
 }
+
+/* Delete sits beside "forget" (the ×) and must not read as its sibling:
+   quiet until you reach for it, then unmistakably the destructive one. */
+.sigma-recent-list__delete {
+  border: 1px solid transparent;
+  background: none;
+  color: var(--color-text-faint);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm, 4px);
+  cursor: pointer;
+}
+
+.sigma-recent-list__delete:hover,
+.sigma-recent-list__delete:focus-visible {
+  color: var(--color-fail);
+  border-color: var(--color-fail);
+}
+
+.sigma-delete-project__note {
+  margin: var(--space-3) 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+
+.sigma-delete-project__actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+  margin-top: var(--space-4);
+}

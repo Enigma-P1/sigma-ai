@@ -13,7 +13,10 @@ const SCHEMA_VERSION = 1;
 /** T-25's state + engine wiring. Seeding (loading a source artifact and
  * drafting narrative from it) is a desktop action (a3.py's own module
  * docstring: "the actual seeding ... is a desktop action, echoed-by-ref
- * here") -- see a3Seeding.ts / useA3PanelSeeding.ts. */
+ * here") -- see a3Seeding.ts / useA3PanelSeeding.ts. Every eligible panel
+ * also seeds itself once, automatically, the moment the A3 opens (see the
+ * autoSeedOnOpen effect below) -- a manual "Re-seed" click is still there
+ * for a panel someone wants to refresh later. */
 export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: () => void) {
   const { setSaveState } = useSaveState();
   // emptyState() hands back a fresh object every call (a3Logic.ts's own
@@ -72,8 +75,12 @@ export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: 
   // restore/autosave contract.
   const draft = useToolDraft<A3State>(projectId, "T-25", { baseline, state, setState });
 
-  function update(patch: Partial<A3State>) {
-    setState((prev) => ({ ...prev, ...patch }));
+  // Accepts a plain patch, or (autoSeedOnOpen's own need) a function of the
+  // LATEST state -- so a batch of async-resolved panel seeds can be applied
+  // against whatever `state` actually is at write time, not the snapshot a
+  // fetch happened to start from, without adding a second update path.
+  function update(patch: Partial<A3State> | ((prev: A3State) => Partial<A3State>)) {
+    setState((prev) => ({ ...prev, ...(typeof patch === "function" ? patch(prev) : patch) }));
     setServerArtifact(null); // state changed since the last save -- the old server closure/prescore no longer describe it
   }
 
@@ -89,7 +96,26 @@ export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: 
     update({ tollgateAnswers: { ...state.tollgateAnswers, [phase]: next } });
   }
 
-  const { seeding, reseedPanel, loadFmeaForClose } = useA3PanelSeeding(projectId, project, ARTIFACT_ID, SCHEMA_VERSION, state, update, setState);
+  const { seeding, reseedPanel, autoSeedOnOpen, loadFmeaForClose } = useA3PanelSeeding(projectId, project, ARTIFACT_ID, SCHEMA_VERSION, state, update, setState);
+
+  // Auto-seed on open (docs/uat/README.md / PLAN §2.3: "the A3 opens empty
+  // even when the work exists"). Fires exactly once per mount, the moment
+  // `baseline` first settles -- the same moment useToolDraft above starts
+  // trusting `state`, so this always reads genuine project truth (the
+  // loaded artifact's real panels, or a confirmed-fresh EMPTY), never a
+  // transient EMPTY captured before the load resolved. Keyed off
+  // `baseline` rather than `state` so typing, or a draft restore, later in
+  // this same mount can never make this re-fire.
+  const autoSeededRef = useRef(false);
+  useEffect(() => {
+    if (baseline === undefined || autoSeededRef.current) return;
+    autoSeededRef.current = true;
+    void autoSeedOnOpen(baseline.panels);
+    // autoSeedOnOpen is recreated every render (it closes over `update`,
+    // which is too) -- the ref above is what makes "once" hold, the same
+    // choice useToolDraft.ts makes just above for its own restore effect.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [baseline]);
 
   async function handleSave() {
     setSaving(true);

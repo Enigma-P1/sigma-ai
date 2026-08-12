@@ -81,12 +81,26 @@ export function DataImportForm({ projectId, onSaved }: DataImportFormProps) {
 
       {f.priorDatasets.length > 0 && (
         <div className="sigma-dataimport__prior">
-          <p>Previously imported into this project:</p>
+          {/* This list is not only original uploads any more -- a Recode /
+            * Edit cells / Add row / Delete rows / Derive column derivation
+            * (built onto the rows view below) also lands here as a
+            * separate, independent dataset (datasets.py module docstring:
+            * a derivation never edits the one it started from). Newest
+            * first and lineage named, so a just-fixed dataset is easy to
+            * find again after closing its rows view rather than buried
+            * under the history it came from. */}
+          <p>Datasets saved in this project:</p>
           <ul>
-            {f.priorDatasets.map((d) => (
+            {[...f.priorDatasets].reverse().map((d) => (
               <li key={d.dataset_id}>
                 <span>
                   {d.source_filename} — {d.row_count} rows, saved {d.created_at}
+                  {d.derived_from_dataset_id && (
+                    <span className="sigma-dataimport__lineage-tag" data-testid={`dataimport-lineage-${d.dataset_id}`}>
+                      {" "}
+                      fixed from {d.derived_from_dataset_id.slice(0, 8)}
+                    </span>
+                  )}
                 </span>
                 <Button
                   variant="ghost" size="sm" onClick={() => f.handleToggleRows(d.dataset_id)}
@@ -101,7 +115,7 @@ export function DataImportForm({ projectId, onSaved }: DataImportFormProps) {
       )}
 
       {f.viewingDatasetId && (
-        <DatasetRowsView projectId={projectId} datasetId={f.viewingDatasetId} onClose={f.closeRows} />
+        <DatasetRowsView projectId={projectId} datasetId={f.viewingDatasetId} onClose={f.closeRows} onDerived={f.handleDatasetDerived} />
       )}
     </Panel>
   );

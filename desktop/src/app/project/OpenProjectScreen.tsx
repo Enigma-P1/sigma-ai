@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Field, Panel, TextInput, VerdictBanner } from "../../design/components";
 import { openProject } from "../../api/client";
 import { ApiError } from "../../api/errors";
+import { DeleteProjectButton } from "./DeleteProjectButton";
 import { forgetProject, loadRecentProjects, rememberProject } from "./recentProjects";
 import type { RecentProject } from "./recentProjects";
 import { projectFolderPath } from "./path";
@@ -26,6 +27,7 @@ export interface OpenProjectScreenProps {
 export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
   const [recents, setRecents] = useState<RecentProject[]>(() => loadRecentProjects());
   const [manualId, setManualId] = useState("");
+  const [onDiskRefresh, setOnDiskRefresh] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,14 +71,31 @@ export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
                 <span className="sigma-recent-list__name">{p.name}</span>
                 <span className="sigma-recent-list__path">{p.folder_path}</span>
               </button>
+              {/* Two controls, one reversible and one not. The × has always
+                * been "forget": drop this row from THIS machine's list and
+                * leave every file alone. A tester swept the whole app for a
+                * real delete and found nothing -- but the delete cannot
+                * simply appear next to the × unlabelled, or the pair becomes
+                * the arrangement that loses somebody's project to muscle
+                * memory. So the × now says what it does on hover, and the
+                * delete beside it costs typing the project's name. */}
               <button
                 type="button"
                 className="sigma-recent-list__forget"
                 onClick={() => setRecents(forgetProject(p.project_id))}
-                aria-label={`Forget ${p.name}`}
+                title={`Remove ${p.name} from this list — the files stay where they are`}
+                aria-label={`Forget ${p.name} (removes it from this list only)`}
               >
                 ×
               </button>
+              <DeleteProjectButton
+                projectId={p.project_id}
+                name={p.name}
+                onDeleted={() => {
+                  setRecents(forgetProject(p.project_id));
+                  setOnDiskRefresh((n) => n + 1);
+                }}
+              />
             </li>
           ))}
         </ul>
@@ -86,7 +105,7 @@ export function OpenProjectScreen({ onOpened }: OpenProjectScreenProps) {
       <p className="sigma-recent-list__section" data-testid="ondisk-heading">
         In your projects folder
       </p>
-      <OnDiskProjects onOpen={(id) => void open(id)} hideIds={recents.map((p) => p.project_id)} />
+      <OnDiskProjects onOpen={(id) => void open(id)} hideIds={recents.map((p) => p.project_id)} refreshKey={onDiskRefresh} />
 
       <Field label="Or open by project ID" htmlFor="open-project-id">
         <TextInput

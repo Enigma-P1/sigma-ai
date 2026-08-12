@@ -1,17 +1,46 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Field, SelectInput } from "../../design/components";
 import { ScatterChart } from "../../charts";
 import type { DatasetDetail } from "../../api/types";
-import { numericColumnValues, numericColumns } from "./chartSetLogic";
+import { numericColumnValues, numericColumns, resolveColumn } from "./chartSetLogic";
+import { saveChartSetView } from "./chartSetViewStore";
+import type { ChartSetView } from "./chartSetViewStore";
+
+export interface ScatterPanelProps {
+  detail: DatasetDetail;
+  projectId: string;
+  /** This project's saved chart view (chartSetViewStore.ts, PLAN 2.1) --
+   * seeds the X/Y pickers the first time this panel sees a dataset. */
+  restored?: ChartSetView;
+}
 
 /** Visual only, no engine call — a scatter's raw x/y points are the same
  * stored numbers displayed, not a derived statistic (M0 matrix
  * correction A-2: no fitted line, no r computed anywhere for this v1
  * chart, client or server). */
-export function ScatterPanel({ detail }: { detail: DatasetDetail }) {
+export function ScatterPanel({ detail, projectId, restored }: ScatterPanelProps) {
   const columns = numericColumns(detail.meta);
-  const [xColumn, setXColumn] = useState(columns[0]?.name ?? "");
-  const [yColumn, setYColumn] = useState(columns[1]?.name ?? columns[0]?.name ?? "");
+  const [xColumn, setXColumnState] = useState(() => resolveColumn(restored?.scatterX, columns));
+  const [yColumn, setYColumnState] = useState(() => resolveColumn(restored?.scatterY, columns, columns[1]?.name));
+
+  // The dataset changed under an already-mounted panel -- the previous
+  // picks may not exist on the new one, so fall back the same way the
+  // initial pick does instead of leaving a selection the <select> can't
+  // actually show.
+  useEffect(() => {
+    setXColumnState((prev) => resolveColumn(prev, columns));
+    setYColumnState((prev) => resolveColumn(prev, columns, columns[1]?.name));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.meta.dataset_id]);
+
+  function setXColumn(next: string) {
+    setXColumnState(next);
+    saveChartSetView(projectId, { scatterX: next });
+  }
+  function setYColumn(next: string) {
+    setYColumnState(next);
+    saveChartSetView(projectId, { scatterY: next });
+  }
 
   if (columns.length < 2) {
     return <p data-testid="chartset-scatter-panel">Scatter needs at least two numeric columns; this dataset has {columns.length}.</p>;

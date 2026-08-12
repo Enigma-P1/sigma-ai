@@ -469,6 +469,23 @@ export interface QualityScanResult {
   missing_values: Record<string, number>;
   non_numeric_in_numeric_columns: Record<string, number>;
   duplicate_row_count: number;
+  // --- docs/uat/PLAN.md 1.5: three more UAT-file problems that passed the
+  // four checks above silently (datasets.py's scan_quality). All optional
+  // with an engine-side default of 0 / {} / {} — every meta.json already on
+  // disk was written before these fields existed and must keep loading, so
+  // absence here means the same thing the default does: nothing found. ---
+  /** A header row pasted back in as an ordinary data row -- the stray
+   * "Wrong Part" Pareto bar in docs/uat/pareto-after.png. */
+  repeated_header_row_count?: number;
+  /** column -> groups of raw spellings that differ only by casefold /
+   * whitespace / punctuation (e.g. "J Morales" vs "J. Morales"). Always the
+   * RAW variants as typed, never a normalized guess -- text columns only,
+   * and a group only ever has 2+ members. */
+  near_duplicate_values?: Record<string, string[][]>;
+  /** column -> the distinct date-ish SHAPES seen (e.g. "M/D", "ISO date"),
+   * present only when a column mixes more than one. Shape labels, not
+   * parsed dates -- datasets.py deliberately never guesses a locale. */
+  mixed_date_formats?: Record<string, string[]>;
 }
 
 /** Returned by the preview route — never persisted. */
@@ -479,6 +496,70 @@ export interface DatasetPreview {
   quality: QualityScanResult;
   sample_rows: Record<string, string>[];
 }
+
+// --- Derivations: a saved dataset -> a NEW dataset (datasets.py) ---------
+//
+// POST .../datasets/{id}/derive never edits the parent -- it always returns
+// a second, independent DatasetMeta with its own id, its own v1.csv and its
+// own sha256 (module docstring: the sha256 is the provenance anchor
+// routes/stats.py echoes beside a BaselineResult, so a chart computed last
+// week has to keep resolving to the exact bytes it was computed from).
+// `kind` is a Pydantic discriminator on the wire -- literal string, always
+// present, always exactly one of the five below.
+
+export interface CellEdit {
+  row_index: number;
+  column: string;
+  value: string;
+}
+
+export interface EditCellsDerivation {
+  kind: "edit_cells";
+  edits: CellEdit[];
+}
+
+export interface AddRowDerivation {
+  kind: "add_row";
+  // Keyed by column name; any column left out becomes "" in the new row
+  // (datasets.py's AddRowDerivation -- the same "a short row pads with
+  // blanks" rule an ordinary upload already gets).
+  values: Record<string, string>;
+}
+
+export interface DeleteRowsDerivation {
+  kind: "delete_rows";
+  row_indices: number[];
+}
+
+export interface RecodeDerivation {
+  kind: "recode";
+  column: string;
+  // source value -> target value -- e.g. {"JM": "J. Morales", "J Morales":
+  // "J. Morales"}. Multiple keys are free to point at the same target; that
+  // IS the vital-few fix. The engine 422s a blank target (recode
+  // consolidates spellings into one visible value, it doesn't blank cells).
+  mapping: Record<string, string>;
+}
+
+export interface DeriveColumnDerivation {
+  kind: "derive_column";
+  new_column_name: string;
+  left_column: string;
+  right_column: string;
+  separator: string;
+}
+
+export type Derivation =
+  | EditCellsDerivation
+  | AddRowDerivation
+  | DeleteRowsDerivation
+  | RecodeDerivation
+  | DeriveColumnDerivation;
+
+/** datasets.py's DeriveColumnDerivation.separator default -- what a blank
+ * separator field should fall back to client-side, mirroring the engine's
+ * own default rather than inventing a second one. */
+export const DERIVE_COLUMN_DEFAULT_SEPARATOR = " → ";
 
 /** The persisted record (meta.json). */
 export interface DatasetMeta {
@@ -496,6 +577,16 @@ export interface DatasetMeta {
    * materialized from. null for an ordinary CSV/XLSX upload. */
   source_artifact_id?: string | null;
   source_tool_id?: string | null;
+  /** Derivation lineage. Both optional with a default, same "every dataset
+   * saved before this field existed still loads unchanged" contract as
+   * source_artifact_id/source_tool_id above -- null for an ordinary upload;
+   * set only on a dataset that came out of /derive. */
+  derived_from_dataset_id?: string | null;
+  derivation?: Derivation | null;
+  /** The other direction: set on the PARENT the instant a child is derived
+   * from it. A pointer, not a deletion -- the parent stays exactly as it
+   * was and stays loadable; this just says a newer fixed version exists. */
+  superseded_by_dataset_id?: string | null;
 }
 
 export interface DatasetDetail {

@@ -3,17 +3,44 @@ import { Field, SelectInput } from "../../design/components";
 import { ParetoChart } from "../../charts";
 import { runPareto } from "../../api/client";
 import type { Computed, DatasetDetail, ParetoResult } from "../../api/types";
-import { textColumnValues, textColumns } from "./chartSetLogic";
+import { resolveColumn, textColumnValues, textColumns } from "./chartSetLogic";
+import { saveChartSetView } from "./chartSetViewStore";
+import type { ChartSetView } from "./chartSetViewStore";
 
-export function ParetoPanel({ detail }: { detail: DatasetDetail }) {
+export interface ParetoPanelProps {
+  detail: DatasetDetail;
+  projectId: string;
+  /** This project's saved chart view (chartSetViewStore.ts, PLAN 2.1) --
+   * seeds the column picker the first time this panel sees a dataset. */
+  restored?: ChartSetView;
+}
+
+export function ParetoPanel({ detail, projectId, restored }: ParetoPanelProps) {
   const columns = textColumns(detail.meta);
-  const [column, setColumn] = useState(columns[0]?.name ?? "");
+  const [column, setColumnState] = useState(() => resolveColumn(restored?.paretoColumn, columns));
   const [result, setResult] = useState<Computed<ParetoResult> | null>(null);
+
+  // The dataset changed under an already-mounted panel (the picker above
+  // this grid, not this one) -- the previous pick may not exist on the new
+  // one, so fall back to its first column instead of leaving a selection
+  // the <select> can't actually show.
+  useEffect(() => {
+    setColumnState((prev) => resolveColumn(prev, columns));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.meta.dataset_id]);
+
+  function setColumn(next: string) {
+    setColumnState(next);
+    saveChartSetView(projectId, { paretoColumn: next });
+  }
 
   // Rows whose category cell is blank cannot be tallied, so they are not in
   // the chart -- and a chart headed "9 total" over a 10-row dataset reads as
   // an arithmetic error unless the missing one is named. Saying it here is
   // the whole fix: the count was always right, it was just unexplained.
+  // (`detail.rows` here is already the filter-panel's subset, not the whole
+  // dataset -- see ChartSetScreen's filteredDetail -- so this count and the
+  // filter's own "N of M rows" line stay consistent with each other.)
   const excluded = column ? detail.rows.length - textColumnValues(detail.rows, column).length : 0;
 
   useEffect(() => {

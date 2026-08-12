@@ -3,15 +3,46 @@ import { Field, SelectInput, TextInput } from "../../design/components";
 import { Histogram } from "../../charts";
 import { runDescriptive } from "../../api/client";
 import type { Computed, DatasetDetail, DescriptiveStats } from "../../api/types";
-import { numericColumnValues, numericColumns } from "./chartSetLogic";
+import { numericColumnValues, numericColumns, resolveColumn } from "./chartSetLogic";
+import { saveChartSetView } from "./chartSetViewStore";
+import type { ChartSetView } from "./chartSetViewStore";
 
-export function HistogramPanel({ detail }: { detail: DatasetDetail }) {
+export interface HistogramPanelProps {
+  detail: DatasetDetail;
+  projectId: string;
+  /** This project's saved chart view (chartSetViewStore.ts, PLAN 2.1) --
+   * seeds the column/USL/LSL the first time this panel sees a dataset. */
+  restored?: ChartSetView;
+}
+
+export function HistogramPanel({ detail, projectId, restored }: HistogramPanelProps) {
   const columns = numericColumns(detail.meta);
-  const [column, setColumn] = useState(columns[0]?.name ?? "");
-  const [usl, setUsl] = useState("");
-  const [lsl, setLsl] = useState("");
+  const [column, setColumnState] = useState(() => resolveColumn(restored?.histogramColumn, columns));
+  const [usl, setUslState] = useState(restored?.histogramUsl ?? "");
+  const [lsl, setLslState] = useState(restored?.histogramLsl ?? "");
   const [descriptive, setDescriptive] = useState<Computed<DescriptiveStats> | null>(null);
   const values = column ? numericColumnValues(detail.rows, column) : [];
+
+  // The dataset changed under an already-mounted panel -- the previous pick
+  // may not exist on the new one, so fall back to its first column instead
+  // of leaving a selection the <select> can't actually show.
+  useEffect(() => {
+    setColumnState((prev) => resolveColumn(prev, columns));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.meta.dataset_id]);
+
+  function setColumn(next: string) {
+    setColumnState(next);
+    saveChartSetView(projectId, { histogramColumn: next });
+  }
+  function setUsl(next: string) {
+    setUslState(next);
+    saveChartSetView(projectId, { histogramUsl: next });
+  }
+  function setLsl(next: string) {
+    setLslState(next);
+    saveChartSetView(projectId, { histogramLsl: next });
+  }
 
   useEffect(() => {
     if (!column || values.length < 2) {

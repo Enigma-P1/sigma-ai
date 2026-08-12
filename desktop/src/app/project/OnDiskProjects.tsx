@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { listProjects } from "../../api/client";
 import type { ProjectSummary } from "../../api/client";
+import { DeleteProjectButton } from "./DeleteProjectButton";
 import "./RecentProjects.css";
 
 export interface OnDiskProjectsProps {
@@ -8,6 +9,13 @@ export interface OnDiskProjectsProps {
   /** Project ids already shown in the recently-opened list, so this section
    * shows what that one cannot rather than repeating it. */
   hideIds?: string[];
+  /** Bump to force a refetch. Deleting a project from the RECENT list drops
+   * it from hideIds, which would otherwise un-hide a row for it in the list
+   * this component fetched at mount -- a project the user just deleted
+   * reappearing under a different heading. Found by driving the real
+   * screen; the two lists share a filesystem and had no way to tell each
+   * other anything. */
+  refreshKey?: number;
 }
 
 /** Every project actually in the projects folder.
@@ -22,7 +30,7 @@ export interface OnDiskProjectsProps {
  * The recent list stays: it is genuinely better for "where was I", because
  * it is ordered by when YOU last looked rather than by when the file
  * changed. This section answers the different question — what do I have. */
-export function OnDiskProjects({ onOpen, hideIds = [] }: OnDiskProjectsProps) {
+export function OnDiskProjects({ onOpen, hideIds = [], refreshKey = 0 }: OnDiskProjectsProps) {
   const [projects, setProjects] = useState<ProjectSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,7 +42,7 @@ export function OnDiskProjects({ onOpen, hideIds = [] }: OnDiskProjectsProps) {
     return () => {
       live = false;
     };
-  }, []);
+  }, [refreshKey]);
 
   if (error) return <p className="sigma-recent-list__empty">{error}</p>;
   if (projects === null) return <p className="sigma-recent-list__empty">Looking for projects…</p>;
@@ -66,6 +74,12 @@ export function OnDiskProjects({ onOpen, hideIds = [] }: OnDiskProjectsProps) {
               {p.latest_phase} · {p.artifact_count} tool{p.artifact_count === 1 ? "" : "s"} saved
             </span>
           </button>
+          <DeleteProjectButton
+            projectId={p.project_id}
+            name={p.name}
+            artifactCount={p.artifact_count}
+            onDeleted={() => setProjects((cur) => (cur ?? []).filter((row) => row.project_id !== p.project_id))}
+          />
         </li>
       ))}
     </ul>

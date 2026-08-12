@@ -49,6 +49,7 @@ from ..artifacts.standard_work import StandardWorkArtifact
 from ..artifacts.time_study import TimeStudyArtifact
 from ..artifacts.voc_ctq import VocCtqArtifact
 from ..artifacts.yield_calc import YieldCalcArtifact
+from ..datasets import DatasetStore
 from ..export import pack_pdf, report_pdf, report_theme
 from ..export.charter_pdf import render_charter_pdf
 from ..export.project_pdf import render_project_pdf
@@ -73,6 +74,7 @@ from ..export.reports import sipoc as sipoc_report_mod
 from ..export.reports import spaghetti as spaghetti_report_mod
 from ..export.reports import solution_matrix as solution_matrix_report_mod
 from ..export.reports import standard_work as standard_work_report_mod
+from ..export.reports import summary as summary_report_mod
 from ..export.reports import time_study as time_study_report_mod
 from ..export.reports import voc_ctq as voc_ctq_report_mod
 from ..export.reports import yield_calc as yield_calc_report_mod
@@ -553,3 +555,97 @@ def phase_pack(
         exported_at=report_theme.utc_stamp(),
     )
     return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-{phase.lower()}-pack.pdf")
+
+
+def _load_optional(
+    store: ProjectStore, meta: ProjectMetadata, project_id: str, tool_id: str, model: Any
+) -> tuple[Any, str, int] | None:
+    """(validated artifact, its artifact_id, its version) for the project's
+    saved TOOL_ID artifact, or None -- no artifact of that tool_id has ever
+    been saved, or the one on disk no longer validates against the current
+    schema. The second case is deliberately not an error: project_pdf.py's
+    generic export already treats one stale artifact as a reason to skip
+    it, not a reason to fail an export that covers several (its own
+    docstring: "refusing the whole export over it would reproduce the
+    exact 'you can't get your work out' failure this route exists to
+    fix"). The summary route below calls this four times (T-03/T-15/T-18/
+    T-08) plus a separate dataset lookup, any one of which may come back
+    empty or stale -- the same stance, just five sources instead of one.
+    """
+    artifact_id = _find_artifact_id(meta, tool_id)
+    if artifact_id is None:
+        return None
+    try:
+        data = store.load_artifact(project_id, artifact_id)
+    except FileNotFoundError:
+        return None
+    try:
+        artifact = model.model_validate(data)
+    except ValueError:
+        return None
+    version = meta.artifact_index[artifact_id].latest_version
+    return artifact, artifact_id, version
+
+
+@router.post("/project/{project_id}/summary/pdf")
+def project_summary_pdf(project_id: str, store: ProjectStore = Depends(get_store)) -> Response:
+    """The one-page project summary (docs/uat/PLAN.md 2.4): problem/goal,
+    baseline, data imported, top categories, fishbone causes, next action
+    -- from whatever the project actually has, gaps named rather than
+    dropped (export/reports/summary.py's module docstring has the full
+    case). No request body: unlike the per-tool reports, nothing here is a
+    client-captured chart or a caller-chosen dataset/version -- every
+    input is resolved from the project's own saved state, the same way
+    the phase pack above resolves its entries.
+    """
+    try:
+        meta = store.load_project(project_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    charter_hit = _load_optional(store, meta, project_id, "T-03", CharterArtifact)
+    fishbone_hit = _load_optional(store, meta, project_id, "T-15", FishboneArtifact)
+    matrix_hit = _load_optional(store, meta, project_id, "T-18", SolutionMatrixArtifact)
+    check_sheet_hit = _load_optional(store, meta, project_id, "T-08", CheckSheetArtifact)
+    datasets = DatasetStore(store).list_datasets(project_id)
+
+    # One row naming every artifact this page drew from, not one row per
+    # artifact -- up to four T-XX/id/version triples is real provenance a
+    # reviewer may want, but at one kv_table row each it was the single
+    # biggest reason the rich-project measurement (test_project_summary.py)
+    # didn't fit on one page. Comma-joined into one row keeps it checkable
+    # without spending four rows on it.
+    used: list[str] = []
+    for tool_id, hit in (("T-03", charter_hit), ("T-15", fishbone_hit), ("T-18", matrix_hit), ("T-08", check_sheet_hit)):
+        if hit is not None:
+            _, artifact_id, version = hit
+            used.append(f"{tool_id} {artifact_id} v{version}")
+
+    rows: list[tuple[str, str]] = []
+    if used:
+        rows.append(("Artifacts used", ", ".join(used)))
+    if datasets:
+        latest_dataset = datasets[-1]
+        rows.append(("Dataset", f"{latest_dataset.dataset_id} · {latest_dataset.row_count:,} row(s) · sha256 {latest_dataset.sha256[:12]}…"))
+    rows.append(("Engine version", __version__))
+
+    def story(content_width: float):
+        return summary_report_mod.build_story(
+            project_name=meta.name,
+            charter=charter_hit[0] if charter_hit else None,
+            fishbone=fishbone_hit[0] if fishbone_hit else None,
+            solution_matrix=matrix_hit[0] if matrix_hit else None,
+            check_sheet=check_sheet_hit[0] if check_sheet_hit else None,
+            datasets=datasets,
+            provenance_rows=rows,
+            exported_at=report_theme.utc_stamp(),
+            content_width=content_width,
+        )
+
+    pdf_bytes = report_pdf.render(
+        story_builder=story,
+        title=f"{meta.name} — Project Summary",
+        project_id=project_id,
+        engine_version=__version__,
+    )
+    return _pdf_response(pdf_bytes, f"{_safe_filename(meta.name)}-summary.pdf")

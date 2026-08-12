@@ -12,9 +12,13 @@ export const dataImportHelperContent: HelperFrameContent = {
   whatThisIs:
     "Where your data arrives and gets checked before anything is computed from it: upload a CSV or Excel " +
     "file, confirm what each column actually is (numeric or text), read the quality scan, and save -- the " +
-    "saved dataset carries a fingerprint (SHA-256) every later result links back to. The sample-size panel " +
-    "answers \"how much data is enough?\" before you collect: a rule of thumb for a stable baseline, a " +
-    "calculator for a target precision, and a bias self-check.",
+    "saved dataset carries a fingerprint (SHA-256) every later result links back to. Once it's saved, its rows " +
+    "view lets you fix the obvious junk without leaving the app or touching the original file: edit a cell, " +
+    "add or delete a row, merge spelling variants of one value with Recode, or combine two columns into a " +
+    "derived one -- each of those creates a new dataset with its own fingerprint, never an edit made in place, " +
+    "so a chart computed from an earlier version keeps resolving to the exact bytes it was computed from. The " +
+    "sample-size panel answers \"how much data is enough?\" before you collect: a rule of thumb for a stable " +
+    "baseline, a calculator for a target precision, and a bias self-check.",
   whenToUse:
     "Before collecting: size the sample and declare your stratification factors as columns. After " +
     "collecting: import the raw export -- at the Coffee Bar, the POS order log, one row per order with " +
@@ -51,6 +55,21 @@ export const dataImportHelperContent: HelperFrameContent = {
       field: "Quality scan -- duplicate rows",
       good: "Find out whether the event really happened twice or the export doubled -- then keep or remove, with a note either way.",
       bad: "Ignoring duplicates. (double-counted evidence inflates n and every count built on it)",
+    },
+    {
+      field: "Quality scan -- repeated header row",
+      good: "\"1 row repeats the column header as data\" -> save, then delete that row with Delete rows on the rows view.",
+      bad: "Leaving it in. (a pasted-in header row becomes an ordinary category in a Pareto -- a phantom member of the vital few that is really just the column names)",
+    },
+    {
+      field: "Quality scan -- near-duplicate values",
+      good: "\"JM\", \"J Morales\", \"J. Morales\" flagged as one column's spellings of one thing -> save, then merge them with Recode.",
+      bad: "Charting the column as-is. (one person, several spellings, splits into several members of a vital few -- a comparison between people or categories that reads clean and is wrong)",
+    },
+    {
+      field: "Quality scan -- mixed date formats",
+      good: "\"2 formats in one column\" -> save, then straighten out the odd ones with Edit a cell.",
+      bad: "Ignoring it. (9/14 and 2026-09-14T00:00:00 count as two different categories instead of one date, and a Pareto's vital few inflates to look flat when it is not)",
     },
     {
       field: "Save dataset to project",

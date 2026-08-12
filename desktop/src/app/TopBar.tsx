@@ -3,7 +3,7 @@ import { useSaveState } from "./SaveStateContext";
 import type { SaveState } from "./SaveStateContext";
 import { formatDraftTime } from "./useToolDraft";
 import { GlossaryButton } from "./GlossaryButton";
-import { downloadProjectPdf } from "../api/client";
+import { downloadProjectPdf, downloadProjectSummary } from "../api/client";
 import { ApiError } from "../api/errors";
 import { safeFilename, saveBlob } from "../api/saveBlob";
 import type { Phase } from "../api/types";
@@ -38,6 +38,7 @@ const SAVE_LABEL: Record<Exclude<SaveState, "draft">, string> = {
 export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnostics, onOpenAdvisorSettings }: TopBarProps) {
   const { saveState, draftSavedAt } = useSaveState();
   const [exporting, setExporting] = useState(false);
+  const [summarising, setSummarising] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
   // Never claim a time this state doesn't have -- useToolDraft.ts always
@@ -61,6 +62,24 @@ export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnost
       setExportError(err instanceof ApiError ? err.message : "Could not export the project.");
     } finally {
       setExporting(false);
+    }
+  }
+
+  /** The one page a manager actually reads. Sits beside "Export project"
+   * (which is the receipts -- every field of every saved tool) because the
+   * two answer different questions, and the UAT was unambiguous about which
+   * one a supervisor came for: "I need one page I can put on a desk and
+   * talk through in ten minutes." */
+  async function handleSummary() {
+    setSummarising(true);
+    setExportError(null);
+    try {
+      const blob = await downloadProjectSummary(projectId);
+      saveBlob(blob, `${safeFilename(projectName, projectId)}-summary.pdf`);
+    } catch (err) {
+      setExportError(err instanceof ApiError ? err.message : "Could not build the summary.");
+    } finally {
+      setSummarising(false);
     }
   }
 
@@ -96,6 +115,16 @@ export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnost
             {exportError}
           </span>
         )}
+        <button
+          type="button"
+          className="sigma-topbar__link"
+          disabled={summarising}
+          title="One page: the problem, the numbers, the causes and what is still missing"
+          onClick={() => void handleSummary()}
+          data-testid="topbar-summary"
+        >
+          {summarising ? "Building…" : "One-page summary"}
+        </button>
         <GlossaryButton />
         <button
           type="button"

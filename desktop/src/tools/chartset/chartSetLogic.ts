@@ -32,3 +32,53 @@ export function buildBoxGroups(rows: Record<string, string>[], groupColumn: stri
   }
   return Array.from(byLabel.entries()).map(([label, values]) => ({ label, values }));
 }
+
+/** Picks the column a picker should show selected right after a dataset
+ * (re)loads: `preferred` (a remembered choice from chartSetViewStore.ts,
+ * or the panel's own prior selection) if it is still a real column on
+ * THIS dataset, else `fallback` if that is real, else the first column
+ * available. One rule shared by every panel so "restore the saved view"
+ * and "the previous dataset's column doesn't exist here" (switching
+ * datasets mid-session) collapse into the same code path instead of five
+ * slightly different ones. */
+export function resolveColumn(preferred: string | undefined, columns: ColumnInfo[], fallback?: string): string {
+  if (preferred && columns.some((c) => c.name === preferred)) return preferred;
+  if (fallback && columns.some((c) => c.name === fallback)) return fallback;
+  return columns[0]?.name ?? "";
+}
+
+export interface ColumnValueCount {
+  value: string;
+  count: number;
+}
+
+/** Every distinct, non-blank value a column takes across `rows`, with how
+ * many rows carry it -- the pick-list for the chart screen's filter (PLAN
+ * 2.5). Sorted with `numeric: true` so aisle "3", "7", "12" reads in
+ * count order rather than lexicographic ("12", "19", "3", "7"). */
+export function distinctColumnValues(rows: Record<string, string>[], column: string): ColumnValueCount[] {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const value = (row[column] ?? "").trim();
+    if (value === "") continue;
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .map(([value, count]) => ({ value, count }))
+    .sort((a, b) => a.value.localeCompare(b.value, undefined, { numeric: true, sensitivity: "base" }));
+}
+
+/** Rows whose `column` value is one of `values` -- the one filter every
+ * chart on the screen recomputes over (PLAN 2.5). An empty column or an
+ * empty value set means "no filter yet," not "match nothing": landing on
+ * the column picker must never blank out every chart before a value is
+ * actually chosen. */
+export function applyRowFilter(
+  rows: Record<string, string>[],
+  column: string,
+  values: string[],
+): Record<string, string>[] {
+  if (!column || values.length === 0) return rows;
+  const wanted = new Set(values);
+  return rows.filter((row) => wanted.has((row[column] ?? "").trim()));
+}

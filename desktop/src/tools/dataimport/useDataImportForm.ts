@@ -32,6 +32,21 @@ export function useDataImportForm(projectId: string, onSaved: () => void) {
     setViewingDatasetId(null);
   }
 
+  /** A derivation control inside the rows view (recode / edit cells / add
+   * row / delete rows / derive column) just produced a brand-new
+   * DatasetMeta -- never an edit to the one on screen (datasets.py module
+   * docstring). This hook owns viewingDatasetId, so DatasetRowsView asks to
+   * switch by calling back up here rather than tracking a second "which
+   * dataset am I really showing" id that could drift from this one's.
+   * Switching what's shown is only half the point, though -- the new
+   * dataset also needs to actually show up in "Datasets saved in this
+   * project" below once the rows view closes, which is why this refreshes
+   * the same list handleSave does. */
+  function handleDatasetDerived(meta: DatasetMeta) {
+    setViewingDatasetId(meta.dataset_id);
+    refreshPriorDatasets();
+  }
+
   function refreshPriorDatasets() {
     listDatasets(projectId)
       .then(setPriorDatasets)
@@ -91,7 +106,7 @@ export function useDataImportForm(projectId: string, onSaved: () => void) {
 
   return {
     fileName, preview, columnTypes, loadingPreview, saving, error, savedMeta, priorDatasets, viewingDatasetId,
-    handleFileSelected, handleColumnTypeChange, handleSave, handleToggleRows, closeRows,
+    handleFileSelected, handleColumnTypeChange, handleSave, handleToggleRows, closeRows, handleDatasetDerived,
     canSave: preview != null && !saving,
   };
 }

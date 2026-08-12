@@ -23,6 +23,7 @@ import type {
   DatasetMeta,
   DatasetPreview,
   DescriptiveStats,
+  Derivation,
   DraftDeleteResponse,
   DraftRecord,
   DraftSummary,
@@ -127,6 +128,19 @@ export interface ProjectInfoResponse {
 
 export function getProjectInfo(projectId: string): Promise<ProjectInfoResponse> {
   return request<ProjectInfoResponse>(`/project/${encodeURIComponent(projectId)}/info`);
+}
+
+export interface ProjectDeleteResponse {
+  deleted: boolean;
+}
+
+/** DELETE /project/{id} — removes the project folder and everything in it,
+ * permanently. Deliberately NOT idempotent, unlike deleteDraft: a 404 for a
+ * project that was never there is information the caller needs, not noise to
+ * swallow (routes/projects.py's delete_project explains why). Every caller
+ * must confirm with the user first — there is no undo behind this. */
+export function deleteProject(projectId: string): Promise<ProjectDeleteResponse> {
+  return request<ProjectDeleteResponse>(`/project/${encodeURIComponent(projectId)}`, { method: "DELETE" });
 }
 
 // ---- /artifacts (routes/artifacts.py) ----
@@ -309,6 +323,27 @@ export function listDatasets(projectId: string): Promise<DatasetMeta[]> {
 
 export function getDataset(projectId: string, datasetId: string): Promise<DatasetDetail> {
   return request<DatasetDetail>(`/project/${encodeURIComponent(projectId)}/datasets/${encodeURIComponent(datasetId)}`);
+}
+
+export interface DatasetDeriveBody {
+  derivation: Derivation;
+  // Caller-supplied, like DatasetSaveRequest's created_at above -- never
+  // decided by the server.
+  created_at: string;
+}
+
+/** POST .../datasets/{id}/derive -- never edits the dataset it is called
+ * on. Always returns a NEW DatasetMeta with its own dataset_id/sha256 and
+ * derived_from_dataset_id/derivation lineage recorded (datasets.py module
+ * docstring); the parent gains a superseded_by_dataset_id pointer but its
+ * own v1.csv is never opened for writing. This is the one mechanism behind
+ * every dataimport derivation control -- edit a cell, add/delete a row,
+ * recode, derive a column -- `derivation.kind` is what varies. */
+export function deriveDataset(projectId: string, datasetId: string, body: DatasetDeriveBody): Promise<DatasetMeta> {
+  return request<DatasetMeta>(
+    `/project/${encodeURIComponent(projectId)}/datasets/${encodeURIComponent(datasetId)}/derive`,
+    postJson(body),
+  );
 }
 
 // ---- Stats (routes/stats.py) — T-13 baseline, T-14 chart facts ----
@@ -561,6 +596,33 @@ export async function downloadPhasePack(
   let res: Response;
   try {
     res = await fetch(url, { ...postJson({ charts }), headers: { "Content-Type": "application/json" } });
+  } catch (err) {
+    throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
+  }
+  if (!res.ok) {
+    let detailText = res.statusText;
+    try {
+      const parsed = (await res.json()) as { detail?: unknown };
+      if (typeof parsed.detail === "string") detailText = parsed.detail;
+    } catch {
+      /* non-JSON error body */
+    }
+    throw new ApiError(detailText || `HTTP ${res.status}`, res.status, { detail: detailText });
+  }
+  return res.blob();
+}
+
+/** The one-page project summary — the artifact both UAT testers came for and
+ * neither got. Dave: "I need one page I can put on a desk and talk through
+ * in ten minutes."
+ *
+ * Takes no body: it is built from whatever the project has actually saved,
+ * and names the gaps rather than dropping the sections it cannot fill. */
+export async function downloadProjectSummary(projectId: string): Promise<Blob> {
+  const url = `${resolveEngineBaseUrl()}/project/${encodeURIComponent(projectId)}/summary/pdf`;
+  let res: Response;
+  try {
+    res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
   } catch (err) {
     throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
   }

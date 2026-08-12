@@ -33,11 +33,17 @@ from ..charter_pdf_common import base_table_style, esc, kv_table
 TOOL_ID = "T-18"
 TOOL_TITLE = "Solution Selection Matrix"
 
+# Keys must match artifacts/solution_matrix.py's `Quadrant` literal exactly.
+# Three of the four never did -- "just_do_it"/"big_project"/"thankless"
+# against the real "quick_win"/"major_project"/"thankless_task" -- so the
+# .get() fallback below silently printed the raw enum value for three
+# quadrants out of four, and only "fill_in" ever rendered as English. Found
+# while writing the one-page summary, which reads the same artifact.
 QUADRANT_LABELS = {
-    "just_do_it": "Just do it",
-    "big_project": "Big project",
+    "quick_win": "Quick win",
+    "major_project": "Major project",
     "fill_in": "Fill-in",
-    "thankless": "Thankless",
+    "thankless_task": "Thankless task",
 }
 
 
