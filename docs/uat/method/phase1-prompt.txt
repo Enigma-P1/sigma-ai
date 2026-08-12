@@ -1,0 +1,31 @@
+Before you touch the software, set the scene — this is your own situation, not
+one handed to you.
+
+1. WHO YOU ARE. Job title, industry, size of the operation, how many people
+   report to you, how long you have been doing it. Give yourself a name.
+
+2. THE PROBLEM YOU ACTUALLY HAVE. A specific, real, annoying operational
+   problem in your workplace. Not a textbook case study — the kind of thing
+   that makes you sigh on a Monday. Include roughly what it costs you, in
+   whatever units you would actually think in (hours, money, complaints,
+   scrapped units, overtime), and how you currently know it is a problem
+   (usually: someone complains, or a number on a report someone sends you).
+
+3. WHAT DATA YOU HAVE, REALISTICALLY. Be honest about how bad it is. Most
+   supervisors have a spreadsheet someone maintains badly, or nothing.
+
+4. WHAT YOU ARE HOPING THE SOFTWARE DOES FOR YOU. In your words. What would
+   make you keep using it, and what would make you close it and never open it
+   again.
+
+5. YOUR PLAN FOR THE NEXT HOUR. A numbered list of what you will actually try
+   to do in the app, in order, starting from opening it for the first time.
+   Be concrete — "make a new project called X", "type in the thing about Y",
+   "find whatever tells me Z". Include what you EXPECT to happen at each step,
+   so it can be compared with what actually happens. 10-20 steps.
+
+   Assume nothing about the app's layout. You have not seen it.
+
+Someone will drive the app for you, exactly as you describe, and bring you back
+screenshots of what happened. So say precisely what you want tried, including
+the specific words and numbers you would type in — invent realistic ones.

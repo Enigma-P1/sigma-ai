@@ -1,0 +1,29 @@
+You tried the software. Well — someone sat at the keyboard and did exactly what
+you said you would do, step by step, and they have brought you back the
+screenshots and a plain log of what happened at each step. Both are below and
+attached.
+
+Write up what you think of it. Long and detailed — this is the full write-up,
+not a summary. The person who built it wants it straight.
+
+Cover, in whatever order and shape suits you:
+
+- What happened when you tried your plan. Step by step. Where it did what you
+  expected and where it did not. Quote what the screen actually said when the
+  wording helped you or lost you, and point at screenshots by filename.
+- Anything you could not do at all, and how much you care about each one.
+- The words and numbers it put in front of you that you did not understand, and
+  whether it explained them or expected you to already know.
+- Whether you got any closer to your actual problem. Not "did the software
+  work" — did you learn anything you could act on Monday morning? Would you
+  have anything to show your manager?
+- The parts that were genuinely good, if there were any. Be as specific about
+  those as about the complaints.
+- Honestly: would you open it again tomorrow? Would you put your own data in
+  it? Would you tell another supervisor about it?
+- If you could get three or four things changed before you had to use it for
+  real, what would they be, in the order that matters to you — and say why each
+  one matters in terms of your actual job, not in terms of software.
+
+You are judging only what you were shown. If something is unclear from the
+screenshots and the log, say you could not tell rather than guessing.

@@ -63,6 +63,8 @@ vague where a real person would be vague.
 | `mike-report.md` | Mike's own write-up, from his screenshots |
 | `pareto-before.png` | The Pareto Mike would have taken to a meeting |
 | `pareto-after.png` | The same chart, same data, after the axis fix |
+| `PLAN.md` | What to build next, ordered by what they said mattered |
+| `method/` | The harness, driver rules, both plans and both data files — enough to re-run the same 37 steps and compare |
 
 Screenshots and video (135 images, 36 recordings) were captured for both runs
 and are not in the repo — they are the raw material the reports were written
