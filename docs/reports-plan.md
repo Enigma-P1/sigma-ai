@@ -211,6 +211,46 @@ Both reviewers converged on four of five.
    live on page two, because page one is what gets circulated. Detailed
    diagnostics may go to an appendix.
 
+## Status — 2026-08-12
+
+Every phase of this plan has shipped, in a different order than written.
+
+| Phase | State |
+|---|---|
+| 1 — spine, Capability, FMEA | done |
+| 2 — rest of Group A (MSA, Hypothesis, Control Chart, Before/After) | done |
+| 3 — phase packs | done, **resequenced last** (see below) |
+| 4 — A3 one-pager with panel budgets | done |
+| 5 — Groups B, C, D | done |
+
+**23 of 26 tools export a designed page.** The three that do not: T-13 and
+T-14 are computed views with no saved artifact (T-13's capability report
+ships separately, driven from a dataset), and T-03 keeps the hand-laid
+charter PDF it already had.
+
+**Phase 3 was moved from third to last, deliberately.** The plan's argument
+for moving packs up was that they test ordering, naming and delivery early.
+That is true and it was outweighed: a pack is mostly empty until its
+phase's tools have reports, so a Define pack built at phase 3 would have
+carried one report out of five tools and tested the cover rather than the
+ordering. Built last, each pack indexes real verdicts.
+
+### Open questions, resolved by building
+
+**PNG of the same one-pager — declined for now, with a reason.** Decision 1
+above chose "PDF first, PNG second". PNG is not being added: ReportLab
+cannot rasterise, so this needs a native rasterizer (pypdfium2 or similar)
+shipped inside the PyInstaller onefile — on an app whose packaged sidecar
+failing to launch on installed Windows was a shipping incident
+(`docs/field-notes.md`, v0.1.1). A convenience format does not justify
+re-opening that risk. If slide users turn out to be the blocker in real
+use, the cheaper move is exporting the CHART as PNG client-side, where the
+image already exists (Plotly `toImage`, Konva `toDataURL`) and no engine
+dependency changes.
+
+**Letter/A4 as separate templates** (decision 4) is still open and still
+worth doing.
+
 ## Deferred, named rather than dropped
 
 Customer logo / project code / confidential marking; locale number and date
