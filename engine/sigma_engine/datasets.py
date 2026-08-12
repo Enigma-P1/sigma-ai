@@ -41,6 +41,7 @@ import hashlib
 import io
 import json
 import os
+import re
 import tempfile
 import uuid
 from pathlib import Path
@@ -72,6 +73,16 @@ class QualityScanResult(BaseModel):
     missing_values: dict[str, int]
     non_numeric_in_numeric_columns: dict[str, int]
     duplicate_row_count: int
+    # --- docs/uat/PLAN.md 1.5: three real UAT files' worth of junk that
+    # passed the four checks above silently (a repeated header row became
+    # a Pareto category, three spellings of one picker split the vital
+    # few, two date shapes in one column looked like two categories).
+    # All three optional with a default, same contract as
+    # source_artifact_id/derivation below: every meta.json already on disk
+    # was written before these fields existed and must keep loading. ---
+    repeated_header_row_count: int = 0
+    near_duplicate_values: dict[str, list[list[str]]] = {}
+    mixed_date_formats: dict[str, list[str]] = {}
 
 
 class DatasetPreview(BaseModel):
@@ -277,12 +288,160 @@ def build_columns(header: list[str], rows: list[dict[str, str]], type_overrides:
     return columns
 
 
+# --- Quality scan additions (docs/uat/PLAN.md 1.5) ---
+#
+# Three more findings, each its own function so the four checks above stay
+# byte-for-byte what they were (additive only -- this feature's own build
+# rule). All three are ~O(rows x columns): one pass building a dict keyed
+# by a cheap per-value computation, never a pairwise/nested-loop compare,
+# so a 500+-row file run on every preview keystroke stays linear.
+
+
+def _count_repeated_header_rows(columns: list[ColumnInfo], rows: list[dict[str, str]]) -> int:
+    """The stray "Wrong Part" bar in docs/uat/pareto-after.png: one
+    tester's header line, pasted a second time mid-file, imported as an
+    ordinary data row and became a Pareto category. Exact string equality
+    against every column's name, nothing fuzzy -- a pasted-in header is
+    byte-for-byte identical to the real one (same source cells), so this
+    has no near-miss worth guessing at and exact match is also the
+    cheapest possible check."""
+    names = [c.name for c in columns]
+    return sum(1 for row in rows if all(row.get(name, "") == name for name in names))
+
+
+# Punctuation stripped when grouping near-duplicate spellings, chosen
+# narrow on purpose: periods, commas, and straight/curly quotes/apostrophes
+# are the marks that show up as pure typing-style noise in a hand-entered
+# name or category ("J. Morales" vs "J Morales", "O'Brien" vs "OBrien").
+# "/" and "-" are deliberately NOT in this set even though they are
+# punctuation too -- they are structural separators in dates ("9/14" vs
+# "9-14") and suffixed codes ("44521" vs "44521-A"), and folding across
+# them risks manufacturing a false "these are the same value" out of two
+# values that were never the same (e.g. "1/23" and "12/3" would collapse
+# to one key if "/" were stripped). Silence on a real near-duplicate is an
+# acceptable miss here; a false merge on real data is not (module
+# docstring: "the scan finds problems, it never silently fixes them" --
+# this check must not silently decide two values ARE the same, either).
+_NEAR_DUP_PUNCTUATION_RE = re.compile(r"[.,'‘’“”\"]")
+_NEAR_DUP_WHITESPACE_RE = re.compile(r"\s+")
+
+
+def _near_duplicate_key(value: str) -> str:
+    stripped = _NEAR_DUP_PUNCTUATION_RE.sub("", value)
+    collapsed = _NEAR_DUP_WHITESPACE_RE.sub(" ", stripped).strip()
+    return collapsed.casefold()
+
+
+def _find_near_duplicate_values(columns: list[ColumnInfo], rows: list[dict[str, str]]) -> dict[str, list[list[str]]]:
+    """The JM / J. Morales / J Morales finding: per TEXT column (a
+    near-duplicate spelling is a categorical idea -- a numeric column has
+    nothing analogous), group the column's distinct raw values by
+    _near_duplicate_key and report only groups of 2+ raw spellings. Always
+    the RAW variants, never the normalized key -- the user needs to see
+    their own spellings to recognize them, and this never rewrites a cell,
+    it only points at ones that look alike; RecodeDerivation is the actual
+    fix (module docstring), applied by a human who can confirm two values
+    really are the same thing.
+
+    "JM" deliberately does NOT join "J Morales"/"J. Morales" here: an
+    initials abbreviation is not a case/punctuation/whitespace variant of
+    the full name, and guessing that it is would risk merging two
+    genuinely different people who happen to share initials -- a false
+    "same person" on payroll-adjacent data is worse than staying silent."""
+    result: dict[str, list[list[str]]] = {}
+    for c in columns:
+        if c.type != "text":
+            continue
+        variants_by_key: dict[str, list[str]] = {}
+        for row in rows:
+            value = row.get(c.name, "")
+            if value.strip() == "":
+                continue
+            key = _near_duplicate_key(value)
+            if not key:
+                continue  # e.g. a value that is nothing but punctuation
+            bucket = variants_by_key.setdefault(key, [])
+            if value not in bucket:
+                bucket.append(value)
+        groups = [sorted(variants) for variants in variants_by_key.values() if len(variants) >= 2]
+        if groups:
+            groups.sort()
+            result[c.name] = groups
+    return result
+
+
+# Date-ish SHAPES, not dates: no datetime parsing and no locale guess at
+# whether the first slash-separated field is a month or a day (module
+# brief -- "do not attempt to parse to real dates and do not guess a
+# locale"). "M/D/..." is this module's label for that shape, the same
+# label the build brief itself uses, not a parsed interpretation.
+#
+# ISO datetime, exactly what _xlsx_cell_to_str() emits for a
+# datetime.datetime cell (an Excel-native date), optionally with
+# fractional seconds / a timezone offset from some other source.
+_ISO_DATETIME_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:?\d{2})?$")
+# ISO date only -- what _xlsx_cell_to_str() emits for a bare datetime.date
+# cell, and how a spreadsheet's own "YYYY-MM-DD" text column commonly reads.
+_ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# M/D/YY or M/D/YYYY -- month/day zero-padding optional either side.
+_SLASH_DATE_RE = re.compile(r"^\d{1,2}/\d{1,2}/(\d{4}|\d{2})$")
+# M/D, no year at all -- e.g. "9/14" (docs/uat: ErrorLog_Sept.xlsx's Date
+# column, hand-typed instead of left as an Excel date cell).
+_SLASH_DATE_NO_YEAR_RE = re.compile(r"^\d{1,2}/\d{1,2}$")
+
+
+def _date_shape(value: str) -> str | None:
+    v = value.strip()
+    if not v:
+        return None
+    if _ISO_DATETIME_RE.fullmatch(v):
+        return "ISO datetime"
+    if _ISO_DATE_RE.fullmatch(v):
+        return "ISO date"
+    if _SLASH_DATE_RE.fullmatch(v):
+        year = v.rsplit("/", 1)[-1]
+        return "M/D/YYYY" if len(year) == 4 else "M/D/YY"
+    if _SLASH_DATE_NO_YEAR_RE.fullmatch(v):
+        return "M/D"
+    return None  # not one of the recognized shapes -- including ordinary non-date text
+
+
+def _find_mixed_date_formats(columns: list[ColumnInfo], rows: list[dict[str, str]]) -> dict[str, list[str]]:
+    """One column, more than one date SHAPE: the 9/14 vs
+    2026-09-14T00:00:00 mix that made a Pareto count one day as two
+    categories and produced a 40-of-53 "vital few". Scans every column,
+    not only text-typed ones (near_duplicate_values' restriction) -- a
+    date-ish shape requires a "/" or a "-" in a specific position, and
+    both make float() raise, so a genuinely all-numeric column can never
+    contain one; scanning unconditionally adds no false-positive risk and
+    also catches a column a caller mistakenly forced to numeric. A column
+    with only one shape present (or none) reports nothing -- this only
+    ever flags an actual MIX."""
+    result: dict[str, list[str]] = {}
+    for c in columns:
+        shapes_seen: dict[str, None] = {}  # insertion-ordered set
+        for row in rows:
+            shape = _date_shape(row.get(c.name, ""))
+            if shape is not None:
+                shapes_seen[shape] = None
+        if len(shapes_seen) > 1:
+            result[c.name] = sorted(shapes_seen)
+    return result
+
+
 def scan_quality(columns: list[ColumnInfo], rows: list[dict[str, str]]) -> QualityScanResult:
     """R-MEA-06's "basic data-quality checks visibly done": missing cells,
-    non-numeric cells in a column typed numeric, and exact-duplicate rows
-    -- run against whatever types are effective *right now* (inferred, or
-    a caller's override), so a preview re-scans live as the user fixes a
-    column's type before ever saving anything."""
+    non-numeric cells in a column typed numeric, exact-duplicate rows,
+    plus three more (docs/uat/PLAN.md 1.5) -- a header row pasted back in
+    as data, near-duplicate spellings in a text column, and more than one
+    date shape in one column, the three real UAT-file problems that passed
+    the first four checks silently. Run against whatever types are
+    effective *right now* (inferred, or a caller's override), so a preview
+    re-scans live as the user fixes a column's type before ever saving
+    anything. Every check here only ever reports: nothing in this function
+    fixes a cell, merges a spelling, or reparses a date -- RecodeDerivation
+    and DeriveColumnDerivation are the fix, applied by a human; this is
+    still not a data-cleaning tool."""
     missing = {c.name: 0 for c in columns}
     non_numeric = {c.name: 0 for c in columns}
     seen: set[tuple[str, ...]] = set()
@@ -305,6 +464,9 @@ def scan_quality(columns: list[ColumnInfo], rows: list[dict[str, str]]) -> Quali
     return QualityScanResult(
         row_count=len(rows), missing_values=missing,
         non_numeric_in_numeric_columns=non_numeric, duplicate_row_count=duplicate_row_count,
+        repeated_header_row_count=_count_repeated_header_rows(columns, rows),
+        near_duplicate_values=_find_near_duplicate_values(columns, rows),
+        mixed_date_formats=_find_mixed_date_formats(columns, rows),
     )
 
 

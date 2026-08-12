@@ -1,0 +1,11 @@
+Complaint date,Delivery date,Order number,Customer,Picker,Aisle,Item ordered,Item shipped,Error type,Quantity,Credit amount,Notes
+06/03/2026,06/03/2026,104882,Green Valley Hospital,JM,12,Ketchup packets 4 oz,Ketchup packets 6 oz,wrong item,2,86.40,customer called
+2026-06-04,6/4/26,104931,Mill Street Diner,J. Morales,7,Frozen chicken tenders 10 lb,Frozen chicken patties 10 lb,mispick,1,42.15,similar boxes
+6/05/26,06/05/2026,105004,Northside School,AB,19,12-inch flour tortillas,10-inch flour tortillas,wrong item,3,57.00,driver caught it at stop
+06/07/2026,06/07/2026,105117,County Care Center,TK,3,Low sodium soup,Regular soup,substitution,4,31.80,label looks almost same
+06/08/26,2026-06-08,105208,Harbor Cafe,JM,,Mozzarella sticks,Onion rings,wrong item,1,24.75,picker unknown on paper ticket
+06/10/2026,06/10/2026,105366,West End Grill,AB,14,5 oz burger patties,4 oz burger patties,wrong item,2,63.20,picked from slot above
+06/13/2026,06/13/2026,105622,Green Valley Hospital,J Morales,12,Ketchup packets 4 oz,Ketchup packets 6 oz,mispick,6,259.20,repeat issue
+06/18/2026,06/18/2026,105981,Oak Street Elementary,RL,22,Apple juice 6 x 64 oz,Orange juice 6 x 64 oz,wrong item,2,48.60,same color case
+06/22/26,06/22/26,106244,Mill Street Diner,TK,7,Frozen chicken tenders 10 lb,Frozen chicken patties 10 lb,wrong item,1,42.15,new hire
+06/29/2026,06/29/2026,106812,Harbor Cafe,JM,3,Low sodium soup,Regular soup,substitution,2,15.90,customer says not approved

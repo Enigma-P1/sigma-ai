@@ -75,6 +75,8 @@
       "note": 34,
       "timestamp": 0
     },
+    "mixed_date_formats": {},
+    "near_duplicate_values": {},
     "non_numeric_in_numeric_columns": {
       "barista": 0,
       "category": 0,
@@ -82,6 +84,7 @@
       "note": 0,
       "timestamp": 0
     },
+    "repeated_header_row_count": 0,
     "row_count": 40
   },
   "row_count": 40,

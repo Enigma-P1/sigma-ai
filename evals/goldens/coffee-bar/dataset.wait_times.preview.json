@@ -83,6 +83,8 @@
       "order_id": 0,
       "wait_minutes": 0
     },
+    "mixed_date_formats": {},
+    "near_duplicate_values": {},
     "non_numeric_in_numeric_columns": {
       "barista": 0,
       "date": 0,
@@ -91,6 +93,7 @@
       "order_id": 0,
       "wait_minutes": 0
     },
+    "repeated_header_row_count": 0,
     "row_count": 120
   },
   "row_count": 120,

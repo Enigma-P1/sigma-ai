@@ -62,12 +62,15 @@
       "misshelved": 0,
       "section": 0
     },
+    "mixed_date_formats": {},
+    "near_duplicate_values": {},
     "non_numeric_in_numeric_columns": {
       "date": 0,
       "items_audited": 0,
       "misshelved": 0,
       "section": 0
     },
+    "repeated_header_row_count": 0,
     "row_count": 72
   },
   "row_count": 72,

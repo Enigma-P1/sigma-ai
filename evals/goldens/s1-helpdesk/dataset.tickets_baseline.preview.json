@@ -83,6 +83,8 @@
       "tech": 0,
       "ticket_id": 0
     },
+    "mixed_date_formats": {},
+    "near_duplicate_values": {},
     "non_numeric_in_numeric_columns": {
       "channel": 0,
       "date": 0,
@@ -91,6 +93,7 @@
       "tech": 0,
       "ticket_id": 0
     },
+    "repeated_header_row_count": 0,
     "row_count": 127
   },
   "row_count": 127,

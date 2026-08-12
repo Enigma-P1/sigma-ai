@@ -1,10 +1,13 @@
 """Tests for datasets.py: CSV/XLSX round-trip, type inference, the import
-quality scan on a dirty fixture, and DatasetStore save/list/load. Route-
-level behavior (including the dataset -> BaselineResult provenance chain)
-is tests/test_routes_datasets.py's job.
+quality scan on a dirty fixture (plus its three docs/uat/PLAN.md 1.5
+additions -- a repeated header row, near-duplicate spellings, mixed date
+formats -- against the two real UAT files), and DatasetStore
+save/list/load. Route-level behavior (including the dataset ->
+BaselineResult provenance chain) is tests/test_routes_datasets.py's job.
 """
 
 import io
+from pathlib import Path
 
 import openpyxl
 import pytest
@@ -16,6 +19,7 @@ from sigma_engine.datasets import (
     DeleteRowsDerivation,
     DeriveColumnDerivation,
     EditCellsDerivation,
+    QualityScanResult,
     RecodeDerivation,
     apply_derivation,
     build_columns,
@@ -49,6 +53,13 @@ PICKER_CSV = (
     b"J Morales,Ketchup 4 oz,Ketchup 6 oz\n"
     b"AB,Mozzarella sticks,Onion rings\n"
 )
+
+# The two real UAT files (docs/uat/README.md) that motivated the three
+# scan_quality additions below, copied into fixtures/uat/ rather than read
+# from docs/uat/ at test time so this suite never reaches outside engine/.
+FIXTURES_DIR = Path(__file__).parent / "fixtures" / "uat"
+ERROR_LOG_XLSX = (FIXTURES_DIR / "ErrorLog_Sept.xlsx").read_bytes()
+PICKING_ERRORS_CSV = (FIXTURES_DIR / "june_picking_errors_test.csv").read_bytes()
 
 
 def test_infer_column_type_numeric_vs_text():
@@ -482,3 +493,188 @@ def test_derive_dataset_requires_an_existing_dataset(tmp_path):
         DatasetStore(store).derive_dataset(
             "proj-1", "no-such-dataset", DeleteRowsDerivation(row_indices=[0]), "2026-08-07T01:00:00"
         )
+
+
+# --- Quality scan additions (docs/uat/PLAN.md 1.5): repeated header rows,
+# near-duplicate spellings, mixed date formats ---
+
+
+def test_repeated_header_row_count_fires_on_the_real_error_log_file():
+    # ErrorLog_Sept.xlsx's own header line, pasted back in at row 46 --
+    # the stray "Wrong Part" bar in docs/uat/pareto-after.png.
+    preview = build_preview(ERROR_LOG_XLSX, "ErrorLog_Sept.xlsx", None)
+    assert preview.quality.repeated_header_row_count == 1
+
+
+def test_repeated_header_row_count_is_zero_on_clean_data():
+    header, rows = parse_upload(CLEAN_CSV, "wait_times.csv")
+    columns = build_columns(header, rows, None)
+    assert scan_quality(columns, rows).repeated_header_row_count == 0
+
+
+def test_near_duplicate_values_fires_on_the_real_picking_errors_file():
+    # JM / J. Morales / J Morales (docs/uat/README.md): one picker, three
+    # spellings. Only the two full-name spellings are reported -- see
+    # test_near_duplicate_values_does_not_merge_a_bare_abbreviation_with_a_
+    # full_name below for why "JM" staying out is deliberate, not a miss.
+    preview = build_preview(PICKING_ERRORS_CSV, "june_picking_errors_test.csv", None)
+    assert preview.quality.near_duplicate_values == {"Picker": [["J Morales", "J. Morales"]]}
+
+
+def test_near_duplicate_values_is_empty_on_clean_data():
+    preview = build_preview(CLEAN_CSV, "wait_times.csv", None)
+    assert preview.quality.near_duplicate_values == {}
+
+
+def test_near_duplicate_values_does_not_merge_a_bare_abbreviation_with_a_full_name():
+    # The conservative choice in _find_near_duplicate_values, isolated:
+    # "JM" normalizes to "jm", not "jmorales" -- it must never join the
+    # "J. Morales"/"J Morales" group just because a human reader knows
+    # they're the same picker. Guessing that would risk merging two
+    # genuinely different people who happen to share initials.
+    csv_bytes = b"picker\nJM\nJ. Morales\nJ Morales\n"
+    header, rows = parse_upload(csv_bytes, "pickers.csv")
+    columns = build_columns(header, rows, None)
+    result = scan_quality(columns, rows).near_duplicate_values
+    assert result == {"picker": [["J Morales", "J. Morales"]]}
+
+
+def test_near_duplicate_values_never_scans_a_numeric_column_even_if_values_would_collide_as_text():
+    # "92" and "92." both parse as float() -- the column infers numeric --
+    # and would collapse to the same near-duplicate key if this column
+    # were scanned as text (the normalization strips periods). Numeric
+    # must win: near-duplicate spellings are a text/categorical idea only.
+    csv_bytes = b"amount\n92\n92.\n15\n"
+    header, rows = parse_upload(csv_bytes, "amounts.csv")
+    columns = build_columns(header, rows, None)
+    assert {c.name: c.type for c in columns}["amount"] == "numeric"  # sanity: both really do parse as float
+    assert scan_quality(columns, rows).near_duplicate_values == {}
+
+
+def test_mixed_date_formats_fires_on_the_real_error_log_file():
+    # Hand-typed "9/14" alongside a real Excel date cell, which
+    # _xlsx_cell_to_str renders as "2026-09-14T00:00:00" -- one day
+    # spelled two ways in the same column.
+    preview = build_preview(ERROR_LOG_XLSX, "ErrorLog_Sept.xlsx", None)
+    assert preview.quality.mixed_date_formats == {"Date": ["ISO datetime", "M/D"]}
+
+
+def test_mixed_date_formats_fires_on_the_real_picking_errors_file():
+    # docs/uat/README.md: "three date formats" -- both date columns mix
+    # ISO ("2026-06-04"), M/D/YY ("6/05/26") and M/D/YYYY ("06/03/2026").
+    preview = build_preview(PICKING_ERRORS_CSV, "june_picking_errors_test.csv", None)
+    assert preview.quality.mixed_date_formats == {
+        "Complaint date": ["ISO date", "M/D/YY", "M/D/YYYY"],
+        "Delivery date": ["ISO date", "M/D/YY", "M/D/YYYY"],
+    }
+
+
+def test_mixed_date_formats_is_empty_on_clean_data():
+    preview = build_preview(CLEAN_CSV, "wait_times.csv", None)
+    assert preview.quality.mixed_date_formats == {}
+
+
+def test_mixed_date_formats_reports_nothing_for_a_single_consistent_shape():
+    # Real dates, but only one shape present -- must stay silent
+    # (scan_quality's docstring: a column with one consistent shape
+    # reports nothing; only an actual MIX is a finding).
+    csv_bytes = b"date\n9/1/2026\n9/2/2026\n9/3/2026\n"
+    header, rows = parse_upload(csv_bytes, "dates.csv")
+    columns = build_columns(header, rows, None)
+    assert scan_quality(columns, rows).mixed_date_formats == {}
+
+
+def test_mixed_date_formats_ignores_ordinary_non_date_text():
+    # A single "9/14"-shaped value amid free-text notes contributes one
+    # recognized shape, same as the single-shape case above -- it must
+    # not make Notes look like a mixed-date column. Plain prose
+    # ("customer called") contributes no shape at all.
+    csv_bytes = b"notes\ncustomer called\nsame bin\n9/14\n"
+    header, rows = parse_upload(csv_bytes, "notes.csv")
+    columns = build_columns(header, rows, None)
+    assert scan_quality(columns, rows).mixed_date_formats == {}
+
+
+def test_quality_scan_result_without_the_new_fields_still_loads():
+    # A quality block exactly as an older build of this module would have
+    # written it -- none of the three new keys anywhere inside it.
+    old_json = {
+        "row_count": 3,
+        "missing_values": {"name": 0},
+        "non_numeric_in_numeric_columns": {"name": 0},
+        "duplicate_row_count": 0,
+    }
+    result = QualityScanResult.model_validate(old_json)
+    assert result.repeated_header_row_count == 0
+    assert result.near_duplicate_values == {}
+    assert result.mixed_date_formats == {}
+
+
+def test_dataset_meta_without_the_new_quality_fields_still_loads(tmp_path):
+    # The full round trip: a meta.json exactly as an older build of this
+    # module would have written it, loaded through DatasetStore.load_meta
+    # the way a real dataset already on disk would be -- same backward-
+    # compat contract as source_artifact_id/derivation (this module's
+    # docstring, and QualityScanResult's own class docstring).
+    import json
+
+    store = ProjectStore(tmp_path)
+    store.create_project("proj-1", "Coffee Bar", "2026-08-07T00:00:00")
+    dataset_dir = tmp_path / "proj-1" / "datasets" / "old-dataset"
+    dataset_dir.mkdir(parents=True)
+    (dataset_dir / "v1.csv").write_bytes(CLEAN_CSV)
+    old_meta = {
+        "schema_version": 1,
+        "dataset_id": "old-dataset",
+        "project_id": "proj-1",
+        "source_filename": "wait_times.csv",
+        "created_at": "2026-08-07T01:00:00",
+        "sha256": "0" * 64,
+        "row_count": 3,
+        "columns": [
+            {"name": "name", "inferred_type": "text", "type": "text", "sample_values": ["register", "grinder"]},
+            {"name": "wait_seconds", "inferred_type": "numeric", "type": "numeric", "sample_values": ["92", "97"]},
+        ],
+        "quality": {
+            "row_count": 3,
+            "missing_values": {"name": 0, "wait_seconds": 0},
+            "non_numeric_in_numeric_columns": {"name": 0, "wait_seconds": 0},
+            "duplicate_row_count": 0,
+        },
+    }
+    (dataset_dir / "meta.json").write_text(json.dumps(old_meta), encoding="utf-8")
+
+    loaded = DatasetStore(store).load_meta("proj-1", "old-dataset")
+    assert loaded.quality.repeated_header_row_count == 0
+    assert loaded.quality.near_duplicate_values == {}
+    assert loaded.quality.mixed_date_formats == {}
+    assert loaded.source_artifact_id is None  # the OTHER already-shipped optional-field contract, same file
+
+
+def test_scan_quality_performance_sanity_on_a_few_hundred_rows():
+    # "runs on every preview keystroke-ish interaction and files reach
+    # 500+ rows" (this feature's build brief) -- a generous wall-clock
+    # budget a correct O(rows x columns) scan clears easily, but that an
+    # accidentally-quadratic near-duplicate or date-shape pass would not.
+    import time
+
+    header = ["date", "picker", "notes", "amount"]
+    pickers = ["JM", "J. Morales", "J Morales", "AB", "TK"]
+    dates = ["9/1/2026", "2026-09-01", "9/1/26", "2026-09-01T00:00:00"]
+    rows = [
+        {
+            "date": dates[i % len(dates)],
+            "picker": pickers[i % len(pickers)],
+            "notes": f"note number {i}",
+            "amount": str(i),
+        }
+        for i in range(500)
+    ]
+    columns = build_columns(header, rows, None)
+
+    start = time.monotonic()
+    result = scan_quality(columns, rows)
+    elapsed = time.monotonic() - start
+
+    assert elapsed < 5.0, f"scan_quality took {elapsed:.2f}s on 500 rows -- looks worse than linear"
+    assert result.row_count == 500
