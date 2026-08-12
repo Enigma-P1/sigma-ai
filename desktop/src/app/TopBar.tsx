@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { useSaveState } from "./SaveStateContext";
+import type { SaveState } from "./SaveStateContext";
+import { formatDraftTime } from "./useToolDraft";
 import { downloadProjectPdf } from "../api/client";
 import { ApiError } from "../api/errors";
 import { safeFilename, saveBlob } from "../api/saveBlob";
@@ -15,7 +17,10 @@ export interface TopBarProps {
   onOpenAdvisorSettings: () => void;
 }
 
-const SAVE_LABEL: Record<string, string> = {
+// "draft" is handled separately below, not in this table -- its label
+// carries a live timestamp ("Draft stored 4:32 PM"), which a static
+// Record<SaveState, string> can't express.
+const SAVE_LABEL: Record<Exclude<SaveState, "draft">, string> = {
   // "No changes yet" was a claim this state cannot make: `idle` only means
   // no save has been attempted, and nothing reports edits up to here -- so
   // the bar sat on "No changes yet" while a user typed a charter, and then
@@ -30,9 +35,16 @@ const SAVE_LABEL: Record<string, string> = {
  * from SaveStateContext so any tool screen can update it without prop
  * drilling through the whole shell. */
 export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnostics, onOpenAdvisorSettings }: TopBarProps) {
-  const { saveState } = useSaveState();
+  const { saveState, draftSavedAt } = useSaveState();
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState<string | null>(null);
+
+  // Never claim a time this state doesn't have -- useToolDraft.ts always
+  // sets draftSavedAt in the same call that sets saveState to "draft", so
+  // the no-timestamp branch below is a defensive fallback, not the normal
+  // path: say only that a draft exists, not when.
+  const saveLabel =
+    saveState === "draft" ? (draftSavedAt ? `Draft stored ${formatDraftTime(draftSavedAt)}` : "Draft stored") : SAVE_LABEL[saveState];
 
   /** The whole project as one PDF. Lives in the top bar rather than on a
    * tool screen because it is not about any one tool -- and because the
@@ -66,7 +78,7 @@ export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnost
       </div>
       <div className="sigma-topbar__right">
         <span className={`sigma-topbar__save-state sigma-topbar__save-state--${saveState}`} data-testid="topbar-save-state">
-          {SAVE_LABEL[saveState]}
+          {saveLabel}
         </span>
         <button
           type="button"

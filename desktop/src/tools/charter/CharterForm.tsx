@@ -11,6 +11,7 @@ import { CHARTER_CHECK_FIELD, CHARTER_CHECK_LABELS } from "./charterChecks";
 import { downloadCharterPdf, loadArtifact, runPrescore, saveArtifact } from "../../api/client";
 import { ApiError, groupValidationByField } from "../../api/errors";
 import { useSaveState } from "../../app/SaveStateContext";
+import { formatDraftTime, useToolDraft } from "../../app/useToolDraft";
 import type {
   BusinessImpact,
   PrescoreResult,
@@ -96,14 +97,22 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
 
   const existingVersion = project.artifact_index[ARTIFACT_ID]?.latest_version;
 
+  // What this form would show with no draft in play -- undefined until
+  // that's actually settled, so useToolDraft below never has to guess
+  // whether a stored draft "differs" from a baseline that hasn't loaded yet.
+  const [baseline, setBaseline] = useState<CharterState | undefined>(undefined);
+
   useEffect(() => {
-    if (!existingVersion) return;
+    if (!existingVersion) {
+      setBaseline(EMPTY_STATE);
+      return;
+    }
     let cancelled = false;
     loadArtifact(projectId, ARTIFACT_ID)
       .then((data) => {
         if (cancelled) return;
         const d = data as unknown as CharterState;
-        setState({
+        const loaded: CharterState = {
           problem_statement: d.problem_statement,
           goal: d.goal,
           scope: d.scope,
@@ -113,16 +122,30 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
           business_impact: d.business_impact,
           risks: d.risks,
           notes: (data as { notes?: string }).notes ?? "",
-        });
+        };
+        setState(loaded);
         setVersion(existingVersion);
+        setBaseline(loaded);
       })
       .catch(() => {
-        /* best-effort prefill; an empty form is still usable */
+        // best-effort prefill; an empty form is still usable. Also the
+        // draft-restore baseline: without setting it here too, a failed
+        // reload would leave `baseline` stuck at undefined forever and
+        // useToolDraft would never decide whether to restore anything.
+        if (!cancelled) setBaseline(EMPTY_STATE);
       });
     return () => {
       cancelled = true;
     };
   }, [projectId, existingVersion]);
+
+  // Draft autosave (PLAN Phase 4.1, off the 2026-08-12 supervisor UAT):
+  // Dave typed a problem statement and a goal, navigated away, and lost
+  // both, because Save sat behind eleven other required fields he hadn't
+  // touched yet. This restores whatever was last typed and never saved,
+  // autosaves every further edit on a debounce, and clears itself the
+  // moment a real save succeeds -- see useToolDraft.ts for the contract.
+  const draft = useToolDraft<CharterState>(projectId, "T-03", { baseline, state, setState });
 
   /** Validation errors win (schema-level); otherwise surface the matching
    * prescore check, if any, on the field it's mapped to in charterChecks.ts. */
@@ -164,6 +187,11 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
       setVersion(res.version);
       setSaveState("saved");
       onSaved();
+      // This typing is now a real artifact -- the draft that was
+      // protecting it has nothing left to protect (drafts.py: a draft
+      // never touches artifact_index either way, so this is cleanup, not
+      // part of what makes the save real).
+      draft.clearDraft();
       try {
         setPrescore(await runPrescore("T-03", body));
       } catch {
@@ -236,6 +264,21 @@ export function CharterForm({ projectId, project, onSaved }: CharterFormProps) {
         )}
         {exportError && <VerdictBanner tone="fail" headline={exportError} />}
       </Panel>
+
+      {draft.restoredAt && (
+        <div data-testid="charter-draft-restored-banner">
+          <VerdictBanner
+            tone="neutral"
+            headline={`Restored unsaved typing from ${formatDraftTime(draft.restoredAt)}`}
+            detail="This never made it into a saved version -- it only lived as an autosaved draft. Nothing else on the form changed."
+            actions={
+              <Button variant="ghost" size="sm" onClick={draft.discardDraft} data-testid="charter-discard-draft">
+                Discard restored text
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <ProblemStatementSection
         value={state.problem_statement}

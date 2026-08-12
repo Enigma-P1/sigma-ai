@@ -11,6 +11,7 @@ import type { A3PanelKind, ProjectMetadata } from "../../api/types";
 import { A3_PANEL_ORDER, TOLLGATE_PHASES } from "../../api/types";
 import "./A3Form.css";
 import { ReportButton } from "../../app/ReportButton";
+import { formatDraftTime } from "../../app/useToolDraft";
 
 export interface A3FormProps {
   projectId: string;
@@ -42,6 +43,21 @@ export function A3Form({ projectId, project, onSaved }: A3FormProps) {
         </span>
       }>
       <p>One argument, panel by panel -- problem, baseline, causes, countermeasures, proof, control. Not a field dump.</p>
+
+      {f.draftRestoredAt && (
+        <div data-testid="a3-draft-restored-banner">
+          <VerdictBanner
+            tone="neutral"
+            headline={`Restored unsaved typing from ${formatDraftTime(f.draftRestoredAt)}`}
+            detail="This never made it into a saved version -- it only lived as an autosaved draft. Nothing else on this form changed."
+            actions={
+              <Button variant="ghost" size="sm" onClick={f.discardDraft} data-testid="a3-discard-draft">
+                Discard restored text
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <div className="sigma-a3-layout">
         <CompletenessRail panels={f.state.panels} activePanel={activePanel} onSelect={(p) => setActivePanel(p as A3PanelKind)} />

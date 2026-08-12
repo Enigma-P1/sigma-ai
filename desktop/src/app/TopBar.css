@@ -52,6 +52,12 @@
 .sigma-topbar__save-state--saving {
   color: var(--color-accent);
 }
+/* Same accent as "saving": a draft is the app actively protecting typing,
+   not a verdict on it (that's pass/fail's job) -- it doesn't get its own
+   semantic color. */
+.sigma-topbar__save-state--draft {
+  color: var(--color-accent);
+}
 .sigma-topbar__save-state--saved {
   color: var(--color-pass);
 }

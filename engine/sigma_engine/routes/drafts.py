@@ -50,11 +50,31 @@ def save_draft(
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
 
-@router.get("/{tool_id}", response_model=DraftRecord)
-def get_draft(project_id: str, tool_id: str, store: ProjectStore = Depends(get_store)) -> DraftRecord:
+class DraftLookupResponse(BaseModel):
+    """`draft: null` rather than a 404, and the difference is not pedantry.
+
+    Every tool screen asks this on mount, and for most tools the answer is
+    "no" -- that is the ordinary case, not a failure. A 404 makes the
+    browser log a console error every time a user opens a form they have
+    never left half-finished, which is noise in a shipped desktop app and,
+    worse, buries a real 404 in a stream of expected ones: the packaged
+    browser probes caught exactly that, failing on routine draft lookups
+    they could not tell apart from a broken call.
+
+    The draft slot for a tool always conceptually exists. It is empty or it
+    is not, and "empty" is a 200 with nothing in it.
+    """
+
+    draft: DraftRecord | None = None
+
+
+@router.get("/{tool_id}", response_model=DraftLookupResponse)
+def get_draft(project_id: str, tool_id: str, store: ProjectStore = Depends(get_store)) -> DraftLookupResponse:
     try:
-        return DraftStore(store).load_draft(project_id, tool_id)
+        return DraftLookupResponse(draft=DraftStore(store).find_draft(project_id, tool_id))
     except FileNotFoundError as exc:
+        # find_draft only raises this for an unknown PROJECT -- a known
+        # project with no draft for this tool comes back as None above.
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc

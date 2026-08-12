@@ -1,5 +1,6 @@
 import { Button, MissingHint, Panel, VerdictBanner } from "../../design/components";
 import { ReportButton } from "../../app/ReportButton";
+import { formatDraftTime } from "../../app/useToolDraft";
 import { FmeaWorksheet } from "./FmeaWorksheet";
 import { PrescoreStrip } from "../PrescoreStrip";
 import { FMEA_CHECK_LABELS } from "./fmeaChecks";
@@ -49,6 +50,21 @@ export function FmeaForm({ projectId, project, onSaved }: FmeaFormProps) {
       <div data-testid="fmea-rpn-limitation-banner">
         <VerdictBanner tone="neutral" headline={RPN_LIMITATION_TEXT} />
       </div>
+
+      {f.draftRestoredAt && (
+        <div data-testid="fmea-draft-restored-banner">
+          <VerdictBanner
+            tone="neutral"
+            headline={`Restored unsaved rows from ${formatDraftTime(f.draftRestoredAt)}`}
+            detail="This never made it into a saved version -- it only lived as an autosaved draft. Nothing else on this worksheet changed."
+            actions={
+              <Button variant="ghost" size="sm" onClick={f.discardDraft} data-testid="fmea-discard-draft">
+                Discard restored rows
+              </Button>
+            }
+          />
+        </div>
+      )}
 
       <div data-testid="fmea-blocking-banner">
         {blockingFlags.length > 0 && (

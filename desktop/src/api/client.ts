@@ -23,6 +23,9 @@ import type {
   DatasetMeta,
   DatasetPreview,
   DescriptiveStats,
+  DraftDeleteResponse,
+  DraftRecord,
+  DraftSummary,
   FloorPlanDetail,
   FloorPlanImageMeta,
   GateResult,
@@ -163,6 +166,53 @@ export function listArtifactVersions(projectId: string, artifactId: string): Pro
   return request<ListVersionsResponse>(
     `/project/${encodeURIComponent(projectId)}/artifacts/${encodeURIComponent(artifactId)}/versions`,
   );
+}
+
+// ---- Drafts (routes/drafts.py) — per-tool in-progress typing, never an artifact ----
+
+export interface DraftSaveBody {
+  // Caller-supplied, like every other *_at in this file -- never
+  // decided by the server (drafts.py's DraftSaveRequest).
+  updated_at: string;
+  payload: unknown;
+}
+
+/** PUT .../drafts/{tool_id} — upsert, one draft per (project, tool). Never
+ * validated against the eventual artifact's schema (drafts.py's module
+ * docstring: that is the one thing a draft is for), so this can carry a
+ * payload saveArtifact would reject outright. */
+export function saveDraft(projectId: string, toolId: string, body: DraftSaveBody): Promise<DraftRecord> {
+  return request<DraftRecord>(`/project/${encodeURIComponent(projectId)}/drafts/${encodeURIComponent(toolId)}`, putJson(body));
+}
+
+/** GET .../drafts/{tool_id} — resolves to null when this tool has nothing
+ * stored, which is the ordinary case and a 200, not a 404.
+ *
+ * It used to be a 404, and every tool screen asking on mount meant the
+ * browser logged a console error each time someone opened a form they had
+ * never left half-finished. The packaged probes fail on any 4xx precisely
+ * so a real one cannot hide in routine noise, and they caught this. A 404
+ * still means what it should here: no such project. */
+export function loadDraft(projectId: string, toolId: string): Promise<DraftRecord | null> {
+  return request<{ draft: DraftRecord | null }>(
+    `/project/${encodeURIComponent(projectId)}/drafts/${encodeURIComponent(toolId)}`,
+  ).then((r) => r.draft);
+}
+
+/** DELETE .../drafts/{tool_id} — idempotent (200 + deleted:true whether or
+ * not one existed). Called the instant the matching artifact save
+ * succeeds, and when a user discards a restored draft -- a draft is
+ * advisory, so neither caller waits on this before doing its own thing. */
+export function deleteDraft(projectId: string, toolId: string): Promise<DraftDeleteResponse> {
+  return request<DraftDeleteResponse>(`/project/${encodeURIComponent(projectId)}/drafts/${encodeURIComponent(toolId)}`, {
+    method: "DELETE",
+  });
+}
+
+/** GET .../drafts — every tool_id with a stored draft in this project,
+ * cheap enough to call on project open (no payloads, just freshness). */
+export function listDrafts(projectId: string): Promise<DraftSummary[]> {
+  return request<DraftSummary[]>(`/project/${encodeURIComponent(projectId)}/drafts`);
 }
 
 // ---- /prescore (routes/prescore.py) ----

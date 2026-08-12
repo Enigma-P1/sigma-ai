@@ -114,12 +114,28 @@ class DraftStore:
         _atomic_write_json(self._draft_path(project_id, tool_id), record.model_dump(mode="json"))
         return record
 
-    def load_draft(self, project_id: str, tool_id: str) -> DraftRecord:
+    def find_draft(self, project_id: str, tool_id: str) -> DraftRecord | None:
+        """The draft, or None when this tool has none.
+
+        Most tools have no draft most of the time, and that is the ordinary
+        answer rather than an exceptional one -- so the route can answer
+        "no" with a 200 instead of a 404 nobody can distinguish from a
+        broken call. An unknown PROJECT still raises: that one really is a
+        caller mistake.
+        """
         self.projects.load_project(project_id)  # FileNotFoundError -> 404 at the route layer
         path = self._draft_path(project_id, tool_id)
         if not path.exists():
-            raise FileNotFoundError(f"no draft for tool_id {tool_id!r} in project {project_id!r}")
+            return None
         return DraftRecord.model_validate(json.loads(path.read_text(encoding="utf-8")))
+
+    def load_draft(self, project_id: str, tool_id: str) -> DraftRecord:
+        """find_draft, but absent is an error -- kept for callers that treat
+        a missing draft as exceptional."""
+        record = self.find_draft(project_id, tool_id)
+        if record is None:
+            raise FileNotFoundError(f"no draft for tool_id {tool_id!r} in project {project_id!r}")
+        return record
 
     def delete_draft(self, project_id: str, tool_id: str) -> None:
         """Idempotent by design: the client's real save flow deletes a

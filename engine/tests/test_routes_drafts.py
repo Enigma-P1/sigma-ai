@@ -34,7 +34,7 @@ def test_put_and_get_draft_round_trip(client):
 
     get = client.get("/project/proj-1/drafts/T-03")
     assert get.status_code == 200, get.text
-    assert get.json() == body
+    assert get.json() == {"draft": body}
 
 
 def test_put_overwrites_the_previous_draft(client):
@@ -44,17 +44,22 @@ def test_put_overwrites_the_previous_draft(client):
     assert second.status_code == 200, second.text
 
     get = client.get("/project/proj-1/drafts/T-03")
-    assert get.json()["payload"] == {"a": 2, "b": 3}
-    assert get.json()["updated_at"] == "2026-08-12T00:05:00"
+    assert get.json()["draft"]["payload"] == {"a": 2, "b": 3}
+    assert get.json()["draft"]["updated_at"] == "2026-08-12T00:05:00"
 
 
-def test_get_404_for_a_draft_that_was_never_saved(client):
+def test_get_answers_no_draft_with_a_200_not_a_404(client):
+    """Every tool screen asks this on mount and for most tools the answer is
+    no. A 404 made the browser log a console error on every ordinary form
+    open, and buried a real 404 among expected ones -- the packaged probes
+    failed on exactly that. "No draft" is a 200 with nothing in it."""
     _create_project(client)
     resp = client.get("/project/proj-1/drafts/T-03")
-    assert resp.status_code == 404
+    assert resp.status_code == 200
+    assert resp.json() == {"draft": None}
 
 
-def test_delete_then_get_404(client):
+def test_delete_then_get_reports_no_draft(client):
     _create_project(client)
     client.put("/project/proj-1/drafts/T-03", json={"updated_at": "2026-08-12T00:01:00", "payload": {"a": 1}})
 
@@ -62,7 +67,9 @@ def test_delete_then_get_404(client):
     assert delete.status_code == 200, delete.text
     assert delete.json() == {"deleted": True}
 
-    assert client.get("/project/proj-1/drafts/T-03").status_code == 404
+    gone = client.get("/project/proj-1/drafts/T-03")
+    assert gone.status_code == 200
+    assert gone.json() == {"draft": None}
 
 
 def test_delete_is_idempotent_when_no_draft_ever_existed(client):

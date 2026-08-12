@@ -42,6 +42,32 @@ export interface OverrideLogEntry {
   missing: string[];
 }
 
+// ---- Drafts (routes/drafts.py) ----
+//
+// A DRAFT IS NOT AN ARTIFACT (drafts.py's module docstring has the full
+// case for it: nothing here ever touches artifact_index, gates, or a
+// tollgate). `payload` mirrors the engine's Pydantic `Any` -- opaque JSON
+// the engine never inspects or validates, so this file has no business
+// narrowing its shape either. The desktop shell that wrote it is the only
+// thing that knows what's inside.
+
+export interface DraftRecord {
+  schema_version: number;
+  tool_id: string;
+  updated_at: string;
+  payload: unknown;
+}
+
+/** One row of GET .../drafts -- tool_id and freshness, no payload. */
+export interface DraftSummary {
+  tool_id: string;
+  updated_at: string;
+}
+
+export interface DraftDeleteResponse {
+  deleted: boolean;
+}
+
 // ---- Prescore (prescore/common.py) ----
 
 export type PrescoreStatus = "pass" | "flag" | "hard_flag";

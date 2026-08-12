@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadArtifact, runPrescore, saveArtifact } from "../../api/client";
 import { ApiError } from "../../api/errors";
 import { useSaveState } from "../../app/SaveStateContext";
+import { useToolDraft } from "../../app/useToolDraft";
 import { useA3PanelSeeding } from "./useA3PanelSeeding";
 import type { A3Artifact, A3PanelKind, PrescoreResult, ProjectMetadata, TollgateAnswer } from "../../api/types";
 import { buildA3Body, canSave, emptyState, missingFields, stateFromArtifact, type A3State } from "./a3Logic";
@@ -15,7 +16,16 @@ const SCHEMA_VERSION = 1;
  * here") -- see a3Seeding.ts / useA3PanelSeeding.ts. */
 export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: () => void) {
   const { setSaveState } = useSaveState();
-  const [state, setState] = useState<A3State>(emptyState());
+  // emptyState() hands back a fresh object every call (a3Logic.ts's own
+  // choice, so nothing accidentally shares a mutable singleton) -- computed
+  // once here and reused for both `state`'s initializer and the "no saved
+  // version" baseline below, so the two start out `===` the way useToolDraft
+  // needs them to for its own untouched-since-mount check.
+  const emptyStateOnceRef = useRef<A3State | null>(null);
+  if (emptyStateOnceRef.current === null) emptyStateOnceRef.current = emptyState();
+  const EMPTY = emptyStateOnceRef.current;
+
+  const [state, setState] = useState<A3State>(EMPTY);
   const [version, setVersion] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
@@ -25,24 +35,42 @@ export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: 
 
   const existingVersion = project.artifact_index[ARTIFACT_ID]?.latest_version;
 
+  // What this form would show with no draft in play -- undefined until
+  // that's settled, so useToolDraft never has to guess whether a stored
+  // draft "differs" from a baseline that hasn't loaded yet.
+  const [baseline, setBaseline] = useState<A3State | undefined>(undefined);
+
   useEffect(() => {
-    if (!existingVersion) return;
+    if (!existingVersion) {
+      setBaseline(EMPTY);
+      return;
+    }
     let cancelled = false;
     loadArtifact(projectId, ARTIFACT_ID)
       .then((data) => {
         if (cancelled) return;
         const d = data as unknown as A3Artifact;
-        setState(stateFromArtifact(d));
+        const loaded = stateFromArtifact(d);
+        setState(loaded);
         setServerArtifact(d);
         setVersion(existingVersion);
+        setBaseline(loaded);
       })
       .catch(() => {
-        /* best-effort prefill; a blank A3 is still usable */
+        /* best-effort prefill; a blank A3 is still usable. Also the
+           draft-restore baseline -- see CharterForm.tsx's identical catch
+           for why this branch sets it too. */
+        if (!cancelled) setBaseline(EMPTY);
       });
     return () => {
       cancelled = true;
     };
-  }, [projectId, existingVersion]);
+  }, [projectId, existingVersion, EMPTY]);
+
+  // Draft autosave (PLAN Phase 4.1) -- same wiring as CharterForm.tsx,
+  // the tool this feature was built for; see useToolDraft.ts for the
+  // restore/autosave contract.
+  const draft = useToolDraft<A3State>(projectId, "T-25", { baseline, state, setState });
 
   function update(patch: Partial<A3State>) {
     setState((prev) => ({ ...prev, ...patch }));
@@ -78,10 +106,20 @@ export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: 
       try {
         const reloaded = (await loadArtifact(projectId, ARTIFACT_ID)) as unknown as A3Artifact;
         setServerArtifact(reloaded);
-        setState(stateFromArtifact(reloaded));
+        const reloadedState = stateFromArtifact(reloaded);
+        setState(reloadedState);
+        setBaseline(reloadedState); // this is now the saved truth -- nothing left for a draft to protect
       } catch {
-        /* the save itself succeeded; a failed re-load just skips the badge/closure refresh */
+        // the save itself succeeded; a failed re-load just skips the
+        // badge/closure refresh. Still move the draft baseline up to what
+        // was actually saved (`state`, pre-reload), or useToolDraft would
+        // see `state` and the old `baseline` disagree and autosave a new
+        // draft for content that is already a real artifact.
+        setBaseline(state);
       }
+      // This typing is now a real artifact -- the draft that was
+      // protecting it has nothing left to protect.
+      draft.clearDraft();
       try {
         setPrescore(await runPrescore("T-25", body));
       } catch {
@@ -104,5 +142,6 @@ export function useA3Form(projectId: string, project: ProjectMetadata, onSaved: 
     state, update, setPanelNarrative, reseedPanel, seeding, loadFmeaForClose, setTollgateAnswer,
     version, saving, canSave: canSave(state) && !saving, missing: missingFields(state),
     generalError, closeBlockedError, prescore, serverArtifact, handleSave,
+    draftRestoredAt: draft.restoredAt, discardDraft: draft.discardDraft,
   };
 }
