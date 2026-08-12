@@ -30,6 +30,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from . import __version__
+from .project_store import UnsafeIdError
 from .routes import advisor as advisor_routes
 from .routes import artifacts as artifacts_routes
 from .routes import check_sheet as check_sheet_routes
@@ -120,6 +121,15 @@ app.add_middleware(
     allow_headers=["*"],
     allow_private_network=True,
 )
+
+@app.exception_handler(UnsafeIdError)
+def _unsafe_id(_request: Request, exc: UnsafeIdError) -> JSONResponse:
+    """A project or artifact id that cannot be a folder name is the caller's
+    mistake, not the engine falling over. Most routes already map ValueError
+    to 422 themselves and never reach here; this catches the rest so a
+    crafted id is never a 500."""
+    return JSONResponse(status_code=422, content={"detail": str(exc)})
+
 
 app.include_router(projects_routes.router)
 app.include_router(advisor_routes.router)

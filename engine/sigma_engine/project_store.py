@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -66,18 +67,52 @@ def _append_jsonl(path: Path, line_obj: dict[str, Any]) -> None:
         f.write("\n")
 
 
+# A project id and an artifact id both become path segments, and both arrive
+# from outside the engine -- the project id is literally typed into a box on
+# the create screen labelled "Project folder (ID)". `root / "../../etc"` is a
+# perfectly good Path, so without a check here a user with a slash on the
+# keyboard writes outside their own projects folder, and a crafted request
+# does the same on purpose: percent-encoded dot segments survive URL
+# normalisation and reach the route layer intact.
+#
+# The check belongs at the store boundary rather than in each route, because
+# every other store -- datasets, drafts, floorplans -- builds its own paths
+# from resolved_project_path() below, and so inherits this one guard.
+#
+# An allowlist, not a denylist: the ids this app actually mints are slugs
+# (`june-2026-warehouse-picking-errors`) and uuid hex, and no existing test,
+# golden or scenario uses anything outside this set -- checked before the
+# rule was written, so it tightens nothing that already works.
+_SAFE_SEGMENT = re.compile(r"^[A-Za-z0-9_-]+$")
+
+
+class UnsafeIdError(ValueError):
+    """A ValueError on purpose: most routes here already map ValueError to a
+    422, so they keep working untouched. main.py registers a handler for the
+    rest, so a crafted id is a clean 422 everywhere rather than a 500 from an
+    exception nobody caught."""
+
+
+def _safe_segment(value: str, kind: str) -> str:
+    if not _SAFE_SEGMENT.fullmatch(value or ""):
+        raise UnsafeIdError(
+            f"{kind} {value!r} is not usable as a folder name -- letters, digits, hyphen and underscore only"
+        )
+    return value
+
+
 class ProjectStore:
     def __init__(self, root: Path | str) -> None:
         self.root = Path(root)
 
     def _project_dir(self, project_id: str) -> Path:
-        return self.root / project_id
+        return self.root / _safe_segment(project_id, "project id")
 
     def _metadata_path(self, project_id: str) -> Path:
         return self._project_dir(project_id) / "project.json"
 
     def _artifact_version_path(self, project_id: str, artifact_id: str, version: int) -> Path:
-        return self._project_dir(project_id) / "artifacts" / artifact_id / f"v{version}.json"
+        return self._project_dir(project_id) / "artifacts" / _safe_segment(artifact_id, "artifact id") / f"v{version}.json"
 
     def _overrides_path(self, project_id: str) -> Path:
         return self._project_dir(project_id) / "overrides.log.jsonl"
@@ -198,7 +233,7 @@ class ProjectStore:
         return pick(candidates, key=lambda pair: (pair[1].get("updated_at") or "", pair[0]))[1]
 
     def list_versions(self, project_id: str, artifact_id: str) -> list[int]:
-        directory = self._project_dir(project_id) / "artifacts" / artifact_id
+        directory = self._project_dir(project_id) / "artifacts" / _safe_segment(artifact_id, "artifact id")
         if not directory.exists():
             return []
         versions: list[int] = []
@@ -232,5 +267,15 @@ class ProjectStore:
         """The real, absolute on-disk folder for `project_id` -- what
         routes/projects.py's /info endpoint reports to the desktop shell,
         replacing the documented-default guess project/path.ts previously
-        had to fall back on (no endpoint reported a project's real path)."""
-        return self._project_dir(project_id).resolve()
+        had to fall back on (no endpoint reported a project's real path).
+
+        Belt as well as braces: `_safe_segment` already makes the id itself
+        harmless, but this path is the one every other store builds on, and
+        a symlink placed inside the projects folder would still resolve out
+        of it. Cheap to check, and the failure it prevents is writing a
+        user's data somewhere they will never find it."""
+        resolved = self._project_dir(project_id).resolve()
+        root = self.root.resolve()
+        if resolved != root and root not in resolved.parents:
+            raise ValueError(f"project id {project_id!r} resolves outside the projects folder")
+        return resolved
