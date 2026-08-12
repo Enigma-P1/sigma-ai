@@ -6,33 +6,53 @@ ordered by what they said mattered, not by what is easy.
 
 ## Where this stands — 2026-08-12
 
-The three decisions below were answered on the day: keep the DMAIC gate but
-give data a front door; make saves work; version dataset edits rather than
-mutate them.
+All three decisions were answered on the day: keep the DMAIC gate but give
+data a front door; make saves work; version dataset edits rather than mutate
+them. Phases 1–3 are built and the Phase 4 exit criterion has been measured.
+
+**The count.** `method/scorecard.mjs` re-runs every step the two supervisors
+recorded as impossible or partial, in the real app, and reports what moved.
+Run it against a fresh engine after any further work.
+
+| | 2026-08-12 baseline | After this work |
+|---|---|---|
+| Impossible for Dave | 4 | 1 |
+| Impossible for Mike | 2 | 0 |
+| Partial | 2 | 1 |
+| Something to show a manager | neither had one | one-page summary, from whatever exists |
+
+Eight of the ten blocked items now work: the charter survives walking away;
+the rows and the $671.15 total are on screen; `JM` / `J. Morales` /
+`J Morales` merge into one person; the ordered-and-shipped item pair groups
+as one column; a row can be added by hand; the chart screen filters to a
+subset and remembers its selections; the one-page summary exists; and a
+project can be deleted.
+
+**What did not move, and why:**
+
+- **Dave 7 — paste ten rows straight into a table.** Partly. A row can now be
+  typed one at a time and a file still imports, but there is no paste target.
+- **Dave 16 — rate the six causes high / medium / low.** Not done. The
+  fishbone still offers only Candidate / Investigating / Verified / Ruled
+  out, which is about proof rather than priority. Adding a priority field is
+  a real design question — it risks becoming a second, softer ranking beside
+  the FMEA's — and it did not seem right to answer it by reflex.
+- **Undo.** Delete exists; undo does not, anywhere.
 
 Landed:
 
 | | What | Commit |
 |---|---|---|
 | ✅ | Pareto axis, vital-few headline, silent row drops, dead "waiting" panels, top-bar save label | `c9ce4dc` |
-| ✅ | Intake stuck-tree — the data-first front door, and the help button no longer says the help hasn't shipped | `aa9bd6b` |
-| ✅ | Drafts store — engine half of "make saves work" | `5f5f8a1` |
-| ✅ | 1.2 / 1.3 / 1.4 — dataset derivations: row edits, recode map, derived column, each a new version with lineage | `6575feb` |
-| ✅ | 1.1 — the rows view, with per-column totals and a caveat on which totals mean anything | `ae61819` |
-| ✅ | Project/artifact ids contained to the projects folder (found while reviewing the drafts work, not in the original plan) | `23c3736` |
-| ✅ | 1.5 — quality scan: repeated header row, near-duplicate values, mixed date formats | `9724c23` |
-
-Not done, and the gap that matters most: **the engine can do all of this and
-almost none of it has a UI.** A supervisor still cannot merge `JM` with
-`J. Morales`, because the recode derivation has no control on any screen, and
-the three new scan findings are computed and never rendered. Phase 1 is
-engine-complete and user-incomplete, which from the user's side means not
-done at all.
-
-Still open in Phase 1:
-- client UI for the derivations — a recode control, add/edit/delete row, derive column
-- rendering the three new scan findings, each pointing at the tool that fixes it
-- client half of drafts (in progress)
+| ✅ | Intake stuck-tree — the data-first front door | `aa9bd6b` |
+| ✅ | Drafts store (engine) | `5f5f8a1` |
+| ✅ | Dataset derivations (engine) — row edits, recode, derived column, each a new version with lineage | `6575feb` |
+| ✅ | 1.1 rows view with per-column totals and a caveat on which totals mean anything | `ae61819` |
+| ✅ | Project/artifact ids contained to the projects folder (not in the original plan) | `23c3736` |
+| ✅ | 1.5 quality scan (engine) — repeated header, near-duplicates, mixed date formats | `9724c23` |
+| ✅ | Drafts wired into T-03 / T-25 / T-16 — "make saves work", delivered | `4e0636c` |
+| ✅ | Plain-English first screen, 28-entry glossary, delete-a-project (engine) | `67e4cd5` |
+| ✅ | 1.2–1.5 client, 2.1, 2.3, 2.4, 2.5, delete UI, quadrant-label fix | `b069e83` |
 
 ## The diagnosis
 
