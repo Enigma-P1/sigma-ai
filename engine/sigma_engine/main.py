@@ -34,6 +34,7 @@ from .routes import advisor as advisor_routes
 from .routes import artifacts as artifacts_routes
 from .routes import check_sheet as check_sheet_routes
 from .routes import datasets as datasets_routes
+from .routes import drafts as drafts_routes
 from .routes import export as export_routes
 from .routes import floorplans as floorplans_routes
 from .routes import gates as gates_routes
@@ -132,6 +133,7 @@ app.include_router(datasets_routes.router)
 app.include_router(floorplans_routes.router)
 app.include_router(check_sheet_routes.router)
 app.include_router(time_study_routes.router)
+app.include_router(drafts_routes.router)
 
 # Must match the port the Tauri sidecar passes via --port (desktop/src-tauri/src/lib.rs).
 DEFAULT_PORT = 8756
