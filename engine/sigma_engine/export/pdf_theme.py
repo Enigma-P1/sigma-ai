@@ -59,6 +59,7 @@ TEXT = HexColor("#1c2128")
 TEXT_MUTED = HexColor("#5b6470")
 TEXT_FAINT = HexColor("#88919c")
 BORDER = HexColor("#dde1e6")
+BORDER_STRONG = HexColor("#c3c9d1")
 
 ACCENT = HexColor("#3556d6")
 ACCENT_SOFT = HexColor("#eaeefc")
@@ -68,7 +69,31 @@ PASS = HexColor("#1a7f37")
 FLAG = HexColor("#9a6700")
 FAIL = HexColor("#cf222e")
 
+# The soft/border pair of every semantic state, lifted from tokens.css
+# unchanged. On screen these three values are what a status pill is made
+# of (fill, hairline edge, text in the full-strength colour); the verdict
+# banner is the same pill on paper, so it is built from the same three.
+# All four fills land within a few percent of each other in greyscale --
+# which is the whole reason report_theme also stamps a per-tone glyph.
+PASS_SOFT = HexColor("#e7f6ec")
+PASS_BORDER = HexColor("#b4e0c1")
+FLAG_SOFT = HexColor("#fef3d6")
+FLAG_BORDER = HexColor("#f0d387")
+FAIL_SOFT = HexColor("#fdecec")
+FAIL_BORDER = HexColor("#f3b8bc")
+
 NEUTRAL_SOFT = HexColor("#eceef1")
+NEUTRAL_BORDER = HexColor("#d3d8de")
+
+# ---- Rule weights ----
+# Three weights, deliberately, so the *thickness* of a line is a signal a
+# reader can read: HAIRLINE divides rows inside one block, RULE closes a
+# block, RULE_STRONG divides the document. A fourth weight would make all
+# four mean nothing. 0.25pt is the thinnest that still prints as a solid
+# line rather than a dotted one at 300dpi (one device pixel is 0.24pt).
+HAIRLINE = 0.25
+RULE = 0.5
+RULE_STRONG = 1.0
 
 # research §F: risk likelihood/impact reuse the same pass/flag/fail
 # semantic scale as every status pill in the app -- low=pass, medium=flag,
@@ -91,15 +116,27 @@ def build_styles() -> dict[str, ParagraphStyle]:
     return {
         "title": ParagraphStyle("title", fontName=FONT_BOLD, fontSize=TEXT_XL, leading=TEXT_XL * LEADING_TIGHT, textColor=TEXT),
         "subtitle": ParagraphStyle("subtitle", fontName=FONT, fontSize=TEXT_LG, leading=TEXT_LG * LEADING_TIGHT, textColor=TEXT_MUTED),
-        "meta": ParagraphStyle("meta", fontName=FONT, fontSize=TEXT_SM, leading=TEXT_SM * LEADING_NORMAL, textColor=TEXT_FAINT),
+        # The line that says which project and which artifact this is. It was
+        # TEXT_FAINT and read as a caption of the title; it is the second most
+        # useful line on the page to someone holding the printout in a meeting
+        # ("which version am I looking at"), so it sits at TEXT_MUTED.
+        "meta": ParagraphStyle("meta", fontName=FONT, fontSize=TEXT_SM, leading=TEXT_SM * LEADING_NORMAL, textColor=TEXT_MUTED),
         "heading": ParagraphStyle("heading", fontName=FONT_BOLD, fontSize=TEXT_MD, leading=TEXT_MD * LEADING_TIGHT, textColor=TEXT, spaceBefore=SPACE_5, spaceAfter=SPACE_2),
         "label": ParagraphStyle("label", fontName=FONT_BOLD, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT_MUTED),
         "body": ParagraphStyle("body", fontName=FONT, fontSize=TEXT_BASE, leading=TEXT_BASE * LEADING_NORMAL, textColor=TEXT),
         "body_muted": ParagraphStyle("body_muted", fontName=FONT_ITALIC, fontSize=TEXT_SM, leading=TEXT_SM * LEADING_NORMAL, textColor=TEXT_MUTED),
         "callout": ParagraphStyle("callout", fontName=FONT_BOLD, fontSize=TEXT_MD, leading=TEXT_MD * LEADING_NORMAL, textColor=ACCENT),
         "bullet": ParagraphStyle("bullet", fontName=FONT, fontSize=TEXT_SM, leading=TEXT_SM * LEADING_NORMAL, textColor=TEXT, leftIndent=SPACE_4, bulletIndent=SPACE_1),
-        "table_header": ParagraphStyle("table_header", fontName=FONT_BOLD, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT_MUTED),
+        # A column heading in muted grey read as less important than the data
+        # under it, which inverts the hierarchy a table depends on. Full-
+        # strength text, bold, and two steps smaller than the cell: the size
+        # difference alone says "heading", so the colour is free to be dark.
+        "table_header": ParagraphStyle("table_header", fontName=FONT_BOLD, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT),
         "table_cell": ParagraphStyle("table_cell", fontName=FONT, fontSize=TEXT_SM, leading=TEXT_SM * LEADING_NORMAL, textColor=TEXT),
-        "footer_meta": ParagraphStyle("footer_meta", fontName=FONT_MONO, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT_FAINT),
+        # Courier here made the footer read as a debug string. The IDs in it
+        # are never column-aligned against anything, so monospace was buying
+        # nothing and costing the ~20% extra width Courier's fixed advance
+        # takes -- which is what pushed the footer line close to the margin.
+        "footer_meta": ParagraphStyle("footer_meta", fontName=FONT, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT_FAINT),
         "footer_policy": ParagraphStyle("footer_policy", fontName=FONT_ITALIC, fontSize=TEXT_XS, leading=TEXT_XS * LEADING_NORMAL, textColor=TEXT_FAINT),
     }

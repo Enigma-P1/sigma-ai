@@ -53,6 +53,33 @@ _TONE_COLOR: dict[Tone, Any] = {
     "neutral": theme.TEXT_MUTED,
 }
 
+# The fill and edge behind each tone, matching the app's status pills.
+_TONE_FILL: dict[Tone, tuple[Any, Any]] = {
+    "pass": (theme.PASS_SOFT, theme.PASS_BORDER),
+    "flag": (theme.FLAG_SOFT, theme.FLAG_BORDER),
+    "fail": (theme.FAIL_SOFT, theme.FAIL_BORDER),
+    "neutral": (theme.NEUTRAL_SOFT, theme.NEUTRAL_BORDER),
+}
+
+# THE TONE IN A SHAPE, NOT ONLY IN A COLOUR. These reports get printed on
+# the office mono laser more often than they get read on a screen, and the
+# four tone colours reduce to four grey values a reader cannot tell apart
+# (PASS #1a7f37 and FLAG #9a6700 land within 4% of each other in
+# greyscale). A glyph carries the same distinction with no colour at all,
+# and it survives a photocopy, a fax and a colour-blind reader.
+#
+# All four are drawn by ReportLab's automatic Type1 substitution -- the
+# same mechanism the previous single "■" already relied on -- so they add
+# no font file and nothing for PyInstaller to ship. Hollow variants (○, □)
+# are NOT available through it: they silently fall back to a filled box,
+# which is why every mark here is a solid shape.
+_TONE_MARK: dict[Tone, str] = {
+    "pass": "✓",  # check
+    "flag": "▲",  # up triangle -- the caution shape
+    "fail": "✕",  # cross
+    "neutral": "■",  # square: stated, neither good nor bad
+}
+
 # One vocabulary across all 23 reports. A label that means "estimate" on one
 # page and "approximate" on the next teaches the reader nothing, and the
 # whole point of these labels is that a reader learns them once and then
@@ -74,20 +101,33 @@ def report_styles() -> dict[str, Any]:
     styles["report_title"] = theme.ParagraphStyle(
         "report_title", parent=styles["title"], fontSize=theme.TEXT_LG, leading=theme.TEXT_LG * 1.15
     )
+    # ZONE LABELS ARE THE SPINE OF THE PAGE. At TEXT_FAINT they were the
+    # lightest mark on the sheet, so the five zones read as one continuous
+    # column of text and the reader had to parse the content to find out
+    # where they were. TEXT_MUTED is still visibly subordinate to every
+    # heading and every body line, and now actually divides the page.
+    # The space above is what makes a zone a zone: SPACE_5 above against
+    # SPACE_1 below binds the label to the block it introduces rather than
+    # letting it float between two of them.
     styles["zone_label"] = theme.ParagraphStyle(
         "zone_label",
         parent=styles["label"],
         fontSize=theme.TEXT_XS,
-        textColor=theme.TEXT_FAINT,
-        spaceBefore=theme.SPACE_3,
+        textColor=theme.TEXT_MUTED,
+        spaceBefore=theme.SPACE_5,
         spaceAfter=theme.SPACE_1,
     )
+    # The verdict. One step up the scale from where it was, which is the
+    # smallest move that puts it above the body text it is competing with
+    # (it was TEXT_MD, only 15% larger than body, so on a page of prose it
+    # did not read as the answer). Leading is tight for a headline: at 1.15
+    # a two-line verdict holds together as one statement.
     styles["headline"] = theme.ParagraphStyle(
         "headline",
         parent=base,
         fontName=theme.FONT_BOLD,
-        fontSize=theme.TEXT_MD,
-        leading=theme.TEXT_MD * 1.3,
+        fontSize=theme.TEXT_LG,
+        leading=theme.TEXT_LG * 1.15,
     )
     styles["meaning"] = theme.ParagraphStyle(
         "meaning", parent=base, fontSize=theme.TEXT_BASE, leading=theme.TEXT_BASE * 1.5
@@ -108,12 +148,18 @@ def header(
     return [
         Paragraph(esc(tool_title), styles["report_title"]),
         Paragraph(esc(meta), styles["meta"]),
-        _rule(content_width),
-        Spacer(1, theme.SPACE_3),
+        Spacer(1, theme.SPACE_2),
+        # A masthead rule, not a divider: full strength and RULE_STRONG, so
+        # the title block reads as the letterhead of the sheet. Every other
+        # rule in the document is lighter than this one, which is what makes
+        # the top of the page findable when the sheet is on a desk among
+        # others. It was a 0.75pt BORDER line and disappeared into the page.
+        _rule(content_width, theme.TEXT, theme.RULE_STRONG),
+        Spacer(1, theme.SPACE_4),
     ]
 
 
-def _rule(width: float, color: Any = None, thickness: float = 0.75) -> Table:
+def _rule(width: float, color: Any = None, thickness: float = theme.RULE) -> Table:
     table = Table([[""]], colWidths=[width], rowHeights=[thickness])
     table.setStyle(
         TableStyle(
