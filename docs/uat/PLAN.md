@@ -4,6 +4,36 @@ Written off the 2026-08-12 supervisor UAT (`README.md`). Every item here
 traces to something a real user tried and could not do, in their words. It is
 ordered by what they said mattered, not by what is easy.
 
+## Where this stands — 2026-08-12
+
+The three decisions below were answered on the day: keep the DMAIC gate but
+give data a front door; make saves work; version dataset edits rather than
+mutate them.
+
+Landed:
+
+| | What | Commit |
+|---|---|---|
+| ✅ | Pareto axis, vital-few headline, silent row drops, dead "waiting" panels, top-bar save label | `c9ce4dc` |
+| ✅ | Intake stuck-tree — the data-first front door, and the help button no longer says the help hasn't shipped | `aa9bd6b` |
+| ✅ | Drafts store — engine half of "make saves work" | `5f5f8a1` |
+| ✅ | 1.2 / 1.3 / 1.4 — dataset derivations: row edits, recode map, derived column, each a new version with lineage | `6575feb` |
+| ✅ | 1.1 — the rows view, with per-column totals and a caveat on which totals mean anything | `ae61819` |
+| ✅ | Project/artifact ids contained to the projects folder (found while reviewing the drafts work, not in the original plan) | `23c3736` |
+| ✅ | 1.5 — quality scan: repeated header row, near-duplicate values, mixed date formats | `9724c23` |
+
+Not done, and the gap that matters most: **the engine can do all of this and
+almost none of it has a UI.** A supervisor still cannot merge `JM` with
+`J. Morales`, because the recode derivation has no control on any screen, and
+the three new scan findings are computed and never rendered. Phase 1 is
+engine-complete and user-incomplete, which from the user's side means not
+done at all.
+
+Still open in Phase 1:
+- client UI for the derivations — a recode control, add/edit/delete row, derive column
+- rendering the three new scan findings, each pointing at the tool that fixes it
+- client half of drafts (in progress)
+
 ## The diagnosis
 
 Both testers wanted the same four things in this order: **load my messy file →
