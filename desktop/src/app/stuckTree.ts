@@ -90,6 +90,84 @@ export const DEFINE_STUCK_TREE: StuckQuestion = {
   },
 };
 
+// ---- Intake -----------------------------------------------------------
+//
+// WHY THIS ONE MATTERS MOST. A brand-new project opens on T-01, which is
+// Intake, so the very first "I'm stuck" click anyone ever makes used to
+// land on the not-built-yet leaf -- the help button answering that the
+// help had not shipped. Two supervisors hit that in the same UAT
+// (docs/uat/README.md) on their first minute in the app.
+//
+// It is also where the data-first front door lives. Both testers arrived
+// holding a spreadsheet and wanting to know what was in it, and met a
+// five-question screening quiz about a method they had never heard of.
+// Neither needed a charter to find out which parts their pickers keep
+// grabbing by mistake. That is a real, legitimate way to start, so this
+// tree offers it rather than routing everyone through the gate.
+
+const recommendLookAtTheDataFirst: StuckLeaf = {
+  kind: "leaf",
+  id: "leaf-intake-look-first",
+  recommendation: "Look at what your data says first — import it (T-11), then chart it (T-14)",
+  explanation:
+    "You don't need a charter, a scope or a goal to find out where your problem concentrates. Import the file on " +
+    "T-11's Import Data tab, then T-14 will rank the categories for you — which aisles, which part numbers, which " +
+    "error types carry most of it. Come back to T-01 when you want to turn what you find into a project worth " +
+    "someone's time.",
+  toolId: "T-11",
+};
+
+const questionWantsToLookFirst: StuckQuestion = {
+  kind: "question",
+  id: "q-intake-look-first",
+  question: "Do you want to see what that data says before setting up a project around it?",
+  yes: recommendLookAtTheDataFirst,
+  no: {
+    kind: "leaf",
+    id: "leaf-intake-screen-it",
+    recommendation: "Screen it first — Project Picker (T-01)",
+    explanation:
+      "Five plain questions: is the scope narrow enough to finish, is there a measurable outcome, can you actually " +
+      "get the data, does an owner care, is the impact plausible. Minutes now against weeks of a project nobody " +
+      "wanted finished.",
+    toolId: "T-01",
+  },
+};
+
+const questionSomeoneHasComplained: StuckQuestion = {
+  kind: "question",
+  id: "q-intake-real-problem",
+  question: "Has someone actually complained about this, or is a number on a report moving the wrong way?",
+  yes: {
+    kind: "leaf",
+    id: "leaf-intake-picker",
+    recommendation: "You have something real — screen it with the Project Picker (T-01)",
+    explanation:
+      "A complaint or a moving number is a problem worth screening. T-01 checks whether it's a project you can " +
+      "actually finish, and getting the data is one of the five questions — so the spreadsheet can come later.",
+    toolId: "T-01",
+  },
+  no: {
+    kind: "leaf",
+    id: "leaf-intake-no-project-yet",
+    recommendation: "There may not be a project here yet — T-01 will say so out loud",
+    explanation:
+      "No complaint and no number moving the wrong way usually means there's nothing to improve yet, or the pain " +
+      "hasn't been found. T-01's third route is 'Not a good fit (EXIT-01)', and reaching it honestly is a real " +
+      "answer, not a failure. If you suspect the cost is hidden rather than absent, T-02 (COPQ) is where a hunch " +
+      "becomes a dollar figure.",
+    toolId: "T-01",
+  },
+};
+
+export const INTAKE_STUCK_TREE: StuckQuestion = {
+  kind: "question",
+  id: "q-intake-has-data",
+  question: "Do you already have data about this — a spreadsheet, a log, an export from a system?",
+  yes: questionWantsToLookFirst,
+  no: questionSomeoneHasComplained,
+};
+
 // ---- Measure ----------------------------------------------------------
 
 const questionMsaChecked: StuckQuestion = {
@@ -148,10 +226,13 @@ export const MEASURE_STUCK_TREE: StuckQuestion = {
   no: questionHasRealData,
 };
 
-/** Phase -> its stuck tree, only for phases with one written yet (Define,
- * Measure). Absent for every other phase -- an honest "not built here
- * yet" leaf, not a silent reuse of Define's questions. */
+/** Phase -> its stuck tree, only for phases with one written yet (Intake,
+ * Define, Measure). Absent for every other phase -- an honest "not built
+ * here yet" leaf, not a silent reuse of Define's questions. Intake is
+ * first deliberately: it is the phase a brand-new project opens on, so
+ * its tree is the one a first-time user actually meets. */
 export const STUCK_TREE_BY_PHASE: Partial<Record<Phase, StuckQuestion>> = {
+  Intake: INTAKE_STUCK_TREE,
   Define: DEFINE_STUCK_TREE,
   Measure: MEASURE_STUCK_TREE,
 };

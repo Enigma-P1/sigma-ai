@@ -47,7 +47,7 @@ export function ParetoPanel({ detail }: { detail: DatasetDetail }) {
           {excluded} of {detail.rows.length} rows have no {column} and are not counted in this chart.
         </p>
       )}
-      <ParetoChart result={result} testId="chartset-pareto" />
+      <ParetoChart result={result} subject={column} testId="chartset-pareto" />
     </div>
   );
 }

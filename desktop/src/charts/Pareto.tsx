@@ -10,6 +10,9 @@ export interface ParetoChartProps {
    * all engine-made (M2 brief: "the vital-few call is engine-made, not
    * client-made"). */
   result: Computed<ParetoResult> | null;
+  /** The column being grouped by, so the headline can name the user's own
+   * word ("Aisle: 3 of 6 carry…") instead of "categories". */
+  subject?: string;
   testId?: string;
 }
 
@@ -17,11 +20,16 @@ export interface ParetoChartProps {
  * counting instead. Five fits a line; twenty-one does not. */
 const HEADLINE_NAME_LIMIT = 5;
 
-function headlineFor(result: ParetoResult | undefined): { headline: string; tone: VerdictTone } {
+function headlineFor(result: ParetoResult | undefined, subject: string): { headline: string; tone: VerdictTone } {
   if (!result) return { headline: "Waiting on the engine's Pareto tally…", tone: "neutral" };
+  // The column's own name, never pluralised -- "Notes" would become
+  // "Notess" and "Error type" reads wrong either way. `Aisle: …` is short,
+  // safe for any header a spreadsheet can carry, and tells the reader
+  // which of their columns this chart is about.
+  const label = subject.trim() === "" ? "Category" : subject.trim();
   if (result.flat) {
     return {
-      headline: `No small subset dominates — ${result.categories.length} categories are roughly even (${result.total} total)`,
+      headline: `${label}: no single one stands out — ${result.categories.length} values, fairly even across ${result.total} rows`,
       tone: "flag",
     };
   }
@@ -34,16 +42,22 @@ function headlineFor(result: ParetoResult | undefined): { headline: string; tone
   const names = vital.length > HEADLINE_NAME_LIMIT
     ? `${vital.slice(0, HEADLINE_NAME_LIMIT).map((c) => c.category).join(", ")} and ${vital.length - HEADLINE_NAME_LIMIT} more`
     : vital.map((c) => c.category).join(", ");
-  const scale = vital.length > HEADLINE_NAME_LIMIT ? `${vital.length} of ${result.categories.length} categories — ` : "";
+  // Says the finding in words a supervisor reads without translating: which
+  // ones, how many of them, and how much of the pile they carry. "Vital few"
+  // is still taught -- it is in the detail line under every one of these
+  // charts and in the tool's help panel -- but a headline is not the place
+  // to make someone learn a term before they can read their own result.
   return {
-    headline: `Vital few: ${scale}${names} account for ${(share * 100).toFixed(1)}% of ${result.total}`,
+    headline:
+      `${label}: ${vital.length} of ${result.categories.length} carry ` +
+      `${(share * 100).toFixed(1)}% of ${result.total} rows — ${names}`,
     tone: "pass",
   };
 }
 
-export function ParetoChart({ title = "Pareto", result, testId }: ParetoChartProps) {
+export function ParetoChart({ title = "Pareto", result, subject = "", testId }: ParetoChartProps) {
   const value = result?.value;
-  const { headline, tone } = headlineFor(value);
+  const { headline, tone } = headlineFor(value, subject);
   const categories = value?.categories ?? [];
 
   return (
