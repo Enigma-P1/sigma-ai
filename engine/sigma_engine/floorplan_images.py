@@ -25,7 +25,7 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-from .project_store import ProjectStore
+from .project_store import ProjectStore, safe_segment
 
 ImageContentType = Literal["image/png", "image/jpeg"]
 
@@ -119,7 +119,10 @@ class FloorPlanImageStore:
         self.projects = project_store
 
     def _image_dir(self, project_id: str, image_id: str) -> Path:
-        return self.projects.resolved_project_path(project_id) / "floorplans" / image_id
+        # Same containment as DatasetStore._dataset_dir: server-minted ids are
+        # uuid hex, but this method receives whatever the route was called
+        # with, and a crafted id would walk out of the project folder.
+        return self.projects.resolved_project_path(project_id) / "floorplans" / safe_segment(image_id, "image id")
 
     def save_image(self, project_id: str, source_filename: str, content: bytes, created_at: str) -> FloorPlanImageMeta:
         self.projects.load_project(project_id)  # FileNotFoundError -> 404 at the route layer

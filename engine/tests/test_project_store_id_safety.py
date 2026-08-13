@@ -108,3 +108,34 @@ def test_over_http_a_crafted_id_is_a_422_not_a_500(tmp_path):
         assert not (tmp_path / "escaped").exists()
     finally:
         app.dependency_overrides.pop(get_store, None)
+
+
+# --- The same guard one level deeper: dataset and image ids -------------
+# project_id was contained first; dataset_id and image_id are appended AFTER
+# resolved_project_path() and escaped the exact same way until they too went
+# through safe_segment. Confirmed live before the fix: a crafted dataset id
+# resolved to /tmp/escaped-dataset, cleanly outside the projects root.
+
+def test_dataset_id_cannot_escape_the_project_folder(store):
+    from sigma_engine.datasets import DatasetStore
+    store.create_project("real", "Real", "2026-08-13T00:00:00Z")
+    ds = DatasetStore(store)
+    with pytest.raises(UnsafeIdError):
+        ds._dataset_dir("real", "../../../../../../tmp/escaped")
+
+
+def test_image_id_cannot_escape_the_project_folder(store):
+    from sigma_engine.floorplan_images import FloorPlanImageStore
+    store.create_project("real", "Real", "2026-08-13T00:00:00Z")
+    fs = FloorPlanImageStore(store)
+    with pytest.raises(UnsafeIdError):
+        fs._image_dir("real", "../../../../../../tmp/escaped")
+
+
+def test_the_ids_these_stores_actually_mint_still_work(store):
+    """uuid hex is what save_dataset/save_image generate -- the guard must
+    not reject the real thing."""
+    from sigma_engine.datasets import DatasetStore
+    store.create_project("real", "Real", "2026-08-13T00:00:00Z")
+    d = DatasetStore(store)._dataset_dir("real", "30adcea1f0b24e0e9c")
+    assert d.name == "30adcea1f0b24e0e9c"

@@ -94,12 +94,26 @@ class UnsafeIdError(ValueError):
     exception nobody caught."""
 
 
-def _safe_segment(value: str, kind: str) -> str:
+def safe_segment(value: str, kind: str) -> str:
+    """Guard any externally-supplied string that becomes a path segment.
+
+    Public because the containment story is only as strong as its weakest
+    join: the project id is contained here, but a dataset id, image id or
+    tool id appended AFTER resolved_project_path() escapes the exact same
+    way one level down (`.../datasets/../../etc`). Every store that builds a
+    child path from an outside-supplied id calls this on that id, so the
+    guarantee the tests assert -- "a store added the same way inherits the
+    guard" -- is actually true rather than aspirational.
+    """
     if not _SAFE_SEGMENT.fullmatch(value or ""):
         raise UnsafeIdError(
             f"{kind} {value!r} is not usable as a folder name -- letters, digits, hyphen and underscore only"
         )
     return value
+
+
+# Back-compat alias for the in-module callers written before it was public.
+_safe_segment = safe_segment
 
 
 class ProjectStore:

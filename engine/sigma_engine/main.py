@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import logging
 import os
+import re
 import sys
 import threading
 import time
@@ -91,6 +92,42 @@ async def surface_server_errors_with_cors(request: Request, call_next):
         )
 
 
+# Which browser origins may talk to this engine. The app's own webview is
+# http://tauri.localhost (Windows) / tauri://localhost (mac/Linux); the
+# browser probes serve the real bundle from http://tauri.localhost:<port>.
+# 127.0.0.1 is here for a browser pointed straight at the engine (diagnostics).
+_ALLOWED_ORIGIN = re.compile(r"^(https?|tauri)://(tauri\.)?localhost(:\d+)?$|^https?://127\.0\.0\.1(:\d+)?$")
+
+
+# CORS with allow_origins=["*"] is what the packaged app needs (its origin
+# has no IP for Chromium to classify, see the CORSMiddleware note below), but
+# "*" plus allow_private_network=True means ANY website a user visits while
+# the app is open can script requests to 127.0.0.1:PORT -- Private Network
+# Access exists precisely because a remote page's JS runs in the user's
+# browser, which IS on loopback, so binding 127.0.0.1 does NOT keep it out.
+# Without this guard evil.com could read the project list (which leaks local
+# folder paths, hence the OS username) and hit destructive routes like
+# DELETE /project/{id}. This is CSRF on loopback, and the engine has no auth.
+#
+# The guard: a request that carries a browser Origin must carry one of ours.
+# A request with NO Origin passes untouched -- that is curl, the boot-retry
+# health check, and every non-browser caller, none of which a hostile web
+# page can forge (browsers always set Origin on cross-origin fetch). Placed
+# inside CORS (added before it) so a rejection still carries CORS headers,
+# the same reason the 500 handler above lives where it does -- otherwise a
+# legitimately-blocked call would surface as "could not reach the engine"
+# rather than the 403 it is.
+@app.middleware("http")
+async def reject_foreign_origins(request: Request, call_next):
+    origin = request.headers.get("origin")
+    if origin is not None and not _ALLOWED_ORIGIN.match(origin):
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "This engine only accepts requests from the Sigma AI app on this machine."},
+        )
+    return await call_next(request)
+
+
 # The packaged desktop app's webview makes cross-origin requests to this
 # engine (its origin is http://tauri.localhost on Windows / tauri://localhost
 # elsewhere; the engine's is 127.0.0.1:PORT), so the browser sends a CORS
@@ -98,9 +135,10 @@ async def surface_server_errors_with_cors(request: Request, call_next):
 # answers OPTIONS with 405 and the preflight fails -- the exact "engine
 # didn't start" symptom the sidecar log surfaced on the first installed
 # build (the dev browser never hit this because Vite proxies same-origin, so
-# no test exercised it). The engine binds 127.0.0.1 only and uses no
-# cookies/credentials, so a permissive origin policy is safe here: nothing
-# off the local loopback can reach it regardless.
+# no test exercised it). allow_origins stays ["*"] because the packaged
+# origin cannot be matched by CORSMiddleware on Windows (no classifiable IP);
+# reject_foreign_origins above is what actually restricts who may call in,
+# and it runs inside this middleware so its responses are still CORS-clean.
 #
 # allow_private_network=True is not optional decoration. Chromium's Private
 # Network Access rules make a page fetching a MORE-private address space

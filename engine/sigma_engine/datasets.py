@@ -50,7 +50,7 @@ from typing import Annotated, Literal
 import openpyxl
 from pydantic import BaseModel, Field
 
-from .project_store import ProjectStore
+from .project_store import ProjectStore, safe_segment
 
 ColumnType = Literal["numeric", "text"]
 
@@ -614,7 +614,13 @@ class DatasetStore:
         self.projects = project_store
 
     def _dataset_dir(self, project_id: str, dataset_id: str) -> Path:
-        return self.projects.resolved_project_path(project_id) / "datasets" / dataset_id
+        # The dataset ids this store mints are uuid hex, but the id arriving
+        # HERE is whatever the route was called with -- and a crafted
+        # "../../.." appended after resolved_project_path escapes the projects
+        # root exactly the way a crafted project id used to, one level down.
+        # Confirmed live before the guard: `datasets/../../../../../../tmp/x`
+        # resolved to /tmp/x.
+        return self.projects.resolved_project_path(project_id) / "datasets" / safe_segment(dataset_id, "dataset id")
 
     def save_dataset(
         self, project_id: str, source_filename: str, content: bytes,
