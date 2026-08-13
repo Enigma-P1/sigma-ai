@@ -1,4 +1,6 @@
+import { useEffect, useState } from "react";
 import { ChartFrame } from "./ChartFrame";
+import { fingerprint } from "./capture";
 import { CHART_COLORS } from "./palette";
 import type { Computed, ParetoResult } from "../api/types";
 import type { VerdictTone } from "../design/components";
@@ -63,9 +65,29 @@ export function ParetoChart({ title = "Pareto", result, subject = "", captureKey
   const { headline, tone } = headlineFor(value, subject);
   const categories = value?.categories ?? [];
 
+  // The capture's fingerprint, so an exported page can trust the picture:
+  // the counts alone, in the engine's own sort order — the exact series
+  // routes/export.py's _dataset_pareto_chart recomputes and checks against
+  // (counts only, deliberately not the free-text category names; see that
+  // function's docstring). Same idiom as ImrChart/GageRrComponentsChart:
+  // async into state, guarded against a stale resolve after re-render.
+  const [hash, setHash] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    void fingerprint(categories.map((c) => c.count)).then((h) => {
+      if (live) setHash(h);
+    });
+    return () => {
+      live = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- categories is a
+    // fresh array each render; the counts it holds only change with `value`.
+  }, [value]);
+
   return (
     <ChartFrame
       title={title}
+      captureHash={hash}
       headline={headline}
       tone={tone}
       detail="Bars sorted by count; the line is cumulative share. Vital-few bars are highlighted to the 80% line."
