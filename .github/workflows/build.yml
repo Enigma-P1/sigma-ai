@@ -41,6 +41,14 @@ on:
     paths-ignore:
       - "README.md"
       - "LICENSE"
+      # Metadata-only automation: neither is opened by anything under
+      # engine/, evals/, or desktop/ at run time. publish-notes edits the
+      # Release page; repo-meta sets the About box. Without these two lines
+      # every notes tweak buys a Windows+mac installer build it cannot
+      # affect. build.yml and release.yml themselves stay un-ignored.
+      - ".github/workflows/publish-notes.yml"
+      - ".github/workflows/repo-meta.yml"
+      - "docs/release-notes/**"
       - "PLAN.md"
       - "docs/architecture.md"
       - "docs/belt-reviewer-brief.md"
