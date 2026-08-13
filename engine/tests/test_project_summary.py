@@ -223,6 +223,101 @@ def test_more_than_three_verified_causes_are_counted_not_all_quoted():
     assert "cause number 3" not in text  # the 4th (index 3) is past the cap of 3
 
 
+# ----------------------- complete statements, or nothing (third-pass review)
+#
+# Both ship re-reviewers passed this page's numbers and failed its
+# unfinished lines: a where-fragment glued after a full stop ("…overtime.
+# at Campus coffee bar…") and cause bullets dying mid-clause ("-- a cup…").
+# Their stated pass condition: the problem line is one readable statement
+# and every shown bullet is a complete clause. These tests pin exactly that.
+
+
+def test_a_sentence_final_what_gets_the_locus_as_its_own_sentence():
+    body = make_charter()
+    body["problem_statement"]["what"] = "Espresso orders take too long, producing walk-aways and overtime."
+    charter = CharterArtifact.model_validate(body)
+    text = summary.problem_text(charter)
+    assert ". at " not in text, "a where-fragment glued after a full stop is the exact third-pass defect"
+    assert "overtime. At " in text
+    assert text.endswith(".")
+
+
+def test_a_fragment_what_still_reads_on_as_one_sentence():
+    charter = CharterArtifact.model_validate(make_charter())  # factory `what` is a fragment
+    text = summary.problem_text(charter)
+    assert " at " in text
+    assert ". at " not in text
+
+
+def test_an_overlong_problem_keeps_whole_sentences_and_never_trails_off():
+    first = "The first sentence of this problem statement is itself already a complete thought."
+    body = make_charter()
+    body["problem_statement"]["what"] = first + " " + ("The second sentence rambles on far past any reasonable budget " * 4)
+    charter = CharterArtifact.model_validate(body)
+    composed = summary.problem_text(charter)
+    assert len(composed) > summary.PROBLEM_CHAR_BUDGET, "fixture must exceed the budget or this test checks nothing"
+    fitted = summary.fit_sentences(composed, summary.PROBLEM_CHAR_BUDGET)
+    assert fitted == first, "the cut lands at the last whole sentence inside the budget, nothing trailing"
+    assert "…" not in fitted
+
+
+def test_a_runon_problem_falls_back_to_a_marked_word_boundary_cut():
+    one_run_on = "this single sentence offers no boundary at all " * 8  # no terminal punctuation inside
+    fitted = summary.fit_sentences(one_run_on, summary.PROBLEM_CHAR_BUDGET)
+    assert len(fitted) <= summary.PROBLEM_CHAR_BUDGET
+    assert fitted.endswith("…"), "with no honest boundary to keep, the cut must at least be marked"
+
+
+def test_a_long_cause_is_cut_at_a_clause_boundary_not_mid_thought():
+    long_tail = "a cup placed at the head of the queue waits behind every cup already marked ahead of it, every time"
+    causes = [
+        {
+            "cause_id": "c1", "branch": "machine",
+            "text": f"Marked cups pile up in the single drink queue ahead of the espresso station -- {long_tail}",
+            "status": "verified", "evidence": {"kind": "observation_note", "ref": "floor obs"},
+        }
+    ]
+    fb = FishboneArtifact.model_validate(make_fishbone(causes=causes))
+    text = _text(fishbone=fb)
+    assert "Marked cups pile up in the single drink queue ahead of the espresso station." in text
+    assert "a cup" not in text
+    assert "…" not in text
+
+
+def test_a_cause_with_no_clause_boundary_is_dropped_and_the_pointer_carries_it():
+    causes = [
+        {
+            "cause_id": "c1", "branch": "machine",
+            "text": "one hundred and twenty characters of cause text with no punctuation boundary anywhere in it " * 2,
+            "status": "verified", "evidence": {"kind": "observation_note", "ref": "floor obs"},
+        }
+    ]
+    fb = FishboneArtifact.model_validate(make_fishbone(causes=causes))
+    text = _text(fishbone=fb)
+    assert "1 verified cause -- see the Fishbone report." in text
+    assert "…" not in text
+    assert "Shown below" not in text, "nothing is below; the intro must not claim otherwise"
+
+
+def test_a_dropped_bullet_is_counted_alongside_the_over_cap_ones():
+    causes = [
+        {
+            "cause_id": "c-fits", "branch": "machine", "text": "A short verified cause that fits whole.",
+            "status": "verified", "evidence": {"kind": "observation_note", "ref": "obs"},
+        },
+        {
+            "cause_id": "c-drops", "branch": "method",
+            "text": "no boundary in this one either so it cannot be shown as a finished clause at the clip width " * 2,
+            "status": "verified", "evidence": {"kind": "observation_note", "ref": "obs"},
+        },
+    ]
+    fb = FishboneArtifact.model_validate(make_fishbone(causes=causes))
+    text = _text(fishbone=fb)
+    assert "A short verified cause that fits whole." in text
+    assert "+1 more verified cause -- see the Fishbone report." in text
+    assert "…" not in text
+
+
 # --------------------------------------------------------------- next action
 
 

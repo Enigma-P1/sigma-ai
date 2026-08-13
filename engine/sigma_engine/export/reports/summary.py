@@ -78,13 +78,25 @@ problem and the goal are two separate budgets, not one shared between
 them, because a single combined clip can cut the ENTIRE second sentence
 rather than trim it -- found rendering a real charter, where the whole
 "Goal: ..." sentence disappeared behind one ellipsis, with nothing on the
-page to show it had ever been there. Each sentence gets its own room and
-its own, word-boundary clip, so the worst case is a shortened sentence,
-never a silently absent one.
+page to show it had ever been there.
+
+COMPLETE STATEMENTS, OR NOTHING (third-pass ship review, 2026-08-13).
+What the clip keeps must read as finished prose. Both reviewers passed
+every number on this page and failed its unfinished lines: a where-
+fragment glued after a full stop ("…overtime. at Campus coffee bar…")
+and cause bullets dying mid-clause ("-- a cup…"). Their ruling, adopted:
+integrate or drop, never clip into a fragment. So the charter narrative
+keeps whole sentences within budget (fit_sentences) and a shown cause is
+a complete clause or it is not shown, with the count and the Fishbone-
+report pointer carrying what didn't fit (fit_clause). rt.clip()'s
+word-boundary cut survives only as the last resort for a single run-on
+sentence longer than the whole budget, where there is no honest boundary
+to keep.
 """
 
 from __future__ import annotations
 
+import re
 from typing import Any, NamedTuple
 
 from reportlab.lib.styles import ParagraphStyle
@@ -287,17 +299,87 @@ def _value_unit(value: str, unit: str) -> str:
     return f"{value}{sep}{unit}"
 
 
+# A sentence boundary INSIDE a text: terminal punctuation followed by a
+# space. The final sentence's own full stop never matches (nothing follows
+# it), which is fine everywhere these are used -- text short enough to keep
+# whole is kept whole before any boundary is looked for.
+_SENTENCE_END = re.compile(r"[.!?](?=\s)")
+
+# A clause boundary, for cause bullets: a sentence end, a semicolon, or a
+# spelled-out dash (both the "--" these artifacts carry and a real em dash).
+_CLAUSE_END = re.compile(r"[.!?;](?=\s)|\s--\s|\s—\s")
+
+
+def fit_sentences(text: str, budget: int) -> str:
+    """Whole sentences within budget -- the module docstring's "complete
+    statements, or nothing" rule. Text that fits is returned untouched;
+    text that doesn't is cut back to the last sentence boundary inside the
+    budget, cleanly, with no ellipsis: a complete sentence is finished
+    prose, and the full text lives on the artifact and in the whole-project
+    export. Only a single run-on sentence longer than the entire budget
+    falls back to rt.clip's word-boundary cut -- there is no honest
+    boundary to keep in that case, and a marked cut beats a wrecked page."""
+    cleaned = " ".join((text or "").split())
+    if len(cleaned) <= budget:
+        return cleaned
+    last_fit = None
+    for m in _SENTENCE_END.finditer(cleaned):
+        if m.end() > budget:
+            break
+        last_fit = m.end()
+    if last_fit is not None:
+        return cleaned[:last_fit]
+    return rt.clip(cleaned, budget)
+
+
+def fit_clause(text: str, budget: int) -> str | None:
+    """A complete clause within budget, or None -- the caller drops the
+    bullet and lets the count and the Fishbone-report pointer carry it.
+    Printing three unfinished thoughts and calling them the brief is the
+    exact third-pass finding this exists to prevent; a dropped bullet is
+    still on the record, a mangled one discredits the page. A cut at a
+    dash or semicolon gets a full stop so what remains reads finished."""
+    cleaned = " ".join((text or "").split())
+    if len(cleaned) <= budget:
+        return cleaned
+    last_fit = None
+    for m in _CLAUSE_END.finditer(cleaned):
+        end = m.start() if cleaned[m.start()].isspace() else m.end()
+        if end > budget:
+            break
+        last_fit = end
+    if last_fit is None:
+        return None
+    kept = cleaned[:last_fit].rstrip().rstrip(";").rstrip()
+    if not kept.endswith((".", "!", "?")):
+        kept += "."
+    return kept
+
+
 def problem_text(charter: CharterArtifact) -> str:
-    """The problem sentence alone -- what/where/when/magnitude, the same
-    field composition the desktop's own A3 background-panel seed uses
+    """The problem narrative -- what/where/when/magnitude, the same field
+    composition the desktop's own A3 background-panel seed uses
     (desktop/src/tools/a3/a3Seeding.ts's draftNarrativeFor for T-03).
     Split from goal_text below so the two can be clipped independently --
-    see PROBLEM_CHAR_BUDGET's own comment for why."""
+    see PROBLEM_CHAR_BUDGET's own comment for why.
+
+    The where/when/magnitude join depends on what the charter's `what`
+    already is. A fragment ("Wrong items picked on evening orders") reads
+    on as one sentence -- "… at the dock doors, during peak: 487 errors."
+    But `what` is free text and real charters put finished sentences in it,
+    and gluing " at …" after a full stop produced the third-pass review's
+    lead defect ("…overtime. at Campus coffee bar…" -- "lowercase at after
+    a full stop is the give-away"). So a `what` that already ends a
+    sentence gets the locus as its own sentence, capital A, full stop."""
     p = charter.problem_statement
     magnitude = _value_unit(fmt_number(p.magnitude.number), p.magnitude.unit)
     if p.magnitude.period:
         magnitude += f" ({p.magnitude.period})"
-    return f"{p.what} at {p.where}, {p.when}: {magnitude}."
+    what = p.what.strip()
+    locus = f"{p.where}, {p.when}: {magnitude}."
+    if what.endswith((".", "!", "?")):
+        return f"{what} At {locus}"
+    return f"{what} at {locus}"
 
 
 def goal_text(charter: CharterArtifact) -> str:
@@ -336,8 +418,8 @@ def _problem_goal_baseline_section(charter: CharterArtifact | None, styles: dict
     if charter is None:
         out.append(_line("No charter saved yet.", styles, muted=True))
         return out
-    out.append(_line(rt.clip(problem_text(charter), PROBLEM_CHAR_BUDGET), styles))
-    out.append(_line(rt.clip(goal_text(charter), GOAL_CHAR_BUDGET), styles))
+    out.append(_line(fit_sentences(problem_text(charter), PROBLEM_CHAR_BUDGET), styles))
+    out.append(_line(fit_sentences(goal_text(charter), GOAL_CHAR_BUDGET), styles))
     baseline = baseline_text(charter)
     if baseline is None:
         out.append(_line("No baseline number recorded on the charter yet.", styles, muted=True))
@@ -617,8 +699,14 @@ def fishbone_lines(fishbone: FishboneArtifact) -> tuple[str, list[str]]:
     intro = f"{_n(total, 'cause')} on the fishbone; {verified_count} verified."
     if verified is None or verified_count == 0:
         return intro, []
-    shown = list(verified.causes)[:VERIFIED_CAUSES_SHOWN]
-    lines = [rt.clip(c.text, _CAUSE_TEXT_CLIP) for c in shown]
+    # A bullet prints only as a complete clause (fit_clause) -- one whose
+    # text offers no boundary inside the clip width is dropped, not
+    # mangled, and the pointer line's count carries it instead.
+    lines = [
+        fitted
+        for c in list(verified.causes)[:VERIFIED_CAUSES_SHOWN]
+        if (fitted := fit_clause(c.text, _CAUSE_TEXT_CLIP)) is not None
+    ]
     # "1 verified" of "4 cause(s)" leaves a reader to do the subtraction
     # themselves to learn the other three are candidates, not confirmed --
     # said plainly instead, once there IS a gap between what is shown and
@@ -626,11 +714,15 @@ def fishbone_lines(fishbone: FishboneArtifact) -> tuple[str, list[str]]:
     # reconcile, so it stays silent). Kept to one short clause: this page
     # is already at its measured one-page budget everywhere else, and the
     # clarification only needs to name the count, not narrate it.
+    # "Shown below" is only claimed when something IS below.
     unproven_count = total - verified_count
     if unproven_count > 0:
-        intro += f" Shown below; {unproven_count} more still unproven."
-    if verified_count > len(shown):
-        lines.append(f"+{_n(verified_count - len(shown), 'more verified cause')} -- see the Fishbone report.")
+        intro += f" Shown below; {unproven_count} more still unproven." if lines else f" {unproven_count} more still unproven."
+    not_quoted = verified_count - len(lines)
+    if lines and not_quoted > 0:
+        lines.append(f"+{_n(not_quoted, 'more verified cause')} -- see the Fishbone report.")
+    elif not lines:
+        lines.append(f"{_n(verified_count, 'verified cause')} -- see the Fishbone report.")
     return intro, lines
 
 
