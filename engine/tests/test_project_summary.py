@@ -475,3 +475,25 @@ def test_quadrant_labels_cover_every_quadrant_the_artifact_can_produce():
         "every Quadrant the artifact can hold needs a human label, or the report "
         "falls back to printing the raw enum value"
     )
+
+
+# --- number/unit spacing (found rendering the populated summary) ----------
+
+def test_word_unit_gets_a_space_but_a_symbol_unit_does_not():
+    from sigma_engine.export.reports.summary import _value_unit
+    assert _value_unit("487", "picking errors") == "487 picking errors"
+    assert _value_unit("1.26", "% of order lines") == "1.26% of order lines"
+    assert _value_unit("6,800", "$/month") == "6,800$/month"
+    assert _value_unit("5", "") == "5"
+
+
+def test_populated_problem_line_does_not_run_the_number_into_its_unit():
+    body = make_charter()
+    body["problem_statement"] = {
+        "what": "Wrong items picked", "where": "line 2", "when": "since April",
+        "magnitude": {"number": 487, "unit": "picking errors", "period": "June 2026"},
+    }
+    charter = CharterArtifact.model_validate(body)
+    text = _text(charter=charter)
+    assert "487 picking errors" in text
+    assert "487picking" not in text

@@ -115,13 +115,27 @@ def _line(text: str, styles: dict, *, muted: bool = False) -> Any:
 # --------------------------------------------------------------------- T-03
 
 
+def _value_unit(value: str, unit: str) -> str:
+    """Join a number to its unit the way a person writes it: "1.26%" and
+    "$6,800" take no space, but "487 picking errors" does. The rule is
+    whether the unit opens with a symbol or a word -- found rendering the
+    populated summary, where "487picking errors" ran together in the one
+    artifact a manager actually reads. A charter's unit is free text, so a
+    fixed choice (always-space or never-space) is wrong half the time."""
+    unit = unit.strip()
+    if not unit:
+        return value
+    sep = "" if not unit[0].isalnum() else " "
+    return f"{value}{sep}{unit}"
+
+
 def problem_and_goal_text(charter: CharterArtifact) -> str:
     """Same field composition the desktop's own A3 background-panel seed
     uses (desktop/src/tools/a3/a3Seeding.ts's draftNarrativeFor for T-03) --
     one more place that quotes the charter the same way rather than
     inventing a second phrasing of it."""
     p = charter.problem_statement
-    magnitude = f"{fmt_number(p.magnitude.number)}{p.magnitude.unit}"
+    magnitude = _value_unit(fmt_number(p.magnitude.number), p.magnitude.unit)
     if p.magnitude.period:
         magnitude += f" ({p.magnitude.period})"
     return f"{p.what} at {p.where}, {p.when}: {magnitude}. Goal: {charter.goal.statement}"
@@ -135,7 +149,10 @@ def baseline_text(charter: CharterArtifact) -> str | None:
     g = charter.goal
     if g.baseline_value is None:
         return None
-    return f"{fmt_number(g.baseline_value)}{g.unit} → {fmt_number(g.target_value)}{g.unit} by {fmt_date(g.target_date)}"
+    return (
+        f"{_value_unit(fmt_number(g.baseline_value), g.unit)} → "
+        f"{_value_unit(fmt_number(g.target_value), g.unit)} by {fmt_date(g.target_date)}"
+    )
 
 
 def _problem_goal_baseline_section(charter: CharterArtifact | None, styles: dict) -> list[Any]:
