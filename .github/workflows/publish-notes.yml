@@ -1,0 +1,40 @@
+name: publish-notes
+
+# Updates the v0.2.0 Release page body from docs/release-notes/v0.2.0.md
+# and attaches the click-through evidence, whenever the notes file changes
+# on main. Exists because release bodies can only be edited through the
+# GitHub API, and the sessions that write these notes have branch-push
+# credentials only. Runs on the cheap Linux tier — no installers are
+# built here.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/release-notes/v0.2.0.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+
+      - name: Update release body and attach evidence
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh release edit v0.2.0 --repo "$GITHUB_REPOSITORY" \
+            --notes-file docs/release-notes/v0.2.0.md
+          mkdir -p evidence
+          cp docs/uat/clickthrough-2026-08-13/summary.pdf   evidence/example-summary-filled.pdf
+          cp docs/uat/clickthrough-2026-08-13/pareto.png    evidence/example-pareto-chart.png
+          cp docs/uat/gate0/fresh-empty-summary.pdf         evidence/example-summary-empty-project.pdf
+          gh release upload v0.2.0 --repo "$GITHUB_REPOSITORY" --clobber \
+            evidence/example-summary-filled.pdf \
+            evidence/example-pareto-chart.png \
+            evidence/example-summary-empty-project.pdf

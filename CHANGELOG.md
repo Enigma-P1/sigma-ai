@@ -1,6 +1,6 @@
 # Changelog
 
-## v0.2.0 — unreleased
+## v0.2.0 — released 2026-08-13
 
 Everything below traces to two operations supervisors with no Six Sigma
 training using the app on their own messy spreadsheets, and saying what
