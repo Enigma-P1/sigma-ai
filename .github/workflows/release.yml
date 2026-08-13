@@ -203,8 +203,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist-dmg
+          VER=$(python3 -c "import json; print(json.load(open('desktop/src-tauri/tauri.conf.json'))['version'])")
           hdiutil create -volname "Sigma AI" -srcfolder "$APP_PATH" -ov -format UDZO \
-            "dist-dmg/Sigma AI_0.1.0_$(uname -m).dmg"
+            "dist-dmg/Sigma AI_${VER}_$(uname -m).dmg"
 
       - uses: actions/upload-artifact@v7.0.1
         with:
