@@ -44,7 +44,7 @@ any chatbot, with its weaker guarantees stated plainly.
 
 ## What's in the box
 
-- **25 Tier-A tools spanning the full DMAIC arc** — built to the frozen
+- **26 Tier-A tools spanning the full DMAIC arc** — built to the frozen
   [Tier-A definition of done](docs/tier-a-done-means.md): five-part helper
   frame, rubric-wired acceptance checklist, NIST-anchored math with frozen
   golden outputs, visible decision trees on every routed tool, provenance on
@@ -54,7 +54,8 @@ any chatbot, with its weaker guarantees stated plainly.
   - *Measure:* Process Map + Waste Walk, interactive Spaghetti Diagram, Check
     Sheet/Tally, Guided Time Study, Yield Calculator (FPY/RTY + DPMO), Data
     Collection Plan (+ sample-size guidance), Measurement Check (narrow MSA),
-    Baseline (stability then capability), Pareto/Histogram/Run charts
+    Gage R&R (full multi-operator, with ANOVA components), Baseline
+    (stability then capability), Pareto/Histogram/Run charts
   - *Analyze:* Fishbone (6M) + 5 Whys, FMEA, guided Hypothesis Testing
   - *Improve:* Solution Selection Matrix, Pilot Plan, Before/After Proof +
     Remaining-Gap Check
@@ -120,7 +121,8 @@ to get past them: [Windows install guide](docs/install-windows.md) ·
 watch or to type:
 
 - **Watch first, type nothing.** [`examples/`](examples/) has a finished
-  Coffee Bar project — all 25 tools filled in, both datasets embedded, charts
+  Coffee Bar project — 25 of the 26 tools filled in (Gage R&R is not part of
+  this scenario), both datasets embedded, charts
   and stats computed. Unzip it into your projects folder and open it by ID.
   Fastest way to see what the output actually looks like.
 - **Type it yourself.** [Test drive](docs/test-drive.md) is a 20-minute
@@ -192,7 +194,8 @@ cd engine && .venv/bin/python -m pytest          # 1552 tests, NIST-anchored
 
 Deterministic gates first, judgment second, and every claim labeled:
 
-- **1552 engine tests** run in CI on every push: every computed statistic is
+- **Over 1,700 engine tests** run in CI on every push (the exact count moves
+  with every change; CI is the authority, not this line): every computed statistic is
   unit-tested against NIST/SEMATECH reference values or published worked
   examples (control-chart constants, capability indices, test statistics,
   kappa, sigma tables). These tests are the final authority on the math.
@@ -200,8 +203,10 @@ Deterministic gates first, judgment second, and every claim labeled:
   three complete projects (the Coffee Bar demo plus two held-out scenarios —
   a help desk and a library, one continuous, one attribute) driven through
   every Tier-A tool in their declared scope, every response diffed against
-  frozen goldens. The three scenarios collectively exercise all 25 tools —
-  asserted in code on every run. One scenario deliberately requires a named
+  frozen goldens. The three scenarios collectively exercise the 25 tools in
+  their declared scope — asserted in code on every run. (T-35 Gage R&R
+  arrived after these scenarios were frozen; it carries its own engine tests
+  and a browser probe that builds a study through the UI and exports it.) One scenario deliberately requires a named
   exit: its measurement check must fail with EXIT-02, and the harness aborts
   if the engine ever stops refusing it. Honesty paths are regression-tested,
   not just the happy path.
@@ -222,6 +227,18 @@ Deterministic gates first, judgment second, and every claim labeled:
   locked after a three-round **externally AI-reviewed** Belt-panel review
   (GPT + Grok, charged as certified Belts). No human certified Belt has
   reviewed this project, and no claim here implies otherwise.
+- **The usability test that changed the product** ([docs/uat/](docs/uat/)):
+  two operations supervisors with no Six Sigma training invented their own
+  scenarios, brought their own messy spreadsheets, and used the app for an
+  hour each. Their verbatim reports are published unedited, including the
+  parts that went badly — one closed with *"I would use it as a rough
+  worksheet alongside Excel, not as the place where I would keep the actual
+  improvement project."* Everything in the v0.2 changelog traces to that
+  test. The method is re-runnable ([docs/uat/method/](docs/uat/method/)) and
+  the honest scorecard of what did and did not move is in
+  [docs/uat/PLAN.md](docs/uat/PLAN.md). **These testers were AI personas
+  driven through the real app, not humans, and are labeled as such
+  throughout.**
 
 ## The advisor and your data
 
