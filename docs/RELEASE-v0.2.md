@@ -68,6 +68,13 @@ Both reviewers' remaining product blocker, above. Done when a driven run
 produces a page that survives the question "would a supervisor put this on
 a table in an ops meeting" — not "are the fields filled."
 
+**CLOSED 2026-08-13, externally confirmed** — third pass + confirmation,
+both reviewers: **"Met."** The frontend half that was still missing (the
+button sent an empty body; the Pareto capture carried no fingerprint) landed
+in `79df03e`/`3dd8175`, the two copy defects the third pass named were fixed
+in `5c9b445`, and the regenerated pages were judged from driven exhibits.
+Verdicts: `docs/uat/ship-thirdpass-verdicts.md`. Evidence: `docs/uat/gate0/`.
+
 ### Gate 1 — Installers built from this code, and a cold-start smoke on both OSes
 Both reviewers' #1, and ours. v0.1.1's sidecar failed on installed Windows
 after every local check was green; installers find their own bugs.
