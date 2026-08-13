@@ -5,6 +5,8 @@ import { formatDraftTime } from "./useToolDraft";
 import { GlossaryButton } from "./GlossaryButton";
 import { downloadProjectPdf, downloadProjectSummary } from "../api/client";
 import { ApiError } from "../api/errors";
+import { captureChart } from "../charts/capture";
+import { loadChartSetView } from "../tools/chartset/chartSetViewStore";
 import { safeFilename, saveBlob } from "../api/saveBlob";
 import type { Phase } from "../api/types";
 import "./TopBar.css";
@@ -74,7 +76,19 @@ export function TopBar({ projectName, projectId, phase, onGoHome, onOpenDiagnost
     setSummarising(true);
     setExportError(null);
     try {
-      const blob = await downloadProjectSummary(projectId);
+      // The user's own T-14 selection, quoted back so TOP CATEGORIES can
+      // print for a data-first project with no check sheet — and the mounted
+      // Pareto's picture when the user is standing where one is mounted.
+      // Both best-effort: the engine fingerprint-checks the image against
+      // the exact series it recomputes, and an empty body still renders the
+      // page from whatever is saved (summary.py: name the gaps, never guess).
+      const view = loadChartSetView(projectId);
+      const chart = (await captureChart("T-14-pareto")) ?? null;
+      const blob = await downloadProjectSummary(projectId, {
+        dataset_id: view.datasetId ?? null,
+        column: view.paretoColumn ?? null,
+        chart,
+      });
       saveBlob(blob, `${safeFilename(projectName, projectId)}-summary.pdf`);
     } catch (err) {
       setExportError(err instanceof ApiError ? err.message : "Could not build the summary.");

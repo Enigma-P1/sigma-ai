@@ -616,13 +616,26 @@ export async function downloadPhasePack(
  * neither got. Dave: "I need one page I can put on a desk and talk through
  * in ten minutes."
  *
- * Takes no body: it is built from whatever the project has actually saved,
- * and names the gaps rather than dropping the sections it cannot fill. */
-export async function downloadProjectSummary(projectId: string): Promise<Blob> {
+ * The body is the user's own T-14 selection (dataset + category column,
+ * read back from chartSetViewStore) plus the mounted Pareto's capture when
+ * there is one — the engine reruns its own compute_pareto over that exact
+ * selection so TOP CATEGORIES can print for a data-first project that has
+ * no check sheet, and fingerprint-checks the picture before placing it
+ * (routes/export.py SummaryRequest). Everything optional: an empty body is
+ * every caller before this feature, and the page still renders from
+ * whatever the project has actually saved, naming the gaps rather than
+ * dropping the sections it cannot fill. */
+export interface SummaryRequestBody {
+  dataset_id?: string | null;
+  column?: string | null;
+  chart?: ChartCapture | null;
+}
+
+export async function downloadProjectSummary(projectId: string, body?: SummaryRequestBody): Promise<Blob> {
   const url = `${resolveEngineBaseUrl()}/project/${encodeURIComponent(projectId)}/summary/pdf`;
   let res: Response;
   try {
-    res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body ?? {}) });
   } catch (err) {
     throw new ApiError(`Could not reach the engine (${url}): ${err instanceof Error ? err.message : String(err)}`, 0);
   }
