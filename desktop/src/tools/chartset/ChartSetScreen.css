@@ -64,3 +64,20 @@
   color: var(--color-text-faint);
   font-size: var(--text-xs);
 }
+
+/* The chart's own export (PLAN 2.2) -- a plain link-style action, sitting
+   with the chart it saves rather than in a toolbar that only appears on
+   hover. */
+.sigma-chartset__download {
+  margin: 0 0 var(--space-2);
+}
+.sigma-chartset__download button {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-accent, #2242c8);
+  font-size: var(--text-xs);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}

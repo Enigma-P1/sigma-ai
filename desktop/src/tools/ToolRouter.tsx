@@ -105,7 +105,7 @@ export function ToolRouter({
   if (toolId === "T-01") {
     return (
       <ToolScreen {...screenProps} helperContent={pickerHelperContent}>
-        <PickerForm projectId={projectId} project={project} onSaved={onSaved} />
+        <PickerForm projectId={projectId} project={project} onSaved={onSaved} onNavigateToTool={onNavigateToTool} />
       </ToolScreen>
     );
   }

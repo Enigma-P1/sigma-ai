@@ -83,3 +83,19 @@ export async function fingerprint(values: readonly number[]): Promise<string> {
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }
+
+
+/** The screen-side twin of report capture: the same registered capturer,
+ * saved straight to the user as a file with a real name -- because the one
+ * artifact either UAT tester actually shared was a chart, and the only
+ * route was a hover toolbar producing "newplot.png". */
+export async function downloadChartPng(key: string, filename: string): Promise<boolean> {
+  const capture = await captureChart(key);
+  if (!capture) return false;
+  const bytes = atob(capture.png_base64);
+  const buf = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) buf[i] = bytes.charCodeAt(i);
+  const { saveBlob } = await import("../api/saveBlob");
+  saveBlob(new Blob([buf], { type: "image/png" }), filename);
+  return true;
+}

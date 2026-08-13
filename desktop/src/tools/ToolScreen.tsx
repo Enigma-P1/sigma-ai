@@ -7,6 +7,21 @@ import type { CombinedGate } from "../app/gateLogic";
 import type { Phase } from "../api/types";
 import "./ToolScreen.css";
 
+/** The data-first front door (docs/uat/PLAN.md decision 1, approved):
+ * "keep the gate, but let 'import a file and chart it' be a front door that
+ * does not pass through it." T-11 (import) and T-14 (charts) write no
+ * project artifact and assert no methodology -- looking at a spreadsheet is
+ * a legitimate first act, and greeting it with "Needs earlier steps (can
+ * override)" is the gate charging a toll on the one path that owes it
+ * nothing. The gate still stands everywhere it means something: every
+ * artifact-writing tool, the tollgates, and the phase packs.
+ *
+ * The first shipped version of this decision was only a help-panel detour
+ * (the Intake stuck-tree pointing at T-11) while these two screens still
+ * wore the banner -- an external ship review called that out as the door
+ * not actually existing, and it was right. */
+const UNGATED_TOOL_IDS = new Set(["T-11", "T-14"]);
+
 export interface ToolScreenProps {
   toolId: string;
   toolName: string;
@@ -43,7 +58,9 @@ export function ToolScreen({
         <h2 className="sigma-tool-screen__tool-name">{toolName}</h2>
       </div>
 
-      {gate && <GateBanner phase={phase} projectId={projectId} gate={gate} onOverridden={onGateOverridden} />}
+      {gate && !UNGATED_TOOL_IDS.has(toolId) && (
+        <GateBanner phase={phase} projectId={projectId} gate={gate} onOverridden={onGateOverridden} />
+      )}
 
       <div className="sigma-tool-screen__body">
         <div className="sigma-tool-screen__main">{children}</div>

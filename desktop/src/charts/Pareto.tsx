@@ -13,6 +13,9 @@ export interface ParetoChartProps {
   /** The column being grouped by, so the headline can name the user's own
    * word ("Aisle: 3 of 6 carry…") instead of "categories". */
   subject?: string;
+  /** Names this chart in the capture registry (charts/capture.ts) so the
+   * screen's own download button and report export can both reach it. */
+  captureKey?: string;
   testId?: string;
 }
 
@@ -55,7 +58,7 @@ function headlineFor(result: ParetoResult | undefined, subject: string): { headl
   };
 }
 
-export function ParetoChart({ title = "Pareto", result, subject = "", testId }: ParetoChartProps) {
+export function ParetoChart({ title = "Pareto", result, subject = "", captureKey, testId }: ParetoChartProps) {
   const value = result?.value;
   const { headline, tone } = headlineFor(value, subject);
   const categories = value?.categories ?? [];
@@ -94,6 +97,7 @@ export function ParetoChart({ title = "Pareto", result, subject = "", testId }: 
         showlegend: true,
         legend: { orientation: "h", y: -0.2 },
       }}
+      captureKey={captureKey}
       testId={testId}
     />
   );

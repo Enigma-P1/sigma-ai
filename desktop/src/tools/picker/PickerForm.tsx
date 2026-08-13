@@ -52,10 +52,17 @@ export interface PickerFormProps {
   projectId: string;
   project: ProjectMetadata;
   onSaved: () => void;
+  /** The data-first front door (PLAN decision 1). A brand-new project lands
+   * HERE, on a five-question methodology quiz -- and both UAT testers
+   * arrived holding a spreadsheet, wanting to know what was in it. This is
+   * the one screen where that fork must be visible without opening a help
+   * panel. Optional so the form still renders in contexts with no
+   * navigation (none today, but the prop should not be load-bearing). */
+  onNavigateToTool?: (toolId: string) => void;
 }
 
 /** T-01 Project Picker form -- one of the two proof screens (M1 brief). */
-export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
+export function PickerForm({ projectId, project, onSaved, onNavigateToTool }: PickerFormProps) {
   const { setSaveState } = useSaveState();
   const [criteria, setCriteria] = useState<CriteriaState>(EMPTY_CRITERIA);
   const [route, setRoute] = useState<PickerRoute | null>(null);
@@ -164,6 +171,22 @@ export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
   }
 
   return (
+    <>
+      {onNavigateToTool && (
+        <div className="sigma-picker__data-first" data-testid="picker-data-first">
+          <span>
+            Just here to see what your data says? You don't need a project setup for that —
+          </span>
+          <button type="button" onClick={() => onNavigateToTool("T-11")} data-testid="picker-goto-import">
+            import your file
+          </button>
+          <span>then</span>
+          <button type="button" onClick={() => onNavigateToTool("T-14")} data-testid="picker-goto-charts">
+            chart it
+          </button>
+          <span>— and come back here when it looks worth turning into a project.</span>
+        </div>
+      )}
     <Panel title="Is this a good first project?" right={
         <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--space-3)" }}>
           {version != null && <span data-testid="picker-version-badge">v{version} saved</span>}
@@ -229,5 +252,6 @@ export function PickerForm({ projectId, project, onSaved }: PickerFormProps) {
 
       <PrescoreStrip results={prescore} labels={PICKER_CHECK_LABELS} />
     </Panel>
+    </>
   );
 }

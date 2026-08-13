@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Field, SelectInput } from "../../design/components";
 import { ParetoChart } from "../../charts";
+import { downloadChartPng } from "../../charts/capture";
+import { safeFilename } from "../../api/saveBlob";
 import { runPareto } from "../../api/client";
 import type { Computed, DatasetDetail, ParetoResult } from "../../api/types";
 import { resolveColumn, textColumnValues, textColumns } from "./chartSetLogic";
@@ -74,7 +76,22 @@ export function ParetoPanel({ detail, projectId, restored }: ParetoPanelProps) {
           {excluded} of {detail.rows.length} rows have no {column} and are not counted in this chart.
         </p>
       )}
-      <ParetoChart result={result} subject={column} testId="chartset-pareto" />
+      {/* PLAN 2.2: a visible, labelled export -- the one artifact either UAT
+        * tester actually shared was this chart, and the only route to it was
+        * Plotly's hover-revealed toolbar saving a file called newplot.png.
+        * Goes through the same registered capturer report export uses. */}
+      {result && (
+        <p className="sigma-chartset__download">
+          <button
+            type="button"
+            onClick={() => void downloadChartPng("T-14-pareto", `pareto-${safeFilename(column, "chart")}.png`)}
+            data-testid="chartset-pareto-download"
+          >
+            Download this chart as a picture
+          </button>
+        </p>
+      )}
+      <ParetoChart result={result} subject={column} captureKey="T-14-pareto" testId="chartset-pareto" />
     </div>
   );
 }
