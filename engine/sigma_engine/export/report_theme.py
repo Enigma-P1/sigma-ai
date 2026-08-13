@@ -265,7 +265,12 @@ def _fitted_headline(text: str, headline: Any, text_width: float) -> Any:
 
 
 def chart(
-    png_bytes: bytes | None, *, content_width: float, styles: dict, unavailable_reason: str | None = None
+    png_bytes: bytes | None,
+    *,
+    content_width: float,
+    styles: dict,
+    unavailable_reason: str | None = None,
+    max_height: float = MAX_CHART_HEIGHT,
 ) -> list[Any]:
     """Zone 2's picture, or a stated reason there isn't one.
 
@@ -277,6 +282,13 @@ def chart(
     Aspect ratio is taken from the image itself rather than assumed: the
     charts are 16:9-ish and the Konva canvases are not, and a hardcoded
     height silently distorts one of them.
+
+    `max_height` defaults to MAX_CHART_HEIGHT (a whole report's own zone-2
+    budget) but is a parameter, not a constant, because that budget assumes
+    the chart IS zone 2 -- true for every per-tool report, false for
+    export/reports/summary.py's TOP CATEGORIES, which fits a chart beside
+    four other zones on one page and measured its own, smaller cap
+    (SUMMARY_CHART_MAX_HEIGHT) the same rendered-and-measured way.
     """
     if not png_bytes:
         reason = unavailable_reason or "Chart not captured — open the tool's screen and export again."
@@ -308,9 +320,9 @@ def chart(
     # zone most likely to fall off the end is provenance -- the one that
     # answers "where did this number come from". Width shrinks with it so the
     # aspect ratio is preserved rather than squashed.
-    if height > MAX_CHART_HEIGHT:
-        content_width = content_width * (MAX_CHART_HEIGHT / height)
-        height = MAX_CHART_HEIGHT
+    if height > max_height:
+        content_width = content_width * (max_height / height)
+        height = max_height
     return [Image(BytesIO(png_bytes), width=content_width, height=height), Spacer(1, theme.SPACE_3)]
 
 

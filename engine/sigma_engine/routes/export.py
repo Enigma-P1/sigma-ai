@@ -80,6 +80,7 @@ from ..export.reports import voc_ctq as voc_ctq_report_mod
 from ..export.reports import yield_calc as yield_calc_report_mod
 from ..project_store import ProjectMetadata, ProjectStore
 from ..stats.baseline import run_baseline
+from ..stats.pareto import compute_pareto
 from .deps import get_store
 from .stats import _latest_msa_verdict, _load_dataset_column
 
@@ -587,21 +588,98 @@ def _load_optional(
     return artifact, artifact_id, version
 
 
+class SummaryRequest(BaseModel):
+    """The user's own T-14 chart selection (desktop/src/tools/chartset/
+    chartSetViewStore.ts), so TOP CATEGORIES can print a tally over the
+    SAME dataset column already on screen -- computed through the
+    engine's own compute_pareto, never a column this route would have to
+    guess (export/reports/summary.py's module docstring: guessing would
+    be the second opinion the "quote, never re-derive" rule forbids).
+    `chart` mirrors ReportRequest.chart above: the mounted T-14 Pareto
+    picture, optional because the caller may be standing on a screen
+    other than T-14, where nothing is mounted to capture. Every field
+    optional and the whole body optional (route default None, handled
+    there) -- a caller that sends nothing, every caller before this
+    feature, gets exactly today's behavior."""
+
+    dataset_id: str | None = None
+    column: str | None = None
+    chart: ChartCapture | None = None
+
+
+def _resolve_dataset_pareto(
+    store: ProjectStore, project_id: str, dataset_id: str | None, column: str | None
+) -> summary_report_mod.DatasetParetoSource | None:
+    """The user's own T-14 selection, rerun through the SAME compute_pareto
+    the chart itself calls (stats/pareto.py) -- never a second,
+    independently-invented tally. None for every "can't" case: no
+    selection was sent, the dataset id doesn't resolve on this project,
+    the column doesn't exist on that dataset, or the column turns out to
+    have no non-blank values left to tally -- each is an honest "nothing
+    to show" and none of them may 500 (task rule): an unknown dataset id
+    or column degrades to the same "no categories" line an ordinary gap
+    prints, it does not break the page a supervisor is trying to leave
+    with.
+    """
+    if not dataset_id or not column:
+        return None
+    try:
+        values, meta = DatasetStore(store).load_category_column(project_id, dataset_id, column)
+    except (FileNotFoundError, KeyError):
+        return None
+    if not values:
+        return None
+    pareto = compute_pareto(values).value
+    return summary_report_mod.DatasetParetoSource(source_filename=meta.source_filename, column=column, pareto=pareto)
+
+
+def _dataset_pareto_chart(
+    body: SummaryRequest, dataset_pareto: summary_report_mod.DatasetParetoSource | None
+) -> tuple[bytes | None, str | None]:
+    """(chart png to embed, reason it is absent) -- same contract as every
+    other report's chart gate (report_pdf.check_chart). The fingerprint is
+    the tally's own counts, in the exact order compute_pareto sorted them
+    (the same order the bars render in, per charts/Pareto.tsx), which is
+    the same shape T-35's _grr_chart_series above fingerprints its bars
+    with. Deliberately NOT the category names alongside the counts: a
+    category is free text a user typed into a spreadsheet, and mixing it
+    into data_fingerprint's ensure_ascii=True JSON would silently diverge
+    from the browser's plain JSON.stringify the moment a category held a
+    non-ASCII character -- a chart quietly and wrongly refused on a part
+    number some engineering as "Ecran" rather than "Écran" is a worse bug
+    than the (very old, structural) integrity check this closes. Counts
+    alone stay purely numeric, which is exactly the contract
+    data_fingerprint/fingerprint() already guarantee to agree on.
+    """
+    if dataset_pareto is None:
+        return None, None
+    expected_hash = report_pdf.data_fingerprint([c.count for c in dataset_pareto.pareto.categories])
+    return report_pdf.check_chart(
+        _decode_png(body.chart), body.chart.data_hash if body.chart else None, expected_hash
+    )
+
+
 @router.post("/project/{project_id}/summary/pdf")
-def project_summary_pdf(project_id: str, store: ProjectStore = Depends(get_store)) -> Response:
+def project_summary_pdf(
+    project_id: str, body: SummaryRequest | None = None, store: ProjectStore = Depends(get_store)
+) -> Response:
     """The one-page project summary (docs/uat/PLAN.md 2.4): problem/goal,
     baseline, data imported, top categories, fishbone causes, next action
     -- from whatever the project actually has, gaps named rather than
     dropped (export/reports/summary.py's module docstring has the full
-    case). No request body: unlike the per-tool reports, nothing here is a
-    client-captured chart or a caller-chosen dataset/version -- every
-    input is resolved from the project's own saved state, the same way
-    the phase pack above resolves its entries.
+    case). The body is OPTIONAL and, unlike the per-tool reports, carries
+    no computed value -- only the user's own T-14 dataset+column
+    selection and its chart capture (SummaryRequest above), so a caller
+    that sends nothing (every caller before this feature) gets exactly
+    today's behavior: every input resolved from the project's own saved
+    state, the same way the phase pack above resolves its entries.
     """
     try:
         meta = store.load_project(project_id)
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    req = body or SummaryRequest()
 
     charter_hit = _load_optional(store, meta, project_id, "T-03", CharterArtifact)
     fishbone_hit = _load_optional(store, meta, project_id, "T-15", FishboneArtifact)
@@ -609,25 +687,50 @@ def project_summary_pdf(project_id: str, store: ProjectStore = Depends(get_store
     check_sheet_hit = _load_optional(store, meta, project_id, "T-08", CheckSheetArtifact)
     datasets = DatasetStore(store).list_datasets(project_id)
 
-    # One row naming every artifact this page drew from, not one row per
-    # artifact -- up to four T-XX/id/version triples is real provenance a
-    # reviewer may want, but at one kv_table row each it was the single
-    # biggest reason the rich-project measurement (test_project_summary.py)
-    # didn't fit on one page. Comma-joined into one row keeps it checkable
-    # without spending four rows on it.
+    # The check sheet wins when one exists at all -- see
+    # export/reports/summary.py's _categories_section docstring for the
+    # full reasoning. Resolving (and fingerprint-checking a chart for) a
+    # dataset selection that TOP CATEGORIES is about to ignore anyway
+    # would just be wasted work on every request that has a check sheet.
+    dataset_pareto = None if check_sheet_hit else _resolve_dataset_pareto(store, project_id, req.dataset_id, req.column)
+    # The reason half of this pair is unused below on purpose: the chart
+    # REPLACES the category table when present (summary.py's
+    # _categories_section), so a refused/missing capture has a real
+    # fallback already on the page and needs no apologetic placeholder
+    # text the way a per-tool report's chart-only zone 2 would.
+    chart_png, _chart_unavailable_reason = _dataset_pareto_chart(req, dataset_pareto)
+
+    # ONE line naming everything this page drew from, not one row per
+    # artifact. Both ship reviewers named the artifact ids, the SHA-256 and
+    # the engine version as tool residue when they were four separate
+    # labelled rows -- and at one kv_table row each, they were also the
+    # single biggest reason the rich-project measurement
+    # (test_project_summary.py) didn't fit on one page. The full detail
+    # (every artifact id, every version) already lives in the whole-project
+    # export (GET .../export/pdf) for anyone auditing this page; PROVENANCE
+    # here only has to let a reader confirm what this specific page is
+    # traceable to, in one line, before the export timestamp
+    # rt.provenance() appends after it.
     used: list[str] = []
     for tool_id, hit in (("T-03", charter_hit), ("T-15", fishbone_hit), ("T-18", matrix_hit), ("T-08", check_sheet_hit)):
         if hit is not None:
             _, artifact_id, version = hit
             used.append(f"{tool_id} {artifact_id} v{version}")
 
-    rows: list[tuple[str, str]] = []
+    drawn_from: list[str] = []
     if used:
-        rows.append(("Artifacts used", ", ".join(used)))
+        drawn_from.append(", ".join(used))
     if datasets:
         latest_dataset = datasets[-1]
-        rows.append(("Dataset", f"{latest_dataset.dataset_id} · {latest_dataset.row_count:,} row(s) · sha256 {latest_dataset.sha256[:12]}…"))
-    rows.append(("Engine version", __version__))
+        # "rows"/"row", never "row(s)" -- this string lands in the summary
+        # page's own footer, which is written for a manager rather than for
+        # the analyst driving the tool (summary.py's _n).
+        row_word = "row" if latest_dataset.row_count == 1 else "rows"
+        drawn_from.append(
+            f"dataset {latest_dataset.dataset_id} ({latest_dataset.row_count:,} {row_word}, sha256 {latest_dataset.sha256[:12]}…)"
+        )
+    drawn_from.append(f"engine v{__version__}")
+    rows: list[tuple[str, str]] = [("Drawn from", " · ".join(drawn_from))]
 
     def story(content_width: float):
         return summary_report_mod.build_story(
@@ -637,6 +740,8 @@ def project_summary_pdf(project_id: str, store: ProjectStore = Depends(get_store
             solution_matrix=matrix_hit[0] if matrix_hit else None,
             check_sheet=check_sheet_hit[0] if check_sheet_hit else None,
             datasets=datasets,
+            dataset_pareto=dataset_pareto,
+            chart_png=chart_png,
             provenance_rows=rows,
             exported_at=report_theme.utc_stamp(),
             content_width=content_width,

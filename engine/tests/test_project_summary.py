@@ -33,6 +33,7 @@ from sigma_engine.export import pdf_theme, report_pdf
 from sigma_engine.export.report_pdf import content_width_for
 from sigma_engine.export.reports import check_sheet as check_sheet_report_mod
 from sigma_engine.export.reports import summary
+from sigma_engine.stats.pareto import compute_pareto
 
 CONTENT_WIDTH = content_width_for(pdf_theme.PAGE_SIZE)
 
@@ -136,7 +137,7 @@ def test_fishbone_with_causes_but_none_verified_states_the_real_count():
     )
     text = _text(fishbone=fb)
     assert "No fishbone saved yet." not in text
-    assert "1 cause(s) on the fishbone; 0 verified." in text
+    assert "1 cause on the fishbone; 0 verified." in text
 
 
 def test_dataset_text_pure_function_returns_none_with_no_datasets():
@@ -162,14 +163,14 @@ def test_baseline_quotes_the_charters_own_numbers():
 
 def test_dataset_section_quotes_row_count_and_filename():
     text = _text(datasets=[_dataset_meta(row_count=342, source_filename="errors.csv")])
-    assert "342 row(s) imported from errors.csv" in text
+    assert "342 rows imported from errors.csv" in text
 
 
 def test_two_datasets_names_the_most_recent_and_the_total_count():
     older = _dataset_meta(dataset_id="ds-1", created_at="2026-08-01T00:00:00", row_count=100, source_filename="first.csv")
     newer = _dataset_meta(dataset_id="ds-2", created_at="2026-08-07T00:00:00", row_count=342, source_filename="errors.csv")
     text = _text(datasets=[older, newer])
-    assert "342 row(s) imported from errors.csv" in text
+    assert "342 rows imported from errors.csv" in text
     assert "most recent of 2 datasets" in text
     assert "first.csv" not in text  # the headline names the current one, not the whole history
 
@@ -202,7 +203,7 @@ def test_more_than_four_categories_is_capped_and_points_at_the_full_report():
 def test_verified_causes_are_quoted_by_text():
     fb = FishboneArtifact.model_validate(make_fishbone())  # the factory's one verified cause
     text = _text(fishbone=fb)
-    assert "1 cause(s) on the fishbone" in text or "4 cause(s) on the fishbone" in text  # factory carries 4 causes total
+    assert "1 cause on the fishbone" in text or "4 causes on the fishbone" in text  # factory carries 4 causes total
     assert "1 verified" in text
     assert "Fixture alignment not checked before shift start" in text
 
@@ -217,8 +218,8 @@ def test_more_than_three_verified_causes_are_counted_not_all_quoted():
     ]
     fb = FishboneArtifact.model_validate(make_fishbone(causes=causes))
     text = _text(fishbone=fb)
-    assert "6 cause(s) on the fishbone; 6 verified." in text
-    assert "+3 more verified cause(s)" in text
+    assert "6 causes on the fishbone; 6 verified." in text
+    assert "+3 more verified causes" in text
     assert "cause number 3" not in text  # the 4th (index 3) is past the cap of 3
 
 
@@ -296,12 +297,16 @@ def test_the_summary_is_one_page_even_with_a_rich_project():
     """The whole discipline, restated for this report -- export/reports/
     a3.py's own capstone test does the identical thing for the A3 sheet.
     Every BUDGETED section here is pushed to its actual cap, not just to a
-    generous-looking input: the problem/goal text is long enough to hit
-    PROBLEM_GOAL_CHAR_BUDGET's own clip (a short factory-default charter
-    understates this section, since clip() is a no-op on text already
-    under budget), category labels and cause text are long enough to hit
-    their own per-cell clips, plus ten causes (six verified), nine
-    check-sheet categories, a ranked solution matrix, and two datasets."""
+    generous-looking input: the problem and goal text are each long enough
+    to hit PROBLEM_CHAR_BUDGET/GOAL_CHAR_BUDGET's own clips (a short
+    factory-default charter understates this section, since clip() is a
+    no-op on text already under budget), category labels and cause text
+    are long enough to hit their own per-cell clips, plus ten causes (six
+    verified), nine check-sheet categories, a ranked solution matrix, and
+    two datasets. See test_the_summary_is_one_page_with_a_dataset_pareto_
+    chart_and_a_rich_project below for the same discipline applied to the
+    OTHER top-categories source -- a dataset Pareto with a chart image
+    instead of a check sheet."""
     body = make_charter()
     body["problem_statement"]["what"] = (
         "Wrong items picked and shipped on restaurant orders across every one of the eighteen evening-shift picking routes"
@@ -314,9 +319,13 @@ def test_the_summary_is_one_page_even_with_a_rich_project():
         "without adding headcount or slowing down the evening shift's throughput"
     )
     charter = CharterArtifact.model_validate(body)
-    assert len(summary.problem_and_goal_text(charter)) > summary.PROBLEM_GOAL_CHAR_BUDGET, (
-        "this fixture is supposed to exceed the clip budget -- if it stopped doing so, "
-        "this test would silently stop exercising PROBLEM_GOAL_CHAR_BUDGET's worst case"
+    assert len(summary.problem_text(charter)) > summary.PROBLEM_CHAR_BUDGET, (
+        "this fixture is supposed to exceed the problem clip budget -- if it stopped doing so, "
+        "this test would silently stop exercising PROBLEM_CHAR_BUDGET's worst case"
+    )
+    assert len(summary.goal_text(charter)) > summary.GOAL_CHAR_BUDGET, (
+        "this fixture is supposed to exceed the goal clip budget -- if it stopped doing so, "
+        "this test would silently stop exercising GOAL_CHAR_BUDGET's worst case"
     )
     causes = [
         {
@@ -350,6 +359,100 @@ def test_the_summary_is_one_page_even_with_a_rich_project():
             provenance_rows=[
                 ("Artifacts used", "T-03 charter-001 v1, T-15 fishbone-001 v1, T-18 solmatrix-001 v1, T-08 checksheet-001 v1"),
                 ("Dataset", "ds-2 · 612 row(s) · sha256 aaaaaaaaaaaa…"), ("Engine version", "0.1.0"),
+            ],
+            exported_at="2026-08-12 00:00 UTC", content_width=w,
+        ),
+        title="t", project_id="p", engine_version="0.1.0",
+    )
+    assert pdf_bytes.startswith(b"%PDF-")
+    assert _pdf_page_count(pdf_bytes) == 1, f"expected exactly 1 page, got {_pdf_page_count(pdf_bytes)}"
+
+
+def _png(width: int, height: int) -> bytes:
+    """Minimal valid PNG bytes for a report's chart slot -- the same
+    builder as test_report_pdf.py's test_chart_is_capped_so_the_report_
+    stays_one_page, duplicated locally rather than imported across test
+    files (no test-to-test imports elsewhere in this suite)."""
+    import struct
+    import zlib
+
+    raw = b"".join(b"\x00" + b"\x00\x00\x00" * width for _ in range(height))
+
+    def chunk(tag: bytes, data: bytes) -> bytes:
+        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data))
+
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0))
+        + chunk(b"IDAT", zlib.compress(raw))
+        + chunk(b"IEND", b"")
+    )
+
+
+def test_the_summary_is_one_page_with_a_dataset_pareto_chart_and_a_rich_project():
+    """The same discipline as test_the_summary_is_one_page_even_with_a_rich_
+    project, for the OTHER top-categories source: no check sheet, so a
+    dataset-Pareto tally carries TOP CATEGORIES -- enough categories to hit
+    TOP_CATEGORIES_SHOWN, long enough labels to hit the table's own
+    per-cell clip, and its chart image, the one element this path adds
+    over the check-sheet path. Charter, fishbone and solution matrix are
+    pushed to the same worst-case sizes as the other test, so this
+    measures the chart's own cost rather than a lighter project elsewhere
+    absorbing it."""
+    body = make_charter()
+    body["problem_statement"]["what"] = (
+        "Wrong items picked and shipped on restaurant orders across every one of the eighteen evening-shift picking routes"
+    )
+    body["problem_statement"]["where"] = (
+        "The entire ninety-thousand-square-foot food-service distribution warehouse, all four dock doors and four aisles"
+    )
+    body["goal"]["statement"] = (
+        "Reduce mis-picks from four hundred eighty-seven errors a month to under fifty by the end of Q4 2026, "
+        "without adding headcount or slowing down the evening shift's throughput"
+    )
+    charter = CharterArtifact.model_validate(body)
+
+    causes = [
+        {
+            "cause_id": f"c{i}", "branch": "machine",
+            "text": ("this verified root cause has a genuinely long sentence behind it " * 2) + str(i), "status": "verified",
+            "evidence": {"kind": "observation_note", "ref": f"logged on the floor, shift {i}"},
+        }
+        for i in range(6)
+    ] + [
+        {"cause_id": f"cand{i}", "branch": "method", "text": f"candidate suspect {i}", "status": "candidate"}
+        for i in range(4)
+    ]
+    fishbone = FishboneArtifact.model_validate(make_fishbone(causes=causes))
+    solution_matrix = SolutionMatrixArtifact.model_validate(make_solution_matrix())
+    datasets = [_dataset_meta(dataset_id="ds-1", created_at="2026-08-01T00:00:00"), _dataset_meta(dataset_id="ds-2", row_count=612)]
+
+    raw_categories: list[str] = []
+    for i in range(12):
+        label = f"A fairly long imported category label for part number {10000 + i}"
+        raw_categories += [label] * (12 - i)  # strictly descending counts -- an unambiguous ranking
+    pareto = compute_pareto(raw_categories).value
+    dataset_pareto = summary.DatasetParetoSource(
+        source_filename="a-fairly-long-imported-error-log-filename-for-testing.xlsx",
+        column="Wrong Part Number",
+        pareto=pareto,
+    )
+
+    pdf_bytes = report_pdf.render(
+        story_builder=lambda w: summary.build_story(
+            project_name="A Fairly Long Project Name, For Good Measure",
+            charter=charter, fishbone=fishbone, solution_matrix=solution_matrix, check_sheet=None,
+            datasets=datasets,
+            dataset_pareto=dataset_pareto,
+            chart_png=_png(1000, 560),
+            provenance_rows=[
+                ("Artifacts used", "T-03 charter-001 v1, T-15 fishbone-001 v1, T-18 solmatrix-001 v1"),
+                ("Dataset", "ds-2 · 612 row(s) · sha256 aaaaaaaaaaaa…"),
+                (
+                    "Top categories from",
+                    "dataset column 'Wrong Part Number' in a-fairly-long-imported-error-log-filename-for-testing.xlsx",
+                ),
+                ("Engine version", "0.1.0"),
             ],
             exported_at="2026-08-12 00:00 UTC", content_width=w,
         ),

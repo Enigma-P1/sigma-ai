@@ -716,6 +716,27 @@ class DatasetStore:
         names = [c.name for c in meta.columns]
         return [{name: (row.get(name) or "") for name in names} for row in csv.DictReader(io.StringIO(text))]
 
+    def load_category_column(self, project_id: str, dataset_id: str, column: str) -> tuple[list[str], DatasetMeta]:
+        """Every non-blank raw value in `column`, in row order -- category
+        values for a Pareto tally (export/reports/summary.py's TOP
+        CATEGORIES-from-an-imported-file path), not a numeric series
+        (contrast load_numeric_column below). No type check against
+        column.type: a Pareto's grouping column is allowed to be
+        numeric-LOOKING (aisle numbers, part numbers -- Pareto.tsx's own
+        `xaxis: {type: "category"}` fix exists precisely because that is a
+        normal, supported shape here, not an error state), so the only
+        real question is whether the column exists on this dataset at
+        all. Blank cells are dropped the same way the desktop's chart
+        screen already drops them before charting (chartSetLogic.ts's
+        textColumnValues: `.filter(v => v.trim() !== "")`), so a
+        dataset-sourced tally in a report always matches what the chart
+        itself would show for the same column."""
+        meta = self.load_meta(project_id, dataset_id)
+        if not any(c.name == column for c in meta.columns):
+            raise KeyError(f"column {column!r} not found in dataset {dataset_id!r} -- this dataset's columns are {[c.name for c in meta.columns]}")
+        raw = (row.get(column, "") for row in self.load_rows(project_id, dataset_id))
+        return [v for v in raw if v.strip() != ""], meta
+
     def load_numeric_column(self, project_id: str, dataset_id: str, column: str) -> tuple[list[float], DatasetMeta]:
         meta = self.load_meta(project_id, dataset_id)
         col = next((c for c in meta.columns if c.name == column), None)
