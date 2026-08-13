@@ -290,6 +290,63 @@ def test_next_action_with_an_unranked_solution_matrix_falls_back_to_the_fishbone
     assert "rank countermeasures for them in the Solution Matrix (T-18)" in text
 
 
+# -------------------------------------------------- reconciling the two totals
+
+
+def _pareto_source(values: list[str], **overrides) -> summary.DatasetParetoSource:
+    base = dict(
+        source_filename="errors.csv", column="Aisle", pareto=compute_pareto(values).value,
+        dataset_id="ds-1", dataset_row_count=len(values),
+    )
+    base.update(overrides)
+    return summary.DatasetParetoSource(**base)
+
+
+def test_a_tally_covering_the_whole_imported_file_reconciles_nothing():
+    """The common case must stay silent. A line explaining that two equal
+    numbers are equal is one more thing between the reader and the
+    finding."""
+    ds = _dataset_meta(dataset_id="ds-1", row_count=6, source_filename="errors.csv")
+    source = _pareto_source(["a", "a", "a", "b", "b", "c"])
+    assert summary.categories_reconciler(source, [ds]) is None
+    text = _text(datasets=[ds], dataset_pareto=source)
+    assert "not counted" not in text
+
+
+def test_blank_categories_are_disclosed_rather_than_silently_dropped():
+    """612 imported and 78 tallied, two lines apart, with no explanation is
+    the finding both ship re-reviewers led with."""
+    ds = _dataset_meta(dataset_id="ds-1", row_count=10, source_filename="errors.csv")
+    source = _pareto_source(["a", "a", "b"], dataset_row_count=10)
+    assert "7 rows had no value in this column and are not counted." == summary.categories_reconciler(source, [ds])
+    assert "7 rows had no value in this column" in _text(datasets=[ds], dataset_pareto=source)
+
+
+def test_one_dropped_row_is_singular():
+    ds = _dataset_meta(dataset_id="ds-1", row_count=4)
+    source = _pareto_source(["a", "a", "b"], dataset_row_count=4)
+    assert "1 row had no value in this column and is not counted." == summary.categories_reconciler(source, [ds])
+
+
+def test_a_tally_of_an_older_dataset_names_the_file_it_grouped():
+    """DATA IMPORTED reports the most recent upload; TOP CATEGORIES groups
+    whatever the user's T-14 selection points at. Importing Monday's export
+    does not regroup Friday's chart, so the page has to say which file this
+    ranking is of."""
+    older = _dataset_meta(dataset_id="ds-1", created_at="2026-08-01T00:00:00", source_filename="friday.csv")
+    newer = _dataset_meta(dataset_id="ds-2", created_at="2026-08-07T00:00:00", source_filename="monday.csv")
+    source = _pareto_source(["a", "b"], dataset_id="ds-1", source_filename="friday.csv")
+    assert "Grouped from friday.csv, not the most recent import above." == summary.categories_reconciler(
+        source, [older, newer]
+    )
+    text = _text(datasets=[older, newer], dataset_pareto=source)
+    assert "Grouped from friday.csv, not the most recent import above." in text
+
+
+def test_reconciler_says_nothing_when_no_dataset_was_ever_imported():
+    assert summary.categories_reconciler(_pareto_source(["a"]), []) is None
+
+
 # ------------------------------------------------------------- the one page
 
 
@@ -436,6 +493,12 @@ def test_the_summary_is_one_page_with_a_dataset_pareto_chart_and_a_rich_project(
         source_filename="a-fairly-long-imported-error-log-filename-for-testing.xlsx",
         column="Wrong Part Number",
         pareto=pareto,
+        # Grouped from the OLDER of the two datasets, so this worst case
+        # also carries the reconciler line -- and carries its longest
+        # form, the one that repeats that long filename. A page budget
+        # measured without a line the page can print is not a budget.
+        dataset_id="ds-1",
+        dataset_row_count=612,
     )
 
     pdf_bytes = report_pdf.render(

@@ -121,6 +121,13 @@ class DatasetParetoSource(NamedTuple):
     source_filename: str
     column: str
     pareto: ParetoResult
+    # What DATA IMPORTED is reporting two lines above, carried here so this
+    # section can reconcile itself against it -- see _categories_reconciler.
+    # The dataset this tally was actually computed over is not necessarily
+    # the one that section names: it is whichever dataset the user's T-14
+    # selection points at, which may be an older upload.
+    dataset_id: str = ""
+    dataset_row_count: int | None = None
 
 
 # Two independent clips, not one shared budget -- see the module
@@ -161,16 +168,24 @@ GOAL_CHAR_BUDGET = 170
 # bar labels across a desk is the reason this stays close to a per-tool
 # report's own MAX_CHART_HEIGHT rather than shrinking to a thumbnail.
 #
-# 160 rather than the 220 the worst case would actually allow, because the
-# last 60pt of chart cost more than they were worth: report_theme.chart()
-# preserves the image's aspect ratio, so height buys width at 1.79:1, and
-# at 220 the picture is ~390pt wide but PROBLEM_CHAR_BUDGET has to fall
-# back to 90 and clip both charter sentences mid-word. At 160 the chart is
-# ~286pt -- about four inches printed, which is a normal figure in a
-# report someone reads at a desk -- and the sentences above it are whole.
-# A bigger picture of the problem is not worth a truncated statement OF
-# the problem.
-SUMMARY_CHART_MAX_HEIGHT = 160.0
+# 140 rather than the 220 the worst case would otherwise allow, because
+# the last 80pt of chart cost more than they were worth. report_theme.
+# chart() preserves the image's aspect ratio, so height buys width at the
+# capture's own 1.79:1 (PlotlyChart.tsx exports 1000x560): at 220 the
+# picture is ~390pt across, but paying for it means PROBLEM_CHAR_BUDGET
+# falls back to 90 and both charter sentences clip mid-word, and the
+# categories_reconciler line has nowhere to go. At 140 the chart is ~250pt
+# -- about three and a half inches printed, a normal figure in a report
+# someone reads at a desk -- and the sentences above it are whole. A
+# bigger picture of the problem is not worth a truncated statement OF the
+# problem, and neither is worth dropping the line that explains why two
+# row counts on the same page differ.
+#
+# Measured with the reconciler line present and at its longest, since a
+# budget measured without a line the page can actually print is not a
+# budget: 150 is the first height that fits at 200/170, and this sits one
+# step below it rather than on the edge.
+SUMMARY_CHART_MAX_HEIGHT = 140.0
 
 # How many check-sheet categories print by row before the rest are
 # named-but-not-listed. Four is the Pareto "vital few" shape at its most
@@ -473,6 +488,58 @@ def _categories_table(rows: list[tuple[str, int, float]], styles: dict, content_
     return table
 
 
+def categories_reconciler(source: DatasetParetoSource, datasets: list[DatasetMeta]) -> str | None:
+    """The sentence that stops a manager asking "so which number is it?",
+    or None when there is nothing to reconcile.
+
+    This is the finding both re-reviewers led with, and neither of them
+    was looking at a bug -- every number on the page was correct. The page
+    simply printed "612 rows imported from errors.csv" in one section and
+    "80.8% of 78 rows" two lines below it, and left the reader to work out
+    whether those were the same 612 rows. One reviewer's verdict was that
+    the numbers discredited the page; the other's was that a manager could
+    reasonably think the data is inconsistent. A one-pager that raises a
+    question it does not answer has spent its one page badly.
+
+    Two things can legitimately make the totals differ, and they need
+    different sentences because they mean different things:
+
+    A DIFFERENT FILE. TOP CATEGORIES groups whichever dataset the user's
+    own T-14 selection points at, and DATA IMPORTED reports the most
+    recent upload. Those are often the same dataset and sometimes not --
+    a supervisor who imports a fresh export on Monday has not thereby
+    regrouped Friday's chart. Naming the file is the whole fix.
+
+    BLANK CATEGORIES. compute_pareto tallies non-blank values only, so a
+    column with gaps tallies fewer rows than were imported. That silent
+    drop is already a shipped bug once (CHANGELOG: a 10-row dataset
+    reporting "9 total" with no explanation); this is the same disclosure,
+    on the page where the two numbers finally sit next to each other.
+
+    Returns None when the tally covers the whole of the file DATA IMPORTED
+    names, because then there is nothing a reader could misread -- and a
+    line explaining that two equal numbers are equal is noise."""
+    if not datasets:
+        return None
+    latest = datasets[-1]
+    # An unset dataset_id means "this caller did not say which dataset it
+    # grouped", which is not the same as "a different one" -- and printing
+    # "not the most recent import above" on a page where it may well BE the
+    # most recent import would be this section inventing a discrepancy to
+    # explain. Silence is the only honest output for an unknown, exactly as
+    # an absent T-14 selection prints a gap rather than a guess.
+    if not source.dataset_id:
+        return None
+    if source.dataset_id != latest.dataset_id:
+        return f"Grouped from {source.source_filename}, not the most recent import above."
+    if source.dataset_row_count is None:
+        return None
+    dropped = source.dataset_row_count - source.pareto.total
+    if dropped <= 0:
+        return None
+    return f"{_n(dropped, 'row')} had no value in this column and {'is' if dropped == 1 else 'are'} not counted."
+
+
 def _categories_section(
     check_sheet: CheckSheetArtifact | None,
     dataset_pareto: DatasetParetoSource | None,
@@ -480,6 +547,7 @@ def _categories_section(
     content_width: float,
     *,
     chart_png: bytes | None = None,
+    datasets: list[DatasetMeta] | None = None,
 ) -> list[Any]:
     """The check sheet wins whenever one has been saved at all, even an
     empty one -- and a valid dataset+column selection is only ever the
@@ -515,6 +583,12 @@ def _categories_section(
         return out
     if dataset_pareto is not None:
         out.append(_line(dataset_categories_headline(dataset_pareto), styles))
+        # Muted, and printed only when the two totals on this page could
+        # actually be read as disagreeing -- a reconciliation nobody needed
+        # is one more line between the reader and the finding.
+        reconciler = categories_reconciler(dataset_pareto, datasets or [])
+        if reconciler:
+            out.append(_line(reconciler, styles, muted=True))
         if chart_png:
             out += rt.chart(chart_png, content_width=content_width, styles=styles, max_height=SUMMARY_CHART_MAX_HEIGHT)
             return out
@@ -691,6 +765,7 @@ def build_story(
                 styles,
                 content_width,
                 chart_png=chart_png,
+                datasets=datasets,
             )
         )
     )

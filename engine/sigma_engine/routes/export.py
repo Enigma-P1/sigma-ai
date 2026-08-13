@@ -630,7 +630,18 @@ def _resolve_dataset_pareto(
     if not values:
         return None
     pareto = compute_pareto(values).value
-    return summary_report_mod.DatasetParetoSource(source_filename=meta.source_filename, column=column, pareto=pareto)
+    return summary_report_mod.DatasetParetoSource(
+        source_filename=meta.source_filename,
+        column=column,
+        pareto=pareto,
+        # Which dataset this tally is OF, and how many rows that dataset
+        # holds -- the page needs both to reconcile this section's total
+        # against the one DATA IMPORTED reports (summary.categories_
+        # reconciler). load_category_column drops blanks, so meta.row_count
+        # is the imported total and pareto.total is what survived.
+        dataset_id=meta.dataset_id,
+        dataset_row_count=meta.row_count,
+    )
 
 
 def _dataset_pareto_chart(
