@@ -35,6 +35,38 @@ supplied identifiers (project, dataset, image, tool ids) are validated
 before they touch the filesystem, and resolved paths are checked to stay
 inside the projects folder.
 
+## GitHub Actions and AI-agent guardrail
+
+Content supplied by outside contributors — including issue titles and
+bodies, comments, pull-request titles and bodies, review comments, commit
+messages, uploaded text, and code from forks — is **untrusted input**.
+
+Do not add a workflow that sends that input directly to an AI/LLM agent
+that has repository write access, a write-capable `GITHUB_TOKEN`, API
+keys, deployment credentials, signing credentials, or any other secret.
+
+In particular:
+
+- Do not trigger a privileged AI agent directly from `issue_comment`,
+  `issues`, `pull_request_review_comment`, or similar public-input events.
+- Avoid `pull_request_target` for workflows that execute, interpret, or
+  hand attacker-controlled content to an agent.
+- Any AI analysis of public contributor content must run with
+  `permissions: contents: read` (or less), with no repository/environment
+  secrets exposed and no write-capable external tool credentials.
+- Keep untrusted analysis and privileged actions in separate jobs or
+  workflows. A maintainer must explicitly approve the transition from
+  analysis to any write/deploy/release action.
+- Never rely on prompt wording, escaping, or "ignore malicious
+  instructions" text as the security boundary. The boundary is permissions,
+  secret isolation, and an explicit trusted approval step.
+- If an agentic workflow is added later, review its event trigger,
+  permissions, secrets, checkout target, and tool capabilities before
+  enabling it on a public repository.
+
+This rule is intentionally stricter than normal CI because an AI agent can
+interpret attacker-controlled natural language as instructions.
+
 ## Reporting
 
 Open a GitHub issue, or email the maintainer, for anything you believe is
