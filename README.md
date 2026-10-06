@@ -1,5 +1,7 @@
 # Sigma AI — Green Belt in a Box
 
+Created by [Shawn Terry](https://shawnterry.com/). [Project overview](https://shawnterry.com/sigma-ai/).
+
 A downloadable Lean Six Sigma tool suite that a smart, motivated person with
 zero LSS training can use to run a real improvement project — documenting the
 process, the failures, the data, and the fixes — at the quality level expected
