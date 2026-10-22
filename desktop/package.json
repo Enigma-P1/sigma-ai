@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "security:check": "node scripts/security-baseline.mjs",
+    "prebuild": "node scripts/security-baseline.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
@@ -25,5 +27,8 @@
     "playwright": "1.56.1",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
+  },
+  "engines": {
+    "node": "24.x"
   }
 }
